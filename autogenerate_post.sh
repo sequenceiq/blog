@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -x
 cd /home/ubuntu/seq-blog
 git pull --rebase origin master
 
