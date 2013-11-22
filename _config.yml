@@ -2,9 +2,9 @@
 #      Main Configs       #
 # ----------------------- #
 
-url: http://sequenceiq.github.io/blog
-title: My Octopress Blog
-subtitle: A blogging framework for hackers.
+url: http://blog.sequenceiq.com/
+title: tail -f sequenceiq.blog
+subtitle: y u no blog?
 author: Your Name
 simple_search: http://google.com/search
 description:
