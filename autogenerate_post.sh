@@ -1,5 +1,6 @@
 #!/bin/bash
 
+date "+%Y-%m-%d %H:%M"
 set -x
 cd /home/ubuntu/seq-blog
 git pull --rebase origin master

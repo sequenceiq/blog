@@ -9,4 +9,4 @@ rake new_post["${TITLE}"]
 
 git add source
 git commit -m "[script] blog created: $TITLE"
-git push hub master
+git push origin  master
