@@ -4,6 +4,7 @@ export PATH="/usr/local/rbenv/shims:$HOME/.rbenv/bin:$PATH"
 
 cd /home/ubuntu/seq-blog
 TITLE="$*"
+echo === creating post TITLE=$TITLE
 rake new_post["${TITLE}"]
 
 git add source
