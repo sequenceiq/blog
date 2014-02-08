@@ -3,8 +3,8 @@
 # ----------------------- #
 
 url: http://blog.sequenceiq.com/
-title: SequenceIQ Blog - our view on big data
-subtitle: Your data making a difference
+title: SequenceIQ Blog
+subtitle: Our view on big data
 author: SequenceIQ 
 simple_search: http://google.com/search
 description:
@@ -63,14 +63,17 @@ default_asides: [asides/recent_posts.html, asides/github.html, asides/delicious.
 # ----------------------- #
 
 # Github repositories
-github_user:
+github_user: sequenceiq
 github_repo_count: 0
 github_show_profile_link: true
 github_skip_forks: true
 
 # Twitter
-twitter_user:
+twitter_user: sequenceiq
 twitter_tweet_button: true
+
+linkedin_user: sequenceiq
+facebook_user: sequenceiq
 
 # Google +1
 google_plus_one: false
@@ -97,4 +100,4 @@ disqus_show_comment_count: false
 google_analytics_tracking_id:
 
 # Facebook Like
-facebook_like: false
+facebook_like: true
