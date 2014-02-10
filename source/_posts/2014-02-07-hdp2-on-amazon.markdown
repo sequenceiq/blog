@@ -25,3 +25,4 @@ The script is available at: https://github.com/sequenceiq/hadoop-cloud-scripts
 
 Enjoy,
 SequenceIQ
+
