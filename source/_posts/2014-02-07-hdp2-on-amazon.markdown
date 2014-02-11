@@ -17,7 +17,7 @@ Once the instances are provisoned, the HDP2 setup is done by Apache Ambari UI - 
 
 All the EC2 instances are tagged with the user name - thus you can create different clusters for different employees, all under the same AWS account (with IAM).
 
-We believe that this is the right way to provision Hadoop in the cloud - during development and testing we had to provision Hadoop clusters of different sizes, and going through these steps manually would take lots of time. 
+We believe that this is the right way to provision Hadoop in the cloud - during development and testing we had to provision hadoop clusters of different sizes, and going through these steps manually would take lots of time. 
 
 This way we are able to provision Hadoop clusters in the cloud in the matter of minutes - independently of the size.
 
