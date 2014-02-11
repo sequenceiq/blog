@@ -1,31 +1,35 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
-        <loc>http://blog.sequenceiq.com//blog/2014/02/07/hdp2-on-amazon/</loc>
-        <lastmod>2014-02-10T13:23:03+00:00</lastmod>
+        <loc>http://blog.sequenceiq.com/blog/blog/2014/02/07/hdp2-on-amazon/</loc>
+        <lastmod>2014-02-11T17:49:34+01:00</lastmod>
     </url>
     <url>
-        <loc>http://blog.sequenceiq.com//archives/</loc>
-        <lastmod>2014-02-10T13:23:03+00:00</lastmod>
+        <loc>http://blog.sequenceiq.com/blog/blog/2014/02/10/lets-go-home/</loc>
+        <lastmod>2014-02-11T17:49:34+01:00</lastmod>
     </url>
     <url>
-        <loc>http://blog.sequenceiq.com//404.html</loc>
-        <lastmod>2014-02-08T21:41:05+00:00</lastmod>
+        <loc>http://blog.sequenceiq.com/blog/404.html</loc>
+        <lastmod>2014-02-11T17:49:34+01:00</lastmod>
     </url>
     <url>
-        <loc>http://blog.sequenceiq.com//</loc>
-        <lastmod>2014-02-10T13:23:03+00:00</lastmod>
+        <loc>http://blog.sequenceiq.com/blog/archives/</loc>
+        <lastmod>2014-02-11T17:49:34+01:00</lastmod>
     </url>
     <url>
-        <loc>http://blog.sequenceiq.com//blog/archives/</loc>
-        <lastmod>2014-02-10T13:23:03+00:00</lastmod>
+        <loc>http://blog.sequenceiq.com/blog/blog/archives/</loc>
+        <lastmod>2014-02-11T17:49:34+01:00</lastmod>
     </url>
     <url>
-        <loc>http://blog.sequenceiq.com//blog/categories/</loc>
-        <lastmod>2014-02-08T21:41:05+00:00</lastmod>
+        <loc>http://blog.sequenceiq.com/blog/blog/categories/</loc>
+        <lastmod>2014-02-11T17:49:34+01:00</lastmod>
     </url>
     <url>
-        <loc>http://blog.sequenceiq.com//robots.txt</loc>
-        <lastmod>2013-11-22T17:23:26+00:00</lastmod>
+        <loc>http://blog.sequenceiq.com/blog/</loc>
+        <lastmod>2014-02-11T17:49:34+01:00</lastmod>
+    </url>
+    <url>
+        <loc>http://blog.sequenceiq.com/blog/robots.txt</loc>
+        <lastmod>2014-02-11T17:49:34+01:00</lastmod>
     </url>
 </urlset>
