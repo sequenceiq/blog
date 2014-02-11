@@ -8,6 +8,7 @@ single: true
   {% include article.html %}
   <footer>
     <hr>
+    {% include post/author.html %}
     {% if page.category or page.categories or page.sharing != false %}
     <div class="row-fluid">
       {% if page.category or page.categories %}
