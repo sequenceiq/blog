@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[SequenceIQ Blog]]></title>
-  <link href="http://blog.sequenceiq.com/blog/atom.xml" rel="self"/>
-  <link href="http://blog.sequenceiq.com/blog/"/>
-  <updated>2014-02-11T17:51:48+01:00</updated>
-  <id>http://blog.sequenceiq.com/blog/</id>
+  <link href="http://blog.sequenceiq.com//atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com//"/>
+  <updated>2014-02-12T09:31:37+00:00</updated>
+  <id>http://blog.sequenceiq.com//</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
     
@@ -15,18 +15,18 @@
   
   <entry>
     <title type="html"><![CDATA[lets go home]]></title>
-    <link href="http://blog.sequenceiq.com/blog/blog/2014/02/10/lets-go-home/"/>
-    <updated>2014-02-10T11:53:03+01:00</updated>
-    <id>http://blog.sequenceiq.com/blog/blog/2014/02/10/lets-go-home</id>
+    <link href="http://blog.sequenceiq.com//blog/2014/02/10/lets-go-home/"/>
+    <updated>2014-02-10T10:53:03+00:00</updated>
+    <id>http://blog.sequenceiq.com//blog/2014/02/10/lets-go-home</id>
     <content type="html"><![CDATA[
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[Set up HDP2 on Amazon EC2]]></title>
-    <link href="http://blog.sequenceiq.com/blog/blog/2014/02/07/hdp2-on-amazon/"/>
-    <updated>2014-02-07T17:17:04+01:00</updated>
-    <id>http://blog.sequenceiq.com/blog/blog/2014/02/07/hdp2-on-amazon</id>
+    <link href="http://blog.sequenceiq.com//blog/2014/02/07/hdp2-on-amazon/"/>
+    <updated>2014-02-07T16:17:04+00:00</updated>
+    <id>http://blog.sequenceiq.com//blog/2014/02/07/hdp2-on-amazon</id>
     <content type="html"><![CDATA[<p>During the last years we have seen many blog entries and articles about how to set up Hadoop on Amazon EC2. All these tutorials and articles had one thing in common &ndash; you had to go through a large number of manual (and painful) steps, read screenshots and redo the whole thing all over.</p>
 
 <p>Since we use Amazon EC2 quite a lot, and Hadoop as well (especially the Hortonworks distribution) we have gone through these steps many times &ndash; and have scripted the whole process from the very beginning up to having an N node of Hadoop (HDP2 in this case) cluster in less then five minutes.</p>
@@ -37,7 +37,7 @@
 
 <p>All the EC2 instances are tagged with the user name &ndash; thus you can create different clusters for different employees, all under the same AWS account (with IAM).</p>
 
-<p>We believe that this is the right way to provision Hadoop in the cloud &ndash; during development and testing we had to provision Hadoop clusters of different sizes, and going through these steps manually would take lots of time.</p>
+<p>We believe that this is the right way to provision Hadoop in the cloud &ndash; during development and testing we had to provision hadoop clusters of different sizes, and going through these steps manually would take lots of time.</p>
 
 <p>This way we are able to provision Hadoop clusters in the cloud in the matter of minutes &ndash; independently of the size.</p>
 
