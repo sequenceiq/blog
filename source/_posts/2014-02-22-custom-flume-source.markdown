@@ -37,7 +37,7 @@ Eventually the doStart will kick off the embedded Jetty as shown:
 
 Channel processor plays an important role here. Its purpose to forward the incoming events to the configured channels. 
 
-Creating an embedded Jetty server is pretty easy and straightforward even with SSL support. I am not going in to details you can find the source code here https://github.com/sequenceiq/sequenceiq-samples. You will have to create a Servlet which will create a new listener for every session or you can just simply ignore some requests based on different headers. On new message all you have to do is create a flume event out of it and pass is to the channelprocessor. 
+Creating an embedded Jetty server is pretty easy and straightforward even with SSL support. I am not going in to details you can find the source code here https://github.com/sequenceiq/sequenceiq-samples You will have to create a Servlet which will create a new listener for every session or you can just simply ignore some requests based on different headers. On new message all you have to do is create a flume event out of it and pass is to the channelprocessor. 
 
 ```java public void onWebSocketText(String s) 
 SimpleEvent event = new SimpleEvent();
