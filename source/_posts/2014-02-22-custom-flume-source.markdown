@@ -9,7 +9,7 @@ author: Krisztian Horvath
 ---
 The process of data analytics starts with collecting the data into a common system, in our case a Hadoop cluster. Flume is an Apache project aiming to help us solve this problem in a very efficient and elegant way.
 
-In Flume terminology a source is responsible to listen and consume events coming from many distributes clients and forwards them to one or more channels. Events can have any arbitrary format, it all depends on what source do we use. Flume provides many sources, but only a few of them is capable to collect data through network. 
+In Flume terminology a source is responsible to listen and consume events coming from many distributed clients and forwards them to one or more channels. Events can have any arbitrary format, it all depends on what source do we use. Flume provides many sources, but only a few of them is capable to collect data through network. 
 
 In this article I will discuss how you can implement your own that meets your demands through creating a websocket source.
 There are two types of sources: event driven and pollable. In case of a pollable source, Flume will start a thread to periodically call the following method to check whether there is new data available or not:
