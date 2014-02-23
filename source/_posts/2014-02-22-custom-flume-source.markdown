@@ -3,7 +3,7 @@ layout: post
 title: "Custom flume source"
 date: 2014-02-22 15:45:48 +0100
 comments: true
-published: false
+published: true
 categories: Apache Flume 
 author: Krisztian Horvath
 ---
