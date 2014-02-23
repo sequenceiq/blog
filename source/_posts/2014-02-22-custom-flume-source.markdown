@@ -4,15 +4,15 @@ title: "Custom flume source"
 date: 2014-02-22 15:45:48 +0100
 comments: true
 published: false
-categories: flume 
+categories: Apache Flume 
 author: Krisztian Horvath
 ---
-Data analysis starts with collecting the actual data into a common system, in our case a hadoop cluster. Flume is an Apache project aiming to help us solve this problem in a very efficient and elegant way.
+The process of data analytics starts with collecting the data into a common system, in our case a Hadoop cluster. Flume is an Apache project aiming to help us solve this problem in a very efficient and elegant way.
 
-In flume terminology a source is responsible to listen and consume events coming from clients and forward them to one or more channels. Events can have any arbitrary format, it all depends on what source do we use. Flume provides us many sources, but only a few of them is capable to collect data through network. 
+In Flume terminology a source is responsible to listen and consume events coming from many distributes clients and forwards them to one or more channels. Events can have any arbitrary format, it all depends on what source do we use. Flume provides many sources, but only a few of them is capable to collect data through network. 
 
 In this article I will discuss how you can implement your own that meets your demands through creating a websocket source.
-There are two types of sources: event driven and pollable. In case of a pollable source, flume will start a thread to periodically call the following method to check whether there are new data or not:
+There are two types of sources: event driven and pollable. In case of a pollable source, Flume will start a thread to periodically call the following method to check whether there is new data available or not:
 ``` java PollableSource interface
 public Status process() throws EventDeliveryException; 
 ```
@@ -67,4 +67,4 @@ Test it directly from your browser:
 var ws = new WebSocket("ws://127.0.0.1:60000/flume")
 ws.send("Some message")
 ```
-That's it. Hope you enjoyed. We will be back with some ETL processing.
+That's it. Hope you enjoyed. We will be back soon with some ETL processing examples.
