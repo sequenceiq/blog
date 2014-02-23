@@ -57,7 +57,7 @@ e.g plugins.d/websocket/lib/yoursource.jar
 
 From now on you can use it:  
 agent.sources = websocket  
-agent.sources.websocket.type = org.apache.flume.source.JettyWebSocketSource  
+agent.sources.websocket.type = com.sequenceiq.samples.flume.source.JettyWebSocketSource  
 agent.sources.websocket.host = localhost  
 agent.sources.websocket.port = 60000  
 agent.sources.websocket.path = /flume  
