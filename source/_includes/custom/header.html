@@ -1,10 +1,9 @@
-<div class="jumbotron">
+
+<div class="jumbotron seq-jumborton">
   <div class="container">
-    {% if site.title %}
-      {{ site.title }}
-    {% else %}
-      Hi. I'm {{ site.author }}.
-    {% endif %}
+      <a href="{{ site.root }}">
+        <img src="/blog/images/logo.png" >
+      </a>
     <h3 class="tagline">
       {% if site.subtitle %}
         {{ site.subtitle }}
@@ -12,5 +11,35 @@
          Here are some thoughts of mine.
       {% endif %}
     </h3>
+  </div>
+  <div class="container social-jumbotron-container">
+      <div class="row">
+
+    {% if site.github_user %}
+    <div class="col-md-1"><a class="social-link" href="http://github.com/{{ site.github_user }}" title="Github Profile"><i class="icon-github-sign social-navbar"></i></a></div>
+    {% endif %}
+    {% if site.bitbucket_user %}
+    <div class="col-md-1"><a class="social-link" href="http://bitbucket.org/{{ site.bitbucket_user }}" title="BitBucket Profile"><i class="icon-bitbucket-sign social-navbar"></i></a></div>
+    {% endif %}
+    {% if site.linkedin_user %}
+    <div class="col-md-1"><a class="social-link" href="http://linkedin.com/company/{{ site.linkedin_user }}" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></div>
+    {% endif %}
+    {% if site.twitter_user %}
+    <div class="col-md-1"><a class="social-link" href="http://twitter.com/{{ site.twitter_user }}" title="Twitter Profile"><i class="icon-twitter-sign social-navbar"></i></a></div>
+    {% endif %}
+    {% if site.googleplus_user %}
+    <div class="col-md-1"><a class="social-link" href="http://plus.google.com/{{ site.googleplus_user }}" title="Google+ Profile"><i class="icon-google-plus-sign social-navbar"></i></a></div>
+    {% endif %}
+    {% if site.facebook_user %}
+    <div class="col-md-1"><a class="social-link" href="http://facebook.com/{{ site.facebook_user }}" title="Facebook Profile"><i class="icon-facebook-sign social-navbar"></i></a></div>
+    {% endif %}
+    {% if site.flickr_user %}
+    <div class="col-md-1"><a class="social-link" href="http://flickr.com/photos/{{ site.flickr_user }}" title="Flickr Profile"><i class="icon-flickr social-navbar"></i></a></div>
+    {% endif %}
+
+    {% if site.email %}
+    <div class="col-md-1"><a class="social-link" href="mailto:{{ site.email }}" title="Email"><i class="icon-envelope-alt social-navbar"></i></a></div>
+    {% endif %}
+     </div>
   </div>
 </div>

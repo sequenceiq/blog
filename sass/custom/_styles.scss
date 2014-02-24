@@ -1,1 +1,108 @@
 // Add your custom styling here.
+
+body {
+    background: #fff;
+    font-family: 'Roboto', Arial, serif;
+    font-size: 16px;
+}
+
+.jumbotron {
+    text-transform: none;
+    font-family: 'Roboto', Arial, serif;
+}
+
+.tagline {
+    text-transform: none;
+    font-family: 'Roboto', Arial, serif;
+}
+
+.navbar-inverse .navbar-inner {
+    background: #004455;
+}
+
+h1 {
+    font-family: 'Roboto', Arial, serif;
+}
+
+.navbar-inverse .nav>li>a {
+    color: #ffa72a;
+}
+
+.navbar-inverse .nav>li>a:hover{
+    color: #37abc8;
+}
+
+.navbar-inverse .nav>li>a:hover,
+.navbar-inverse .nav>li>a:focus,
+.navbar-inverse .dropdown-menu a:hover,
+.navbar-inverse .dropdown-menu a:focus {
+    color: #37abc8;
+}
+
+.navbar .nav>li>a:hover {
+    color: rgba(146,139,139,0.9);
+}
+
+.jumbotron {
+    background: #004455;
+    padding: 0px 0;
+    padding-top: 40px;
+    margin-bottom: 40px;
+    padding-bottom: 32px;
+    -webkit-box-shadow: -1px 7px 9px 0px rgba(83, 50, 50, 0.34);
+    -moz-box-shadow: -1px 7px 9px 0px rgba(83, 50, 50, 0.34);
+    box-shadow: -1px 7px 9px 0px rgba(83, 50, 50, 0.34);
+}
+
+.tagline {
+    color: #37abc8;
+}
+
+.navbar-static-top {
+    margin-bottom: 0px;
+}
+
+.social-jumbotron-container {
+    line-height: 25px;
+    padding-left: 45px;
+}
+
+.social-link {
+    color: #37abc8;
+}
+
+.col-md-1 {
+    width: 5%;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+}
+
+.seq-jumborton:after {
+    position: relative;
+}
+
+a>.badge {
+    color: #fff !important;
+}
+
+.article-style {
+    color: #777;
+    text-decoration: none;
+    -webkit-transition: 0.25s;
+    -moz-transition: 0.25s;
+    -o-transition: 0.25s;
+    transition: 0.25s;
+    -webkit-backface-visibility: hidden;
+    background: transparent;
+    font-family: 'Roboto', Arial, serif;
+    font-weight: 500;
+    font-size: 40px;
+}
+
+.name-badge {
+    vertical-align: middle;
+    margin-bottom: 10px;
+    margin-left: 15px;
+    background-color: #f0ad4e;
+}

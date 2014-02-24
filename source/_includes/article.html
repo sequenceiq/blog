@@ -17,19 +17,17 @@
           {% endif %}
     </div>
     <div class="span10 post-container">
-      <h1 class="link"><a href="{{ root_url }}{{ post.url }}">{{ post.title }}</a></h1>
+      <h1 class="link">
+          <a href="{{ root_url }}{{ post.url }}">{{ post.title }}</a>
+          <span class="badge name-badge">{{ post.author }}</span>
+      </h1>
       {{ content | excerpt }}
       {% capture excerpted %}{{ content | has_excerpt }}{% endcapture %}
       {% if excerpted == 'true' %} <a href="{{ root_url }}{{ post.url }}">{{ site.excerpt_link }}</a> {% endif %}
     </div>
   </div>
 {% else %}
-  <header>
-  <div class="jumbotron">
-    {% if site.titlecase %}{{ page.title | titlecase }}{% else %}{{ page.title }}{% endif %}
-	<h5>{% include post/date.html %}<i class="icon-calendar-empty"></i> {{ time }}</h5>
-  </div>
-</header>
+
   <div class="row-fluid">
     <div class="span12">
       {{ content }}
