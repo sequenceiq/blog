@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Custom flume source"
+title: "Custom Apache Flume source"
 date: 2014-02-22 15:45:48 +0100
 comments: true
 published: true
