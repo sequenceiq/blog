@@ -23,13 +23,17 @@
   <link href="/favicon.png" rel="icon">
   <link href='http://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+  <link href="/stylesheets/bootstrap.css" rel='stylesheet' type='text/css'>
+  <link href="/stylesheets/bootstrap-theme.css"rel='stylesheet' type='text/css'>
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+
   <link href="/blog/atom.xml" rel="alternate" title="SequenceIQ Blog" type="application/atom+xml">
   <script src="/js/jquery.js"></script>
   <script src="/js/bootstrap-collapse.js"></script>
   <script src="/js/modernizr-2.0.js"></script>
   <script src="/js/octopress.js" type="text/javascript"></script>
   <script src="/js/application.js"></script>
+  <script src="/js/bootstrap.js"></script>
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
@@ -39,60 +43,143 @@
 </head>
 
 <body   >
-  <div class="navbar navbar-inverse navbar-static-top">
-  	<div class="navbar-inner">
-  	  <div class="container">
-        <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
-          <span class="fui-menu-24"></span>
-        </a>
-  	  	<div class="nav-collapse collapse navbar-responsive-collapse" style="height:0;">
-  	      <ul class="nav">
-    
-</ul>
 
-<ul class="nav pull-right">
-    
-    <li><a href="http://github.com/sequenceiq" title="Github Profile"><i class="icon-github-sign social-navbar"></i></a></li>
-    
-    
-    
-    <li><a href="http://linkedin.com/company/sequenceiq" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></li>
-    
-    
-    <li><a href="http://twitter.com/sequenceiq" title="Twitter Profile"><i class="icon-twitter-sign social-navbar"></i></a></li>
-    
-    
-    
-    <li><a href="http://facebook.com/sequenceiq" title="Facebook Profile"><i class="icon-facebook-sign social-navbar"></i></a></li>
-    
-    
-
-    
-</ul>
-
-  	    </div>
-  	  </div>
-  	</div>
-  </div>
-  <div class="container" id="main">
-      <div class="row-fluid">
-        <div id="content">
-          <div class="jumbotron">
+  
+<div class="jumbotron seq-jumborton">
   <div class="container">
-    
-      SequenceIQ Blog
-    
+      <a href="/">
+        <img src="/blog/images/logo.png" >
+      </a>
     <h3 class="tagline">
       
         Our view on big data
       
     </h3>
   </div>
+  <div class="container social-jumbotron-container">
+      <div class="row">
+
+    
+    <div class="col-md-1"><a class="social-link" href="http://github.com/sequenceiq" title="Github Profile"><i class="icon-github-sign social-navbar"></i></a></div>
+    
+    
+    
+    <div class="col-md-1"><a class="social-link" href="http://linkedin.com/company/sequenceiq" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></div>
+    
+    
+    <div class="col-md-1"><a class="social-link" href="http://twitter.com/sequenceiq" title="Twitter Profile"><i class="icon-twitter-sign social-navbar"></i></a></div>
+    
+    
+    
+    <div class="col-md-1"><a class="social-link" href="http://facebook.com/sequenceiq" title="Facebook Profile"><i class="icon-facebook-sign social-navbar"></i></a></div>
+    
+    
+
+    
+     </div>
+  </div>
 </div>
 
 
-<div class="blog-index">
+  <div class="container" id="main">
+      <div class="row-fluid">
+        <div id="content">
+          <div class="blog-index">
   
+  
+  
+    <article>
+      
+
+  <div class="row-fluid">
+    <div class="span2 post-meta">
+	  <h5 class="date-time">
+
+
+
+
+
+
+
+
+  
+
+
+<i class="icon-calendar-empty"></i> <time datetime="2014-02-22T14:45:48+00:00" pubdate data-updated="true">Feb 22<span>nd</span>, 2014</time></h5>
+          <div class="row-fluid">
+          
+          </div>
+          
+          <div class="row-fluid">
+          
+          <a href="/blog/categories/apache/"><span class="badge">Apache</span></a>
+          
+          <a href="/blog/categories/flume/"><span class="badge">Flume</span></a>
+          
+          </div>
+          
+    </div>
+    <div class="span10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/02/22/custom-flume-source/">Custom flume source</a>
+          <span class="badge name-badge">Krisztian Horvath</span>
+      </h1>
+      <p>The process of data analytics starts with collecting the data into a common system, in our case a Hadoop cluster. Flume is an Apache project aiming to help us solve this problem in a very efficient and elegant way.</p>
+
+<p>In Flume terminology a source is responsible to listen and consume events coming from many distributed clients and forwards them to one or more channels. Events can have any arbitrary format, it all depends on what source do we use. Flume provides many sources, but only a few of them is capable to collect data through network.</p>
+
+<p>In this article I will discuss how you can implement your own that meets your demands through creating a websocket source.
+There are two types of sources: event driven and pollable. In case of a pollable source, Flume will start a thread to periodically call the following method to check whether there is new data available or not:</p>
+
+<figure class='code'><figcaption><span>PollableSource interface</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Status</span> <span class="nf">process</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">EventDeliveryException</span><span class="o">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With event driven source you will have to take care yourself of receiving the data from the clients. For our websocket example we will use embedded Jetty 9.1. Extend the AbstractEventDrivenSource class and override the mandatory methods to bootstrap the source. In the doConfigure method you can ask the properties you need from the context. These properties are coming from your agent’s configuration file. More on this later..</p>
+
+<figure class='code'><figcaption><span>protected void doConfigure(Context context)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">host</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">HOST_KEY</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">port</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getInteger</span><span class="o">(</span><span class="n">PORT_KEY</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">path</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">PATH_KEY</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">enableSsl</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getBoolean</span><span class="o">(</span><span class="n">SSL_KEY</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Eventually the doStart will kick off the embedded Jetty as shown:</p>
+
+<figure class='code'><figcaption><span>protected void doStart()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">JettyWebSocketServer</span> <span class="n">server</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JettyWebSocketServer</span><span class="o">(</span><span class="n">host</span><span class="o">,</span> <span class="n">port</span><span class="o">,</span> <span class="n">path</span><span class="o">,</span> <span class="n">getChannelProcessor</span><span class="o">());</span>
+</span><span class='line'>    <span class="n">server</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</span><span class='line'><span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">LOGGER</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">&quot;Error starting jetty server&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">throw</span> <span class="k">new</span> <span class="nf">FlumeException</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+      
+       <a href="/blog/2014/02/22/custom-flume-source/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
   
   
     <article>
@@ -129,20 +216,22 @@
           
     </div>
     <div class="span10 post-container">
-      <h1 class="link"><a href="/blog/2014/02/07/hdp2-on-amazon/">Set up HDP2 on Amazon EC2</a></h1>
-      <p>During the last years we have seen many blog entries and articles about how to set up Hadoop on Amazon EC2. All these tutorials and articles had one thing in common &ndash; you had to go through a large number of manual (and painful) steps, read screenshots and redo the whole thing all over.</p>
+      <h1 class="link">
+          <a href="/blog/2014/02/07/hdp2-on-amazon/">Set up HDP2 on Amazon EC2</a>
+          <span class="badge name-badge">Janos Matyas</span>
+      </h1>
+      <p>During the last years we have seen many blog entries and articles about how to set up Hadoop on Amazon EC2. All these tutorials and articles had one thing in common &ndash; you had to go through a large number of manual (and painful) steps, read screenshots and redo the whole thing all over again, in case you needed a new cluster.</p>
 
-<p>Since we use Amazon EC2 quite a lot, and Hadoop as well (especially the Hortonworks distribution) we have gone through these steps many times &ndash; and have scripted the whole process from the very beginning up to having an N node of Hadoop (HDP2 in this case) cluster in less then five minutes.</p>
+<p>Since we use Amazon EC2 quite a lot, and Hadoop as well (Hortonworks distribution) we have gone through these steps many times &ndash; and have scripted the whole process from the first steps up to launching an N node Hadoop/HDP2 cluster in less then five minutes.</p>
 
-<p>Moreover, the cluster is a &lsquo;production ready&rsquo; setup from infrastructure point of view &ndash; it is provisioned in a logically isolated section of the cloud, with his own IP address range, creation of subnets, and configuration of route tables and network gateways.</p>
+<p>Moreover, the cluster is a &lsquo;production ready&rsquo; setup from infrastructural point of view &ndash; it is provisioned in a logically isolated section of the cloud (Virtual Private Cloud), with his own IP address range, creation of subnets, and configuration of route tables and network gateways.</p>
 
-<p>Once the instances are provisoned, the HDP2 setup is done by Apache Ambari UI &ndash; for more advanced users we will provide the setup being one thorugh Ambari&rsquo;s RESTful API &ndash; follow this space.</p>
+<p>Once the instances are provisoned, the HDP2 setup is done by Apache Ambari &ndash; for more advanced users we will provide the setup thorugh Ambari&rsquo;s RESTful API &ndash; watch this space or our GitHub page.</p>
 
 <p>All the EC2 instances are tagged with the user name &ndash; thus you can create different clusters for different employees, all under the same AWS account (with IAM).</p>
 
-<p>We believe that this is the right way to provision Hadoop in the cloud &ndash; during development and testing we had to provision hadoop clusters of different sizes, and going through these steps manually would take lots of time.</p>
-
-<p>This way we are able to provision Hadoop clusters in the cloud in the matter of minutes &ndash; independently of the size.</p>
+<p>We believe that this is the right way to provision Hadoop in the cloud &ndash; during development and testing we had to provision Hadoop clusters of different sizes, and going through these steps manually would take lots of time.
+This way we are able to provision clusters in the cloud in the matter of minutes &ndash; independently of the size.</p>
 
 <p>The script is available at: <a href="https://github.com/sequenceiq/hadoop-cloud-scripts">https://github.com/sequenceiq/hadoop-cloud-scripts</a></p>
 

@@ -23,13 +23,17 @@
   <link href="/favicon.png" rel="icon">
   <link href='http://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
+  <link href="/stylesheets/bootstrap.css" rel='stylesheet' type='text/css'>
+  <link href="/stylesheets/bootstrap-theme.css"rel='stylesheet' type='text/css'>
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+
   <link href="/blog/atom.xml" rel="alternate" title="SequenceIQ Blog" type="application/atom+xml">
   <script src="/js/jquery.js"></script>
   <script src="/js/bootstrap-collapse.js"></script>
   <script src="/js/modernizr-2.0.js"></script>
   <script src="/js/octopress.js" type="text/javascript"></script>
   <script src="/js/application.js"></script>
+  <script src="/js/bootstrap.js"></script>
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
 <link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
 <link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
@@ -39,81 +43,67 @@
 </head>
 
 <body   >
-  <div class="navbar navbar-inverse navbar-static-top">
-  	<div class="navbar-inner">
-  	  <div class="container">
-        <a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-responsive-collapse">
-          <span class="fui-menu-24"></span>
-        </a>
-  	  	<div class="nav-collapse collapse navbar-responsive-collapse" style="height:0;">
-  	      <ul class="nav">
-    
-</ul>
 
-<ul class="nav pull-right">
-    
-    <li><a href="http://github.com/sequenceiq" title="Github Profile"><i class="icon-github-sign social-navbar"></i></a></li>
-    
-    
-    
-    <li><a href="http://linkedin.com/company/sequenceiq" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></li>
-    
-    
-    <li><a href="http://twitter.com/sequenceiq" title="Twitter Profile"><i class="icon-twitter-sign social-navbar"></i></a></li>
-    
-    
-    
-    <li><a href="http://facebook.com/sequenceiq" title="Facebook Profile"><i class="icon-facebook-sign social-navbar"></i></a></li>
-    
-    
-
-    
-</ul>
-
-  	    </div>
-  	  </div>
-  	</div>
+  
+<div class="jumbotron seq-jumborton">
+  <div class="container">
+      <a href="/">
+        <img src="/blog/images/logo.png" >
+      </a>
+    <h3 class="tagline">
+      
+        Our view on big data
+      
+    </h3>
   </div>
+  <div class="container social-jumbotron-container">
+      <div class="row">
+
+    
+    <div class="col-md-1"><a class="social-link" href="http://github.com/sequenceiq" title="Github Profile"><i class="icon-github-sign social-navbar"></i></a></div>
+    
+    
+    
+    <div class="col-md-1"><a class="social-link" href="http://linkedin.com/company/sequenceiq" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></div>
+    
+    
+    <div class="col-md-1"><a class="social-link" href="http://twitter.com/sequenceiq" title="Twitter Profile"><i class="icon-twitter-sign social-navbar"></i></a></div>
+    
+    
+    
+    <div class="col-md-1"><a class="social-link" href="http://facebook.com/sequenceiq" title="Facebook Profile"><i class="icon-facebook-sign social-navbar"></i></a></div>
+    
+    
+
+    
+     </div>
+  </div>
+</div>
+
+
   <div class="container" id="main">
       <div class="row-fluid">
         <div id="content">
           <div>
+<h1 class="article-style"> Set up HDP2 on Amazon EC2 </h1>
 <article class="hentry" role="article">
   
 
-  <header>
-  <div class="jumbotron">
-    Set Up HDP2 on Amazon EC2
-	<h5>
 
-
-
-
-
-
-
-
-  
-
-
-<i class="icon-calendar-empty"></i> <time datetime="2014-02-07T16:17:04+00:00" pubdate data-updated="true">Feb 7<span>th</span>, 2014</time></h5>
-  </div>
-</header>
   <div class="row-fluid">
     <div class="span12">
-      <p>During the last years we have seen many blog entries and articles about how to set up Hadoop on Amazon EC2. All these tutorials and articles had one thing in common &ndash; you had to go through a large number of manual (and painful) steps, read screenshots and redo the whole thing all over.</p>
+      <p>During the last years we have seen many blog entries and articles about how to set up Hadoop on Amazon EC2. All these tutorials and articles had one thing in common &ndash; you had to go through a large number of manual (and painful) steps, read screenshots and redo the whole thing all over again, in case you needed a new cluster.</p>
 
-<p>Since we use Amazon EC2 quite a lot, and Hadoop as well (especially the Hortonworks distribution) we have gone through these steps many times &ndash; and have scripted the whole process from the very beginning up to having an N node of Hadoop (HDP2 in this case) cluster in less then five minutes.</p>
+<p>Since we use Amazon EC2 quite a lot, and Hadoop as well (Hortonworks distribution) we have gone through these steps many times &ndash; and have scripted the whole process from the first steps up to launching an N node Hadoop/HDP2 cluster in less then five minutes.</p>
 
-<p>Moreover, the cluster is a &lsquo;production ready&rsquo; setup from infrastructure point of view &ndash; it is provisioned in a logically isolated section of the cloud, with his own IP address range, creation of subnets, and configuration of route tables and network gateways.</p>
+<p>Moreover, the cluster is a &lsquo;production ready&rsquo; setup from infrastructural point of view &ndash; it is provisioned in a logically isolated section of the cloud (Virtual Private Cloud), with his own IP address range, creation of subnets, and configuration of route tables and network gateways.</p>
 
-<p>Once the instances are provisoned, the HDP2 setup is done by Apache Ambari UI &ndash; for more advanced users we will provide the setup being one thorugh Ambari&rsquo;s RESTful API &ndash; follow this space.</p>
+<p>Once the instances are provisoned, the HDP2 setup is done by Apache Ambari &ndash; for more advanced users we will provide the setup thorugh Ambari&rsquo;s RESTful API &ndash; watch this space or our GitHub page.</p>
 
 <p>All the EC2 instances are tagged with the user name &ndash; thus you can create different clusters for different employees, all under the same AWS account (with IAM).</p>
 
-<p>We believe that this is the right way to provision Hadoop in the cloud &ndash; during development and testing we had to provision hadoop clusters of different sizes, and going through these steps manually would take lots of time.</p>
-
-<p>This way we are able to provision Hadoop clusters in the cloud in the matter of minutes &ndash; independently of the size.</p>
+<p>We believe that this is the right way to provision Hadoop in the cloud &ndash; during development and testing we had to provision Hadoop clusters of different sizes, and going through these steps manually would take lots of time.
+This way we are able to provision clusters in the cloud in the matter of minutes &ndash; independently of the size.</p>
 
 <p>The script is available at: <a href="https://github.com/sequenceiq/hadoop-cloud-scripts">https://github.com/sequenceiq/hadoop-cloud-scripts</a></p>
 
@@ -178,6 +168,8 @@ SequenceIQ</p>
       <div class="span12">
         <p class="meta">
           
+          
+            <a class="basic-alignment right" href="/blog/2014/02/22/custom-flume-source/" title="Next Post: Custom flume source">Custom flume source &raquo;</a>
           
         </p>
       </div>
