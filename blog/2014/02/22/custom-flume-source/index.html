@@ -141,7 +141,7 @@ There are two types of sources: event driven and pollable. In case of a pollable
 
 <p>Channel processor plays an important role here. Its purpose to forward the incoming events to the configured channels.</p>
 
-<p>Creating an embedded Jetty server is pretty easy and straightforward even with SSL support. I am not going in to details you can find the source code here <a href="https://github.com/sequenceiq/sequenceiq-samples">https://github.com/sequenceiq/sequenceiq-samples</a> You will have to create a Servlet which will create a new listener for every session or you can just simply ignore some requests based on different headers. On new message all you have to do is create a flume event out of it and pass is to the channelprocessor.</p>
+<p>Creating an embedded Jetty server is pretty easy and straightforward even with SSL support. I am not going into details you can find the source code here <a href="https://github.com/sequenceiq/sequenceiq-samples">https://github.com/sequenceiq/sequenceiq-samples</a> You will have to create a Servlet which will create a new listener for every session or you can just simply ignore some requests based on different headers. On new message all you have to do is create a flume event out of it and pass is to the channelprocessor.</p>
 
 <figure class='code'><figcaption><span>public void onWebSocketText(String s) </span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>

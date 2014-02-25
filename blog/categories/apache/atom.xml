@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Apache | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com//blog/categories/apache/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com//"/>
-  <updated>2014-02-24T10:13:43+00:00</updated>
+  <updated>2014-02-25T06:12:37+00:00</updated>
   <id>http://blog.sequenceiq.com//</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -56,7 +56,7 @@ Eventually the doStart will kick off the embedded Jetty as shown:
 
 <p>Channel processor plays an important role here. Its purpose to forward the incoming events to the configured channels.</p>
 
-<p>Creating an embedded Jetty server is pretty easy and straightforward even with SSL support. I am not going in to details you can find the source code here <a href="https://github.com/sequenceiq/sequenceiq-samples">https://github.com/sequenceiq/sequenceiq-samples</a> You will have to create a Servlet which will create a new listener for every session or you can just simply ignore some requests based on different headers. On new message all you have to do is create a flume event out of it and pass is to the channelprocessor.</p>
+<p>Creating an embedded Jetty server is pretty easy and straightforward even with SSL support. I am not going into details you can find the source code here <a href="https://github.com/sequenceiq/sequenceiq-samples">https://github.com/sequenceiq/sequenceiq-samples</a> You will have to create a Servlet which will create a new listener for every session or you can just simply ignore some requests based on different headers. On new message all you have to do is create a flume event out of it and pass is to the channelprocessor.</p>
 
 <p><code>java public void onWebSocketText(String s)
 SimpleEvent event = new SimpleEvent();
