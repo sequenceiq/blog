@@ -3,7 +3,7 @@ layout: post
 title: "Vote for us - 2014 Hadoop Summit San Jose"
 date: 2014-02-26 10:17:04 +0000
 comments: true
-categories: Hadoop Summit, Vote
+categories: [Hadoop Summit, Vote]
 author: Janos Matyas
 ---
 
