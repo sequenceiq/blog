@@ -9,14 +9,14 @@ author: Janos Matyas
 
 
 While we are extremely proud that our abstract came 2nd (out of 107) in the 2014 Hadoop Summit in Amsterdam (see you all there in April 2-3), we will not stop there and our plan is to continue the hard work and we're looking forward to meet you at 2014 Hadoop Summit in San Jose.
-
 We would like to ask for your support by submitting your vote for our session in the largest Hadoop conference in the world.
+
 Please use the following link to vote, or read our abstract below.
 
-http://hadoopsummit.uservoice.com/forums/242807-hadoop-deployment-operations-track/suggestions/5568417-moving-to-hadoop-2-0-yarn-at-sequenceiq
+[Vote for us](http://hadoopsummit.uservoice.com/forums/242807-hadoop-deployment-operations-track/suggestions/5568417-moving-to-hadoop-2-0-yarn-at-sequenceiq)
 
 Should you have any questions regarding our abstract, and the technical solution or implementation feel free to contact us or 
-check our GitHub page at https://github.com/sequenceiq 
+check our [GitHub](https://github.com/sequenceiq) page.  
 
 **Moving to Hadoop 2.0/YARN at SequenceIQ**
 
