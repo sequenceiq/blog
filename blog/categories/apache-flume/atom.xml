@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Flume | SequenceIQ Blog]]></title>
-  <link href="http://blog.sequenceiq.com//blog/categories/flume/atom.xml" rel="self"/>
+  <title><![CDATA[Category: Apache Flume | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com//blog/categories/apache-flume/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com//"/>
-  <updated>2014-02-26T13:28:51+00:00</updated>
+  <updated>2014-02-26T13:34:48+00:00</updated>
   <id>http://blog.sequenceiq.com//</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
