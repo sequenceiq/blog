@@ -4,7 +4,7 @@ title: "Custom Apache Flume source"
 date: 2014-02-22 15:45:48 +0100
 comments: true
 published: true
-categories: Apache Flume 
+categories: [Apache Flume, Custom source]
 author: Krisztian Horvath
 ---
 The process of data analytics starts with collecting the data into a common system, in our case a Hadoop cluster. Flume is an Apache project aiming to help us solve this problem in a very efficient and elegant way.
