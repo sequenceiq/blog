@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Vote | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com//blog/categories/vote/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com//"/>
+  <updated>2014-02-26T11:55:59+00:00</updated>
+  <id>http://blog.sequenceiq.com//</id>
+  <author>
+    <name><![CDATA[SequenceIQ]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Vote for us - 2014 Hadoop Summit San Jose]]></title>
+    <link href="http://blog.sequenceiq.com//blog/2014/02/26/vote-for-us/"/>
+    <updated>2014-02-26T10:17:04+00:00</updated>
+    <id>http://blog.sequenceiq.com//blog/2014/02/26/vote-for-us</id>
+    <content type="html"><![CDATA[<p>While we are extremely proud that our abstract came 2nd (out of 107) in the 2014 Hadoop Summit in Amsterdam (see you all there in April 2-3), we will not stop there and our plan is to continue the hard work and we&rsquo;re looking forward to meet you at 2014 Hadoop Summit in San Jose.</p>
+
+<p>We would like to ask for your support by submitting your vote for our session in the largest Hadoop conference in the world.
+Please use the following link to vote, or read our abstract below.</p>
+
+<p><a href="http://hadoopsummit.uservoice.com/forums/242807-hadoop-deployment-operations-track/suggestions/5568417-moving-to-hadoop-2-0-yarn-at-sequenceiq">http://hadoopsummit.uservoice.com/forums/242807-hadoop-deployment-operations-track/suggestions/5568417-moving-to-hadoop-2-0-yarn-at-sequenceiq</a></p>
+
+<p>Should you have any questions regarding our abstract, and the technical solution or implementation feel free to contact us or
+check our GitHub page at <a href="https://github.com/sequenceiq">https://github.com/sequenceiq</a></p>
+
+<p><strong>Moving to Hadoop 2.0/YARN at SequenceIQ</strong></p>
+
+<p>A showcase of our efforts to bring all our Hadoop based applications under one common cluster management framework &ndash; YARN.
+Our deployment consists of MR2, HBase, Mahout and Hive-all running within one single auto-scaling cluster. We have faced many challenges such as load imbalances, SLA misses, cluster scheduling and VM container deployments &ndash; and would like to share our struggle and solution with the community.
+As a startup, cost savings is important for us &ndash; switching to Hadoop 2.0 helped us save significant costs through better utilization of our hardware and cloud VMs. Our decision and investment of moving to YARN has paid off &ndash; and opened up new business and technical opportunities.</p>
+]]></content>
+  </entry>
+  
+</feed>
