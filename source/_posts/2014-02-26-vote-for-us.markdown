@@ -3,7 +3,7 @@ layout: post
 title: "Vote for us - 2014 Hadoop Summit San Jose"
 date: 2014-02-26 10:17:04 +0000
 comments: true
-categories: Hadoop Summit Community Vote
+categories: Hadoop Summit, Vote
 author: Janos Matyas
 ---
 
@@ -15,7 +15,7 @@ Please use the following link to vote, or read our abstract below.
 
 [Vote for us](http://hadoopsummit.uservoice.com/forums/242807-hadoop-deployment-operations-track/suggestions/5568417-moving-to-hadoop-2-0-yarn-at-sequenceiq)
 
-Should you have any questions regarding our abstract, and the technical solution or implementation feel free to contact us or 
+Should you have any questions regarding our abstract, the technical solution or implementation detailsm feel free to contact us or 
 check our [GitHub](https://github.com/sequenceiq) page.  
 
 **Moving to Hadoop 2.0/YARN at SequenceIQ**
