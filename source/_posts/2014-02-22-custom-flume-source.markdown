@@ -46,13 +46,7 @@ channelProcessor.processEvent(event);
 ```
 From this point the data will travel through the configured channels and sinks to end up on its final destination. It is committed in one transaction so if any component fails the whole process fails.
 
-To deploy your custom source put the packaged jar to Flume’s classpath. 
-
-
-{% blockquote %}
-Flume now supports a special directory called plugins.d which automatically picks up plugins that are packaged in a specific format.
-{% endblockquote %}
-
+To deploy your custom source put the packaged jar to Flume’s classpath. It supports a special directory called plugins.d which automatically picks up plugins that are packaged in a specific format,
 e.g plugins.d/websocket/lib/yoursource.jar
 
 From now on you can use it:  
