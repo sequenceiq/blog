@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Custom source | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com//blog/categories/custom-source/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com//"/>
-  <updated>2014-02-26T13:34:48+00:00</updated>
+  <updated>2014-02-27T20:27:38+00:00</updated>
   <id>http://blog.sequenceiq.com//</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -65,11 +65,8 @@ channelProcessor.processEvent(event);
 </code>
 From this point the data will travel through the configured channels and sinks to end up on its final destination. It is committed in one transaction so if any component fails the whole process fails.</p>
 
-<p>To deploy your custom source put the packaged jar to Flume’s classpath.</p>
-
-<p><blockquote><p>Flume now supports a special directory called plugins.d which automatically picks up plugins that are packaged in a specific format.</p></blockquote></p>
-
-<p>e.g plugins.d/websocket/lib/yoursource.jar</p>
+<p>To deploy your custom source put the packaged jar to Flume’s classpath. It supports a special directory called plugins.d which automatically picks up plugins that are packaged in a specific format,
+e.g plugins.d/websocket/lib/yoursource.jar</p>
 
 <p>From now on you can use it:<br/>
 agent.sources = websocket<br/>
