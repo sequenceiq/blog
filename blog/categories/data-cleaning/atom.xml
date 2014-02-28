@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Data cleaning | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com//blog/categories/data-cleaning/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com//"/>
-  <updated>2014-02-28T09:35:06+00:00</updated>
+  <updated>2014-02-28T10:56:32+00:00</updated>
   <id>http://blog.sequenceiq.com//</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -23,6 +23,9 @@
 <p>Since the emerging of Hadoop, the TCO of storing large amounts of data in HDFS is lower than ever before &ndash; and now it makes sense to store all the data an enterprise produces in order to find patterns, correlations and break the data silos &ndash; something which was very specific for different departments within an organization. Storing such an amount of data (structured, unstructured, logs, clickstream, etc) inevitable produces a &lsquo;bad&rsquo; data quality &ndash; but this depends on your point of view. For us data is just data &ndash; we don&rsquo;t want to qualify it &ndash; and has it&rsquo;s own intrinsic value, but the quality of it depends on the ETL process. When someone engages with our API and the xTract Spacetime platform, among the first step is the configuration of data sources, and the attached ETL processes. We offer an extremely sophisticated ETL process and the ability to &lsquo;clean&rsquo; the data (batch or streaming) while arrives into xTract Spacetime, but we always suggest our customers to keep the raw data as well.</p>
 
 <p>During the architecture of the xTract Spacetime platform we have tried and PoCd different ETL frameworks and implementations &ndash; and we choose <a href="https://github.com/kite-sdk/kite/tree/master/kite-morphlines">Kite Morphlines</a> being at the core of our ETL process. Morphlines is an open source framework that reduces the time and skills necessary to build and change Hadoop ETL stream processing applications that extract, transform and load data into Apache Solr, HBase, HDFS, Enterprise Data Warehouses, or Analytic Online Dashboards.</p>
+
+<!-- more -->
+
 
 <p>Since runs on Hadoop, scalability is not a problem &ndash; we have seen enterprises producing 50 terabytes data per day and missing the 24 hour ETL window, by not being able to scale horizontally their ETL processes. Morphlines is built on top of the Kite framework (a great framework for making easier to build systems on top of the Hadoop), and it&rsquo;s extremely easy to extend. We would like to show and give you examples about how to use and create a Morphlines Command to implement your custom transformation (if the many existing ones does not fit your requirement).</p>
 
