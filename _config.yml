@@ -31,6 +31,7 @@ permalink: /blog/:year/:month/:day/:title/
 source: source
 destination: public/blog
 plugins: plugins
+
 code_dir: downloads/code
 category_dir: blog/categories
 markdown: rdiscount
@@ -93,8 +94,8 @@ delicious_user:
 delicious_count: 3
 
 # Disqus Comments
-disqus_short_name:
-disqus_show_comment_count: false
+disqus_short_name: sequenceiqblog
+disqus_show_comment_count: true
 
 # Google Analytics
 google_analytics_tracking_id:
