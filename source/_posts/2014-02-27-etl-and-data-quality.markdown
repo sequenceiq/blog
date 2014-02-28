@@ -14,6 +14,8 @@ Since the emerging of Hadoop, the TCO of storing large amounts of data in HDFS i
 
 During the architecture of the xTract Spacetime platform we have tried and PoCd different ETL frameworks and implementations - and we choose [Kite Morphlines](https://github.com/kite-sdk/kite/tree/master/kite-morphlines) being at the core of our ETL process. Morphlines is an open source framework that reduces the time and skills necessary to build and change Hadoop ETL stream processing applications that extract, transform and load data into Apache Solr, HBase, HDFS, Enterprise Data Warehouses, or Analytic Online Dashboards.
 
+<!-- more -->
+
 Since runs on Hadoop, scalability is not a problem - we have seen enterprises producing 50 terabytes data per day and missing the 24 hour ETL window, by not being able to scale horizontally their ETL processes. Morphlines is built on top of the Kite framework (a great framework for making easier to build systems on top of the Hadoop), and it's extremely easy to extend. We would like to show and give you examples about how to use and create a Morphlines Command to implement your custom transformation (if the many existing ones does not fit your requirement).
 
 The implementation of a Command starts with implementing a CommandBuilder 
