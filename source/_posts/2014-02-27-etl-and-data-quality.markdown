@@ -1,9 +1,9 @@
 ---
 layout: post
 title: "ETL - producing better quality data"
-date: 2014-02-27 08:12:44 +0000
+date: 2014-02-28 08:12:44 +0000
 comments: true
-published: false
+published: true
 categories: [Data cleaning, ETL]
 author: Richard Doktorics
 ---
