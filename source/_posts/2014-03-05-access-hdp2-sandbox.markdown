@@ -21,19 +21,19 @@ Check this short goal/problem/resolution and code example snippet if you'd like 
 
 ## Problem(s)
 
-      * it's hard to reach resources inside the sandbox (e.g. interact with HDFS, or the DataNode)
-      * lots of ports need to be portforwarded
-      * entries to be added to the hosts file of the  host machine
-      * circumstantial configuration of clients  accessing the sandbox
+ * it's hard to reach resources inside the sandbox (e.g. interact with HDFS, or the DataNode)
+ * lots of ports need to be portforwarded
+ * entries to be added to the hosts file of the  host machine
+ * circumstantial configuration of clients  accessing the sandbox
 
 ## Resolution
 
-      * use an SSL socks proxy
+ * use an SSL socks proxy
 
 ## Example
 
-      * check the following sample from our [GitHub page](https://github.com/sequenceiq/sequenceiq-samples/tree/master/HDP-sandbox-access)
-      * Try to access the sanbox - the copy operation will fail as the datanode can't be accessed directly from the host
+ * check the following sample from our [GitHub page](https://github.com/sequenceiq/sequenceiq-samples/tree/master/HDP-sandbox-access)
+ * Try to access the sanbox - the copy operation will fail as the datanode can't be accessed directly from the host
 	  * Solution
 	  	  * start a SOCKS5 proxy with SSL 
 	  	  * configure the client to use the proxy
