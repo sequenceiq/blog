@@ -15,9 +15,9 @@ Check this short goal/problem/resolution and code example snippet if you'd like 
 
 ## Goal
 
-      * accessing the pseudo distributed hadoop cluster from the  host
-      * reading / writing to the  HDFS
-      * submitting  M/R jobs to the RM
+ * accessing the pseudo distributed hadoop cluster from the  host
+ * reading / writing to the  HDFS
+ * submitting  M/R jobs to the RM
 
 ## Problem(s)
 
