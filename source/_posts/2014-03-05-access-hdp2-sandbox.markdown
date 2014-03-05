@@ -33,16 +33,17 @@ Check this short goal/problem/resolution and code example snippet if you'd like 
 ## Example
 
  * check the following sample from our [GitHub page](https://github.com/sequenceiq/sequenceiq-samples/tree/master/HDP-sandbox-access)
- * Try to access the sanbox - the copy operation will fail as the datanode can't be accessed directly from the host
-	  * Solution
+
 	  
 	  	  ``` start a SOCKS5 proxy with SSL 	  
 	  	  		ssh root@127.0.0.1 -p 2222 -D 1099
 	  	  ```
+
 	  	  Once the proxy is up and running
+	  	  
 	  	 
 	  	  ``` configure the client to use the proxy
-	  	  <property>
+	  	 <property>
 			<name>hadoop.socks.server</name>
 			<value>localhost:1099</value>
 		</property>
@@ -51,8 +52,10 @@ Check this short goal/problem/resolution and code example snippet if you'd like 
 			<value>org.apache.hadoop.net.SocksSocketFactory</value>
 		</property>
 		```
+		
 		Now you can run the test client
-	  	  ```Run the client from your host
+		
+	  	```Run the client from your host
 	  	  
 	  	  You can use Maven
 	  	  mvn exec:java -Dexec.mainClass="com.sequenceiq.samples.SandboxTester" -Dexec.args="hdfs sandbox 8020" -Dhadoop.home.dir=/tmp
@@ -60,7 +63,7 @@ Check this short goal/problem/resolution and code example snippet if you'd like 
 	  	  or run from the JAR file
 	  	  
 	  	  java -jar sandbox-playground-1.0.jar hdfs sandbox 8020
-	  	  ```
+	  	```
 	  	  
 As you see it's pretty easy and convenient to use the Hortonworks sandbox as a pre-configured development environment.
 
