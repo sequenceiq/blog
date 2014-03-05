@@ -4,7 +4,7 @@
   <title><![CDATA[Category: SOCKS proxy | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com//blog/categories/socks-proxy/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com//"/>
-  <updated>2014-03-05T14:57:10+00:00</updated>
+  <updated>2014-03-05T15:09:42+00:00</updated>
   <id>http://blog.sequenceiq.com//</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -53,40 +53,44 @@ Check this short goal/problem/resolution and code example snippet if you&rsquo;d
 <h2>Example</h2>
 
 <ul>
-<li><p>check the following sample from our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/hdp-sandbox-access">GitHub page</a></p>
-
-<pre><code>   ``` start a SOCKS5 proxy with SSL       
-         ssh root@127.0.0.1 -p 2222 -D 1099
-   ```
-
-   Once the proxy is up and running
-
-
-   ``` configure the client to use the proxy
-  &lt;property&gt;
-     &lt;name&gt;hadoop.socks.server&lt;/name&gt;
-     &lt;value&gt;localhost:1099&lt;/value&gt;
- &lt;/property&gt;
- &lt;property&gt;
-     &lt;name&gt;hadoop.rpc.socket.factory.class.default&lt;/name&gt;
-     &lt;value&gt;org.apache.hadoop.net.SocksSocketFactory&lt;/value&gt;
- &lt;/property&gt;
- ```
-
- Now you can run the test client
-
- ```Run the client from your host
-
-   You can use Maven
-   mvn exec:java -Dexec.mainClass="com.sequenceiq.samples.SandboxTester" -Dexec.args="hdfs sandbox 8020" -Dhadoop.home.dir=/tmp
-
-   or run from the JAR file
-
-   java -jar sandbox-playground-1.0.jar hdfs sandbox 8020
- ```
-</code></pre></li>
+<li>check the following sample from our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/hdp-sandbox-access">GitHub page</a></li>
 </ul>
 
+
+<p>Start the SOCKS proxy</p>
+
+<p><code>bash
+ssh root@127.0.0.1 -p 2222 -D 1099
+</code></p>
+
+<p>Once the proxy is up and running, edit the core-site.xml</p>
+
+<p>``` xml</p>
+
+<pre><code>     &lt;property&gt;
+        &lt;name&gt;hadoop.socks.server&lt;/name&gt;
+        &lt;value&gt;localhost:1099&lt;/value&gt;
+    &lt;/property&gt;
+    &lt;property&gt;
+        &lt;name&gt;hadoop.rpc.socket.factory.class.default&lt;/name&gt;
+        &lt;value&gt;org.apache.hadoop.net.SocksSocketFactory&lt;/value&gt;
+    &lt;/property&gt;
+</code></pre>
+
+<p>```</p>
+
+<p>Now you can run the test client</p>
+
+<p>``` bash</p>
+
+<h1>You can use Maven</h1>
+
+<p>mvn exec:java -Dexec.mainClass=&ldquo;com.sequenceiq.samples.SandboxTester&rdquo; -Dexec.args=&ldquo;hdfs sandbox 8020&rdquo; -Dhadoop.home.dir=/tmp</p>
+
+<h1>or run from the JAR file</h1>
+
+<p>java -jar sandbox-playground-1.0.jar hdfs sandbox 8020
+```</p>
 
 <p>As you see it&rsquo;s pretty easy and convenient to use the Hortonworks sandbox as a pre-configured development environment.</p>
 

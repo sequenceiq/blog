@@ -127,39 +127,55 @@ Check this short goal/problem/resolution and code example snippet if you&rsquo;d
 <h2>Example</h2>
 
 <ul>
-<li><p>check the following sample from our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/hdp-sandbox-access">GitHub page</a></p>
-
-<pre><code>   ``` start a SOCKS5 proxy with SSL       
-         ssh root@127.0.0.1 -p 2222 -D 1099
-   ```
-
-   Once the proxy is up and running
-
-
-   ``` configure the client to use the proxy
-  &lt;property&gt;
-     &lt;name&gt;hadoop.socks.server&lt;/name&gt;
-     &lt;value&gt;localhost:1099&lt;/value&gt;
- &lt;/property&gt;
- &lt;property&gt;
-     &lt;name&gt;hadoop.rpc.socket.factory.class.default&lt;/name&gt;
-     &lt;value&gt;org.apache.hadoop.net.SocksSocketFactory&lt;/value&gt;
- &lt;/property&gt;
- ```
-
- Now you can run the test client
-
- ```Run the client from your host
-
-   You can use Maven
-   mvn exec:java -Dexec.mainClass="com.sequenceiq.samples.SandboxTester" -Dexec.args="hdfs sandbox 8020" -Dhadoop.home.dir=/tmp
-
-   or run from the JAR file
-
-   java -jar sandbox-playground-1.0.jar hdfs sandbox 8020
- ```
-</code></pre></li>
+<li>check the following sample from our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/hdp-sandbox-access">GitHub page</a></li>
 </ul>
+
+
+<p>Start the SOCKS proxy</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>ssh root@127.0.0.1 -p 2222 -D 1099
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once the proxy is up and running, edit the core-site.xml</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>       <span class="nt">&lt;property&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;name&gt;</span>hadoop.socks.server<span class="nt">&lt;/name&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;value&gt;</span>localhost:1099<span class="nt">&lt;/value&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/property&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;property&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;name&gt;</span>hadoop.rpc.socket.factory.class.default<span class="nt">&lt;/name&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;value&gt;</span>org.apache.hadoop.net.SocksSocketFactory<span class="nt">&lt;/value&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/property&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you can run the test client</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>     
+</span><span class='line'><span class="c"># You can use Maven</span>
+</span><span class='line'>mvn <span class="nb">exec</span>:java -Dexec.mainClass<span class="o">=</span><span class="s2">&quot;com.sequenceiq.samples.SandboxTester&quot;</span> -Dexec.args<span class="o">=</span><span class="s2">&quot;hdfs sandbox 8020&quot;</span> -Dhadoop.home.dir<span class="o">=</span>/tmp
+</span><span class='line'>      
+</span><span class='line'><span class="c"># or run from the JAR file</span>
+</span><span class='line'>      
+</span><span class='line'>java -jar sandbox-playground-1.0.jar hdfs sandbox 8020
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>As you see it&rsquo;s pretty easy and convenient to use the Hortonworks sandbox as a pre-configured development environment.</p>
@@ -194,7 +210,7 @@ SequenceIQ</p>
 
   <a href="/blog/categories/hdp2/"><span class="badge">HDP2</span></a>
 
-  <a href="/blog/categories/hortonworks-sanfbox/"><span class="badge">Hortonworks sanfbox</span></a>
+  <a href="/blog/categories/hortonworks-sandbox/"><span class="badge">Hortonworks sandbox</span></a>
 
   <a href="/blog/categories/socks-proxy/"><span class="badge">SOCKS proxy</span></a>
 
