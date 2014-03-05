@@ -22,7 +22,7 @@ BufferedInputStream bufferedInputStream = new BufferedInputStream(fs.open(filePa
 
 This exception is quite strange, especially that a code like such (or actually any direct file read from HDFS) used to work in older versions of Hadoop (pre 2.x). Digging into details and checking the Hadoop 2.2 source code we find the followings: 
 
-Through the`org.apache.hadoop.hdfs.BlockReaderFactory` you can get access to a BlockReader interface implementation (`org.apache.hadoop.hdfs.RemoteBlockReader2`), which is is responsible for reading a single block from a single datanode.
+Through the`org.apache.hadoop.hdfs.BlockReaderFactory` you can get access to a BlockReader interface implementation `org.apache.hadoop.hdfs.RemoteBlockReader2`, which is is responsible for reading a single block from a single datanode.
 
 The blockreader is retrieved in the following way:
 
