@@ -11,11 +11,13 @@ Many times there is a need to access files or interact with HDFS from Java appli
 
 Such an exception can be reproduced by the following code snippet: 
 
-``` java BufferedInputStream bufferedInputStream
+``` 
+java BufferedInputStream bufferedInputStream
 
 BufferedInputStream bufferedInputStream = new BufferedInputStream(fs.open(filePath));
 	listReader = new CsvListReader(new BufferedReader(new InputStreamReader(bufferedInputStream)),
 				        CsvPreference.STANDARD_PREFERENCE);
+				       
 ```
 
 This exception is quite strange, especially that a code like such (or actually any direct file read from HDFS) used to work in older versions of Hadoop (pre 2.x). Digging into details and checking the Hadoop 2.2 source code we find the followings: 
