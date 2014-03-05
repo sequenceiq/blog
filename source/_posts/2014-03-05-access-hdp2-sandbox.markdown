@@ -13,21 +13,25 @@ While using the sandbox gets you going running a single node Hadoop (pseudo dist
 There is a well documented VM host file configuration on the [Hortonworks site](http://docs.hortonworks.com/) describing how to start interacting with the VM sandbox from outside (e.g host machine), but quite soon this will turn into a port-forwarding saga (those who know how many ports does Hadoop and the ecosystem use will know what we mean). An easier and more elegant way is to use a SOCKS5 proxy (which comes with SSL by default). 
 Check this short goal/problem/resolution and code example snippet if you'd like to interact with the Hortonworks Sandbox from your host (outside the VM).
 
- * **Goal**
+## Goal
+
       * accessing the pseudo distributed hadoop cluster from the  host
       * reading / writing to the  HDFS
       * submitting  M/R jobs to the RM
 
-   * **Problem(s)**
+## Problem(s)
+
       * it's hard to reach resources inside the sandbox (e.g. interact with HDFS, or the DataNode)
       * lots of ports need to be portforwarded
       * entries to be added to the hosts file of the  host machine
       * circumstantial configuration of clients  accessing the sandbox
 
-   * **Resolution**
+## Resolution
+
       * use an SSL socks proxy
 
-   * **Example**
+## Example
+
       * check the following sample from our [GitHub page](https://github.com/sequenceiq/sequenceiq-samples/tree/master/HDP-sandbox-access)
       * Try to access the sanbox - the copy operation will fail as the datanode can't be accessed directly from the host
 	  * Solution
