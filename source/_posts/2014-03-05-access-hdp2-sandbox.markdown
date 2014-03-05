@@ -32,7 +32,7 @@ Check this short goal/problem/resolution and code example snippet if you'd like 
 
 ## Example
 
- * check the following sample from our [GitHub page](https://github.com/sequenceiq/sequenceiq-samples/tree/master/hdp-sandbox-access)
+ * check the following sample from our *[GitHub page](https://github.com/sequenceiq/sequenceiq-samples/tree/master/hdp-sandbox-access)*
 
 Start the SOCKS proxy 
 	  
@@ -44,7 +44,7 @@ Once the proxy is up and running, edit the core-site.xml
 	  	  
 	  	 
 ``` xml 
-	  	 <property>
+		<property>
 			<name>hadoop.socks.server</name>
 			<value>localhost:1099</value>
 		</property>
