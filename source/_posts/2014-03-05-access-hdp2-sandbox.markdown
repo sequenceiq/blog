@@ -35,14 +35,14 @@ Check this short goal/problem/resolution and code example snippet if you'd like 
  * check the following sample from our [GitHub page](https://github.com/sequenceiq/sequenceiq-samples/tree/master/hdp-sandbox-access)
 
 	  
-``` start a SOCKS5 proxy with SSL 	  
+``` bash start a SOCKS5 proxy with SSL 	  
 	ssh root@127.0.0.1 -p 2222 -D 1099
 ```
 
-	  	  Once the proxy is up and running
+Once the proxy is up and running
 	  	  
 	  	 
-	  	  ``` configure the client to use the proxy
+``` xml configure the client to use the proxy
 	  	 <property>
 			<name>hadoop.socks.server</name>
 			<value>localhost:1099</value>
@@ -51,19 +51,19 @@ Check this short goal/problem/resolution and code example snippet if you'd like 
 			<name>hadoop.rpc.socket.factory.class.default</name>
 			<value>org.apache.hadoop.net.SocksSocketFactory</value>
 		</property>
-		```
+```
 		
-		Now you can run the test client
+Now you can run the test client
 		
-	  	```Run the client from your host
+``` bash Run the client from your host
 	  	  
-	  	  You can use Maven
-	  	  mvn exec:java -Dexec.mainClass="com.sequenceiq.samples.SandboxTester" -Dexec.args="hdfs sandbox 8020" -Dhadoop.home.dir=/tmp
+# You can use Maven
+mvn exec:java -Dexec.mainClass="com.sequenceiq.samples.SandboxTester" -Dexec.args="hdfs sandbox 8020" -Dhadoop.home.dir=/tmp
 	  	  
-	  	  or run from the JAR file
+# or run from the JAR file
 	  	  
-	  	  java -jar sandbox-playground-1.0.jar hdfs sandbox 8020
-	  	```
+java -jar sandbox-playground-1.0.jar hdfs sandbox 8020
+```
 	  	  
 As you see it's pretty easy and convenient to use the Hortonworks sandbox as a pre-configured development environment.
 
