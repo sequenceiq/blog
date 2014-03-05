@@ -32,7 +32,7 @@ Check this short goal/problem/resolution and code example snippet if you'd like 
 
 ## Example
 
- * check the following sample from our [GitHub page](https://github.com/sequenceiq/sequenceiq-samples/tree/master/HDP-sandbox-access)
+ * check the following sample from our [GitHub page](https://github.com/sequenceiq/sequenceiq-samples/tree/master/hdp-sandbox-access)
 
 	  
 	  	  ``` start a SOCKS5 proxy with SSL 	  
