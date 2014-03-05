@@ -4,7 +4,7 @@ title: "Accessing HDP2 sandbox from the host"
 date: 2014-03-05 08:12:44 +0000
 comments: true
 published: true
-categories: [Hortonworks sanfbox, HDP2, SOCKS proxy, SSL]
+categories: [Hortonworks sandbox, HDP2, SOCKS proxy, SSL]
 author: Laszlo Puskas
 ---
 During development of a Hadoop project people have many options of where and how to run Hadoop. We at SequenceIQ use different environments as well (cloud based, VM or host) - and different versions/vendor distributions. A very popular distribution among developers is the Hortonworks Sandbox - which contains the latest releases across Hadoop (2.2.0) and the key related projects into a single integrated and tested platform.
@@ -34,12 +34,13 @@ Check this short goal/problem/resolution and code example snippet if you'd like 
 
  * check the following sample from our [GitHub page](https://github.com/sequenceiq/sequenceiq-samples/tree/master/hdp-sandbox-access)
 
+Start the SOCKS proxy 
 	  
 ``` bash
 ssh root@127.0.0.1 -p 2222 -D 1099
 ```
 
-Once the proxy is up and running
+Once the proxy is up and running, edit the core-site.xml
 	  	  
 	  	 
 ``` xml 
