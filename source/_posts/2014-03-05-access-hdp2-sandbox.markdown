@@ -35,14 +35,14 @@ Check this short goal/problem/resolution and code example snippet if you'd like 
  * check the following sample from our [GitHub page](https://github.com/sequenceiq/sequenceiq-samples/tree/master/hdp-sandbox-access)
 
 	  
-``` bash start a SOCKS5 proxy with SSL 	  
-	ssh root@127.0.0.1 -p 2222 -D 1099
+``` bash
+ssh root@127.0.0.1 -p 2222 -D 1099
 ```
 
 Once the proxy is up and running
 	  	  
 	  	 
-``` xml configure the client to use the proxy
+``` xml 
 	  	 <property>
 			<name>hadoop.socks.server</name>
 			<value>localhost:1099</value>
@@ -55,7 +55,7 @@ Once the proxy is up and running
 		
 Now you can run the test client
 		
-``` bash Run the client from your host
+``` bash 
 	  	  
 # You can use Maven
 mvn exec:java -Dexec.mainClass="com.sequenceiq.samples.SandboxTester" -Dexec.args="hdfs sandbox 8020" -Dhadoop.home.dir=/tmp
