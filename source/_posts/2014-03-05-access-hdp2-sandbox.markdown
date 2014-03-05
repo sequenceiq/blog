@@ -35,9 +35,9 @@ Check this short goal/problem/resolution and code example snippet if you'd like 
  * check the following sample from our [GitHub page](https://github.com/sequenceiq/sequenceiq-samples/tree/master/hdp-sandbox-access)
 
 	  
-	  	  ``` start a SOCKS5 proxy with SSL 	  
+	  	  ''' start a SOCKS5 proxy with SSL 	  
 	  	  		ssh root@127.0.0.1 -p 2222 -D 1099
-	  	  ```
+	  	  '''
 
 	  	  Once the proxy is up and running
 	  	  
