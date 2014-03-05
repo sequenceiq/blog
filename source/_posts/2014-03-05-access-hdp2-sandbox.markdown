@@ -3,7 +3,7 @@ layout: post
 title: "Accessing HDP2 sandbox from the host"
 date: 2014-03-05 08:12:44 +0000
 comments: true
-published: false
+published: true
 categories: [Hortonworks sanfbox, HDP2, SOCKS proxy, SSL]
 author: Laszlo Puskas
 ---
