@@ -4,7 +4,7 @@ title: ""
 date: 2014-03-07 08:12:44 +0000
 comments: true
 published: false
-categories: [HDFS, HDP2, java.io.IOException, NameNode]
+categories: [HDFS, HDP2, RemoteBlockReader2, NameNode]
 author: Janos Matyas
 ---
 Many times there is a need to access files or interact with HDFS from Java applications. Hadoop has built in many tools in order to work or interact with HDFS, and libraries - however in case you'd like to read into a content of a file remotely (e.g. retrieve the headers of a CSV/TSV file) random exceptions can occurs. One of these remote exceptions coming from the HDFS NameNode is a java.io.IOException: File /user/abc/xyz/ could only be replicated to 0 nodes, instead of 1. 
