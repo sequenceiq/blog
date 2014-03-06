@@ -14,6 +14,9 @@ Such an exception can be reproduced by the following code snippet:
 ``` 
 java BufferedInputStream bufferedInputStream
 
+FileSystem fs = FileSystem.get(configuration);
+			Path filePath = getFilePath(dataPath);
+
 BufferedInputStream bufferedInputStream = new BufferedInputStream(fs.open(filePath));
 	listReader = new CsvListReader(new BufferedReader(new InputStreamReader(bufferedInputStream)),
 				        CsvPreference.STANDARD_PREFERENCE);
