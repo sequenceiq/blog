@@ -30,6 +30,8 @@ BufferedInputStream bufferedInputStream = new BufferedInputStream(fs.open(filePa
 
 For the full  stack trace click [here](https://gist.github.com/matyix/9386987).
 
+{% gist 9386987 %}
+
 
 *Note: actually it fails in all cases when the underlying input stream does not have a readable channel. RemoteBlockReader2 needs channel based inputstreams to deal with direct buffers.*
  
