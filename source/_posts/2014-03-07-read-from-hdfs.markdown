@@ -14,6 +14,11 @@ Such an exception can be reproduced by the following code snippet:
 ``` 
 java BufferedInputStream bufferedInputStream
 
+/**
+ * For the sake of readability, try/cacth/finally blocks are removed 
+ * Don't Say We Didn't Warn You
+ */
+
 FileSystem fs = FileSystem.get(configuration);
 			Path filePath = getFilePath(dataPath);
 
@@ -23,7 +28,12 @@ BufferedInputStream bufferedInputStream = new BufferedInputStream(fs.open(filePa
 				       
 ```
 
-This exception is quite strange, especially that a code like such (or actually any direct file read from HDFS) used to work in older versions of Hadoop (pre 2.x). Digging into details and checking the Hadoop 2.2 source code we find the followings: 
+For the full  stack trace click [here](https://gist.github.com/matyix/9386987).
+
+
+*Note: actually it fails in all cases when the underlying input stream does not have a readable channel. RemoteBlockReader2 needs channel based inputstreams to deal with direct buffers.*
+ 
+Digging into details and checking the Hadoop 2.2 source code we find the followings: 
 
 Through the`org.apache.hadoop.hdfs.BlockReaderFactory` you can get access to a BlockReader interface implementation `org.apache.hadoop.hdfs.RemoteBlockReader2`, which is is responsible for reading a single block from a single datanode.
 
@@ -55,6 +65,8 @@ public static BlockReader newBlockReader(
 In order to avoid the exception and use the right version of the block reader, the followin property `conf.useLegacyBlockReader` should be TRUE.
 
 Long story short, the configuration set of a job should be set to: `configuration.set("dfs.client.use.legacy.blockreader", "true")`. 
+
+Unluckily in all cases when interacting with HDFS, and the underlying input stream does not have a readable channel, you can't use the *RemoteBlockReader2* implementation, but you have to fall back to the old legacy *RemoteBlockReader*.
 
 Enjoy,
 SequenceIQ
