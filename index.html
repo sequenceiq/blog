@@ -164,44 +164,22 @@
 </span><span class='line'>                     </span></code></pre></td></tr></table></div></figure>
 
 
+<p>The exception looks like this:</p>
 
-
-<div><script src='https://gist.github.com/9386987.js'></script>
-<noscript><pre><code>ERROR SimpleFeatureSelector:67 - Exception {}
-java.lang.IllegalStateException: Must not use direct buffers with InputStream API
-    at com.google.common.base.Preconditions.checkState(Preconditions.java:176)
-    at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.doReadFully(PacketReceiver.java:211)
-    at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.doRead(PacketReceiver.java:134)
-    at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.receiveNextPacket(PacketReceiver.java:102)
-    at org.apache.hadoop.hdfs.RemoteBlockReader2.readNextPacket(RemoteBlockReader2.java:170)
-    at org.apache.hadoop.hdfs.RemoteBlockReader2.read(RemoteBlockReader2.java:135)
-    at org.apache.hadoop.hdfs.DFSInputStream$ByteArrayStrategy.doRead(DFSInputStream.java:642)
-    at org.apache.hadoop.hdfs.DFSInputStream.readBuffer(DFSInputStream.java:698)
-    at org.apache.hadoop.hdfs.DFSInputStream.readWithStrategy(DFSInputStream.java:752)
-    at org.apache.hadoop.hdfs.DFSInputStream.read(DFSInputStream.java:793)
-    at java.io.BufferedInputStream.read1(BufferedInputStream.java:256)
-    at java.io.BufferedInputStream.read(BufferedInputStream.java:317)
-    at sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:264)
-    at sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:306)
-    at sun.nio.cs.StreamDecoder.read(StreamDecoder.java:158)
-    at java.io.InputStreamReader.read(InputStreamReader.java:167)
-    at java.io.BufferedReader.read1(BufferedReader.java:185)
-    at java.io.BufferedReader.read(BufferedReader.java:261)
-    at java.io.BufferedReader.fill(BufferedReader.java:136)
-    at java.io.BufferedReader.readLine(BufferedReader.java:299)
-    at java.io.LineNumberReader.readLine(LineNumberReader.java:182)
-    at org.supercsv.io.AbstractTokenizer.readLine(AbstractTokenizer.java:82)
-    at org.supercsv.io.Tokenizer.readColumns(Tokenizer.java:95)
-    at org.supercsv.io.AbstractCsvReader.readRow(AbstractCsvReader.java:179)
-    at org.supercsv.io.CsvListReader.read(CsvListReader.java:69)
-    at com.sequenceiq.service.clustering.SimpleFeatureSelector.getAllFeatures(SimpleFeatureSelector.java:57)
-    at com.sequenceiq.service.clustering.SimpleFeatureSelector$1.run(SimpleFeatureSelector.java:114)
-    at java.security.AccessController.doPrivileged(Native Method)
-    at javax.security.auth.Subject.doAs(Subject.java:335)
-    at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1471)
-    at com.sequenceiq.service.clustering.SimpleFeatureSelector.main(SimpleFeatureSelector.java:108)
-2014-03-06 10:15:03 DEBUG Client:1156 - Stopping client
-2014-03-06 10:15:03 DEBUG Client:1107 - IPC Client (343311896) </code></pre></noscript></div>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ERROR SimpleFeatureSelector:67 - Exception {}
+</span><span class='line'>java.lang.IllegalStateException: Must not use direct buffers with InputStream API
+</span><span class='line'>  at com.google.common.base.Preconditions.checkState(Preconditions.java:176)
+</span><span class='line'>  at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.doReadFully(PacketReceiver.java:211)
+</span><span class='line'>  at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.doRead(PacketReceiver.java:134)
+</span><span class='line'>  at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.receiveNextPacket(PacketReceiver.java:102)
+</span><span class='line'>  at org.apache.hadoop.hdfs.RemoteBlockReader2.readNextPacket(RemoteBlockReader2.java:170)</span></code></pre></td></tr></table></div></figure>
 
 
 <p><em>Note: actually all HDFS operations fail in case of the underlying input stream does not have a readable channel (check the java.nio.channels package. RemoteBlockReader2 needs channel based inputstreams to deal with direct buffers.</em></p>
