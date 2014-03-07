@@ -27,9 +27,17 @@ BufferedInputStream bufferedInputStream = new BufferedInputStream(fs.open(filePa
 				        CsvPreference.STANDARD_PREFERENCE);
 				       
 ```
+The exception looks like this:
 
-
-{% gist 9386987 %}
+```
+ERROR SimpleFeatureSelector:67 - Exception {}
+java.lang.IllegalStateException: Must not use direct buffers with InputStream API
+	at com.google.common.base.Preconditions.checkState(Preconditions.java:176)
+	at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.doReadFully(PacketReceiver.java:211)
+	at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.doRead(PacketReceiver.java:134)
+	at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.receiveNextPacket(PacketReceiver.java:102)
+	at org.apache.hadoop.hdfs.RemoteBlockReader2.readNextPacket(RemoteBlockReader2.java:170)
+```
 
 
 *Note: actually all HDFS operations fail in case of the underlying input stream does not have a readable channel (check the java.nio.channels package. RemoteBlockReader2 needs channel based inputstreams to deal with direct buffers.*
