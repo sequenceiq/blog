@@ -3,11 +3,11 @@ layout: post
 title: ""
 date: 2014-03-07 08:12:44 +0000
 comments: true
-published: false
+published: true
 categories: [HDFS, HDP2, RemoteBlockReader2, NameNode]
 author: Janos Matyas
 ---
-Many times there is a need to access files or interact with HDFS from Java applications. Hadoop has built in many tools in order to work or interact with HDFS, and libraries - however in case you'd like to read into a content of a file remotely (e.g. retrieve the headers of a CSV/TSV file) random exceptions can occurs. One of these remote exceptions coming from the HDFS NameNode is a java.io.IOException: File /user/abc/xyz/ could only be replicated to 0 nodes, instead of 1. 
+Many times there is a need to access files or interact with HDFS from Java applications or libraries. Hadoop has built in many tools in order to work or interact with HDFS - however in case you'd like to read into a content of a file remotely (e.g. retrieve the headers of a CSV/TSV file) random exceptions can occurs. One of these remote exceptions coming from the HDFS NameNode is a *java.io.IOException: File /user/abc/xyz/ could only be replicated to 0 nodes, instead of 1.*
 
 Such an exception can be reproduced by the following code snippet: 
 
@@ -28,16 +28,16 @@ BufferedInputStream bufferedInputStream = new BufferedInputStream(fs.open(filePa
 				       
 ```
 
-For the full  stack trace click [here](https://gist.github.com/matyix/9386987).
+For the full stack trace click [here](https://gist.github.com/matyix/9386987).
 
 {% gist 9386987 %}
 
 
-*Note: actually it fails in all cases when the underlying input stream does not have a readable channel. RemoteBlockReader2 needs channel based inputstreams to deal with direct buffers.*
+*Note: actually all HDFS operations fail in case of the underlying input stream does not have a readable channel (check the java.nio.channels package. RemoteBlockReader2 needs channel based inputstreams to deal with direct buffers.*
  
 Digging into details and checking the Hadoop 2.2 source code we find the followings: 
 
-Through the`org.apache.hadoop.hdfs.BlockReaderFactory` you can get access to a BlockReader interface implementation `org.apache.hadoop.hdfs.RemoteBlockReader2`, which is is responsible for reading a single block from a single datanode.
+Through the`org.apache.hadoop.hdfs.BlockReaderFactory` you can get access to a BlockReader implementation like `org.apache.hadoop.hdfs.RemoteBlockReader2`, which it is responsible for reading a single block from a single datanode.
 
 The blockreader is retrieved in the following way:
 
@@ -70,5 +70,5 @@ Long story short, the configuration set of a job should be set to: `configuratio
 
 Unluckily in all cases when interacting with HDFS, and the underlying input stream does not have a readable channel, you can't use the *RemoteBlockReader2* implementation, but you have to fall back to the old legacy *RemoteBlockReader*.
 
-Enjoy,
+Hope this helps,
 SequenceIQ
