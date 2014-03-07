@@ -4,7 +4,7 @@
   <title><![CDATA[Category: HDP2 | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com//blog/categories/hdp2/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com//"/>
-  <updated>2014-03-07T09:22:38+00:00</updated>
+  <updated>2014-03-07T09:29:47+00:00</updated>
   <id>http://blog.sequenceiq.com//</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[]]></title>
+    <title type="html"><![CDATA[HDFS and java.nio.channels]]></title>
     <link href="http://blog.sequenceiq.com//blog/2014/03/07/read-from-hdfs/"/>
     <updated>2014-03-07T08:12:44+00:00</updated>
     <id>http://blog.sequenceiq.com//blog/2014/03/07/read-from-hdfs</id>
@@ -61,7 +61,7 @@ java BufferedInputStream bufferedInputStream</p>
 public static BlockReader newBlockReader(</p>
 
 <pre><code>                                 Conf conf,
-                                 Socket sock, String file,
+                             Socket sock, String file,
                                  ExtendedBlock block, 
                                  Token&lt;BlockTokenIdentifier&gt; blockToken,
                                  long startOffset, long len,
