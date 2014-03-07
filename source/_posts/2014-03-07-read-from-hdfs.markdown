@@ -1,6 +1,6 @@
 ---
 layout: post
-title: ""
+title: "HDFS and java.nio.channels"
 date: 2014-03-07 08:12:44 +0000
 comments: true
 published: true
@@ -46,7 +46,7 @@ The blockreader is retrieved in the following way:
 @SuppressWarnings("deprecation")
 public static BlockReader newBlockReader(
                                      Conf conf,
- 	                            	 Socket sock, String file,
+ 	                             Socket sock, String file,
                                      ExtendedBlock block, 
                                      Token<BlockTokenIdentifier> blockToken,
                                      long startOffset, long len,
