@@ -105,6 +105,193 @@
   
 
 
+<i class="icon-calendar-empty"></i> <time datetime="2014-03-07T08:12:44+00:00" pubdate data-updated="true">Mar 7<span>th</span>, 2014</time></h5>
+          <div class="row-fluid">
+          
+          <a href="http://blog.sequenceiq.com//blog/2014/03/07/read-from-hdfs/#disqus_thread">Comments </a> <span class="fui-bubble-16"></span>
+          
+          </div>
+          
+          <div class="row-fluid">
+          
+          <a href="/blog/categories/hdfs/"><span class="badge">HDFS</span></a>
+          
+          <a href="/blog/categories/hdp2/"><span class="badge">HDP2</span></a>
+          
+          <a href="/blog/categories/namenode/"><span class="badge">NameNode</span></a>
+          
+          <a href="/blog/categories/remoteblockreader2/"><span class="badge">RemoteBlockReader2</span></a>
+          
+          </div>
+          
+    </div>
+    <div class="span10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/03/07/read-from-hdfs/">HDFS and java.nio.channels</a>
+          <span class="badge name-badge">Janos Matyas</span>
+      </h1>
+      <p>Many times there is a need to access files or interact with HDFS from Java applications or libraries. Hadoop has built in many tools in order to work or interact with HDFS &ndash; however in case you&rsquo;d like to read into a content of a file remotely (e.g. retrieve the headers of a CSV/TSV file) random exceptions can occurs. One of these remote exceptions coming from the HDFS NameNode is a <em>java.io.IOException: File /user/abc/xyz/ could only be replicated to 0 nodes, instead of 1.</em></p>
+
+<p>Such an exception can be reproduced by the following code snippet:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>java BufferedInputStream bufferedInputStream
+</span><span class='line'>
+</span><span class='line'>/**
+</span><span class='line'> * For the sake of readability, try/cacth/finally blocks are removed 
+</span><span class='line'> * Don't Say We Didn't Warn You
+</span><span class='line'> */
+</span><span class='line'>
+</span><span class='line'>FileSystem fs = FileSystem.get(configuration);
+</span><span class='line'>          Path filePath = getFilePath(dataPath);
+</span><span class='line'>
+</span><span class='line'>BufferedInputStream bufferedInputStream = new BufferedInputStream(fs.open(filePath));
+</span><span class='line'>  listReader = new CsvListReader(new BufferedReader(new InputStreamReader(bufferedInputStream)),
+</span><span class='line'>                      CsvPreference.STANDARD_PREFERENCE);
+</span><span class='line'>                     </span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<div><script src='https://gist.github.com/9386987.js'></script>
+<noscript><pre><code>ERROR SimpleFeatureSelector:67 - Exception {}
+java.lang.IllegalStateException: Must not use direct buffers with InputStream API
+    at com.google.common.base.Preconditions.checkState(Preconditions.java:176)
+    at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.doReadFully(PacketReceiver.java:211)
+    at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.doRead(PacketReceiver.java:134)
+    at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.receiveNextPacket(PacketReceiver.java:102)
+    at org.apache.hadoop.hdfs.RemoteBlockReader2.readNextPacket(RemoteBlockReader2.java:170)
+    at org.apache.hadoop.hdfs.RemoteBlockReader2.read(RemoteBlockReader2.java:135)
+    at org.apache.hadoop.hdfs.DFSInputStream$ByteArrayStrategy.doRead(DFSInputStream.java:642)
+    at org.apache.hadoop.hdfs.DFSInputStream.readBuffer(DFSInputStream.java:698)
+    at org.apache.hadoop.hdfs.DFSInputStream.readWithStrategy(DFSInputStream.java:752)
+    at org.apache.hadoop.hdfs.DFSInputStream.read(DFSInputStream.java:793)
+    at java.io.BufferedInputStream.read1(BufferedInputStream.java:256)
+    at java.io.BufferedInputStream.read(BufferedInputStream.java:317)
+    at sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:264)
+    at sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:306)
+    at sun.nio.cs.StreamDecoder.read(StreamDecoder.java:158)
+    at java.io.InputStreamReader.read(InputStreamReader.java:167)
+    at java.io.BufferedReader.read1(BufferedReader.java:185)
+    at java.io.BufferedReader.read(BufferedReader.java:261)
+    at java.io.BufferedReader.fill(BufferedReader.java:136)
+    at java.io.BufferedReader.readLine(BufferedReader.java:299)
+    at java.io.LineNumberReader.readLine(LineNumberReader.java:182)
+    at org.supercsv.io.AbstractTokenizer.readLine(AbstractTokenizer.java:82)
+    at org.supercsv.io.Tokenizer.readColumns(Tokenizer.java:95)
+    at org.supercsv.io.AbstractCsvReader.readRow(AbstractCsvReader.java:179)
+    at org.supercsv.io.CsvListReader.read(CsvListReader.java:69)
+    at com.sequenceiq.service.clustering.SimpleFeatureSelector.getAllFeatures(SimpleFeatureSelector.java:57)
+    at com.sequenceiq.service.clustering.SimpleFeatureSelector$1.run(SimpleFeatureSelector.java:114)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at javax.security.auth.Subject.doAs(Subject.java:335)
+    at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1471)
+    at com.sequenceiq.service.clustering.SimpleFeatureSelector.main(SimpleFeatureSelector.java:108)
+2014-03-06 10:15:03 DEBUG Client:1156 - Stopping client
+2014-03-06 10:15:03 DEBUG Client:1107 - IPC Client (343311896) </code></pre></noscript></div>
+
+
+<p><em>Note: actually all HDFS operations fail in case of the underlying input stream does not have a readable channel (check the java.nio.channels package. RemoteBlockReader2 needs channel based inputstreams to deal with direct buffers.</em></p>
+
+<p>Digging into details and checking the Hadoop 2.2 source code we find the followings:</p>
+
+<p>Through the<code>org.apache.hadoop.hdfs.BlockReaderFactory</code> you can get access to a BlockReader implementation like <code>org.apache.hadoop.hdfs.RemoteBlockReader2</code>, which it is responsible for reading a single block from a single datanode.</p>
+
+<p>The blockreader is retrieved in the following way:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">&quot;deprecation&quot;</span><span class="o">)</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">static</span> <span class="n">BlockReader</span> <span class="nf">newBlockReader</span><span class="o">(</span>
+</span><span class='line'>                                     <span class="n">Conf</span> <span class="n">conf</span><span class="o">,</span>
+</span><span class='line'>                               <span class="n">Socket</span> <span class="n">sock</span><span class="o">,</span> <span class="n">String</span> <span class="n">file</span><span class="o">,</span>
+</span><span class='line'>                                     <span class="n">ExtendedBlock</span> <span class="n">block</span><span class="o">,</span>
+</span><span class='line'>                                     <span class="n">Token</span><span class="o">&lt;</span><span class="n">BlockTokenIdentifier</span><span class="o">&gt;</span> <span class="n">blockToken</span><span class="o">,</span>
+</span><span class='line'>                                     <span class="kt">long</span> <span class="n">startOffset</span><span class="o">,</span> <span class="kt">long</span> <span class="n">len</span><span class="o">,</span>
+</span><span class='line'>                                     <span class="kt">int</span> <span class="n">bufferSize</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">verifyChecksum</span><span class="o">,</span>
+</span><span class='line'>                                     <span class="n">String</span> <span class="n">clientName</span><span class="o">)</span>
+</span><span class='line'>                                     <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">conf</span><span class="o">.</span><span class="na">useLegacyBlockReader</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">RemoteBlockReader</span><span class="o">.</span><span class="na">newBlockReader</span><span class="o">(</span>
+</span><span class='line'>          <span class="n">sock</span><span class="o">,</span> <span class="n">file</span><span class="o">,</span> <span class="n">block</span><span class="o">,</span> <span class="n">blockToken</span><span class="o">,</span> <span class="n">startOffset</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span> <span class="n">bufferSize</span><span class="o">,</span> <span class="n">verifyChecksum</span><span class="o">,</span> <span class="n">clientName</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">RemoteBlockReader2</span><span class="o">.</span><span class="na">newBlockReader</span><span class="o">(</span>
+</span><span class='line'>          <span class="n">sock</span><span class="o">,</span> <span class="n">file</span><span class="o">,</span> <span class="n">block</span><span class="o">,</span> <span class="n">blockToken</span><span class="o">,</span> <span class="n">startOffset</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span> <span class="n">bufferSize</span><span class="o">,</span> <span class="n">verifyChecksum</span><span class="o">,</span> <span class="n">clientName</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In order to avoid the exception and use the right version of the block reader, the followin property <code>conf.useLegacyBlockReader</code> should be TRUE.</p>
+
+<p>Long story short, the configuration set of a job should be set to: <code>configuration.set("dfs.client.use.legacy.blockreader", "true")</code>.</p>
+
+<p>Unluckily in all cases when interacting with HDFS, and the underlying input stream does not have a readable channel, you can&rsquo;t use the <em>RemoteBlockReader2</em> implementation, but you have to fall back to the old legacy <em>RemoteBlockReader</em>.</p>
+
+<p>Hope this helps,
+SequenceIQ</p>
+
+      
+      
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row-fluid">
+    <div class="span2 post-meta">
+	  <h5 class="date-time">
+
+
+
+
+
+
+
+
+  
+
+
 <i class="icon-calendar-empty"></i> <time datetime="2014-03-05T08:12:44+00:00" pubdate data-updated="true">Mar 5<span>th</span>, 2014</time></h5>
           <div class="row-fluid">
           

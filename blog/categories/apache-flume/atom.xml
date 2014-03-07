@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Apache Flume | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com//blog/categories/apache-flume/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com//"/>
-  <updated>2014-03-07T09:45:12+00:00</updated>
+  <updated>2014-03-07T09:56:59+00:00</updated>
   <id>http://blog.sequenceiq.com//</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -67,9 +67,7 @@ From this point the data will travel through the configured channels and sinks t
 
 <p>To deploy your custom source put the packaged jar to Flume’s classpath.</p>
 
-<p>{% blockquote %}
-Flume now supports a special directory called plugins.d which automatically picks up plugins that are packaged in a specific format.
-{% endblockquote %}</p>
+<p><blockquote><p>Flume now supports a special directory called plugins.d which automatically picks up plugins that are packaged in a specific format.</p></blockquote></p>
 
 <p>e.g plugins.d/websocket/lib/yoursource.jar</p>
 
