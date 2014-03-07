@@ -4,7 +4,7 @@
   <title><![CDATA[Category: HDP2 | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com//blog/categories/hdp2/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com//"/>
-  <updated>2014-03-07T09:32:16+00:00</updated>
+  <updated>2014-03-07T09:33:49+00:00</updated>
   <id>http://blog.sequenceiq.com//</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -43,9 +43,7 @@ java BufferedInputStream bufferedInputStream</p>
 
 <p>```</p>
 
-<p>For the full stack trace click <a href="https://gist.github.com/matyix/9386987">here</a>.</p>
-
-<p>{% gist 9386987 %}</p>
+<p>{% gist matyix/9386987 %}</p>
 
 <p><em>Note: actually all HDFS operations fail in case of the underlying input stream does not have a readable channel (check the java.nio.channels package. RemoteBlockReader2 needs channel based inputstreams to deal with direct buffers.</em></p>
 
