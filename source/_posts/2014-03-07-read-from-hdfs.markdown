@@ -28,9 +28,8 @@ BufferedInputStream bufferedInputStream = new BufferedInputStream(fs.open(filePa
 				       
 ```
 
-For the full stack trace click [here](https://gist.github.com/matyix/9386987).
 
-{% gist 9386987 %}
+{% gist matyix/9386987 %}
 
 
 *Note: actually all HDFS operations fail in case of the underlying input stream does not have a readable channel (check the java.nio.channels package. RemoteBlockReader2 needs channel based inputstreams to deal with direct buffers.*
