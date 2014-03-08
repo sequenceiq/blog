@@ -2,7 +2,7 @@
 #      Main Configs       #
 # ----------------------- #
 
-url: http://blog.sequenceiq.com/
+url: http://blog.sequenceiq.com
 title: SequenceIQ Blog
 subtitle: Our view on big data
 author: SequenceIQ 
@@ -74,7 +74,6 @@ twitter_user: sequenceiq
 twitter_tweet_button: true
 
 linkedin_user: sequenceiq
-facebook_user: sequenceiq
 
 # Google +1
 google_plus_one: false
