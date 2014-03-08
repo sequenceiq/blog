@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[SequenceIQ Blog]]></title>
-  <link href="http://blog.sequenceiq.com//atom.xml" rel="self"/>
-  <link href="http://blog.sequenceiq.com//"/>
-  <updated>2014-03-08T23:22:01+00:00</updated>
-  <id>http://blog.sequenceiq.com//</id>
+  <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-03-08T23:48:49+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[HDFS and java.nio.channels]]></title>
-    <link href="http://blog.sequenceiq.com//blog/2014/03/07/read-from-hdfs/"/>
+    <link href="http://blog.sequenceiq.com/blog/2014/03/07/read-from-hdfs/"/>
     <updated>2014-03-07T08:12:44+00:00</updated>
-    <id>http://blog.sequenceiq.com//blog/2014/03/07/read-from-hdfs</id>
+    <id>http://blog.sequenceiq.com/blog/2014/03/07/read-from-hdfs</id>
     <content type="html"><![CDATA[<p>Many times there is a need to access files or interact with HDFS from Java applications or libraries. Hadoop has built in many tools in order to work or interact with HDFS &ndash; however in case you&rsquo;d like to read into a content of a file remotely (e.g. retrieve the headers of a CSV/TSV file) random exceptions can occurs. One of these remote exceptions coming from the HDFS NameNode is a <em>java.io.IOException: File /user/abc/xyz/ could only be replicated to 0 nodes, instead of 1.</em></p>
 
 <p>Such an exception can be reproduced by the following code snippet:</p>
@@ -132,9 +132,9 @@ SequenceIQ</p>
   
   <entry>
     <title type="html"><![CDATA[Accessing HDP2 sandbox from the host]]></title>
-    <link href="http://blog.sequenceiq.com//blog/2014/03/05/access-hdp2-sandbox/"/>
+    <link href="http://blog.sequenceiq.com/blog/2014/03/05/access-hdp2-sandbox/"/>
     <updated>2014-03-05T08:12:44+00:00</updated>
-    <id>http://blog.sequenceiq.com//blog/2014/03/05/access-hdp2-sandbox</id>
+    <id>http://blog.sequenceiq.com/blog/2014/03/05/access-hdp2-sandbox</id>
     <content type="html"><![CDATA[<p>During development of a Hadoop project people have many options of where and how to run Hadoop. We at SequenceIQ use different environments as well (cloud based, VM or host) &ndash; and different versions/vendor distributions. A very popular distribution among developers is the Hortonworks Sandbox &ndash; which contains the latest releases across Hadoop (2.2.0) and the key related projects into a single integrated and tested platform.
 While using the sandbox gets you going running a single node Hadoop (pseudo distributed) in less than 5 minutes, many developers find inconvenient to &lsquo;live&rsquo; and work inside the VM when deploying, debugging or submitting jobs into a Hadoop cluster.</p>
 
@@ -233,9 +233,9 @@ SequenceIQ</p>
   
   <entry>
     <title type="html"><![CDATA[ETL - producing better quality data]]></title>
-    <link href="http://blog.sequenceiq.com//blog/2014/02/28/etl-and-data-quality/"/>
+    <link href="http://blog.sequenceiq.com/blog/2014/02/28/etl-and-data-quality/"/>
     <updated>2014-02-28T08:12:44+00:00</updated>
-    <id>http://blog.sequenceiq.com//blog/2014/02/28/etl-and-data-quality</id>
+    <id>http://blog.sequenceiq.com/blog/2014/02/28/etl-and-data-quality</id>
     <content type="html"><![CDATA[<p>On my way to work this morning I read an interesting article about the quality of data being produced by different systems and applications. While the article was emphasizing that the quality of the data should not be an IT problem (but management), our believe is that at the high volume, velocity and variety (the &ldquo;3Vs&rdquo; of big data) the data is produced today, the process of producing data is a shared responsibility between management and the IT department.</p>
 
 <p>Since the emerging of Hadoop, the TCO of storing large amounts of data in HDFS is lower than ever before &ndash; and now it makes sense to store all the data an enterprise produces in order to find patterns, correlations and break the data silos &ndash; something which was very specific for different departments within an organization. Storing such an amount of data (structured, unstructured, logs, clickstream, etc) inevitable produces a &lsquo;bad&rsquo; data quality &ndash; but this depends on your point of view. For us data is just data &ndash; we don&rsquo;t want to qualify it &ndash; and has it&rsquo;s own intrinsic value, but the quality of it depends on the ETL process. When someone engages with our API and the xTract Spacetime platform, among the first step is the configuration of data sources, and the attached ETL processes. We offer an extremely sophisticated ETL process and the ability to &lsquo;clean&rsquo; the data (batch or streaming) while arrives into xTract Spacetime, but we always suggest our customers to keep the raw data as well.</p>
@@ -335,9 +335,9 @@ Hope you enjoy it, let us know if you need help or have any questions.</p>
   
   <entry>
     <title type="html"><![CDATA[Vote for us - 2014 Hadoop Summit San Jose]]></title>
-    <link href="http://blog.sequenceiq.com//blog/2014/02/26/vote-for-us/"/>
+    <link href="http://blog.sequenceiq.com/blog/2014/02/26/vote-for-us/"/>
     <updated>2014-02-26T10:17:04+00:00</updated>
-    <id>http://blog.sequenceiq.com//blog/2014/02/26/vote-for-us</id>
+    <id>http://blog.sequenceiq.com/blog/2014/02/26/vote-for-us</id>
     <content type="html"><![CDATA[<p>While we are extremely proud that our abstract came 2nd (out of 107) in the 2014 Hadoop Summit in Amsterdam (see you all there in April 2-3), we will not stop there and our plan is to continue the hard work and we&rsquo;re looking forward to meet you at 2014 Hadoop Summit in San Jose.
 We would like to ask for your support by submitting your vote for our session in the largest Hadoop conference in the world.</p>
 
@@ -358,9 +358,9 @@ As a startup, cost savings is important for us &ndash; switching to Hadoop 2.0 h
   
   <entry>
     <title type="html"><![CDATA[Custom Apache Flume source]]></title>
-    <link href="http://blog.sequenceiq.com//blog/2014/02/22/custom-flume-source/"/>
+    <link href="http://blog.sequenceiq.com/blog/2014/02/22/custom-flume-source/"/>
     <updated>2014-02-22T14:45:48+00:00</updated>
-    <id>http://blog.sequenceiq.com//blog/2014/02/22/custom-flume-source</id>
+    <id>http://blog.sequenceiq.com/blog/2014/02/22/custom-flume-source</id>
     <content type="html"><![CDATA[<p>The process of data analytics starts with collecting the data into a common system, in our case a Hadoop cluster. Flume is an Apache project aiming to help us solve this problem in a very efficient and elegant way.</p>
 
 <p>In Flume terminology a source is responsible to listen and consume events coming from many distributed clients and forwards them to one or more channels. Events can have any arbitrary format, it all depends on what source do we use. Flume provides many sources, but only a few of them is capable to collect data through network.</p>
@@ -452,9 +452,9 @@ agent.sources.websocket.path = /flume</p>
   
   <entry>
     <title type="html"><![CDATA[Set up HDP2 on Amazon EC2]]></title>
-    <link href="http://blog.sequenceiq.com//blog/2014/02/07/hdp2-on-amazon/"/>
+    <link href="http://blog.sequenceiq.com/blog/2014/02/07/hdp2-on-amazon/"/>
     <updated>2014-02-07T16:17:04+00:00</updated>
-    <id>http://blog.sequenceiq.com//blog/2014/02/07/hdp2-on-amazon</id>
+    <id>http://blog.sequenceiq.com/blog/2014/02/07/hdp2-on-amazon</id>
     <content type="html"><![CDATA[<p>During the last years we have seen many blog entries and articles about how to set up Hadoop on Amazon EC2. All these tutorials and articles had one thing in common &ndash; you had to go through a large number of manual (and painful) steps, read screenshots and redo the whole thing all over again, in case you needed a new cluster.</p>
 
 <p>Since we use Amazon EC2 quite a lot, and Hadoop as well (Hortonworks distribution) we have gone through these steps many times &ndash; and have scripted the whole process from the first steps up to launching an N node Hadoop/HDP2 cluster in less then five minutes.</p>

@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Data cleaning | SequenceIQ Blog]]></title>
-  <link href="http://blog.sequenceiq.com//blog/categories/data-cleaning/atom.xml" rel="self"/>
-  <link href="http://blog.sequenceiq.com//"/>
-  <updated>2014-03-08T23:22:01+00:00</updated>
-  <id>http://blog.sequenceiq.com//</id>
+  <link href="http://blog.sequenceiq.com/blog/categories/data-cleaning/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-03-08T23:48:49+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[ETL - producing better quality data]]></title>
-    <link href="http://blog.sequenceiq.com//blog/2014/02/28/etl-and-data-quality/"/>
+    <link href="http://blog.sequenceiq.com/blog/2014/02/28/etl-and-data-quality/"/>
     <updated>2014-02-28T08:12:44+00:00</updated>
-    <id>http://blog.sequenceiq.com//blog/2014/02/28/etl-and-data-quality</id>
+    <id>http://blog.sequenceiq.com/blog/2014/02/28/etl-and-data-quality</id>
     <content type="html"><![CDATA[<p>On my way to work this morning I read an interesting article about the quality of data being produced by different systems and applications. While the article was emphasizing that the quality of the data should not be an IT problem (but management), our believe is that at the high volume, velocity and variety (the &ldquo;3Vs&rdquo; of big data) the data is produced today, the process of producing data is a shared responsibility between management and the IT department.</p>
 
 <p>Since the emerging of Hadoop, the TCO of storing large amounts of data in HDFS is lower than ever before &ndash; and now it makes sense to store all the data an enterprise produces in order to find patterns, correlations and break the data silos &ndash; something which was very specific for different departments within an organization. Storing such an amount of data (structured, unstructured, logs, clickstream, etc) inevitable produces a &lsquo;bad&rsquo; data quality &ndash; but this depends on your point of view. For us data is just data &ndash; we don&rsquo;t want to qualify it &ndash; and has it&rsquo;s own intrinsic value, but the quality of it depends on the ETL process. When someone engages with our API and the xTract Spacetime platform, among the first step is the configuration of data sources, and the attached ETL processes. We offer an extremely sophisticated ETL process and the ability to &lsquo;clean&rsquo; the data (batch or streaming) while arrives into xTract Spacetime, but we always suggest our customers to keep the raw data as well.</p>

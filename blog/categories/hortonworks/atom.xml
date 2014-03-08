@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Hortonworks | SequenceIQ Blog]]></title>
-  <link href="http://blog.sequenceiq.com//blog/categories/hortonworks/atom.xml" rel="self"/>
-  <link href="http://blog.sequenceiq.com//"/>
-  <updated>2014-03-08T23:22:01+00:00</updated>
-  <id>http://blog.sequenceiq.com//</id>
+  <link href="http://blog.sequenceiq.com/blog/categories/hortonworks/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-03-08T23:48:49+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Set up HDP2 on Amazon EC2]]></title>
-    <link href="http://blog.sequenceiq.com//blog/2014/02/07/hdp2-on-amazon/"/>
+    <link href="http://blog.sequenceiq.com/blog/2014/02/07/hdp2-on-amazon/"/>
     <updated>2014-02-07T16:17:04+00:00</updated>
-    <id>http://blog.sequenceiq.com//blog/2014/02/07/hdp2-on-amazon</id>
+    <id>http://blog.sequenceiq.com/blog/2014/02/07/hdp2-on-amazon</id>
     <content type="html"><![CDATA[<p>During the last years we have seen many blog entries and articles about how to set up Hadoop on Amazon EC2. All these tutorials and articles had one thing in common &ndash; you had to go through a large number of manual (and painful) steps, read screenshots and redo the whole thing all over again, in case you needed a new cluster.</p>
 
 <p>Since we use Amazon EC2 quite a lot, and Hadoop as well (Hortonworks distribution) we have gone through these steps many times &ndash; and have scripted the whole process from the first steps up to launching an N node Hadoop/HDP2 cluster in less then five minutes.</p>

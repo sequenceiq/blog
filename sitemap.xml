@@ -1,51 +1,51 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
-        <loc>http://blog.sequenceiq.com//blog/2014/02/07/hdp2-on-amazon/</loc>
+        <loc>http://blog.sequenceiq.com/blog/2014/02/07/hdp2-on-amazon/</loc>
         <lastmod>2014-03-07T09:55:03+00:00</lastmod>
     </url>
     <url>
-        <loc>http://blog.sequenceiq.com//blog/2014/02/22/custom-flume-source/</loc>
+        <loc>http://blog.sequenceiq.com/blog/2014/02/22/custom-flume-source/</loc>
         <lastmod>2014-03-07T09:55:03+00:00</lastmod>
     </url>
     <url>
-        <loc>http://blog.sequenceiq.com//blog/2014/02/26/vote-for-us/</loc>
+        <loc>http://blog.sequenceiq.com/blog/2014/02/26/vote-for-us/</loc>
         <lastmod>2014-03-07T09:55:03+00:00</lastmod>
     </url>
     <url>
-        <loc>http://blog.sequenceiq.com//blog/2014/02/28/etl-and-data-quality/</loc>
+        <loc>http://blog.sequenceiq.com/blog/2014/02/28/etl-and-data-quality/</loc>
         <lastmod>2014-03-07T09:55:03+00:00</lastmod>
     </url>
     <url>
-        <loc>http://blog.sequenceiq.com//blog/2014/03/05/access-hdp2-sandbox/</loc>
+        <loc>http://blog.sequenceiq.com/blog/2014/03/05/access-hdp2-sandbox/</loc>
         <lastmod>2014-03-07T09:55:04+00:00</lastmod>
     </url>
     <url>
-        <loc>http://blog.sequenceiq.com//blog/2014/03/07/read-from-hdfs/</loc>
+        <loc>http://blog.sequenceiq.com/blog/2014/03/07/read-from-hdfs/</loc>
         <lastmod>2014-03-07T10:00:06+00:00</lastmod>
     </url>
     <url>
-        <loc>http://blog.sequenceiq.com//blog/archives/</loc>
+        <loc>http://blog.sequenceiq.com/blog/archives/</loc>
         <lastmod>2014-03-07T10:00:06+00:00</lastmod>
     </url>
     <url>
-        <loc>http://blog.sequenceiq.com//blog/categories/</loc>
+        <loc>http://blog.sequenceiq.com/blog/categories/</loc>
         <lastmod>2014-03-07T09:55:03+00:00</lastmod>
     </url>
     <url>
-        <loc>http://blog.sequenceiq.com//archives/</loc>
+        <loc>http://blog.sequenceiq.com/archives/</loc>
         <lastmod>2014-03-07T10:00:06+00:00</lastmod>
     </url>
     <url>
-        <loc>http://blog.sequenceiq.com//robots.txt</loc>
+        <loc>http://blog.sequenceiq.com/robots.txt</loc>
         <lastmod>2014-03-07T09:54:53+00:00</lastmod>
     </url>
     <url>
-        <loc>http://blog.sequenceiq.com//404.html</loc>
+        <loc>http://blog.sequenceiq.com/404.html</loc>
         <lastmod>2014-03-07T09:55:03+00:00</lastmod>
     </url>
     <url>
-        <loc>http://blog.sequenceiq.com//</loc>
+        <loc>http://blog.sequenceiq.com/</loc>
         <lastmod>2014-03-07T10:00:06+00:00</lastmod>
     </url>
 </urlset>
