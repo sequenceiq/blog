@@ -1,11 +1,14 @@
-{% if site.facebook_user %}
-<section class="facebook{% if site.facebook_hidden %} facebook-hidden{% endif %}">
-  <h1>
-    <a href="https://www.facebook.com/{{ site.facebook_user }}">
-      <img src="https://www.facebook.com/images/fb_icon_325x325.png" width="32" height="32">
-      Google+
-    </a>
-  </h1>
+{% if site.facebook_like_box_href %}
+<section>
+    <h1>Facebook Page</h1>
+    <div class="fb-like-box"
+        data-href="{{ site.facebook_like_box_href }}"
+        data-width="{{ site.facebook_like_box_width }}"
+        data-show-faces="{{ site.facebook_like_box_show_faces}}"
+        data-header="{{ site.facebook_like_box_header }}"
+        data-stream="{{ site.facebook_like_box_stream }}"
+        data-show-border="{{ site.facebook_like_box_show_border }}">
+    </div>
 </section>
-{% endif %}
 
+{% endif %}
