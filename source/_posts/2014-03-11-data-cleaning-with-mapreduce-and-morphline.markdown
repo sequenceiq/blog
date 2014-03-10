@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Data cleaning with MapReduce and Morphline"
-date: 2014-03-08 16:21:07 +0100
+date: 2014-03-11 16:21:07 +0100
 comments: true
 categories: [MapReduce, Morphline, HDFS, Data cleaning, ETL]
 author: Krisztian Horvath
