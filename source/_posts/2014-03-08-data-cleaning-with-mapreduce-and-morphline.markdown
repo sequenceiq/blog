@@ -7,10 +7,8 @@ categories: [MapReduce, Morphline, HDFS, Data cleaning, ETL]
 author: Krisztian Horvath
 published: false
 ---
-[Previously](http://blog.sequenceiq.com/blog/2014/02/28/etl-and-data-quality/) we saw how easily extensible the Kite Morphlines is with your 
-custom commands. Right now we are going to use it to remove columns from a dataset to demonstrate how it can be used with MapReduce jobs. 
-Download the MovieLens + IMDb/Rotten Tomatoes dataset from [Grouplens](http://grouplens.org/datasets/hetrec-2011/), extract it, 
-and it will contain a file called user_ratedmovies.dat. 
+[Previously](http://blog.sequenceiq.com/blog/2014/02/28/etl-and-data-quality/) we saw how easily extensible is Kite Morphlines framrwork with your custom commands. In this post we are going to use it to remove columns from a dataset to demonstrate how it can be used end embedded in MapReduce jobs. 
+Download the MovieLens + IMDb/Rotten Tomatoes dataset from [Grouplens](http://grouplens.org/datasets/hetrec-2011/), extract it, and it should contain a file called user_ratedmovies.dat. 
 It is basically a tsv file and we are going to use the exact same column names as it is given in the first line. 
 
 ```
@@ -72,8 +70,8 @@ record.removeAll(Fields.ATTACHMENT_BODY);
 ```
 Notice that the compile method takes an important parameter called finalChild which is in our example the `RecordEmitter`. 
 The returned command will feed records into finalChild which means if this parameter is not provided a DropRecord command will 
-be assigned automatically. In Apache Flume they created a Collector command to not to lose any transformed record. 
-The only thing left is to outbox the processed record and write the result to hdfs. The RecordEmitter will serve this purpose:
+be assigned automatically. In Apache Flume there is a Collector command to avoid loosing any transformed record. 
+The only thing left is to outbox the processed record and write the results to HDFS. The RecordEmitter will serve this purpose:
 ```java
 @Override
 public boolean process(Record record) {
@@ -92,5 +90,4 @@ transformed data will look like this (3 columns were dropped):
 {date_day=[10], date_month=[10], date_year=[2008], movieID=[62049], rating=[4.5], userID=[71534]}
 ```
 The source code is available in our samples repository on [GitHub](https://github.com/sequenceiq/sequenceiq-samples). 
-It is just a simple example but you can go further and download a much bigger dataset with 10 millions of lines and process it with multiple 
-nodes to see how it scales.
+It is just a simple example but you can go further and download a much bigger dataset with 10 millions of lines and process it with multiple nodes to see how it scales.
