@@ -7,7 +7,7 @@ categories: [MapReduce, Morphline, HDFS, Data cleaning, ETL]
 author: Krisztian Horvath
 published: false
 ---
-[Previously](http://blog.sequenceiq.com/blog/2014/02/28/etl-and-data-quality/) we saw how easily extensible is Kite Morphlines framrwork with your custom commands. In this post we are going to use it to remove columns from a dataset to demonstrate how it can be used end embedded in MapReduce jobs. 
+[Previously](http://blog.sequenceiq.com/blog/2014/02/28/etl-and-data-quality/) we saw how easily extensible is Kite Morphlines framrwork with your custom commands. In this post we are going to use it to remove columns from a dataset to demonstrate how it can be used and embed in MapReduce jobs. 
 Download the MovieLens + IMDb/Rotten Tomatoes dataset from [Grouplens](http://grouplens.org/datasets/hetrec-2011/), extract it, and it should contain a file called user_ratedmovies.dat. 
 It is basically a tsv file and we are going to use the exact same column names as it is given in the first line. 
 
