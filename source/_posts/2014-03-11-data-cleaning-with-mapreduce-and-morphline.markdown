@@ -1,15 +1,15 @@
 ---
 layout: post
 title: "Data cleaning with MapReduce and Morphline"
-date: 2014-03-11 16:21:07 +0100
+date: 2014-03-11 10:21:07 +0100
 comments: true
 categories: [MapReduce, Morphline, HDFS, Data cleaning, ETL]
 author: Krisztian Horvath
 published: true
 ---
-[Previously](http://blog.sequenceiq.com/blog/2014/02/28/etl-and-data-quality/) we saw how easily extensible is Kite Morphlines framrwork with your custom commands. In this post we are going to use it to remove columns from a dataset to demonstrate how it can be used and embed in MapReduce jobs. 
+In one of our [previous](http://blog.sequenceiq.com/blog/2014/02/28/etl-and-data-quality/) posts we showed how easy is to extend the Kite Morphlines framework with your custom commands. In this post we are going to use it to remove columns from a dataset to demonstrate how it can be used and embeded in MapReduce jobs. 
 Download the MovieLens + IMDb/Rotten Tomatoes dataset from [Grouplens](http://grouplens.org/datasets/hetrec-2011/), extract it, and it should contain a file called user_ratedmovies.dat. 
-It is basically a tsv file and we are going to use the exact same column names as it is given in the first line. 
+It is a simple tsv file - we are going to use the same column names as it shows in the first line (header)
 
 ```
 userID	movieID	rating	date_day  date_month  date_year	date_hour  date_minute	date_second
@@ -22,8 +22,7 @@ userID	movieID	rating	date_day  date_month  date_year	date_hour  date_minute	dat
 75		173		3.5		29		 10			  2006		23			17			37
 ```
 
-Let’s just say we don’t need all the
-data from here and remove the last 3 columns (date_hour, date_minute, date_second). We can achieve this with the following 2 commands:
+Let’s just pretend that we don’t need all the data from the file and remove the last 3 columns (date_hour, date_minute, date_second). We can achieve this task with the following 2 commands:
 
 ```
 {
@@ -40,17 +39,15 @@ data from here and remove the last 3 columns (date_hour, date_minute, date_secon
 	java {
   	  imports : "import java.util.*;"
   	  code: """
-        record.removeAll("date_hour");
-        record.removeAll("date_minute");
-        record.removeAll("date_second");
+          record.removeAll("date_hour");
+          record.removeAll("date_minute");
+          record.removeAll("date_second");
     	  return child.process(record);
-        """
 	}
 }
 ```
 <!-- more -->
-Create our mapper only job to process the data. What we need to do is build the Morphline command chain by parsing the 
-configuration file as shown
+Now lets create our mapper only job to process the data. What we need to do is build the Morphline command chain by parsing the configuration file as shown
 
 ```java protected void setup(Context context)
 File morphLineFile = new File(context.getConfiguration().get(MORPHLINE_FILE));
@@ -91,3 +88,6 @@ transformed data will look like this (3 columns were dropped):
 ```
 The source code is available in our samples repository on [GitHub](https://github.com/sequenceiq/sequenceiq-samples). 
 It is just a simple example but you can go further and download a much bigger dataset with 10 millions of lines and process it with multiple nodes to see how it scales.
+
+Enjoy,
+SequenceIQ
