@@ -26,13 +26,13 @@
     </url>
     <url>
         <loc>
-            http://blog.sequenceiq.com/blog/2014/03/11/data-cleaning-with-mapreduce-and-morphline/
+            http://blog.sequenceiq.com/blog/2014/03/11/data-cleaning-with-mapreduce-and-morphlines/
         </loc>
-        <lastmod>2014-03-11T10:00:45+00:00</lastmod>
+        <lastmod>2014-03-11T10:18:02+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/archives/</loc>
-        <lastmod>2014-03-11T10:00:45+00:00</lastmod>
+        <lastmod>2014-03-11T10:18:02+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/categories/</loc>
@@ -40,7 +40,7 @@
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/archives/</loc>
-        <lastmod>2014-03-11T10:00:45+00:00</lastmod>
+        <lastmod>2014-03-11T10:18:02+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/robots.txt</loc>
@@ -52,6 +52,6 @@
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/</loc>
-        <lastmod>2014-03-11T10:00:45+00:00</lastmod>
+        <lastmod>2014-03-11T10:18:02+00:00</lastmod>
     </url>
 </urlset>
