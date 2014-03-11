@@ -4,7 +4,7 @@
   <title><![CDATA[Category: HDFS | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hdfs/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-11T09:54:58+00:00</updated>
+  <updated>2014-03-11T10:00:50+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Data cleaning with MapReduce and Morphline]]></title>
+    <title type="html"><![CDATA[Data cleaning with MapReduce and Morphlines]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/03/11/data-cleaning-with-mapreduce-and-morphline/"/>
     <updated>2014-03-11T09:21:07+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/03/11/data-cleaning-with-mapreduce-and-morphline</id>
@@ -67,7 +67,7 @@ userID  movieID rating  date_day  date_month  date_year date_hour  date_minute  
 <!-- more -->
 
 
-<p>Now lets create our mapper only job to process the data. What we need to do is build the Morphline command chain by parsing the configuration file as shown</p>
+<p>Now lets create our mapper only job to process the data. What we need to do is build the Morphlines command chain by parsing the configuration file as shown</p>
 
 <p><code>java protected void setup(Context context)
 File morphLineFile = new File(context.getConfiguration().get(MORPHLINE_FILE));
