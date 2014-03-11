@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Data cleaning with MapReduce and Morphline"
+title: "Data cleaning with MapReduce and Morphlines"
 date: 2014-03-11 10:21:07 +0100
 comments: true
 categories: [MapReduce, Morphline, HDFS, Data cleaning, ETL]
@@ -47,7 +47,7 @@ Let’s just pretend that we don’t need all the data from the file and remove 
 }
 ```
 <!-- more -->
-Now lets create our mapper only job to process the data. What we need to do is build the Morphline command chain by parsing the configuration file as shown
+Now lets create our mapper only job to process the data. What we need to do is build the Morphlines command chain by parsing the configuration file as shown
 
 ```java protected void setup(Context context)
 File morphLineFile = new File(context.getConfiguration().get(MORPHLINE_FILE));
