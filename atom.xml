@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-08T23:48:49+00:00</updated>
+  <updated>2014-03-11T09:41:18+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,157 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Data cleaning with MapReduce and Morphline]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/03/11/data-cleaning-with-mapreduce-and-morphline/"/>
+    <updated>2014-03-11T15:21:07+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/03/11/data-cleaning-with-mapreduce-and-morphline</id>
+    <content type="html"><![CDATA[<p><a href="http://blog.sequenceiq.com/blog/2014/02/28/etl-and-data-quality/">Previously</a> we saw how easily extensible is Kite Morphlines framrwork with your custom commands. In this post we are going to use it to remove columns from a dataset to demonstrate how it can be used and embed in MapReduce jobs.
+Download the MovieLens + IMDb/Rotten Tomatoes dataset from <a href="http://grouplens.org/datasets/hetrec-2011/">Grouplens</a>, extract it, and it should contain a file called user_ratedmovies.dat.
+It is basically a tsv file and we are going to use the exact same column names as it is given in the first line.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>userID   movieID rating  date_day  date_month  date_year date_hour  date_minute  date_second
+</span><span class='line'>75        3       1       29       10           2006      23          17          16
+</span><span class='line'>75        32      4.5     29       10           2006      23          23          44
+</span><span class='line'>75        110     4       29       10           2006      23          30          8
+</span><span class='line'>75        160     2       29       10           2006      23          16          52
+</span><span class='line'>75        163     4       29       10           2006      23          29          30
+</span><span class='line'>75        165     4.5     29       10           2006      23          25          15
+</span><span class='line'>75        173     3.5     29       10           2006      23          17          37</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Let’s just say we don’t need all the
+data from here and remove the last 3 columns (date_hour, date_minute, date_second). We can achieve this with the following 2 commands:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>{
+</span><span class='line'>  readCSV {
+</span><span class='line'>          separator : "\t"
+</span><span class='line'>          columns : [userID,movieID,rating,date_day,date_month,date_year,date_hour,date_minute,date_second]
+</span><span class='line'>          ignoreFirstLine : false
+</span><span class='line'>          trim : true
+</span><span class='line'>          charset : UTF-8
+</span><span class='line'>  }
+</span><span class='line'>}  
+</span><span class='line'>
+</span><span class='line'>{
+</span><span class='line'>  java {
+</span><span class='line'>        imports : "import java.util.*;"
+</span><span class='line'>        code: """
+</span><span class='line'>        record.removeAll("date_hour");
+</span><span class='line'>        record.removeAll("date_minute");
+</span><span class='line'>        record.removeAll("date_second");
+</span><span class='line'>        return child.process(record);
+</span><span class='line'>        """
+</span><span class='line'>  }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<!-- more -->
+
+
+<p>Create our mapper only job to process the data. What we need to do is build the Morphline command chain by parsing the
+configuration file as shown</p>
+
+<figure class='code'><figcaption><span>protected void setup(Context context)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">File</span> <span class="n">morphLineFile</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="n">context</span><span class="o">.</span><span class="na">getConfiguration</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="n">MORPHLINE_FILE</span><span class="o">));</span>
+</span><span class='line'><span class="n">String</span> <span class="n">morphLineId</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getConfiguration</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="n">MORPHLINE_ID</span><span class="o">);</span>
+</span><span class='line'><span class="n">RecordEmitter</span> <span class="n">recordEmitter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">RecordEmitter</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+</span><span class='line'><span class="n">MorphlineContext</span> <span class="n">morphlineContext</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MorphlineContext</span><span class="o">.</span><span class="na">Builder</span><span class="o">().</span><span class="na">build</span><span class="o">();</span>
+</span><span class='line'><span class="n">Command</span> <span class="n">morphline</span> <span class="o">=</span> <span class="k">new</span> <span class="n">org</span><span class="o">.</span><span class="na">kitesdk</span><span class="o">.</span><span class="na">morphline</span><span class="o">.</span><span class="na">base</span><span class="o">.</span><span class="na">Compiler</span><span class="o">().</span><span class="na">compile</span><span class="o">(</span><span class="n">morphLineFile</span><span class="o">,</span> <span class="n">morphLineId</span><span class="o">,</span> <span class="n">morphlineContext</span><span class="o">,</span> <span class="n">recordEmitter</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and pass the lines through it.</p>
+
+<figure class='code'><figcaption><span>protected void map(Object key, Text value, Context context)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Record</span> <span class="n">record</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Record</span><span class="o">()</span>
+</span><span class='line'><span class="n">record</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">Fields</span><span class="o">.</span><span class="na">ATTACHMENT_BODY</span><span class="o">,</span> <span class="k">new</span> <span class="n">ByteArrayInputStream</span><span class="o">(</span><span class="n">value</span><span class="o">.</span><span class="na">toString</span><span class="o">().</span><span class="na">getBytes</span><span class="o">()));</span>
+</span><span class='line'><span class="k">if</span> <span class="o">(!</span><span class="n">morphline</span><span class="o">.</span><span class="na">process</span><span class="o">(</span><span class="n">record</span><span class="o">))</span> <span class="o">{</span>
+</span><span class='line'>  <span class="n">LOGGER</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&quot;Morphline failed to process record: {}&quot;</span><span class="o">,</span> <span class="n">record</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'><span class="n">record</span><span class="o">.</span><span class="na">removeAll</span><span class="o">(</span><span class="n">Fields</span><span class="o">.</span><span class="na">ATTACHMENT_BODY</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Notice that the compile method takes an important parameter called finalChild which is in our example the <code>RecordEmitter</code>.
+The returned command will feed records into finalChild which means if this parameter is not provided a DropRecord command will
+be assigned automatically. In Apache Flume there is a Collector command to avoid loosing any transformed record.
+The only thing left is to outbox the processed record and write the results to HDFS. The RecordEmitter will serve this purpose:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
+</span><span class='line'><span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">process</span><span class="o">(</span><span class="n">Record</span> <span class="n">record</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="n">line</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">record</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+</span><span class='line'>  <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">context</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">line</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">LOGGER</span><span class="o">.</span><span class="na">warn</span><span class="o">(</span><span class="s">&quot;Cannot write record to context&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>By default the readCSV command extracts the ATTACHMENT_BODY into headers with id provided in the columns field so the
+transformed data will look like this (3 columns were dropped):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="o">{</span><span class="n">date_day</span><span class="o">=[</span><span class="mi">10</span><span class="o">],</span> <span class="n">date_month</span><span class="o">=[</span><span class="mi">10</span><span class="o">],</span> <span class="n">date_year</span><span class="o">=[</span><span class="mi">2008</span><span class="o">],</span> <span class="n">movieID</span><span class="o">=[</span><span class="mi">62049</span><span class="o">],</span> <span class="n">rating</span><span class="o">=[</span><span class="mf">4.5</span><span class="o">],</span> <span class="n">userID</span><span class="o">=[</span><span class="mi">71534</span><span class="o">]}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The source code is available in our samples repository on <a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub</a>.
+It is just a simple example but you can go further and download a much bigger dataset with 10 millions of lines and process it with multiple nodes to see how it scales.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[HDFS and java.nio.channels]]></title>
