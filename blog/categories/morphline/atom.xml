@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Morphline | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/morphline/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-11T09:41:18+00:00</updated>
+  <updated>2014-03-11T09:54:58+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -16,11 +16,11 @@
   <entry>
     <title type="html"><![CDATA[Data cleaning with MapReduce and Morphline]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/03/11/data-cleaning-with-mapreduce-and-morphline/"/>
-    <updated>2014-03-11T15:21:07+00:00</updated>
+    <updated>2014-03-11T09:21:07+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/03/11/data-cleaning-with-mapreduce-and-morphline</id>
-    <content type="html"><![CDATA[<p><a href="http://blog.sequenceiq.com/blog/2014/02/28/etl-and-data-quality/">Previously</a> we saw how easily extensible is Kite Morphlines framrwork with your custom commands. In this post we are going to use it to remove columns from a dataset to demonstrate how it can be used and embed in MapReduce jobs.
+    <content type="html"><![CDATA[<p>In one of our <a href="http://blog.sequenceiq.com/blog/2014/02/28/etl-and-data-quality/">previous</a> posts we showed how easy is to extend the Kite Morphlines framework with your custom commands. In this post we are going to use it to remove columns from a dataset to demonstrate how it can be used and embeded in MapReduce jobs.
 Download the MovieLens + IMDb/Rotten Tomatoes dataset from <a href="http://grouplens.org/datasets/hetrec-2011/">Grouplens</a>, extract it, and it should contain a file called user_ratedmovies.dat.
-It is basically a tsv file and we are going to use the exact same column names as it is given in the first line.</p>
+It is a simple tsv file &ndash; we are going to use the same column names as it shows in the first line (header)</p>
 
 <p><code>
 userID  movieID rating  date_day  date_month  date_year date_hour  date_minute  date_second
@@ -33,8 +33,7 @@ userID  movieID rating  date_day  date_month  date_year date_hour  date_minute  
 75      173     3.5     29       10           2006      23          17          37
 </code></p>
 
-<p>Let’s just say we don’t need all the
-data from here and remove the last 3 columns (date_hour, date_minute, date_second). We can achieve this with the following 2 commands:</p>
+<p>Let’s just pretend that we don’t need all the data from the file and remove the last 3 columns (date_hour, date_minute, date_second). We can achieve this task with the following 2 commands:</p>
 
 <p>```
 {</p>
@@ -55,11 +54,10 @@ data from here and remove the last 3 columns (date_hour, date_minute, date_secon
 <pre><code>java {
   imports : "import java.util.*;"
   code: """
-    record.removeAll("date_hour");
-    record.removeAll("date_minute");
-    record.removeAll("date_second");
+      record.removeAll("date_hour");
+      record.removeAll("date_minute");
+      record.removeAll("date_second");
       return child.process(record);
-    """
 }
 </code></pre>
 
@@ -69,8 +67,7 @@ data from here and remove the last 3 columns (date_hour, date_minute, date_secon
 <!-- more -->
 
 
-<p>Create our mapper only job to process the data. What we need to do is build the Morphline command chain by parsing the
-configuration file as shown</p>
+<p>Now lets create our mapper only job to process the data. What we need to do is build the Morphline command chain by parsing the configuration file as shown</p>
 
 <p><code>java protected void setup(Context context)
 File morphLineFile = new File(context.getConfiguration().get(MORPHLINE_FILE));
@@ -123,6 +120,9 @@ transformed data will look like this (3 columns were dropped):
 ```
 The source code is available in our samples repository on <a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub</a>.
 It is just a simple example but you can go further and download a much bigger dataset with 10 millions of lines and process it with multiple nodes to see how it scales.</p>
+
+<p>Enjoy,
+SequenceIQ</p>
 ]]></content>
   </entry>
   
