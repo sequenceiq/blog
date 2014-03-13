@@ -86,6 +86,7 @@ Same way the queue capacity can be tracked as well:
     }
 
 ```
+You can run the samples 'hadoop jar yarn-queue-tests-1.0-SNAPSHOT.jar com.sequenceiq.yarntest.client.JobClient', and play with different queue setups. Once you have changed the queue setup you can refresh the setting with 'yarn rmadmin -refreshQueues'.
 
 You can see the progress through the [logs](https://gist.github.com/matyix/9528220).The [cluster statiscics]( http://sandbox.hortonworks.com:8088/cluster/scheduler) and [application statistics](http://sandbox.hortonworks.com:8088/cluster/apps) are availbale as well (we run this example on Hortonworks' HDP2 sandbox, but any other Hadoop 2 distribution works - you can set your own cluster on Amazon EC2 useing SequenceIQ's setup scripts from our [GitHub](https://github.com/sequenceiq/hadoop-cloud-scripts) page).
 
