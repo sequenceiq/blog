@@ -23,11 +23,11 @@ First, let’s config the Capacity Scheduler (you can use XML, [Apache Ambari](h
   <name>yarn.scheduler.capacity.root.queues</name>
   <value>default,highPriority,lowPriority</value>
 </property>
-    <property>
+<property>
   <name>yarn.scheduler.capacity.root.highPriority.capacity</name>
   <value>70</value>
 </property>
-    <property>
+<property>
   <name>yarn.scheduler.capacity.root.lowPriority.capacity</name>
   <value>20</value>
 </property>
