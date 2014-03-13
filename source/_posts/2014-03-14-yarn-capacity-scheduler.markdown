@@ -92,6 +92,7 @@ As you expect, the jobs submitted into the  *highPriority* queue are finished ea
 This is a good way to start experimenting multi-tenancy and parallel jobs submission into a shared cluster (beyond the Fair Scheduler). At [SequenceIQ](http://sequenceiq.com) we are working on a heuristic YARN scheduler - where we can adapt to increased work loads, submit jobs into queues based on different customer QoS profiles, and increase or downsize our cloud based cluster based on load and capacity. 
 
 For more details and updates please follow us through our [LinkedIn](http://www.linkedin.com/company/sequenceiq/) page.
+You can access the code from our [GitHub](https://github.com/sequenceiq/sequenceiq-samples) page.
 
 Thanks,
 SequenceIQ
