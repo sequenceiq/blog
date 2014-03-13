@@ -3,7 +3,7 @@ layout: post
 title: "YARN Capacity Scheduler"
 date: 2014-03-14 16:17:04 +0100
 comments: true
-categories: [YARN, HD2, Capacity Scheduler]
+categories: [YARN, HD2, Capacity Scheduler, Hortonworks]
 author: Janos Matyas
 published: false
 ---
