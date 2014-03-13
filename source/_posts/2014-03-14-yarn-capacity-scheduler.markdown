@@ -10,11 +10,11 @@ published: false
 
 Since the emergence of Hadoop 2 and the YARN based architecture we have a platform where we can run multiple applications (of different types) not constrained only to MapReduce. Different applications or different MapReduce job profiles have different resource needs, however since Hadoop 2.0 is a multi tenant platform the different users could have different access patterns or need for cluster capacity. This is achieved through YARN schedulers - allocating resources to the various running applications subject to familiar constraints of capacities and queues (for more information on YARN follow this [link](http://hortonworks.com/hadoop/yarn/) or  feel free to ask us should you have any questions).
 
-In Hadoop 2.0, the scheduler is a pluggable piece of code that lives inside the *ResourceManager* (the JobTracker in MR1) - the ultimate authority that arbitrates resources among all the applications in the system. The scheduler in YARN does not perform monitoring or status tracking and offers no guarantees to restart failed tasks - check our sample [GitHub](https://github.com/sequenceiq/sequenceiq-samples) project to check how monitoring or progress can be tracked. 
+In Hadoop 2.0, the scheduler is a pluggable piece of code that lives inside the *ResourceManager* (the JobTracker in MR1) - the ultimate authority that arbitrates resources among all the applications in the system. The scheduler in YARN does not perform monitoring or status tracking and offers no guarantees to restart failed tasks - check our sample [GitHub](https://github.com/sequenceiq/sequenceiq-samples/tree/master/yarn-queue-tests) project to check how monitoring or progress can be tracked. 
 
 The Capacity Scheduler was designed to allow significantly higher cluster utilization while still providing predictability for Hadoop workloads, while sharing resources in a predictable and simple manner. It uses the common notion of ‘job queues’.
 
-In our [example](https://github.com/sequenceiq/sequenceiq-samples) we show you how to use the Capacity Scheduler, configure queues with different priorities, submit MapReduce jobs into these queues, and monitor and track the progress of the jobs - and ultimately see the differences between execution times using queues with different priorities. 
+In our [example](https://github.com/sequenceiq/sequenceiq-samples/tree/master/yarn-queue-tests) we show you how to use the Capacity Scheduler, configure queues with different priorities, submit MapReduce jobs into these queues, and monitor and track the progress of the jobs - and ultimately see the differences between execution times using queues with different priorities. 
 
 First, let’s config the Capacity Scheduler (you can use XML, [Apache Ambari](http://ambari.apache.org/) or you can configure queues programatically). In this example we use a simple xml configuration.
 
@@ -95,7 +95,7 @@ As you expect, the jobs submitted into the  `highPriority` queue are finished ea
 This is a good way to start experimenting multi-tenancy and parallel jobs submission into a shared cluster (beyond the Fair Scheduler). At [SequenceIQ](http://sequenceiq.com) we are working on a heuristic YARN scheduler - where we can adapt to increased work loads, submit jobs into queues based on different customer QoS profiles, and increase or downsize our cloud based cluster based on load and capacity. 
 
 For more details and updates please follow us through our [LinkedIn](http://www.linkedin.com/company/sequenceiq/) page.
-You can access the code from our [GitHub](https://github.com/sequenceiq/sequenceiq-samples) page.
+You can access the code from our [GitHub](https://github.com/sequenceiq/sequenceiq-samples/tree/master/yarn-queue-tests) repository.
 
 Thanks,
 SequenceIQ
