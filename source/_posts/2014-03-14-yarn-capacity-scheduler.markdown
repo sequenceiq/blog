@@ -87,7 +87,9 @@ Same way the queue capacity can be tracked as well:
 
 ```
 
-As you expect, the jobs submitted into the  *highPriority* queue are finished earlier than those submitted into the *lowPriority* one - though (in case of submitting into the same queue) the MapReduce jobs should take the same time (as they are the same job, have the same job profile).
+You can see the progress through the [logs](https://gist.github.com/matyix/9528220).The [cluster statiscics]( http://sandbox.hortonworks.com:8088/cluster/scheduler) and [application statistics](http://sandbox.hortonworks.com:8088/cluster/apps) are availbale as well (we run this example on Hortonworks' HDP2 sandbox, but any other Hadoop 2 distribution works - you can set your own cluster on Amazon EC2 useing SequenceIQ's setup scripts from our [GitHub](https://github.com/sequenceiq/hadoop-cloud-scripts) page).
+
+As you expect, the jobs submitted into the  `highPriority` queue are finished earlier than those submitted into the `lowPriority` one - though (in case of submitting into the same queue) the MapReduce jobs should take the same time (as they are the same job, have the same job profile).
 
 This is a good way to start experimenting multi-tenancy and parallel jobs submission into a shared cluster (beyond the Fair Scheduler). At [SequenceIQ](http://sequenceiq.com) we are working on a heuristic YARN scheduler - where we can adapt to increased work loads, submit jobs into queues based on different customer QoS profiles, and increase or downsize our cloud based cluster based on load and capacity. 
 
