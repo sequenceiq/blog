@@ -5,7 +5,7 @@ date: 2014-03-14 16:17:04 +0000
 comments: true
 categories: [YARN, HD2, Capacity Scheduler]
 author: Janos Matyas
-posted:false
+published:false
 ---
 
 Since the emergence of Hadoop 2 and the YARN based architecture we have a platform where we can run multiple applications (of different types) not constrained only to MapReduce. Different applications or different MapReduce job profiles have different resource needs, however since Hadoop 2.0 is a multi tenant platform the different users could have different access patterns or need for cluster capacity. This is achieved through YARN schedulers - allocating resources to the various running applications subject to familiar constraints of capacities and queues (for more information on YARN follow this [link](http://hortonworks.com/hadoop/yarn/) or  feel free to ask us should you have any questions).
