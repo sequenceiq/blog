@@ -45,6 +45,8 @@ We have 3 queues, with different queue setups/priorities. Each queue is given a 
 </property>
 ```
 
+<!-- more -->
+
 Now lets submit some jobs into these queues. We will use the QuasiMonteCarlo.java example (coming with Hadoop) - a MapReduce job that estimates the value of Pi, and submit the same MapReduce jobs into the low and high priority queues. 
 
 ``` java
