@@ -4,7 +4,7 @@
   <title><![CDATA[Category: YARN | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/yarn/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-14T09:26:38+00:00</updated>
+  <updated>2014-03-14T09:36:45+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -54,6 +54,9 @@ We have 3 queues, with different queue setups/priorities. Each queue is given a 
   &lt;value&gt;50&lt;/value&gt;
 &lt;/property&gt;
 </code></p>
+
+<!-- more -->
+
 
 <p>Now lets submit some jobs into these queues. We will use the QuasiMonteCarlo.java example (coming with Hadoop) &ndash; a MapReduce job that estimates the value of Pi, and submit the same MapReduce jobs into the low and high priority queues.</p>
 
