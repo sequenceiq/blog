@@ -5,7 +5,7 @@
 url: http://blog.sequenceiq.com
 title: SequenceIQ Blog
 subtitle: Our view on big data
-author: SequenceIQ 
+author: SequenceIQ
 simple_search: http://google.com/search
 description:
 
@@ -101,6 +101,7 @@ google_analytics_tracking_id:
 
 # Facebook Like
 facebook_like: true
+facebook_user: sequenceiq
 
 
 # Custom settings for https://developers.facebook.com/docs/reference/plugins/like-box/
