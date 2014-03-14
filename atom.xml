@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-11T10:18:04+00:00</updated>
+  <updated>2014-03-14T09:26:38+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,152 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[YARN Capacity Scheduler]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler/"/>
+    <updated>2014-03-14T15:17:04+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler</id>
+    <content type="html"><![CDATA[<p>Since the emergence of Hadoop 2 and the YARN based architecture we have a platform where we can run multiple applications (of different types) not constrained only to MapReduce. Different applications or different MapReduce job profiles have different resource needs, however since Hadoop 2.0 is a multi tenant platform the different users could have different access patterns or need for cluster capacity. In Hadoop 2.0 this is achieved through YARN schedulers — to allocate resources to various applications subject to constraints of capacities and queues (for more information on YARN follow this <a href="http://hortonworks.com/hadoop/yarn/">link</a> or feel free to ask us should you have any questions).</p>
+
+<p>In Hadoop 2.0, the scheduler is a pluggable piece of code that lives inside the <em>ResourceManager</em> (the JobTracker in MR1) &ndash; the ultimate authority that arbitrates resources among all the applications in the system. The scheduler in YARN does not perform monitoring or status tracking and offers no guarantees to restart failed tasks — check our sample <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/yarn-queue-tests">GitHub</a> project to check how monitoring or progress can be tracked.</p>
+
+<p>The Capacity Scheduler was designed to allow significantly higher cluster utilization while still providing predictability for Hadoop workloads, while sharing resources in a predictable and simple manner, using the common notion of <em>job queues</em>.</p>
+
+<p>In our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/yarn-queue-tests">example</a> we show you how to use the Capacity Scheduler, configure queues with different priorities, submit MapReduce jobs into these queues, monitor and track the progress of the jobs &ndash; and ultimately see the differences between execution times and throughput of different queue setups.</p>
+
+<p>First, let’s config the Capacity Scheduler (you can use xml, <a href="http://ambari.apache.org/">Apache Ambari</a> or you can configure queues programmatically). In this example we use a simple xml configuration.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;property&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;name&gt;</span>yarn.scheduler.capacity.root.queues<span class="nt">&lt;/name&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;value&gt;</span>default,highPriority,lowPriority<span class="nt">&lt;/value&gt;</span>
+</span><span class='line'><span class="nt">&lt;/property&gt;</span>
+</span><span class='line'><span class="nt">&lt;property&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;name&gt;</span>yarn.scheduler.capacity.root.highPriority.capacity<span class="nt">&lt;/name&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;value&gt;</span>70<span class="nt">&lt;/value&gt;</span>
+</span><span class='line'><span class="nt">&lt;/property&gt;</span>
+</span><span class='line'><span class="nt">&lt;property&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;name&gt;</span>yarn.scheduler.capacity.root.lowPriority.capacity<span class="nt">&lt;/name&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;value&gt;</span>20<span class="nt">&lt;/value&gt;</span>
+</span><span class='line'><span class="nt">&lt;/property&gt;</span>
+</span><span class='line'><span class="nt">&lt;property&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;name&gt;</span>yarn.scheduler.capacity.root.default.capacity<span class="nt">&lt;/name&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;value&gt;</span>10<span class="nt">&lt;/value&gt;</span>
+</span><span class='line'><span class="nt">&lt;/property&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We have 3 queues, with different queue setups/priorities. Each queue is given a <em>minimum</em> guaranteed percentage of total cluster capacity available &ndash; the total guaranteed capacity must equal 100%. In our example the <em>highPriority</em> queue has 70% of the resources, the <em>lowPriority</em> 20%, and the default queue has the remaining 10%. While it is not highlight in the example above, the Capacity Scheduler provides elastic resource scheduling, which means that if there are idle resources in the cluster, then one queue can take up more of the cluster capacity than was minimally allocated . In our case we could allocate a <em>maximum</em> capacity to the <em>lowPriority</em> queue:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;property&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;name&gt;</span>yarn.scheduler.capacity.root. lowPriority.maximum-capacity<span class="nt">&lt;/name&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;value&gt;</span>50<span class="nt">&lt;/value&gt;</span>
+</span><span class='line'><span class="nt">&lt;/property&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now lets submit some jobs into these queues. We will use the QuasiMonteCarlo.java example (coming with Hadoop) &ndash; a MapReduce job that estimates the value of Pi, and submit the same MapReduce jobs into the low and high priority queues.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//get a configuration</span>
+</span><span class='line'><span class="n">Configuration</span> <span class="n">priorityConf</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Configuration</span><span class="o">();</span>
+</span><span class='line'><span class="n">priorityConf</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">&quot;mapreduce.job.queuename&quot;</span><span class="o">,</span> <span class="n">queueName</span><span class="o">);</span>
+</span><span class='line'><span class="err">………………………</span>      
+</span><span class='line'><span class="c1">//submit the job</span>
+</span><span class='line'><span class="n">JobID</span> <span class="n">jobID</span> <span class="o">=</span> <span class="n">QuasiMonteCarlo</span><span class="o">.</span><span class="na">submitPiEstimationMRApp</span><span class="o">(</span><span class="err">“</span><span class="n">Pi</span> <span class="n">estimation</span> <span class="nl">into:</span> <span class="err">&quot;</span><span class="o">+</span> <span class="n">queueName</span><span class="o">,</span> <span class="mi">10</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="n">tempDir</span><span class="o">,</span> <span class="n">priorityConf</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once the jobs are submitted in the different queues, you can track the MapReduce job progress and monitor the queues through YARN. Using YARNRunner you can get ahold of a job status, and retrieve different informations:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//print overall job M/R progresses</span>
+</span><span class='line'><span class="n">LOGGER</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&quot;\nJob &quot;</span> <span class="o">+</span> <span class="n">jobStatus</span><span class="o">.</span><span class="na">getJobName</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;in queue (&quot;</span> <span class="o">+</span> <span class="n">jobStatus</span><span class="o">.</span><span class="na">getQueue</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;)&quot;</span> <span class="o">+</span> <span class="s">&quot; progress M/R: &quot;</span> <span class="o">+</span>              <span class="n">jobStatus</span><span class="o">.</span><span class="na">getMapProgress</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span> <span class="o">+</span> <span class="n">jobStatus</span><span class="o">.</span><span class="na">getReduceProgress</span><span class="o">());</span>
+</span><span class='line'><span class="n">LOGGER</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&quot;Tracking URL : &quot;</span> <span class="o">+</span> <span class="n">jobStatus</span><span class="o">.</span><span class="na">getTrackingUrl</span><span class="o">());</span>
+</span><span class='line'><span class="n">LOGGER</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&quot;Reserved memory : &quot;</span> <span class="o">+</span> <span class="n">jobStatus</span><span class="o">.</span><span class="na">getReservedMem</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;, used memory : &quot;</span><span class="o">+</span> <span class="n">jobStatus</span><span class="o">.</span><span class="na">getUsedMem</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot; and          used slots : &quot;</span><span class="o">+</span> <span class="n">jobStatus</span><span class="o">.</span><span class="na">getNumUsedSlots</span><span class="o">());</span>
+</span><span class='line'>  
+</span><span class='line'><span class="c1">// list map &amp; reduce tasks statuses and progress     </span>
+</span><span class='line'><span class="n">TaskReport</span><span class="o">[]</span> <span class="n">reports</span> <span class="o">=</span> <span class="n">yarnRunner</span><span class="o">.</span><span class="na">getTaskReports</span><span class="o">(</span><span class="n">jobID</span><span class="o">,</span> <span class="n">TaskType</span><span class="o">.</span><span class="na">MAP</span><span class="o">);</span>
+</span><span class='line'><span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">reports</span><span class="o">.</span><span class="na">length</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'><span class="n">LOGGER</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&quot;MAP: Status &quot;</span> <span class="o">+</span> <span class="n">reports</span><span class="o">[</span><span class="n">i</span><span class="o">].</span><span class="na">getCurrentStatus</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot; with task ID &quot;</span> <span class="o">+</span> <span class="n">reports</span><span class="o">[</span><span class="n">i</span><span class="o">].</span><span class="na">getTaskID</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;, and                 progress &quot;</span> <span class="o">+</span> <span class="n">reports</span><span class="o">[</span><span class="n">i</span><span class="o">].</span><span class="na">getProgress</span><span class="o">());</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Same way the queue capacity can be tracked as well:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">ArrayNode</span> <span class="n">queues</span> <span class="o">=</span> <span class="o">(</span><span class="n">ArrayNode</span><span class="o">)</span> <span class="n">jsonNode</span><span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;scheduler&quot;</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;schedulerInfo&quot;</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;queues&quot;</span><span class="o">).</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;queue&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">queues</span><span class="o">.</span><span class="na">size</span><span class="o">();</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'><span class="n">JsonNode</span> <span class="n">queueNode</span> <span class="o">=</span> <span class="n">queues</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">i</span><span class="o">);</span>                       
+</span><span class='line'><span class="n">LOGGER</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&quot;queueName / usedCapacity / absoluteUsedCap / absoluteCapacity / absMaxCapacity: &quot;</span> <span class="o">+</span>
+</span><span class='line'>                  <span class="n">queueNode</span><span class="o">.</span><span class="na">findValue</span><span class="o">(</span><span class="s">&quot;queueName&quot;</span><span class="o">)</span> <span class="o">+</span> <span class="s">&quot; / &quot;</span> <span class="o">+</span>
+</span><span class='line'>                  <span class="n">queueNode</span><span class="o">.</span><span class="na">findValue</span><span class="o">(</span><span class="s">&quot;usedCapacity&quot;</span><span class="o">)</span> <span class="o">+</span> <span class="s">&quot; / &quot;</span> <span class="o">+</span>
+</span><span class='line'>                  <span class="n">queueNode</span><span class="o">.</span><span class="na">findValue</span><span class="o">(</span><span class="s">&quot;absoluteUsedCapacity&quot;</span><span class="o">)</span> <span class="o">+</span> <span class="s">&quot; / &quot;</span> <span class="o">+</span>
+</span><span class='line'>                  <span class="n">queueNode</span><span class="o">.</span><span class="na">findValue</span><span class="o">(</span><span class="s">&quot;absoluteCapacity&quot;</span><span class="o">)</span> <span class="o">+</span> <span class="s">&quot; / &quot;</span> <span class="o">+</span>
+</span><span class='line'>                  <span class="n">queueNode</span><span class="o">.</span><span class="na">findValue</span><span class="o">(</span><span class="s">&quot;absoluteMaxCapacity&quot;</span><span class="o">));</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can run the example with <code>hadoop jar yarn-queue-tests-1.0-SNAPSHOT.jar com.sequenceiq.yarntest.client.JobClient</code>, and play with different queue setups. Once you have changed the queue setup you can refresh the settings with <code>yarn rmadmin -refreshQueues</code>.</p>
+
+<p>You can check the progress through the <a href="https://gist.github.com/matyix/9528220">logs</a>.The <a href="http://sandbox.hortonworks.com:8088/cluster/scheduler">cluster statistics</a> and <a href="http://sandbox.hortonworks.com:8088/cluster/apps">application statistics</a> are available as well (we run this example on Hortonworks HDP2 sandbox, but any other Hadoop 2 distribution works &ndash; you can set your own cluster on Amazon EC2 using SequenceIQ&rsquo;s setup scripts from our <a href="https://github.com/sequenceiq/hadoop-cloud-scripts">GitHub</a> page).</p>
+
+<p>As you expect, the jobs submitted into the  <code>highPriority</code> queue are finished earlier than those submitted into the <code>lowPriority</code> one &ndash; though (in case of submitting into the same queue) the MapReduce jobs should take the same time (as they are the same MapReduce job, have the same job profile).</p>
+
+<p>This is a good way to start experimenting multi-tenancy and parallel jobs submission into a shared cluster (beyond the Fair Scheduler). At <a href="http://sequenceiq.com">SequenceIQ</a> we are working on a heuristic YARN scheduler &ndash; where we can adapt to increased work loads, submit jobs into queues based on different customer QoS profiles, and increase or downsize our cloud based cluster based on load and capacity.</p>
+
+<p>For more details and updates please follow us through our <a href="http://www.linkedin.com/company/sequenceiq/">LinkedIn</a> page.
+You can access the code from our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/yarn-queue-tests">GitHub</a> repository.</p>
+
+<p>Thanks,
+SequenceIQ</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Data cleaning with MapReduce and Morphlines]]></title>
