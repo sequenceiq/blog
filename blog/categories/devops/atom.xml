@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: devops | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com/blog/categories/devops/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-03-19T04:00:56+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
+  <author>
+    <name><![CDATA[SequenceIQ]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Hadoop 2.3 with docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/03/19/hadoop-2-dot-3-with-docker/"/>
+    <updated>2014-03-19T03:54:09+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/03/19/hadoop-2-dot-3-with-docker</id>
+    <content type="html"><![CDATA[<p>You want to try out hadoop 2.3? Go to the zoo and <a href="http://sethgodin.typepad.com/seths_blog/2005/03/dont_shave_that.html">shave a yak</a>.
+Or simply just use <a href="https://www.docker.io/">docker</a>.</p>
+
+<p><code>
+docker run -i -t sequenceiq/hadoop /bin/bash
+</code></p>
+
+<h1>Yak shaving an elefant</h1>
+
+<p>I had problems installing hadoop 2.3 and by googling i stumbled upon this <a href="http://mail-archives.apache.org/mod_mbox/hadoop-mapreduce-user/201403.mbox/%3C53192FD4.2040003@oss.nttdata.co.jp%3E">email thread</a>,
+which references an <a href="http://aajisaka.github.io/hadoop-project/hadoop-project-dist/hadoop-common/SingleCluster.html#Standalone_Operation">alternative hadoop docs</a> deployed on github.</p>
+
+<p>By following that description i run into an other issue:
+hadoop is delivered with 32 bit native libraries. No big deal &hellip;</p>
+
+<h2>Hadoop native libraries</h2>
+
+<p>Of course there is an official <a href="http://hadoop.apache.org/docs/r2.3.0/hadoop-project-dist/hadoop-common/NativeLibraries.html">Native Libraries Guide</a> it instructs you
+to simple download the sources and <code>mvn package</code>. But than you face a new issue: missing <code>protobuf</code>. Eeeasy &hellip;</p>
+
+<h2>Protobuf 2.5</h2>
+
+<p>Unfortunately <code>yum install protobuf</code> installs an older 2.3 version, which is close but no cigar.
+ So you download protobuf source, and <code>./configure &amp;&amp; make &amp;&amp; make install</code></p>
+
+<p>To succeed on that one you have to install a couple of development packages, and there you go.</p>
+
+<h2>Bintray</h2>
+
+<p>I wanted to save you those steps so created a binary distro of the native libs
+compiled with 64 bit CentOS. So I created <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.3.0/view/files">Bintray r̨epo</a>. Enjoy</p>
+
+<h2>Automate everithing</h2>
+
+<p>As I&rsquo;m an automation fetishist, a Docker file was created, and released in the official <a href="https://index.docker.io/u/sequenceiq/hadoop-docker/">docker repo</a></p>
+]]></content>
+  </entry>
+  
+</feed>
