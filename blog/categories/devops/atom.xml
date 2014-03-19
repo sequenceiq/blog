@@ -4,7 +4,7 @@
   <title><![CDATA[Category: devops | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/devops/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-19T04:19:11+00:00</updated>
+  <updated>2014-03-19T14:25:59+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -80,7 +80,7 @@ to simple download the sources and <strong>mvn package</strong>. But than you fa
 <p>I wanted to save you those steps so created a binary distro of the native libs
 compiled with 64 bit CentOS. So I created <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.3.0/view/files">Bintray r̨epo</a>. Enjoy</p>
 
-<h2>Automate everithing</h2>
+<h2>Automate everything</h2>
 
 <p>As I&rsquo;m an automation fetishist, a Docker file was created, and released in the official <a href="https://index.docker.io/u/sequenceiq/hadoop-docker/">docker repo</a></p>
 ]]></content>
