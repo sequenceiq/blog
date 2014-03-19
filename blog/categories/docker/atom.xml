@@ -4,7 +4,7 @@
   <title><![CDATA[Category: docker | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/docker/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-19T04:03:30+00:00</updated>
+  <updated>2014-03-19T04:19:11+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -22,8 +22,35 @@
 Or simply just use <a href="https://www.docker.io/">docker</a>.</p>
 
 <p><code>
-docker run -i -t sequenceiq/hadoop /bin/bash
+docker run -i -t sequenceiq/hadoop-docker /bin/bash
 </code></p>
+
+<h2>Testing</h2>
+
+<p>```bash</p>
+
+<h1>start ssh and hdfs</h1>
+
+<p>service sshd start
+. /usr/local/hadoop/etc/hadoop/hadoop-env.sh
+cd $HADOOP_HOME
+sbin/start-dfs.sh</p>
+
+<h1>format and create directories</h1>
+
+<p>bin/hdfs namenode -format
+sbin/start-dfs.sh
+bin/hdfs dfs -mkdir -p /user/root
+bin/hdfs dfs -put etc/hadoop/ input</p>
+
+<h1>run the mapreduce</h1>
+
+<p>bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.3.0.jar grep input output &lsquo;dfs[a-z.]+&rsquo;</p>
+
+<h1>check the output</h1>
+
+<p>bin/hdfs dfs -cat output/*
+```</p>
 
 <!-- more -->
 
