@@ -7,8 +7,7 @@ categories: [Hortonworks, Hoya, HBase, YARN]
 author: Janos Matyas
 published: false
 ---
-
-Using Hortonworks Hoya at SequenceIQ
+Using Hoya at SequenceIQ
 
 With this blog post we are starting a series of articles where we'd like to describe how we use YARN,
 why it is central to our product stack and why we believe that Hortonworks Hoya will be a determining building block in the Hadoop echo-system.
@@ -22,7 +21,7 @@ Being true believers in open source and the need to diversify the provisioning o
 (e.g. provision Hadoop on Docker, read our previous [post](http://blog.sequenceiq.com/blog/2014/03/19/hadoop-2-dot-3-with-docker/))
 
 YARN separates the processing engine from the resource management - and acting effectively as an OS for Hadoop.
-With YARN, you can now run multiple applications in Hadoop, all sharing a common resource management and improves cluster utilisation (follow this blog post as we will release metrics soon).
+With YARN, you can now run multiple applications in Hadoop, all sharing a common resource management and improving cluster utilisation (we will release some metrics soon).
 YARN also provides the following features out of the box:
 
   * Management and Monitoring.
@@ -31,7 +30,7 @@ YARN also provides the following features out of the box:
   * High Availability.
   * Disaster Recovery.
 
-All these above, the effort of the Hadoop community and the wide adoption convinced us to start re-writing our platform to run fully on YARN.
+All of the above and the effort of the Hadoop community and the wide adoption convinced us to start re-writing our platform to run fully on YARN.
 During our proof of concepts we went as far as starting all our non Hadoop (and not YARN compatible) applications on YARN - by using [Hoya](https://github.com/hortonworks/hoya).
 
 Hoya was introduced by Hortonworks mid last year - with the purpose to create Apache HBase clusters on YARN (since than it supports Apache Accumulo as well).
@@ -84,4 +83,4 @@ destroy-hoya-cluster() {
 }
 ```
 As you see installing Hoya and starting different applications is very simple - and all the nice features of YARN are instantly available for any clustered applications.
-In our next post we will drive you through the steps of creating your own Hoya provider, deploy it and run it on a YARN cluster. 
+In our next post we will drive you through the steps of creating your own Hoya provider, deploy it and run it on a YARN cluster.
