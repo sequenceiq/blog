@@ -9,7 +9,7 @@ published: false
 ---
 Using Hoya at SequenceIQ
 
-With this blog post we are starting a series of articles where we'd like to describe how we use YARN, why it is central to our product stack and why we believe that Hortonworks Hoya will be a determining building block in the Hadoop echo-system.
+With this blog post we are starting a series of articles where we'd like to describe how we use YARN, why it is central to our product stack and why we believe that Hortonworks Hoya will be a determining building block in the Hadoop ecosystem.
 
 While we don't want to get in details about [YARN](http://hortonworks.com/hadoop/yarn/), we'd like to briefly explain the advantages of running an application on YARN, and introduce you to [Hortonworks Hoya](https://github.com/hortonworks/hoya).
 
