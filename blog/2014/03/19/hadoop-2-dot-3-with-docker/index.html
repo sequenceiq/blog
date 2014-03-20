@@ -118,15 +118,17 @@ Or simply just use <a href="https://www.docker.io/">docker</a>.</p>
 <span class='line-number'>15</span>
 <span class='line-number'>16</span>
 <span class='line-number'>17</span>
+<span class='line-number'>18</span>
 </pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># start ssh and hdfs</span>
 </span><span class='line'>service sshd start
 </span><span class='line'>. /usr/local/hadoop/etc/hadoop/hadoop-env.sh
+</span><span class='line'>. /usr/local/hadoop/etc/hadoop/yarn-env.sh
 </span><span class='line'><span class="nb">cd</span> <span class="nv">$HADOOP_HOME</span>
 </span><span class='line'>sbin/start-dfs.sh
 </span><span class='line'>
 </span><span class='line'><span class="c"># format and create directories</span>
 </span><span class='line'>bin/hdfs namenode -format
-</span><span class='line'>sbin/start-dfs.sh
+</span><span class='line'>sbin/start-yarn.sh
 </span><span class='line'>bin/hdfs dfs -mkdir -p /user/root
 </span><span class='line'>bin/hdfs dfs -put etc/hadoop/ input
 </span><span class='line'>

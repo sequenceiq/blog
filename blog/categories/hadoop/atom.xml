@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-19T14:26:46+00:00</updated>
+  <updated>2014-03-20T15:37:32+01:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Hadoop 2.3 with docker]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/03/19/hadoop-2-dot-3-with-docker/"/>
-    <updated>2014-03-19T03:54:09+00:00</updated>
+    <updated>2014-03-19T04:54:09+01:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/03/19/hadoop-2-dot-3-with-docker</id>
     <content type="html"><![CDATA[<p>You want to try out hadoop 2.3? Go to the zoo and <a href="http://sethgodin.typepad.com/seths_blog/2005/03/dont_shave_that.html">shave a yak</a>.
 Or simply just use <a href="https://www.docker.io/">docker</a>.</p>
@@ -33,13 +33,14 @@ docker run -i -t sequenceiq/hadoop-docker /bin/bash
 
 <p>service sshd start
 . /usr/local/hadoop/etc/hadoop/hadoop-env.sh
+. /usr/local/hadoop/etc/hadoop/yarn-env.sh
 cd $HADOOP_HOME
 sbin/start-dfs.sh</p>
 
 <h1>format and create directories</h1>
 
 <p>bin/hdfs namenode -format
-sbin/start-dfs.sh
+sbin/start-yarn.sh
 bin/hdfs dfs -mkdir -p /user/root
 bin/hdfs dfs -put etc/hadoop/ input</p>
 
@@ -89,7 +90,7 @@ compiled with 64 bit CentOS. So I created <a href="https://bintray.com/sequencei
   <entry>
     <title type="html"><![CDATA[YARN Capacity Scheduler]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler/"/>
-    <updated>2014-03-14T15:17:04+00:00</updated>
+    <updated>2014-03-14T16:17:04+01:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler</id>
     <content type="html"><![CDATA[<p>Since the emergence of Hadoop 2 and the YARN based architecture we have a platform where we can run multiple applications (of different types) not constrained only to MapReduce. Different applications or different MapReduce job profiles have different resource needs, however since Hadoop 2.0 is a multi tenant platform the different users could have different access patterns or need for cluster capacity. In Hadoop 2.0 this is achieved through YARN schedulers — to allocate resources to various applications subject to constraints of capacities and queues (for more information on YARN follow this <a href="http://hortonworks.com/hadoop/yarn/">link</a> or feel free to ask us should you have any questions).</p>
 

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: docker | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/docker/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-19T14:26:46+00:00</updated>
+  <updated>2014-03-20T15:37:32+01:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Hadoop 2.3 with docker]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/03/19/hadoop-2-dot-3-with-docker/"/>
-    <updated>2014-03-19T03:54:09+00:00</updated>
+    <updated>2014-03-19T04:54:09+01:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/03/19/hadoop-2-dot-3-with-docker</id>
     <content type="html"><![CDATA[<p>You want to try out hadoop 2.3? Go to the zoo and <a href="http://sethgodin.typepad.com/seths_blog/2005/03/dont_shave_that.html">shave a yak</a>.
 Or simply just use <a href="https://www.docker.io/">docker</a>.</p>
@@ -33,13 +33,14 @@ docker run -i -t sequenceiq/hadoop-docker /bin/bash
 
 <p>service sshd start
 . /usr/local/hadoop/etc/hadoop/hadoop-env.sh
+. /usr/local/hadoop/etc/hadoop/yarn-env.sh
 cd $HADOOP_HOME
 sbin/start-dfs.sh</p>
 
 <h1>format and create directories</h1>
 
 <p>bin/hdfs namenode -format
-sbin/start-dfs.sh
+sbin/start-yarn.sh
 bin/hdfs dfs -mkdir -p /user/root
 bin/hdfs dfs -put etc/hadoop/ input</p>
 

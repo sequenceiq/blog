@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Custom source | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/custom-source/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-19T14:26:46+00:00</updated>
+  <updated>2014-03-20T15:37:32+01:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Custom Apache Flume source]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/02/22/custom-flume-source/"/>
-    <updated>2014-02-22T14:45:48+00:00</updated>
+    <updated>2014-02-22T15:45:48+01:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/02/22/custom-flume-source</id>
     <content type="html"><![CDATA[<p>The process of data analytics starts with collecting the data into a common system, in our case a Hadoop cluster. Flume is an Apache project aiming to help us solve this problem in a very efficient and elegant way.</p>
 

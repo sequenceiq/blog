@@ -4,7 +4,7 @@
   <title><![CDATA[Category: HDFS | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hdfs/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-19T14:26:46+00:00</updated>
+  <updated>2014-03-20T15:37:32+01:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Data cleaning with MapReduce and Morphlines]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/03/11/data-cleaning-with-mapreduce-and-morphlines/"/>
-    <updated>2014-03-11T09:21:07+00:00</updated>
+    <updated>2014-03-11T10:21:07+01:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/03/11/data-cleaning-with-mapreduce-and-morphlines</id>
     <content type="html"><![CDATA[<p>In one of our <a href="http://blog.sequenceiq.com/blog/2014/02/28/etl-and-data-quality/">previous</a> posts we showed how easy is to extend the Kite Morphlines framework with your custom commands. In this post we are going to use it to remove columns from a dataset to demonstrate how it can be used and embeded in MapReduce jobs.
 Download the MovieLens + IMDb/Rotten Tomatoes dataset from <a href="http://grouplens.org/datasets/hetrec-2011/">Grouplens</a>, extract it, and it should contain a file called user_ratedmovies.dat.
@@ -129,7 +129,7 @@ SequenceIQ</p>
   <entry>
     <title type="html"><![CDATA[HDFS and java.nio.channels]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/03/07/read-from-hdfs/"/>
-    <updated>2014-03-07T08:12:44+00:00</updated>
+    <updated>2014-03-07T09:12:44+01:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/03/07/read-from-hdfs</id>
     <content type="html"><![CDATA[<p>Many times there is a need to access files or interact with HDFS from Java applications or libraries. Hadoop has built in many tools in order to work or interact with HDFS &ndash; however in case you&rsquo;d like to read into a content of a file remotely (e.g. retrieve the headers of a CSV/TSV file) random exceptions can occurs. One of these remote exceptions coming from the HDFS NameNode is a <em>java.io.IOException: File /user/abc/xyz/ could only be replicated to 0 nodes, instead of 1.</em></p>
 
