@@ -7,7 +7,6 @@ categories: [Hortonworks, Hoya, HBase, YARN]
 author: Janos Matyas
 published: true
 ---
-Using Hoya at SequenceIQ
 
 With this blog post we are starting a series of articles where we'd like to describe how we use YARN, why it is central to our product stack and why we believe that Hortonworks Hoya will be a determining building block in the Hadoop ecosystem.
 
