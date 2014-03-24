@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-24T11:15:45+01:00</updated>
+  <updated>2014-03-24T12:59:24+01:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -128,7 +128,7 @@ In our next post we will drive you through the steps of creating your own Hoya p
 Or simply just use <a href="https://www.docker.io/">docker</a>.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -i -t sequenceiq/hadoop-docker /bin/bash</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -i -t sequenceiq/hadoop-docker /etc/bootstrap.sh -bash</span></code></pre></td></tr></table></div></figure>
 
 
 <h2>Testing</h2>
@@ -141,28 +141,8 @@ Or simply just use <a href="https://www.docker.io/">docker</a>.</p>
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
 </pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># start ssh and hdfs</span>
-</span><span class='line'>service sshd start
-</span><span class='line'>. /usr/local/hadoop/etc/hadoop/hadoop-env.sh
-</span><span class='line'>. /usr/local/hadoop/etc/hadoop/yarn-env.sh
-</span><span class='line'><span class="nb">cd</span> <span class="nv">$HADOOP_HOME</span>
-</span><span class='line'>sbin/start-dfs.sh
-</span><span class='line'>
-</span><span class='line'><span class="c"># format and create directories</span>
-</span><span class='line'>bin/hdfs namenode -format
-</span><span class='line'>sbin/start-yarn.sh
-</span><span class='line'>bin/hdfs dfs -mkdir -p /user/root
-</span><span class='line'>bin/hdfs dfs -put etc/hadoop/ input
+</span><span class='line'><span class="nb">cd</span> <span class="nv">$HADOOP_PREFIX</span>
 </span><span class='line'>
 </span><span class='line'><span class="c"># run the mapreduce</span>
 </span><span class='line'>bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.3.0.jar grep input output <span class="s1">&#39;dfs[a-z.]+&#39;</span>

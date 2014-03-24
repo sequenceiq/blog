@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-24T11:15:45+01:00</updated>
+  <updated>2014-03-24T12:59:24+01:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -22,7 +22,7 @@
 Or simply just use <a href="https://www.docker.io/">docker</a>.</p>
 
 <p><code>
-docker run -i -t sequenceiq/hadoop-docker /bin/bash
+docker run -i -t sequenceiq/hadoop-docker /etc/bootstrap.sh -bash
 </code></p>
 
 <h2>Testing</h2>
@@ -31,18 +31,7 @@ docker run -i -t sequenceiq/hadoop-docker /bin/bash
 
 <h1>start ssh and hdfs</h1>
 
-<p>service sshd start
-. /usr/local/hadoop/etc/hadoop/hadoop-env.sh
-. /usr/local/hadoop/etc/hadoop/yarn-env.sh
-cd $HADOOP_HOME
-sbin/start-dfs.sh</p>
-
-<h1>format and create directories</h1>
-
-<p>bin/hdfs namenode -format
-sbin/start-yarn.sh
-bin/hdfs dfs -mkdir -p /user/root
-bin/hdfs dfs -put etc/hadoop/ input</p>
+<p>cd $HADOOP_PREFIX</p>
 
 <h1>run the mapreduce</h1>
 
