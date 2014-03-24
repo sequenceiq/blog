@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hoya | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hoya/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-24T10:44:41+01:00</updated>
+  <updated>2014-03-24T10:54:21+01:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -18,9 +18,7 @@
     <link href="http://blog.sequenceiq.com/blog/2014/03/21/hoya-at-sequenceiq/"/>
     <updated>2014-03-21T04:54:09+01:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/03/21/hoya-at-sequenceiq</id>
-    <content type="html"><![CDATA[<p>Using Hoya at SequenceIQ</p>
-
-<p>With this blog post we are starting a series of articles where we&rsquo;d like to describe how we use YARN, why it is central to our product stack and why we believe that Hortonworks Hoya will be a determining building block in the Hadoop ecosystem.</p>
+    <content type="html"><![CDATA[<p>With this blog post we are starting a series of articles where we&rsquo;d like to describe how we use YARN, why it is central to our product stack and why we believe that Hortonworks Hoya will be a determining building block in the Hadoop ecosystem.</p>
 
 <p>While we don&rsquo;t want to get in details about <a href="http://hortonworks.com/hadoop/yarn/">YARN</a>, we&rsquo;d like to briefly explain the advantages of running an application on YARN, and introduce you to <a href="https://github.com/hortonworks/hoya">Hortonworks Hoya</a>.</p>
 
@@ -80,6 +78,9 @@ flex-hoya-cluster() {
   hoya flex hbase --role worker $num_of_workers --manager localhost:8032 --filesystem hdfs://localhost:9000
 }
 </code></p>
+
+<!-- more -->
+
 
 <p>This will start as many RegionServers as specified &ndash; in new YARN containers. Also the size of the cluster can be decreased if the load on the system does not demand for a larger number of RegionServers. The cluster can also be freezed (Hoya takes care about persisting the state).</p>
 

@@ -130,9 +130,7 @@
           <a href="/blog/2014/03/21/hoya-at-sequenceiq/">Using Hortonworks Hoya at SequenceIQ</a>
           <span class="badge name-badge">Janos Matyas</span>
       </h1>
-      <p>Using Hoya at SequenceIQ</p>
-
-<p>With this blog post we are starting a series of articles where we&rsquo;d like to describe how we use YARN, why it is central to our product stack and why we believe that Hortonworks Hoya will be a determining building block in the Hadoop ecosystem.</p>
+      <p>With this blog post we are starting a series of articles where we&rsquo;d like to describe how we use YARN, why it is central to our product stack and why we believe that Hortonworks Hoya will be a determining building block in the Hadoop ecosystem.</p>
 
 <p>While we don&rsquo;t want to get in details about <a href="http://hortonworks.com/hadoop/yarn/">YARN</a>, we&rsquo;d like to briefly explain the advantages of running an application on YARN, and introduce you to <a href="https://github.com/hortonworks/hoya">Hortonworks Hoya</a>.</p>
 
@@ -203,33 +201,9 @@ For your convenience we have put together an automated install script which lets
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>This will start as many RegionServers as specified &ndash; in new YARN containers. Also the size of the cluster can be decreased if the load on the system does not demand for a larger number of RegionServers. The cluster can also be freezed (Hoya takes care about persisting the state).</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>freeze-hoya-cluster<span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>  hoya freeze hbase --manager localhost:8032 --filesystem hdfs://localhost:9000
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Finally when you&rsquo;d like to destroy the cluster and the state associated with the application you can use:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>destroy-hoya-cluster<span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>  hoya destroy hbase --manager localhost:8032 --filesystem hdfs://localhost:9000
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>As you see installing Hoya and starting different applications (HBase in this case) is very simple &ndash; and all the nice features of YARN are instantly available for any clustered applications.
-In our next post we will drive you through the steps of creating your own Hoya provider, deploy it and run on a YARN cluster.</p>
 
       
-      
+       <a href="/blog/2014/03/21/hoya-at-sequenceiq/">Read on &rarr;</a> 
     </div>
   </div>
 
