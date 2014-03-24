@@ -63,6 +63,7 @@ flex-hoya-cluster() {
   hoya flex hbase --role worker $num_of_workers --manager localhost:8032 --filesystem hdfs://localhost:9000
 }
 ```
+<!-- more -->
 
 This will start as many RegionServers as specified - in new YARN containers. Also the size of the cluster can be decreased if the load on the system does not demand for a larger number of RegionServers. The cluster can also be freezed (Hoya takes care about persisting the state).
 
