@@ -4,7 +4,7 @@
   <title><![CDATA[Category: NameNode | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/namenode/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-24T12:59:24+01:00</updated>
+  <updated>2014-03-24T18:57:08+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[HDFS and java.nio.channels]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/03/07/read-from-hdfs/"/>
-    <updated>2014-03-07T09:12:44+01:00</updated>
+    <updated>2014-03-07T08:12:44+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/03/07/read-from-hdfs</id>
     <content type="html"><![CDATA[<p>Many times there is a need to access files or interact with HDFS from Java applications or libraries. Hadoop has built in many tools in order to work or interact with HDFS &ndash; however in case you&rsquo;d like to read into a content of a file remotely (e.g. retrieve the headers of a CSV/TSV file) random exceptions can occurs. One of these remote exceptions coming from the HDFS NameNode is a <em>java.io.IOException: File /user/abc/xyz/ could only be replicated to 0 nodes, instead of 1.</em></p>
 
