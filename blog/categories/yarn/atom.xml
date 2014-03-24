@@ -4,7 +4,7 @@
   <title><![CDATA[Category: YARN | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/yarn/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-24T10:54:21+01:00</updated>
+  <updated>2014-03-24T11:04:08+01:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Using Hortonworks Hoya at SequenceIQ]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/03/21/hoya-at-sequenceiq/"/>
-    <updated>2014-03-21T04:54:09+01:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/03/21/hoya-at-sequenceiq</id>
+    <link href="http://blog.sequenceiq.com/blog/2014/03/24/hoya-at-sequenceiq/"/>
+    <updated>2014-03-24T04:54:09+01:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/03/24/hoya-at-sequenceiq</id>
     <content type="html"><![CDATA[<p>With this blog post we are starting a series of articles where we&rsquo;d like to describe how we use YARN, why it is central to our product stack and why we believe that Hortonworks Hoya will be a determining building block in the Hadoop ecosystem.</p>
 
 <p>While we don&rsquo;t want to get in details about <a href="http://hortonworks.com/hadoop/yarn/">YARN</a>, we&rsquo;d like to briefly explain the advantages of running an application on YARN, and introduce you to <a href="https://github.com/hortonworks/hoya">Hortonworks Hoya</a>.</p>
