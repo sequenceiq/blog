@@ -14,7 +14,7 @@ While we don't want to get in details about [YARN](http://hortonworks.com/hadoop
 
 At SequenceIQ we are building a multi-tenant, scale on demand data platform, with unpredictable batch and streaming workloads.
 Before YARN we have tried different cluster management frameworks with Hadoop and managed to have pretty good results with [Amazon EC2 Autoscaling groups](http://aws.amazon.com/autoscaling/). Being true believers in open source and the need to diversify of provisioning Hadoop on different environments we needed to find an open source and 'standardised' solution - welcome YARN.
-(for example we provision Hadoop on [Docker](http://blog.sequenceiq.com/blog/2014/03/19/hadoop-2-dot-3-with-docker/)
+(for example we provision Hadoop on [Docker](http://blog.sequenceiq.com/blog/2014/03/19/hadoop-2-dot-3-with-docker/)).
 
 YARN separates the processing engine from the resource management - and acting effectively as an OS for Hadoop.
 With YARN, you can now run multiple applications in Hadoop, all sharing a common resource management and improving cluster utilisation (we will release some metrics soon).
@@ -27,7 +27,7 @@ YARN also provides the following features out of the box:
   * Failover and recovery
 
 All of the above and the effort of the Hadoop community and the wide adoption convinced us to start implementing our platform to run on top of YARN.
-During our proof of concepts we went as far as starting all our non Hadoop (and not YARN compatible) applications on YARN - by using [Hoya](https://github.com/hortonworks/hoya).
+During our proof of concepts we went as far as starting all our non Hadoop (and not YARN compatible) applications on YARN - using [Hoya](https://github.com/hortonworks/hoya).
 
 Hoya was introduced by Hortonworks mid last year - with the purpose to create Apache HBase clusters on YARN (since than it supports Apache Accumulo as well).
 The code evolved pretty fast and now Hoya is a framework/application which allows you to deploy existing distributed applications on YARN - and benefit all the nice features of YARN.
