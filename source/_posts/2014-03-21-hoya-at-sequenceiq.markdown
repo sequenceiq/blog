@@ -5,7 +5,7 @@ date: 2014-03-21 04:54:09 +0100
 comments: true
 categories: [Hortonworks, Hoya, HBase, YARN]
 author: Janos Matyas
-published: false
+published: true
 ---
 Using Hoya at SequenceIQ
 
