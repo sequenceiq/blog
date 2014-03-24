@@ -42,7 +42,7 @@ In this first post we would like to help you to get familiar with the benefits o
 First and foremost you will need an installation of Hadoop (2.3), the latest Hoya release (0.13.1) and HBase (0.98).
 For your convenience we have put together an automated install script which lets you start with Hoya in a few minutes.
 
-The script is available from our [GitHub page](https://github.com/sequenceiq/hoya-docker/blob/master/hoya-centos-install.sh).
+The script is available from our [GitHub page](https://github.com/sequenceiq/hoya-docker/blob/master/hoya-centos-install.sh). Also an official docker.io image is available at [hoya-docker](https://index.docker.io/u/sequenceiq/hoya-docker/), and the Dockerfile can be downloaded from our [GitHub](https://github.com/sequenceiq/hoya-docker) page.
 
 Once Hadoop, HBase and Hoya are installed you can create an HBase cluster.
 ``` bash
