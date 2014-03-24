@@ -37,9 +37,7 @@ In order to support different applications Hoya has a plugin provider architectu
 Once a plugin is implemented (pretty straightforward, took us a few days only to understand and build a Flume and Tomcat plugin), the application is started in a YARN container and is monitored and controlled by YARN/Hoya.
 The clusters can be started, stopped, frozen and re-sized dynamically - and in case of container failures Hoya deploys a replacement.
 
-For a better architectural understanding of Hoya please read the following blog [post](http://hortonworks.com/blog/hoya-hbase-on-yarn-application-architecture/) and check the following image (courtesy of Steve Loughran/Hortonworks) below.
-
-![Hoya](http://hortonworks.com/wp-content/uploads/2013/08/Hoya-Application-Architecture.png)
+For a better architectural understanding of Hoya please read the following blog [post](http://hortonworks.com/blog/hoya-hbase-on-yarn-application-architecture/). 
 
 In this first post we would like to help you to get familiar with the benefits offered by Hoya and start an HBase cluster, re-scale it dynamically, freeze and stop.
 First and foremost you will need an installation of Hadoop (2.3), the latest Hoya release (0.13.1) and HBase (0.98).
