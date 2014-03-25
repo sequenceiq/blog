@@ -4,7 +4,7 @@
   <title><![CDATA[Category: SOCKS proxy | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/socks-proxy/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-25T19:40:24+01:00</updated>
+  <updated>2014-03-25T22:57:44+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Accessing HDP2 sandbox from the host]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/03/05/access-hdp2-sandbox/"/>
-    <updated>2014-03-05T09:12:44+01:00</updated>
+    <updated>2014-03-05T08:12:44+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/03/05/access-hdp2-sandbox</id>
     <content type="html"><![CDATA[<p>During development of a Hadoop project people have many options of where and how to run Hadoop. We at SequenceIQ use different environments as well (cloud based, VM or host) &ndash; and different versions/vendor distributions. A very popular distribution among developers is the Hortonworks Sandbox &ndash; which contains the latest releases across Hadoop (2.2.0) and the key related projects into a single integrated and tested platform.
 While using the sandbox gets you going running a single node Hadoop (pseudo distributed) in less than 5 minutes, many developers find inconvenient to &lsquo;live&rsquo; and work inside the VM when deploying, debugging or submitting jobs into a Hadoop cluster.</p>
