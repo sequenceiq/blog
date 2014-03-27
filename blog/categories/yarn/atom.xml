@@ -4,7 +4,7 @@
   <title><![CDATA[Category: YARN | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/yarn/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-25T23:36:55+00:00</updated>
+  <updated>2014-03-27T15:50:21+01:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Using Hortonworks Hoya at SequenceIQ]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/03/24/hoya-at-sequenceiq/"/>
-    <updated>2014-03-24T03:54:09+00:00</updated>
+    <updated>2014-03-24T04:54:09+01:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/03/24/hoya-at-sequenceiq</id>
     <content type="html"><![CDATA[<p>With this blog post we are starting a series of articles where we&rsquo;d like to describe how we use YARN, why it is central to our product stack and why we believe that Hortonworks Hoya will be a determining building block in the Hadoop ecosystem.</p>
 
@@ -55,7 +55,7 @@ The clusters can be started, stopped, frozen and re-sized dynamically &ndash; an
 First and foremost you will need an installation of Hadoop (2.3), the latest Hoya release (0.13.1) and HBase (0.98).
 For your convenience we have put together an automated install script which lets you start with Hoya in a few minutes.</p>
 
-<p>The script is available from our <a href="https://github.com/sequenceiq/hoya-docker/blob/master/hoya-centos-install.sh">GitHub page</a>.</p>
+<p>The script is available from our <a href="https://github.com/sequenceiq/hoya-docker/blob/master/hoya-centos-install.sh">GitHub page</a>. Also an official docker.io image is available at <a href="https://index.docker.io/u/sequenceiq/hoya-docker/">hoya-docker</a>, and the Dockerfile can be downloaded from our <a href="https://github.com/sequenceiq/hoya-docker">GitHub</a> page.</p>
 
 <p>Once Hadoop, HBase and Hoya are installed you can now create an HBase cluster.
 ``` bash
@@ -105,7 +105,7 @@ In our next post we will drive you through the steps of creating your own Hoya p
   <entry>
     <title type="html"><![CDATA[YARN Capacity Scheduler]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler/"/>
-    <updated>2014-03-14T15:17:04+00:00</updated>
+    <updated>2014-03-14T16:17:04+01:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler</id>
     <content type="html"><![CDATA[<p>Since the emergence of Hadoop 2 and the YARN based architecture we have a platform where we can run multiple applications (of different types) not constrained only to MapReduce. Different applications or different MapReduce job profiles have different resource needs, however since Hadoop 2.0 is a multi tenant platform the different users could have different access patterns or need for cluster capacity. In Hadoop 2.0 this is achieved through YARN schedulers — to allocate resources to various applications subject to constraints of capacities and queues (for more information on YARN follow this <a href="http://hortonworks.com/hadoop/yarn/">link</a> or feel free to ask us should you have any questions).</p>
 
