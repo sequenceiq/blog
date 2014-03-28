@@ -44,7 +44,7 @@ For your convenience we have put together an automated install script which lets
 
 The script is available from our [GitHub page](https://github.com/sequenceiq/hoya-docker/blob/master/hoya-centos-install.sh).
 
-Once Hadoop, HBase and Hoya are installed you can now create an HBase cluster.
+Once Hadoop, HBase and Hoya are installed you can create an HBase cluster.
 ``` bash
 create-hoya-cluster() {
   hoya create hbase --role master 1 --role worker 1
