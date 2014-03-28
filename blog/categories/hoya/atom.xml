@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hoya | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hoya/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-28T08:45:23+00:00</updated>
+  <updated>2014-03-28T08:52:03+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -57,7 +57,7 @@ For your convenience we have put together an automated install script which lets
 
 <p>The script is available from our <a href="https://github.com/sequenceiq/hoya-docker/blob/master/hoya-centos-install.sh">GitHub page</a>.</p>
 
-<p>Once Hadoop, HBase and Hoya are installed you can now create an HBase cluster.
+<p>Once Hadoop, HBase and Hoya are installed you can create an HBase cluster.
 ``` bash
 create-hoya-cluster() {
   hoya create hbase &mdash;role master 1 &mdash;role worker 1</p>
