@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Tez | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/tez/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-31T16:41:32+00:00</updated>
+  <updated>2014-03-31T16:43:22+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -62,7 +62,7 @@ echo 'export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$TEZ_CONF:$TEZ_JARS:$TEZ_LIB' &g
 
 <p>Make sure you set your HADOOP_PREFIX env variable, or use <a href="http://ambari.apache.org/">Apache Ambari</a> to configure Tez (change the <code>mapreduce.framework.name=yarn-tez</code>).</p>
 
-<h5>Submit a classification job &ndash; get the code and instructions from the SequenceIQ samples <a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub</a> page.</h5>
+<h4>Submit a classification job &ndash; get the code and instructions from the SequenceIQ samples <a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub</a> page.</h4>
 
 <p>After running the job and collecting the metrics we will see that the differences between using MapReduce and Tez are quite significant (~10x faster with Tez).</p>
 
@@ -85,7 +85,7 @@ echo 'export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$TEZ_CONF:$TEZ_JARS:$TEZ_LIB' &g
 <p>All these are because the Tez runtime is using in-memory operations whenever is possible instead of temporarily persisting the sorted partitions to HDFS.
 Tez and <a href="http://hortonworks.com/labs/stinger/">Hortonworks' Stinger initiative</a> is opening up new possibilities to write faster and more performant Hadoop jobs, and closes the gap between stream and batch processing.</p>
 
-<p>We are in the middle of rewriting and share with the Hadoop community all the Mahout drivers we use &ndash; to Apache Tez. Also we are in the middle of proof-of-concepting our Scala/Sclalding based map-reduce jobs to use Tez as a runtime.</p>
+<p>We are in the middle of rewriting &ndash; and sharing with the Hadoop community all the Mahout drivers we use &ndash; to Apache Tez. Also we are in the middle of proof-of-concepting our Scala/Scalding based map-reduce jobs to use Tez as a runtime.</p>
 
 <p>Follow up with this <a href="http://blog.sequenceiq.com/">blog</a> and visit our <a href="https://github.com/sequenceiq">GitHub</a> page for further details.</p>
 ]]></content>
