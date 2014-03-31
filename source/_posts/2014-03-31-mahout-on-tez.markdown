@@ -5,7 +5,7 @@ date: 2014-03-31 11:22:09 +0100
 comments: true
 categories: [Hortonworks, Tez, Mahout, YARN]
 author: Marton Sereg
-published: false
+published: true
 ---
 
 At SequenceIQ we are always open to the latest innovations in Hadoop, and trying to find a way to offer a better performance and cluster utilization to our customers. We came in close touch with the [Stinger initiative](http://hortonworks.com/labs/stinger/) last year at the Hadoop Summit in Amsterdam - and ever since we have followed up with the project progress (latest [release](http://hortonworks.com/blog/apache-tez-0-3-released/) is 0.3). The project was initiated by Hortonworks with the goal of a 100x performance improvement of Hive. 
