@@ -122,7 +122,7 @@ We made some metrics to highlight the differences: both in elapsed time and reso
 
 <p>Add the <a href="https://raw.githubusercontent.com/sequenceiq/tez-docker/master/tez-site.xml">tez-site.xml</a> and <a href="https://github.com/sequenceiq/tez-docker/blob/master/mapred-site.xml">mapred-site.xml</a> to Hadoop (in the docker image case it&rsquo;s $HADOOP_PREFIX/etc/hadoop/).</p>
 
-<p>   <code>
+<p>   <code>java
    echo 'TEZ_JARS=/usr/local/tez/*' &gt;&gt; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
    echo 'TEZ_LIB=/usr/local/tez/lib/*' &gt;&gt; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
    echo 'TEZ_CONF=/usr/local/hadoop/etc/hadoop' &gt;&gt; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
