@@ -46,10 +46,23 @@ Make sure you set your HADOOP_PREFIX env variable, or use [Apache Ambari](http:/
 
 3. Submit a classification job (code is available from [SequenceIQ samples GitHub](https://github.com/sequenceiq/sequenceiq-samples) page.
 
-// TODO
+As we will see the difference between using MapReduce and Tez are quite significant (10x fater with Tez).
 
-Add runtime difference - 
-Add digrams
+Below you can see the sample Mahout classification job submitted in YARN using MapReduce.
+
+![](https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/tez-dag-jobs/resources/Classification_Mahout_MR.png)
+
+Below you can see the sample Mahout classification job submitted in YARN using Tez.
+
+![](https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/tez-dag-jobs/resources/Classification_Mahout_TEZ.png)
+
+If we dig into deeper metrics we can see the huge differences between thge file operations and HDFS I/O. The Tez framework does less file operations as the MapReduce one.
+
+![](https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/tez-dag-jobs/resources/fileops_tez_vs_mr.png)
+
+Also if we check the HDFS I/O operations we see the same results - less and more efficient HDFS operations in case of Tez. 
+All these are because the Tez runtime is using in-memory operations whenever is possible instead of temporarily persisting the sorted partitions to HDFS. 
+Tez and [Hortonworks' Stinger initiative](http://hortonworks.com/labs/stinger/) is opening up new possibilities to write faster and more performant Hadoop jobs, and closes the gap between stream and batch processing.
 
 
 
