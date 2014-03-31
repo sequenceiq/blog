@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-31T20:32:04+00:00</updated>
+  <updated>2014-03-31T20:39:36+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -64,7 +64,7 @@ In MapReduce disregarding the data size, the shuffle (internal step between the 
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Make sure you set your HADOOP_PREFIX env variable, or use <a href="http://ambari.apache.org/">Apache Ambari</a> to configure Tez (change the <code>mapreduce.framework.name=yarn-tez</code>).</p>
+<p>Make sure you set your HADOOP_PREFIX env variable, or use <a href="http://ambari.apache.org/">Apache Ambari</a> to configure Tez (change the mapreduce.framework.name property to yarn-tez).</p>
 
 <h3>Submit a classification job &ndash; get the code and instructions from the SequenceIQ samples <em><a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/tez-dag-jobs">GitHub</a></em> page.</h3>
 
@@ -91,7 +91,7 @@ Tez and <a href="http://hortonworks.com/labs/stinger/">Hortonworks&#8217; Stinge
 
 <p>We are in the middle of rewriting &ndash; and sharing with the Hadoop community all the Mahout drivers we use &ndash; to Apache Tez. Also we are in the middle of proof-of-concepting our Scala/Scalding based map-reduce jobs to use Tez as a runtime.</p>
 
-<p>Follow up with this <a href="http://blog.sequenceiq.com/">blog</a> and visit our <a href="https://github.com/sequenceiq">GitHub</a> page for further details.</p>
+<p>Follow up with this <a href="http://blog.sequenceiq.com/">blog</a> and visit our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/tez-dag-jobs">GitHub</a> page for further details.</p>
 ]]></content>
   </entry>
   
