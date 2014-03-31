@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Mahout | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/mahout/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-31T15:33:50+00:00</updated>
+  <updated>2014-03-31T17:36:36+02:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Using Mahout with Tez]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/03/31/mahout-on-tez/"/>
-    <updated>2014-03-31T10:22:09+00:00</updated>
+    <updated>2014-03-31T12:22:09+02:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/03/31/mahout-on-tez</id>
     <content type="html"><![CDATA[<p>At SequenceIQ we are always open to the latest innovations in Hadoop, and trying to find a way to offer a better performance and cluster utilization to our customers. We came in close touch with the <a href="http://hortonworks.com/labs/stinger/">Stinger initiative</a> last year at the Hadoop Summit in Amsterdam &ndash; and ever since we have followed up with the project progress (latest <a href="http://hortonworks.com/blog/apache-tez-0-3-released/">release</a> is 0.3). The project was initiated by Hortonworks with the goal of a 100x performance improvement of Hive.
 Although Hive is not part of our product stack (we use other ways for SQL on Hadoop), there is one particular key component of the Stinger initiative which was very interesting to us: <a href="https://github.com/apache/incubator-tez">Apache Tez</a>.</p>
