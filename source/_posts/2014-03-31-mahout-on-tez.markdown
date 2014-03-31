@@ -14,14 +14,14 @@ Although Hive is not part of our product stack (we use other ways for SQL on Had
 [Apache Tez](http://incubator.apache.org/projects/tez.html) is a new application framework built on top of Hadoop Yarn that can execute complex directed acyclic graphs (DAGs) of general data processing tasks. In many ways it can be thought of as a more flexible and powerful successor of the map-reduce framework. This was exactly what draw our attention and made us start thinking about using Tez as our runtime for map-reduce jobs.
 
 
-####Tez and MapReduce
+##Tez and MapReduce
 
 At SequenceIQ we have chains of map-reduce jobs which are scheduled individually and read the output of previous jobs from HBase or HDFS. Many times our map-reduce job flow can be represented as a map-reduce-reduce pattern, however building complex job chains with the current map-reduce framework is not that easy (nor saves on performance) - we combined the ChainMapper/ChainReducer and IdentityMapper trying to build MRR like DAG job flows.
 
 In Tez data coming from reducers' output can be pipelined together and eliminates IO/sync barriers, as no temporary HDFS write is required. Jobs can also be chained and represented as MRR steps with no restriction.
 In MapReduce disregarding the data size, the shuffle (internal step between the map and reducer) phase writes the sorted partitions to disk, merge-sorts them and feed into the reducers. All these steps are done *in memory* with Tez and saves on this I/O heavy step, avoiding unnecessary temporary writes and reads.
 
-####Tez and Mahout
+##Tez and Mahout
 
 Part of our system is running machine learning algorithms in batch, using Mahout (we do ML on streaming data using Scala, MLlib and Apache Spark as well). To improve the runtime performance of these Mahout algorithms, and decrease the cluster execution time we started to experiment with combining Tez and Mahout, and rewrite a few Mahout drivers in order to build DAGs of MR jobs (MRR in particular where applicable) and submit the jobs in a Tez runtime on a YARN cluster.
 
@@ -31,13 +31,13 @@ In this blog post we would like to introduce you to Tez - for your convenience w
 
 If you don't want to use this docker image, you should configure Tez on your Hadoop cluster first.
 
-#### Building Tez
+### Building Tez
 Get the Tez code from [GitHub](https://github.com/apache/incubator-tez), and run `mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true`. Alternatively you can get the jars from [SequenceIQ S3](https://s3-eu-west-1.amazonaws.com/seq-tez/tez-0.3.0-incubating.tar.gz) and copy into HDFS under the '/usr/lib/tez' folder.
 
-#### Add *-site.xml
+### Add *-site.xml
 Add [tez-site.xml](https://raw.githubusercontent.com/sequenceiq/tez-docker/master/tez-site.xml) and [mapred-site.xml](https://github.com/sequenceiq/tez-docker/blob/master/mapred-site.xml) to Hadoop (in case of the docker image it's $HADOOP_PREFIX/etc/hadoop/).
 
-#### Add Tez jars and config to HADOOP_CLASSPATH
+### Add Tez jars and config to HADOOP_CLASSPATH
 Edit your hadoop-env.sh file by executing this script:
 
 ```bash
@@ -49,7 +49,7 @@ echo 'export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$TEZ_CONF:$TEZ_JARS:$TEZ_LIB' >>
    
 Make sure you set your HADOOP_PREFIX env variable, or use [Apache Ambari](http://ambari.apache.org/) to configure Tez (change the `mapreduce.framework.name=yarn-tez`).
 
-#### Submit a classification job - get the code and instructions from the SequenceIQ samples [GitHub](https://github.com/sequenceiq/sequenceiq-samples) page.
+### Submit a classification job - get the code and instructions from the SequenceIQ samples [GitHub](https://github.com/sequenceiq/sequenceiq-samples) page.
 
 After running the job and collecting the metrics we will see that the differences between using MapReduce and Tez are quite significant (~10x faster with Tez).
 
