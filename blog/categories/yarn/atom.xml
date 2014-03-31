@@ -4,7 +4,7 @@
   <title><![CDATA[Category: YARN | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/yarn/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-31T16:37:39+00:00</updated>
+  <updated>2014-03-31T16:39:57+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -41,15 +41,15 @@ In MapReduce disregarding the data size, the shuffle (internal step between the 
 
 <p>If you don&rsquo;t want to use this docker image, you should configure Tez on your Hadoop cluster first.</p>
 
-<h5>Building Tez</h5>
+<h4>Building Tez</h4>
 
 <p>Get the Tez code from <a href="https://github.com/apache/incubator-tez">GitHub</a>, and run <code>mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true</code>. Alternatively you can get the jars from <a href="https://s3-eu-west-1.amazonaws.com/seq-tez/tez-0.3.0-incubating.tar.gz">SequenceIQ S3</a> and copy into HDFS under the &lsquo;/usr/lib/tez&rsquo; folder.</p>
 
-<h5>Add *-site.xml</h5>
+<h4>Add *-site.xml</h4>
 
 <p>Add <a href="https://raw.githubusercontent.com/sequenceiq/tez-docker/master/tez-site.xml">tez-site.xml</a> and <a href="https://github.com/sequenceiq/tez-docker/blob/master/mapred-site.xml">mapred-site.xml</a> to Hadoop (in case of the docker image it&rsquo;s $HADOOP_PREFIX/etc/hadoop/).</p>
 
-<h5>Add Tez jars and config to HADOOP_CLASSPATH</h5>
+<h4>Add Tez jars and config to HADOOP_CLASSPATH</h4>
 
 <p>Edit your hadoop-env.sh file by executing this script:</p>
 
@@ -64,7 +64,7 @@ echo 'export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$TEZ_CONF:$TEZ_JARS:$TEZ_LIB' &g
 
 <h5>Submit a classification job &ndash; get the code and instructions from the SequenceIQ samples <a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub</a> page.</h5>
 
-<p>After running the job and collecting the metrics we will see that the differences between using MapReduce and Tez are quite significant (~10x fater with Tez).</p>
+<p>After running the job and collecting the metrics we will see that the differences between using MapReduce and Tez are quite significant (~10x faster with Tez).</p>
 
 <p>Below you can see the sample Mahout classification job submitted in YARN using MapReduce.</p>
 
