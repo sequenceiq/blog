@@ -60,7 +60,10 @@ If we dig into deeper metrics we can see the huge differences between thge file 
 
 ![](https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/tez-dag-jobs/resources/fileops_tez_vs_mr.png)
 
-Also if we check the HDFS I/O operations we see the same results - less and more efficient HDFS operations in case of Tez. 
+Also if we check the HDFS I/O operations we see the same results - less and more efficient HDFS operations in case of Tez.
+
+![](https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/tez-dag-jobs/resources/hdfsio_tez_vs_mr.png)
+
 All these are because the Tez runtime is using in-memory operations whenever is possible instead of temporarily persisting the sorted partitions to HDFS. 
 Tez and [Hortonworks' Stinger initiative](http://hortonworks.com/labs/stinger/) is opening up new possibilities to write faster and more performant Hadoop jobs, and closes the gap between stream and batch processing.
 
