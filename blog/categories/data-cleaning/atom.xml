@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Data cleaning | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/data-cleaning/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-31T17:33:20+02:00</updated>
+  <updated>2014-03-31T15:33:50+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Data cleaning with MapReduce and Morphlines]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/03/11/data-cleaning-with-mapreduce-and-morphlines/"/>
-    <updated>2014-03-11T10:21:07+01:00</updated>
+    <updated>2014-03-11T09:21:07+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/03/11/data-cleaning-with-mapreduce-and-morphlines</id>
     <content type="html"><![CDATA[<p>In one of our <a href="http://blog.sequenceiq.com/blog/2014/02/28/etl-and-data-quality/">previous</a> posts we showed how easy is to extend the Kite Morphlines framework with your custom commands. In this post we are going to use it to remove columns from a dataset to demonstrate how it can be used and embeded in MapReduce jobs.
 Download the MovieLens + IMDb/Rotten Tomatoes dataset from <a href="http://grouplens.org/datasets/hetrec-2011/">Grouplens</a>, extract it, and it should contain a file called user_ratedmovies.dat.
@@ -129,7 +129,7 @@ SequenceIQ</p>
   <entry>
     <title type="html"><![CDATA[ETL - producing better quality data]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/02/28/etl-and-data-quality/"/>
-    <updated>2014-02-28T09:12:44+01:00</updated>
+    <updated>2014-02-28T08:12:44+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/02/28/etl-and-data-quality</id>
     <content type="html"><![CDATA[<p>On my way to work this morning I read an interesting article about the quality of data being produced by different systems and applications. While the article was emphasizing that the quality of the data should not be an IT problem (but management), our believe is that at the high volume, velocity and variety (the &ldquo;3Vs&rdquo; of big data) the data is produced today, the process of producing data is a shared responsibility between management and the IT department.</p>
 

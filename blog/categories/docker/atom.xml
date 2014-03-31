@@ -4,7 +4,7 @@
   <title><![CDATA[Category: docker | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/docker/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-31T17:33:20+02:00</updated>
+  <updated>2014-03-31T15:33:50+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Hadoop 2.3 with docker]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/03/19/hadoop-2-dot-3-with-docker/"/>
-    <updated>2014-03-19T04:54:09+01:00</updated>
+    <updated>2014-03-19T03:54:09+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/03/19/hadoop-2-dot-3-with-docker</id>
     <content type="html"><![CDATA[<p>You want to try out hadoop 2.3? Go to the zoo and <a href="http://sethgodin.typepad.com/seths_blog/2005/03/dont_shave_that.html">shave a yak</a>.
 Or simply just use <a href="https://www.docker.io/">docker</a>.</p>
