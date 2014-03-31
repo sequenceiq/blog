@@ -41,6 +41,8 @@ java.lang.IllegalStateException: Must not use direct buffers with InputStream AP
 
 
 *Note: actually all HDFS operations fail in case of the underlying input stream does not have a readable channel (check the java.nio.channels package. RemoteBlockReader2 needs channel based inputstreams to deal with direct buffers.*
+
+<!-- more -->
  
 Digging into details and checking the Hadoop 2.2 source code we find the followings: 
 
