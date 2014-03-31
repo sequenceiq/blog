@@ -23,6 +23,9 @@ In MapReduce disregarding the data size, the shuffle (internal step between the 
 
 Part of our system is running machine learning algorithms in batch, using Mahout (we do ML on streaming data using Scala, MLib and Spark). To improve the runtime performance of these algortihms, and decreae the cluster time they use we started to experiment with combining Tez and Mahout, and re-write a few Mahout drivers in order to build DAG's of MR jobs (MRR in particular where applicable) and submit the jobs in a Tez on YARN cluster. 
 
+1. Build Tez
+Get the Tez code fron the [GitHub](https://github.com/apache/incubator-tez), and run 'mvn clean install'. Alternatively you can get the build from [SequenceIQ S3](https://s3-eu-west-1.amazonaws.com/seq-tez/tez-0.3.0-incubating.tar.gz) and copy into HDFS under the '/tez' folder
+
 <!--more--> 
 
 In this blog we would to introduce you into using Tez (for your convenience we have put together a [Tez-Docker](https://github.com/sequenceiq/tez-docker) image where the Tez runtime is already configured, submit a Mahout classification job into a YARN cluster as a regular MR job and the same classification job into a Tez on YARN cluster.
