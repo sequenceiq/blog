@@ -31,13 +31,13 @@ In this blog post we would like to introduce you to Tez - for your convenience w
 
 If you don't want to use this docker image, you should configure Tez on your Hadoop cluster first.
 
-##### Building Tez
+#### Building Tez
 Get the Tez code from [GitHub](https://github.com/apache/incubator-tez), and run `mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true`. Alternatively you can get the jars from [SequenceIQ S3](https://s3-eu-west-1.amazonaws.com/seq-tez/tez-0.3.0-incubating.tar.gz) and copy into HDFS under the '/usr/lib/tez' folder.
 
-##### Add *-site.xml
+#### Add *-site.xml
 Add [tez-site.xml](https://raw.githubusercontent.com/sequenceiq/tez-docker/master/tez-site.xml) and [mapred-site.xml](https://github.com/sequenceiq/tez-docker/blob/master/mapred-site.xml) to Hadoop (in case of the docker image it's $HADOOP_PREFIX/etc/hadoop/).
 
-##### Add Tez jars and config to HADOOP_CLASSPATH
+#### Add Tez jars and config to HADOOP_CLASSPATH
 Edit your hadoop-env.sh file by executing this script:
 
 ```bash
@@ -51,7 +51,7 @@ Make sure you set your HADOOP_PREFIX env variable, or use [Apache Ambari](http:/
 
 ##### Submit a classification job - get the code and instructions from the SequenceIQ samples [GitHub](https://github.com/sequenceiq/sequenceiq-samples) page.
 
-After running the job and collecting the metrics we will see that the differences between using MapReduce and Tez are quite significant (~10x fater with Tez).
+After running the job and collecting the metrics we will see that the differences between using MapReduce and Tez are quite significant (~10x faster with Tez).
 
 Below you can see the sample Mahout classification job submitted in YARN using MapReduce.
 
