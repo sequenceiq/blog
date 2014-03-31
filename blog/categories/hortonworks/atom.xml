@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hortonworks | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hortonworks/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-31T16:36:18+00:00</updated>
+  <updated>2014-03-31T16:37:39+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -62,9 +62,9 @@ echo 'export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$TEZ_CONF:$TEZ_JARS:$TEZ_LIB' &g
 
 <p>Make sure you set your HADOOP_PREFIX env variable, or use <a href="http://ambari.apache.org/">Apache Ambari</a> to configure Tez (change the <code>mapredude.framework.name=yarn-tez</code>).</p>
 
-<h5>Submit a classification job &ndash; get the code and instructions from the SequenceIQ samples on <a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub</a> page.</h5>
+<h5>Submit a classification job &ndash; get the code and instructions from the SequenceIQ samples <a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub</a> page.</h5>
 
-<p>After running the job and collections the metrics we will see that the differences between using MapReduce and Tez are quite significant (~10x fater with Tez).</p>
+<p>After running the job and collecting the metrics we will see that the differences between using MapReduce and Tez are quite significant (~10x fater with Tez).</p>
 
 <p>Below you can see the sample Mahout classification job submitted in YARN using MapReduce.</p>
 
