@@ -18,7 +18,7 @@ Although Hive is not part of our product stack (we use other ways for SQL on Had
 
 At SequenceIQ we have chains of map-reduce jobs which are scheduled individually and read the output of previous jobs from HBase or HDFS. Many times our map-reduce job flow can be represented as a map-reduce-reduce pattern, however building complex job chains with the current map-reduce framework is not that easy (nor saves on performane) - we combined the ChainMapper/ChainReducer and IdentityMapper trying to build MRR like DAG job flows.
 
-In Tez data coming form reducers output can be pipelined together and eliminates IO/sync barriers, as no temporary HDFS write is required. Also jobs can be chained and represented as MRR steps with no restriction.
+In Tez data coming from reducers output can be pipelined together and eliminates IO/sync barriers, as no temporary HDFS write is required. Also jobs can be chained and represented as MRR steps with no restriction.
 In MapReduce disregarding the data size, the shuffle (internal step between the map and reducer) phase writes the sorted partitions to disk, merge-sorts them and feed into the reducers. All these steps are done *in memory* with Tez and saves on this I/O heavy step, avoiding unnecessary temporary writes and reads.
 
 ####Tez and Mahout
