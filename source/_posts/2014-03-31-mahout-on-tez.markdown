@@ -49,9 +49,9 @@ echo 'export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$TEZ_CONF:$TEZ_JARS:$TEZ_LIB' >>
    
 Make sure you set your HADOOP_PREFIX env variable, or use [Apache Ambari](http://ambari.apache.org/) to configure Tez (change the `mapredude.framework.name=yarn-tez`).
 
-##### Submit a classification job - get the code and instructions from the SequenceIQ samples on [GitHub](https://github.com/sequenceiq/sequenceiq-samples) page.
+##### Submit a classification job - get the code and instructions from the SequenceIQ samples [GitHub](https://github.com/sequenceiq/sequenceiq-samples) page.
 
-After running the job and collections the metrics we will see that the differences between using MapReduce and Tez are quite significant (~10x fater with Tez).
+After running the job and collecting the metrics we will see that the differences between using MapReduce and Tez are quite significant (~10x fater with Tez).
 
 Below you can see the sample Mahout classification job submitted in YARN using MapReduce.
 
