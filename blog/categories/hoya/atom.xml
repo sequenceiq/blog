@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hoya | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hoya/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-31T17:44:20+02:00</updated>
+  <updated>2014-03-31T15:46:46+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Using Hortonworks Hoya at SequenceIQ]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/03/24/hoya-at-sequenceiq/"/>
-    <updated>2014-03-24T04:54:09+01:00</updated>
+    <updated>2014-03-24T03:54:09+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/03/24/hoya-at-sequenceiq</id>
     <content type="html"><![CDATA[<p>With this blog post we are starting a series of articles where we&rsquo;d like to describe how we use YARN, why it is central to our product stack and why we believe that Hortonworks Hoya will be a determining building block in the Hadoop ecosystem.</p>
 

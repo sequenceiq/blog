@@ -4,7 +4,7 @@
   <title><![CDATA[Category: YARN | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/yarn/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-31T17:44:20+02:00</updated>
+  <updated>2014-03-31T15:46:46+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Using Mahout with Tez]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/03/31/mahout-on-tez/"/>
-    <updated>2014-03-31T12:22:09+02:00</updated>
+    <updated>2014-03-31T10:22:09+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/03/31/mahout-on-tez</id>
     <content type="html"><![CDATA[<p>At SequenceIQ we are always open to the latest innovations in Hadoop, and trying to find a way to offer a better performance and cluster utilization to our customers. We came in close touch with the <a href="http://hortonworks.com/labs/stinger/">Stinger initiative</a> last year at the Hadoop Summit in Amsterdam &ndash; and ever since we have followed up with the project progress (latest <a href="http://hortonworks.com/blog/apache-tez-0-3-released/">release</a> is 0.3). The project was initiated by Hortonworks with the goal of a 100x performance improvement of Hive.
 Although Hive is not part of our product stack (we use other ways for SQL on Hadoop), there is one particular key component of the Stinger initiative which was very interesting to us: <a href="https://github.com/apache/incubator-tez">Apache Tez</a>.</p>
@@ -91,7 +91,7 @@ Tez and <a href="http://hortonworks.com/labs/stinger/">Hortonworks' Stinger init
   <entry>
     <title type="html"><![CDATA[Using Hortonworks Hoya at SequenceIQ]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/03/24/hoya-at-sequenceiq/"/>
-    <updated>2014-03-24T04:54:09+01:00</updated>
+    <updated>2014-03-24T03:54:09+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/03/24/hoya-at-sequenceiq</id>
     <content type="html"><![CDATA[<p>With this blog post we are starting a series of articles where we&rsquo;d like to describe how we use YARN, why it is central to our product stack and why we believe that Hortonworks Hoya will be a determining building block in the Hadoop ecosystem.</p>
 
@@ -180,7 +180,7 @@ In our next post we will drive you through the steps of creating your own Hoya p
   <entry>
     <title type="html"><![CDATA[YARN Capacity Scheduler]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler/"/>
-    <updated>2014-03-14T16:17:04+01:00</updated>
+    <updated>2014-03-14T15:17:04+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler</id>
     <content type="html"><![CDATA[<p>Since the emergence of Hadoop 2 and the YARN based architecture we have a platform where we can run multiple applications (of different types) not constrained only to MapReduce. Different applications or different MapReduce job profiles have different resource needs, however since Hadoop 2.0 is a multi tenant platform the different users could have different access patterns or need for cluster capacity. In Hadoop 2.0 this is achieved through YARN schedulers — to allocate resources to various applications subject to constraints of capacities and queues (for more information on YARN follow this <a href="http://hortonworks.com/hadoop/yarn/">link</a> or feel free to ask us should you have any questions).</p>
 
