@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Tez | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/tez/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-31T15:52:10+00:00</updated>
+  <updated>2014-03-31T15:53:48+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -44,20 +44,16 @@ We made some metrics to highlight the differences: both in elapsed time and reso
 <li><p>Build Tez
 Get the Tez code fron the <a href="https://github.com/apache/incubator-tez">GitHub</a>, and run <code>mvn clean install</code>. Alternatively you can get the build from <a href="https://s3-eu-west-1.amazonaws.com/seq-tez/tez-0.3.0-incubating.tar.gz">SequenceIQ S3</a> and copy into HDFS under the &lsquo;/tez&rsquo; folder.</p></li>
 <li><p>Add *-site.xml
-Add the <a href="https://raw.githubusercontent.com/sequenceiq/tez-docker/master/tez-site.xml">tez-site.xml</a> and <a href="https://github.com/sequenceiq/tez-docker/blob/master/mapred-site.xml">mapred-site.xml</a> to Hadoop (in the docker image case it&rsquo;s $HADOOP_PREFIX/etc/hadoop/).</p></li>
-</ol>
+Add the <a href="https://raw.githubusercontent.com/sequenceiq/tez-docker/master/tez-site.xml">tez-site.xml</a> and <a href="https://github.com/sequenceiq/tez-docker/blob/master/mapred-site.xml">mapred-site.xml</a> to Hadoop (in the docker image case it&rsquo;s $HADOOP_PREFIX/etc/hadoop/).</p>
 
-
-<p><code>bash
-echo 'TEZ_JARS=/usr/local/tez/*' &gt;&gt; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
-echo 'TEZ_LIB=/usr/local/tez/lib/*' &gt;&gt; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
-echo 'TEZ_CONF=/usr/local/hadoop/etc/hadoop' &gt;&gt; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
-echo 'export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$TEZ_CONF:$TEZ_JARS:$TEZ_LIB' &gt;&gt; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
+<p> <code>bash
+ echo 'TEZ_JARS=/usr/local/tez/*' &gt;&gt; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
+ echo 'TEZ_LIB=/usr/local/tez/lib/*' &gt;&gt; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
+ echo 'TEZ_CONF=/usr/local/hadoop/etc/hadoop' &gt;&gt; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
+ echo 'export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$TEZ_CONF:$TEZ_JARS:$TEZ_LIB' &gt;&gt; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
 </code>
-Make sure you set your HADOOP_PREFIX env variable, or use <a href="http://ambari.apache.org/">Apache Ambari</a> to configure Tez (change the <code>mapredude.framework.name=yarn-tez</code>).</p>
-
-<ol>
-<li>Submit a classification job &ndash; get the code and instructions from SequenceIQ samples <a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub</a> page.</li>
+ Make sure you set your HADOOP_PREFIX env variable, or use <a href="http://ambari.apache.org/">Apache Ambari</a> to configure Tez (change the <code>mapredude.framework.name=yarn-tez</code>).</p></li>
+<li><p>Submit a classification job &ndash; get the code and instructions from SequenceIQ samples <a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub</a> page.</p></li>
 </ol>
 
 
