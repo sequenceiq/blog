@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-31T20:39:36+00:00</updated>
+  <updated>2014-03-31T20:43:23+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -630,6 +630,9 @@ SequenceIQ</p>
 
 <p><em>Note: actually all HDFS operations fail in case of the underlying input stream does not have a readable channel (check the java.nio.channels package. RemoteBlockReader2 needs channel based inputstreams to deal with direct buffers.</em></p>
 
+<!-- more -->
+
+
 <p>Digging into details and checking the Hadoop 2.2 source code we find the followings:</p>
 
 <p>Through the<code>org.apache.hadoop.hdfs.BlockReaderFactory</code> you can get access to a BlockReader implementation like <code>org.apache.hadoop.hdfs.RemoteBlockReader2</code>, which it is responsible for reading a single block from a single datanode.</p>
@@ -737,6 +740,11 @@ Check this short goal/problem/resolution and code example snippet if you&rsquo;d
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='bash'><span class='line'>ssh root@127.0.0.1 -p 2222 -D 1099
 </span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!-- more -->
 
 
 <p>Once the proxy is up and running, edit the core-site.xml</p>

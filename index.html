@@ -707,64 +707,9 @@ It is a simple tsv file &ndash; we are going to use the same column names as it 
 
 <p><em>Note: actually all HDFS operations fail in case of the underlying input stream does not have a readable channel (check the java.nio.channels package. RemoteBlockReader2 needs channel based inputstreams to deal with direct buffers.</em></p>
 
-<p>Digging into details and checking the Hadoop 2.2 source code we find the followings:</p>
-
-<p>Through the<code>org.apache.hadoop.hdfs.BlockReaderFactory</code> you can get access to a BlockReader implementation like <code>org.apache.hadoop.hdfs.RemoteBlockReader2</code>, which it is responsible for reading a single block from a single datanode.</p>
-
-<p>The blockreader is retrieved in the following way:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">&quot;deprecation&quot;</span><span class="o">)</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">static</span> <span class="n">BlockReader</span> <span class="nf">newBlockReader</span><span class="o">(</span>
-</span><span class='line'>                                     <span class="n">Conf</span> <span class="n">conf</span><span class="o">,</span>
-</span><span class='line'>                               <span class="n">Socket</span> <span class="n">sock</span><span class="o">,</span> <span class="n">String</span> <span class="n">file</span><span class="o">,</span>
-</span><span class='line'>                                     <span class="n">ExtendedBlock</span> <span class="n">block</span><span class="o">,</span>
-</span><span class='line'>                                     <span class="n">Token</span><span class="o">&lt;</span><span class="n">BlockTokenIdentifier</span><span class="o">&gt;</span> <span class="n">blockToken</span><span class="o">,</span>
-</span><span class='line'>                                     <span class="kt">long</span> <span class="n">startOffset</span><span class="o">,</span> <span class="kt">long</span> <span class="n">len</span><span class="o">,</span>
-</span><span class='line'>                                     <span class="kt">int</span> <span class="n">bufferSize</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">verifyChecksum</span><span class="o">,</span>
-</span><span class='line'>                                     <span class="n">String</span> <span class="n">clientName</span><span class="o">)</span>
-</span><span class='line'>                                     <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">conf</span><span class="o">.</span><span class="na">useLegacyBlockReader</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">return</span> <span class="n">RemoteBlockReader</span><span class="o">.</span><span class="na">newBlockReader</span><span class="o">(</span>
-</span><span class='line'>          <span class="n">sock</span><span class="o">,</span> <span class="n">file</span><span class="o">,</span> <span class="n">block</span><span class="o">,</span> <span class="n">blockToken</span><span class="o">,</span> <span class="n">startOffset</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span> <span class="n">bufferSize</span><span class="o">,</span> <span class="n">verifyChecksum</span><span class="o">,</span> <span class="n">clientName</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">return</span> <span class="n">RemoteBlockReader2</span><span class="o">.</span><span class="na">newBlockReader</span><span class="o">(</span>
-</span><span class='line'>          <span class="n">sock</span><span class="o">,</span> <span class="n">file</span><span class="o">,</span> <span class="n">block</span><span class="o">,</span> <span class="n">blockToken</span><span class="o">,</span> <span class="n">startOffset</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span> <span class="n">bufferSize</span><span class="o">,</span> <span class="n">verifyChecksum</span><span class="o">,</span> <span class="n">clientName</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>In order to avoid the exception and use the right version of the block reader, the followin property <code>conf.useLegacyBlockReader</code> should be TRUE.</p>
-
-<p>Long story short, the configuration set of a job should be set to: <code>configuration.set("dfs.client.use.legacy.blockreader", "true")</code>.</p>
-
-<p>Unluckily in all cases when interacting with HDFS, and the underlying input stream does not have a readable channel, you can&rsquo;t use the <em>RemoteBlockReader2</em> implementation, but you have to fall back to the old legacy <em>RemoteBlockReader</em>.</p>
-
-<p>Hope this helps,
-SequenceIQ</p>
 
       
-      
+       <a href="/blog/2014/03/07/read-from-hdfs/">Read on &rarr;</a> 
     </div>
   </div>
 
@@ -864,56 +809,11 @@ Check this short goal/problem/resolution and code example snippet if you&rsquo;d
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Once the proxy is up and running, edit the core-site.xml</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'>  <span class="nt">&lt;property&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;name&gt;</span>hadoop.socks.server<span class="nt">&lt;/name&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;value&gt;</span>localhost:1099<span class="nt">&lt;/value&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;/property&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;property&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;name&gt;</span>hadoop.rpc.socket.factory.class.default<span class="nt">&lt;/name&gt;</span>
-</span><span class='line'>      <span class="nt">&lt;value&gt;</span>org.apache.hadoop.net.SocksSocketFactory<span class="nt">&lt;/value&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;/property&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Now you can run the test client</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>     
-</span><span class='line'><span class="c"># You can use Maven</span>
-</span><span class='line'>mvn <span class="nb">exec</span>:java -Dexec.mainClass<span class="o">=</span><span class="s2">&quot;com.sequenceiq.samples.SandboxTester&quot;</span> -Dexec.args<span class="o">=</span><span class="s2">&quot;hdfs sandbox 8020&quot;</span> -Dhadoop.home.dir<span class="o">=</span>/tmp
-</span><span class='line'>      
-</span><span class='line'><span class="c"># or run from the JAR file</span>
-</span><span class='line'>      
-</span><span class='line'>java -jar sandbox-playground-1.0.jar hdfs sandbox 8020
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>As you see it&rsquo;s pretty easy and convenient to use the Hortonworks sandbox as a pre-configured development environment.</p>
-
-<p>In case you&rsquo;d like to use (as we do most of the time) a Hadoop cluster in the cloud (Amazon EC2), check our previous blog post <a href="http://blog.sequenceiq.com/blog/2014/02/07/hdp2-on-amazon/">HDP2 on Amazon</a>.
-In case you ever wondered whether it&rsquo;s possible to use Hadoop with Docker please follow this blog.</p>
-
-<p>Hope this helps,
-SequenceIQ</p>
 
       
-      
+       <a href="/blog/2014/03/05/access-hdp2-sandbox/">Read on &rarr;</a> 
     </div>
   </div>
 
