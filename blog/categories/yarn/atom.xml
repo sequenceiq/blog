@@ -4,7 +4,7 @@
   <title><![CDATA[Category: YARN | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/yarn/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-31T11:46:45+00:00</updated>
+  <updated>2014-03-31T12:45:50+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,15 +12,6 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
-  
-  <entry>
-    <title type="html"><![CDATA[Using Hortonworks Hoya at SequenceIQ]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/03/24/mahout-on-tez/"/>
-    <updated>2014-03-24T03:54:09+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/03/24/mahout-on-tez</id>
-    <content type="html"><![CDATA[
-]]></content>
-  </entry>
   
   <entry>
     <title type="html"><![CDATA[Using Hortonworks Hoya at SequenceIQ]]></title>
