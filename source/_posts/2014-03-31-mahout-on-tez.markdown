@@ -36,13 +36,13 @@ Get the Tez code fron the [GitHub](https://github.com/apache/incubator-tez), and
 2. Add *-site.xml
 Add the [tez-site.xml](https://raw.githubusercontent.com/sequenceiq/tez-docker/master/tez-site.xml) and [mapred-site.xml](https://github.com/sequenceiq/tez-docker/blob/master/mapred-site.xml) to Hadoop (in the docker image case it's $HADOOP_PREFIX/etc/hadoop/).
 
-``` bash
-echo 'TEZ_JARS=/usr/local/tez/*' >> $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
-echo 'TEZ_LIB=/usr/local/tez/lib/*' >> $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
-echo 'TEZ_CONF=/usr/local/hadoop/etc/hadoop' >> $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
-echo 'export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$TEZ_CONF:$TEZ_JARS:$TEZ_LIB' >> $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
-```
-Make sure you set your HADOOP_PREFIX env variable, or use [Apache Ambari](http://ambari.apache.org/) to configure Tez (change the `mapredude.framework.name=yarn-tez`).
+   ``` bash
+   echo 'TEZ_JARS=/usr/local/tez/*' >> $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
+   echo 'TEZ_LIB=/usr/local/tez/lib/*' >> $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
+   echo 'TEZ_CONF=/usr/local/hadoop/etc/hadoop' >> $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
+   echo 'export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$TEZ_CONF:$TEZ_JARS:$TEZ_LIB' >> $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
+   ```
+   Make sure you set your HADOOP_PREFIX env variable, or use [Apache Ambari](http://ambari.apache.org/) to configure Tez (change the `mapredude.framework.name=yarn-tez`).
 
 3. Submit a classification job - get the code and instructions from SequenceIQ samples [GitHub](https://github.com/sequenceiq/sequenceiq-samples) page.
 
