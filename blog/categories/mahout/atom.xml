@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Mahout | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/mahout/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-31T15:58:12+00:00</updated>
+  <updated>2014-03-31T16:14:34+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -40,23 +40,24 @@ In MapReduce disregarding the data size, the shuffle (internal step between the 
 <p>In this blog we would like to introduce you to Tez &ndash; for your convenience we have put together a Hadoop 2.3/YARN/Tez  <a href="https://github.com/sequenceiq/tez-docker">Tez-Docker</a> image &ndash; where the Tez runtime is already pre-configured, submit a Mahout classification job into a YARN cluster as a regular MR job then re-submit the same job into a Tez on YARN cluster.
 We made some metrics to highlight the differences: both in elapsed time and resource utilization.</p>
 
-<ol>
-<li><p>Build Tez
-Get the Tez code fron the <a href="https://github.com/apache/incubator-tez">GitHub</a>, and run <code>mvn clean install</code>. Alternatively you can get the build from <a href="https://s3-eu-west-1.amazonaws.com/seq-tez/tez-0.3.0-incubating.tar.gz">SequenceIQ S3</a> and copy into HDFS under the &lsquo;/tez&rsquo; folder.</p></li>
-<li><p>Add *-site.xml
-Add the <a href="https://raw.githubusercontent.com/sequenceiq/tez-docker/master/tez-site.xml">tez-site.xml</a> and <a href="https://github.com/sequenceiq/tez-docker/blob/master/mapred-site.xml">mapred-site.xml</a> to Hadoop (in the docker image case it&rsquo;s $HADOOP_PREFIX/etc/hadoop/).</p>
+<h5>Build Tez</h5>
 
-<p> <code>
- echo 'TEZ_JARS=/usr/local/tez/*' &gt;&gt; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
- echo 'TEZ_LIB=/usr/local/tez/lib/*' &gt;&gt; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
- echo 'TEZ_CONF=/usr/local/hadoop/etc/hadoop' &gt;&gt; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
- echo 'export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$TEZ_CONF:$TEZ_JARS:$TEZ_LIB' &gt;&gt; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
-</code></p>
+<p>Get the Tez code fron the <a href="https://github.com/apache/incubator-tez">GitHub</a>, and run <code>mvn clean install</code>. Alternatively you can get the build from <a href="https://s3-eu-west-1.amazonaws.com/seq-tez/tez-0.3.0-incubating.tar.gz">SequenceIQ S3</a> and copy into HDFS under the &lsquo;/tez&rsquo; folder.</p>
 
-<p> Make sure you set your HADOOP_PREFIX env variable, or use <a href="http://ambari.apache.org/">Apache Ambari</a> to configure Tez (change the <code>mapredude.framework.name=yarn-tez</code>).</p></li>
-<li><p>Submit a classification job &ndash; get the code and instructions from SequenceIQ samples <a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub</a> page.</p></li>
-</ol>
+<h5>Add *-site.xml</h5>
 
+<p>Add the <a href="https://raw.githubusercontent.com/sequenceiq/tez-docker/master/tez-site.xml">tez-site.xml</a> and <a href="https://github.com/sequenceiq/tez-docker/blob/master/mapred-site.xml">mapred-site.xml</a> to Hadoop (in the docker image case it&rsquo;s $HADOOP_PREFIX/etc/hadoop/).</p>
+
+<p>   <code>
+   echo 'TEZ_JARS=/usr/local/tez/*' &gt;&gt; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
+   echo 'TEZ_LIB=/usr/local/tez/lib/*' &gt;&gt; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
+   echo 'TEZ_CONF=/usr/local/hadoop/etc/hadoop' &gt;&gt; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
+   echo 'export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$TEZ_CONF:$TEZ_JARS:$TEZ_LIB' &gt;&gt; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
+  </code></p>
+
+<p>   Make sure you set your HADOOP_PREFIX env variable, or use <a href="http://ambari.apache.org/">Apache Ambari</a> to configure Tez (change the <code>mapredude.framework.name=yarn-tez</code>).</p>
+
+<h5>Submit a classification job &ndash; get the code and instructions from SequenceIQ samples <a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub</a> page.</h5>
 
 <p>After running the job and collections the metrics we will see that the differences between using MapReduce and Tez are quite significant (~10x fater with Tez).</p>
 
