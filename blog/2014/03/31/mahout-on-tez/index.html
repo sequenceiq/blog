@@ -111,8 +111,6 @@ In MapReduce disregarding the data size, the shuffle (internal step between the 
 <!--more-->
 
 
-<p></p>
-
 <p>In this blog we would like to introduce you to Tez &ndash; for your convenience we have put together a Hadoop 2.3/YARN/Tez  <a href="https://github.com/sequenceiq/tez-docker">Tez-Docker</a> image &ndash; where the Tez runtime is already pre-configured, submit a Mahout classification job into a YARN cluster as a regular MR job then re-submit the same job into a Tez on YARN cluster.
 We made some metrics to highlight the differences: both in elapsed time and resource utilization.</p>
 
@@ -138,7 +136,7 @@ Add the <a href="https://raw.githubusercontent.com/sequenceiq/tez-docker/master/
 <p>Make sure you set your HADOOP_PREFIX env variable, or use <a href="http://ambari.apache.org/">Apache Ambari</a> to configure Tez (change the <code>mapredude.framework.name=yarn-tez</code>).</p>
 
 <ol>
-<li>Submit a classification job &ndash; get the code and instructions from <a href="https://github.com/sequenceiq/sequenceiq-samples">SequenceIQ samples GitHub</a> page.</li>
+<li>Submit a classification job &ndash; get the code and instructions from SequenceIQ samples <a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub</a> page.</li>
 </ol>
 
 
