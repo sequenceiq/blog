@@ -40,6 +40,8 @@ Start the SOCKS proxy
 ssh root@127.0.0.1 -p 2222 -D 1099
 ```
 
+<!-- more -->
+
 Once the proxy is up and running, edit the core-site.xml
 	  	  
 	  	 
