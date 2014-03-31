@@ -4,7 +4,7 @@
   <title><![CDATA[Category: HDP2 | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hdp2/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-31T15:23:41+00:00</updated>
+  <updated>2014-03-31T17:33:20+02:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[HDFS and java.nio.channels]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/03/07/read-from-hdfs/"/>
-    <updated>2014-03-07T08:12:44+00:00</updated>
+    <updated>2014-03-07T09:12:44+01:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/03/07/read-from-hdfs</id>
     <content type="html"><![CDATA[<p>Many times there is a need to access files or interact with HDFS from Java applications or libraries. Hadoop has built in many tools in order to work or interact with HDFS &ndash; however in case you&rsquo;d like to read into a content of a file remotely (e.g. retrieve the headers of a CSV/TSV file) random exceptions can occurs. One of these remote exceptions coming from the HDFS NameNode is a <em>java.io.IOException: File /user/abc/xyz/ could only be replicated to 0 nodes, instead of 1.</em></p>
 
@@ -105,7 +105,7 @@ SequenceIQ</p>
   <entry>
     <title type="html"><![CDATA[Accessing HDP2 sandbox from the host]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/03/05/access-hdp2-sandbox/"/>
-    <updated>2014-03-05T08:12:44+00:00</updated>
+    <updated>2014-03-05T09:12:44+01:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/03/05/access-hdp2-sandbox</id>
     <content type="html"><![CDATA[<p>During development of a Hadoop project people have many options of where and how to run Hadoop. We at SequenceIQ use different environments as well (cloud based, VM or host) &ndash; and different versions/vendor distributions. A very popular distribution among developers is the Hortonworks Sandbox &ndash; which contains the latest releases across Hadoop (2.2.0) and the key related projects into a single integrated and tested platform.
 While using the sandbox gets you going running a single node Hadoop (pseudo distributed) in less than 5 minutes, many developers find inconvenient to &lsquo;live&rsquo; and work inside the VM when deploying, debugging or submitting jobs into a Hadoop cluster.</p>
@@ -194,7 +194,7 @@ SequenceIQ</p>
   <entry>
     <title type="html"><![CDATA[Set up HDP2 on Amazon EC2]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/02/07/hdp2-on-amazon/"/>
-    <updated>2014-02-07T16:17:04+00:00</updated>
+    <updated>2014-02-07T17:17:04+01:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/02/07/hdp2-on-amazon</id>
     <content type="html"><![CDATA[<p>During the last years we have seen many blog entries and articles about how to set up Hadoop on Amazon EC2. All these tutorials and articles had one thing in common &ndash; you had to go through a large number of manual (and painful) steps, read screenshots and redo the whole thing all over again, in case you needed a new cluster.</p>
 

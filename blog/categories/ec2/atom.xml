@@ -4,7 +4,7 @@
   <title><![CDATA[Category: EC2 | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/ec2/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-03-31T15:23:41+00:00</updated>
+  <updated>2014-03-31T17:33:20+02:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Set up HDP2 on Amazon EC2]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/02/07/hdp2-on-amazon/"/>
-    <updated>2014-02-07T16:17:04+00:00</updated>
+    <updated>2014-02-07T17:17:04+01:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/02/07/hdp2-on-amazon</id>
     <content type="html"><![CDATA[<p>During the last years we have seen many blog entries and articles about how to set up Hadoop on Amazon EC2. All these tutorials and articles had one thing in common &ndash; you had to go through a large number of manual (and painful) steps, read screenshots and redo the whole thing all over again, in case you needed a new cluster.</p>
 
