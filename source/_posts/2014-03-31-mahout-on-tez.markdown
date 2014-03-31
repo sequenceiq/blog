@@ -47,7 +47,7 @@ echo 'TEZ_CONF=/usr/local/hadoop/etc/hadoop' >> $HADOOP_PREFIX/etc/hadoop/hadoop
 echo 'export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$TEZ_CONF:$TEZ_JARS:$TEZ_LIB' >> $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
 ```
    
-Make sure you set your HADOOP_PREFIX env variable, or use [Apache Ambari](http://ambari.apache.org/) to configure Tez (change the `mapreduce.framework.name=yarn-tez`).
+Make sure you set your HADOOP_PREFIX env variable, or use [Apache Ambari](http://ambari.apache.org/) to configure Tez (change the mapreduce.framework.name property to yarn-tez).
 
 ### Submit a classification job - get the code and instructions from the SequenceIQ samples *[GitHub](https://github.com/sequenceiq/sequenceiq-samples/tree/master/tez-dag-jobs)* page.
 
@@ -74,4 +74,4 @@ Tez and [Hortonworks' Stinger initiative](http://hortonworks.com/labs/stinger/) 
 
 We are in the middle of rewriting - and sharing with the Hadoop community all the Mahout drivers we use - to Apache Tez. Also we are in the middle of proof-of-concepting our Scala/Scalding based map-reduce jobs to use Tez as a runtime.
 
-Follow up with this [blog](http://blog.sequenceiq.com/) and visit our [GitHub](https://github.com/sequenceiq) page for further details.
+Follow up with this [blog](http://blog.sequenceiq.com/) and visit our [GitHub](https://github.com/sequenceiq/sequenceiq-samples/tree/master/tez-dag-jobs) page for further details.
