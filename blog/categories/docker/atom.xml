@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Docker | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/docker/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-04-04T18:52:15+00:00</updated>
+  <updated>2014-04-04T19:01:22+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -101,7 +101,7 @@ Example: ENV JAVA_HOME /usr/java/default</p>
 
 <p>The <code>ENTRYPOINT [command]</code> instruction permits you to trigger a command as soon as the container starts. Example: ENTRYPOINT [&ldquo;echo&rdquo;, &ldquo;Whale you be my container&rdquo;]</p>
 
-<p>There are more instructions, but these are enough to start with abd build your own images.</p>
+<p>There are more instructions, but these are enough to start with and build your own images.</p>
 
 <h2>Build &amp; Trusted build</h2>
 
