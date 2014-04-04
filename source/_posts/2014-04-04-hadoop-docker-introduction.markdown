@@ -14,10 +14,10 @@ While many people have downloaded and started to use these preconfigured images 
 
 Docker is an open-source engine that automates the deployment of any application as a lightweight, portable, self-sufficient container that will run virtually anywhere.
 
-##Installation 
+##Installation
 
 First install Docker with a package manager. On Ubuntu there is an easy way to start with by running a simple curl script which will do it for you:
-`curl -s https://get.docker.io/ubuntu/ | sudo sh`. 
+`curl -s https://get.docker.io/ubuntu/ | sudo sh`.
 Unfortunately Mac, Windows and some Linux distributions cannot natively run Docker (yet). At [SequenceIQ](http://sequenceiq.com/) we develop on OSX and run a 3-6 node Hadoop mini cluster on our laptops. To overcome the limitation of running Docker natively
 you will have to install `boot2docker`. It is a Tiny Core Linux made specifically to run Docker containers and weights less than 24MB memory.
 Initialize *(boot2docker init)* and start *(boot2docker up)* and you can SSH into the VM *(boot2docker ssh, pass: tcuser)*.
@@ -35,7 +35,7 @@ To verify the installation let's test it: `docker run ubuntu /bin/echo hello doc
 
 You can run an interactive shell as well `docker run -i -t ubuntu /bin/bash` and use this shell as you would use any other shell.
 
-While there are lots of different Docker images available we would like to share how to create youe own images.
+While there are lots of different Docker images available we would like to share how to create your own images.
 <!-- more -->
 
 ##Dockerfile
@@ -47,8 +47,8 @@ INSTRUCTION arguments
 ```
 ###FROM
 
-Every Dockerfile has to start with the `FROM image` instruction which sets the base image for subsequent instructions (e.g. in our [Hoya](https://github.com/sequenceiq/hoya-docker) and [Tez](https://github.com/sequenceiq/tez-docker) images we used our [Hadoop](https://github.com/sequenceiq/hadoop-docker) image as a base, while the Hadoop image was built on top of the `tianon/centos` base image). 
-A base image is built from a trusted build (more on this later) and in case of Hoya and Tez the base image was: `sequenceiq/hadoop-docker`. You can browse the available containers in the 
+Every Dockerfile has to start with the `FROM image` instruction which sets the base image for subsequent instructions (e.g. in our [Hoya](https://github.com/sequenceiq/hoya-docker) and [Tez](https://github.com/sequenceiq/tez-docker) images we used our [Hadoop](https://github.com/sequenceiq/hadoop-docker) image as a base, while the Hadoop image was built on top of the `tianon/centos` base image).
+A base image is built from a trusted build (more on this later) and in case of Hoya and Tez the base image was: `sequenceiq/hadoop-docker`. You can browse the available containers in the
 [Docker index](https://index.docker.io/).
 
 ###RUN
