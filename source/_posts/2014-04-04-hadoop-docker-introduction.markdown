@@ -85,7 +85,7 @@ Example: ENV JAVA_HOME /usr/java/default
 
 The `ENTRYPOINT [command]` instruction permits you to trigger a command as soon as the container starts. Example: ENTRYPOINT ["echo", "Whale you be my container"]
 
-There are more instructions, but these are enough to start with abd build your own images.
+There are more instructions, but these are enough to start with and build your own images.
 
 ##Build & Trusted build
 
