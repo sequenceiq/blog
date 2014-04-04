@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-04-04T18:39:22+00:00</updated>
+  <updated>2014-04-04T18:50:47+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -47,7 +47,7 @@ Initialize <em>(boot2docker init)</em> and start <em>(boot2docker up)</em> and y
 
 <p>You can run an interactive shell as well <code>docker run -i -t ubuntu /bin/bash</code> and use this shell as you would use any other shell.</p>
 
-<p>While there are lots of different Docker images available we would like to share how to create youe own images.</p>
+<p>While there are lots of different Docker images available we would like to share how to create your own images.</p>
 
 <!-- more -->
 
