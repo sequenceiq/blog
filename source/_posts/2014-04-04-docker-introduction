@@ -73,6 +73,11 @@ is present in the container and you can use it as well: RUN rm /usr/local/data.x
 
 The `EXPOSE port` instruction sets ports to be exposed to the host when running the image. Example: EXPOSE 8080 80 22 50070
 
+###ENV
+
+Setting an environment variable by running a RUN export KEY=value won't work in dockerland. Instead you can use the `ENV key value` instruction.
+Example: ENV JAVA_HOME /usr/java/default
+
 ###ENTRYPOINT
 
 The `ENTRYPOINT [command]` instruction permits you to trigger a command as soon as the container starts. Example: ENTRYPOINT ["echo", "Whale you be my container"]
@@ -82,7 +87,7 @@ There are more instructions, but these are enough to work with to build images.
 ##Build & Trusted build
 
 Once the Dockerfile is ready you can build it. If the file is in the current directory build it with `docker build .` (-t name to TAG the image). It's possible
-to create trusted builds. All you have to do is to create a repository on GitHub and push the Dockerfile there and all the files which are referenced in the
+to create trusted builds. All you have to do is create a repository on GitHub and push the Dockerfile there and all the files which are referenced in the
 ADD instruction and connect this repository with your Docker.io account. Docker.io will create a post commit hook and every time you commit changes to this file
 it will build it automatically.
 
@@ -96,6 +101,10 @@ Use this environment variable to make things easier: export DOCKER_HOST=tcp://lo
 
 After you built your image it should appear in the image list, and is ready to use. Run it with `docker run -i -t -P image_name /bin/bash`. The -P variable will
 publish all exposed ports to the host interfaces.
+
+##Complete example
+
+As a reference check out our Hadoop 2.3 based [Dockerfile](https://github.com/sequenceiq/hadoop-docker).
 
 ##OSX Tweaks
 
