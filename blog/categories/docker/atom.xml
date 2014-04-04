@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Docker | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/docker/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-04-04T18:36:46+00:00</updated>
+  <updated>2014-04-04T18:39:22+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -165,7 +165,7 @@ for i in {49000..49900}; do
 done
 boot2docker up
 </code>
-That&rsquo;s it. I hope this helps you to start with building your own Docker images. Let us know how it goes, we are happy to help to let you quick start Hadoop on Docker.</p>
+That&rsquo;s it. Hope this helps you to start with building your own Docker images. Let us know how it goes, we are happy to help you quick start Hadoop on Docker.</p>
 ]]></content>
   </entry>
   
