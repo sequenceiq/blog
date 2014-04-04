@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Hadoop VM | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com/blog/categories/hadoop-vm/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-04-04T18:26:26+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
+  <author>
+    <name><![CDATA[SequenceIQ]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Docker introduction]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/04/04/docker-introduction/"/>
+    <updated>2014-04-04T18:24:17+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/04/04/docker-introduction</id>
+    <content type="html"><![CDATA[<p>In the last few weeks we&rsquo;ve created and published several Docker images (<a href="https://github.com/sequenceiq/hadoop-docker">Hadoop</a>, <a href="https://github.com/sequenceiq/hoya-docker">Hoya</a>,<a href="https://github.com/sequenceiq/tez-docker">Tez</a> ) to help you to quick-start with Hadoop and
+the latest innovations with YARN.
+While many people have downloaded and started to use these preconfigured images we&rsquo;ve been asked to give a short introduction of what Docker is, and how one can build Docker images.
+Docker is an open-source engine that automates the deployment of any application as a
+lightweight, portable, self-sufficient container that will run virtually anywhere.</p>
+
+<h2>Installation</h2>
+
+<p>First install Docker with a package manager. On Ubuntu there is an easy way to start with by running a simple curl script which will do it for you:
+<code>curl -s https://get.docker.io/ubuntu/ | sudo sh</code>.
+Unfortunately Mac, Windows and some Linux distributions cannot natively run Docker (yet). At <a href="http://sequenceiq.com/">SequenceIQ</a> we develop on OSX and run a 3-6 node Hadoop mini cluster on our laptops. To overcome the limitation of running Docker natively
+you will have to install <code>boot2docker</code>. It is a Tiny Core Linux made specifically to run Docker containers and weights less than 24MB memory.
+Initialize <em>(boot2docker init)</em> and start <em>(boot2docker up)</em> and you can SSH into the VM <em>(boot2docker ssh, pass: tcuser)</em>.</p>
+
+<p>To verify the installation let&rsquo;s test it: <code>docker run ubuntu /bin/echo hello docker</code>. Docker did a bunch of things within seconds:</p>
+
+<ul>
+<li>Downloaded the base image from the docker.io index</li>
+<li>Created a new LXC container</li>
+<li>Allocated a filesystem for it</li>
+<li>Mounted a read-write layer</li>
+<li>Allocated a network interface</li>
+<li>Setup an IP for it, with network address translation</li>
+<li>Executed a process inside the container</li>
+<li>Captured the output and printed it</li>
+</ul>
+
+
+<p>You can run an interactive shell as well <code>docker run -i -t ubuntu /bin/bash</code> and use this shell as you would use any other shell.</p>
+
+<p>While there are lots of different Docker images available we would like to share how to create youe own images.</p>
+
+<!-- more -->
+
+
+<h2>Dockerfile</h2>
+
+<p>The <code>Dockerfile</code> describes the build steps and it can be viewed as an image representation. They provide a simple syntax for building images and
+they are a great way to automate and script the images creation. Dockerfile instructions look like this:
+<code>
+INSTRUCTION arguments
+</code></p>
+
+<h3>FROM</h3>
+
+<p>Every Dockerfile has to start with the <code>FROM image</code> instruction which sets the base image for subsequent instructions (e.g. in our <a href="https://github.com/sequenceiq/hoya-docker">Hoya</a> and <a href="https://github.com/sequenceiq/tez-docker">Tez</a> images we used our <a href="https://github.com/sequenceiq/hadoop-docker">Hadoop</a> image as a base, while the Hadoop image was built on top of the <code>tianon/centos</code> base image).
+A base image is built from a trusted build (more on this later) and in case of Hoya and Tez the base iage name is: <code>sequenceiq/hadoop-docker</code>. You can browse the available containers in the
+<a href="https://index.docker.io/">Docker index</a>.</p>
+
+<h3>RUN</h3>
+
+<p>The next instruction is usually the <code>RUN command</code>. This will execute any commands on the current image and commit the results. The resulting committed image
+will be used for the next step in the Dockerfile. Example: RUN yum install -y openssh-server. One important thing to keep in mind is that the
+following set of instructions will not act as we would like:
+<code>
+RUN cd /usr/local  
+RUN mkdir apple  
+</code>
+This will create an apple folder in the root directory. Surprised, huh? The reason of this that the RUN command is equivalent to the docker commands:
+docker run image command + docker commit container_id, where the image would be replaced automatically with the current image,
+and container_id would be the result of the previous RUN instruction. But it doesn&rsquo;t mean it can&rsquo;t be done:
+<code>
+RUN cd /usr/local &amp;&amp; mkdir apple
+</code></p>
+
+<h3>ADD</h3>
+
+<p>The <code>ADD from to</code> command will copy the specified file into the container. Example:
+ADD data.xml /usr/local/data.xml. In this case the data.xml is in the same directory as the Dockerfile. After this command you can rely on that this file
+is present in the container and you can use it as well: RUN rm /usr/local/data.xml.</p>
+
+<h3>EXPOSE</h3>
+
+<p>The <code>EXPOSE port</code> instruction sets ports to be exposed to the host when running the image. Example: EXPOSE 8080 80 22 50070</p>
+
+<h3>ENV</h3>
+
+<p>Setting an environment variable by running a RUN export KEY=value won&rsquo;t work in dockerland. Instead you can use the <code>ENV key value</code> instruction.
+Example: ENV JAVA_HOME /usr/java/default</p>
+
+<h3>ENTRYPOINT</h3>
+
+<p>The <code>ENTRYPOINT [command]</code> instruction permits you to trigger a command as soon as the container starts. Example: ENTRYPOINT [&ldquo;echo&rdquo;, &ldquo;Whale you be my container&rdquo;]</p>
+
+<p>There are more instructions, but these are enough to start with abd build your own images.</p>
+
+<h2>Build &amp; Trusted build</h2>
+
+<p>Once the Dockerfile is ready you can build it. If the file is in the current directory build it with <code>docker build .</code> (-t name to TAG the image). It&rsquo;s possible
+to create trusted builds. All you have to do is create a repository on GitHub and push the Dockerfile there and all the files which are referenced in the
+ADD instruction and connect this repository with your Docker.io account. Docker.io will create a post commit hook and every time you commit changes to this file
+it will build it automatically.</p>
+
+<h2>Usage</h2>
+
+<p>Use this environment variable to make things easier: export DOCKER_HOST=tcp://localhost:4243. Few frequently used commands:</p>
+
+<ul>
+<li>List of your local images: docker images</li>
+<li>List of running containers: docker ps</li>
+<li>List of all containers: docker ps -a</li>
+</ul>
+
+
+<p>After you built your image it should show in the image list, and ready to use. Run it with <code>docker run -i -t -P image_name /bin/bash</code>. The -P variable will
+publish all exposed ports to the host interfaces.</p>
+
+<h2>Complete example</h2>
+
+<p>As a reference check out our Hadoop 2.3 based <a href="https://github.com/sequenceiq/hadoop-docker">Dockerfile</a>.</p>
+
+<h2>OSX Tweaks</h2>
+
+<h3>Passwordless ssh</h3>
+
+<p>On OSX it&rsquo;s quite tedious to always type tcuser password when you ssh into boot2docker. You can install your public key with a oneliner. You have to set the
+KEYCHAIN variable to your <a href="http://keychain.io">Keychain.io</a> registered email.
+<code>
+(export KEYCHAIN=&lt;email&gt;; curl -L j.mp/chain2docker|bash)
+</code>
+If you restart boot2docker, you have to run this command again, for a passwordless ssh. To install your public ssh key into keychain is as simple as:
+<code>
+curl -s ssh.keychain.io/&lt;email&gt;/upload | bash
+</code>
+than you will receive a confirmation email, that&rsquo;s all.</p>
+
+<h3>Expose ports from boot2docker to host</h3>
+
+<p>Let&rsquo;s say you have a docker image starting Hadoop Name Node on port 50070. When you start 3 images you will get something like this:</p>
+
+<ul>
+<li>instance1: 50070 &ndash;> 49153</li>
+<li>instance1: 50070 &ndash;> 49154</li>
+<li>instance1: 50070 &ndash;> 49155</li>
+</ul>
+
+
+<p>But all those 4915X ports are only available when you are inside of boot2docker. Now if you forward all 49XXX ports straight to to your host,
+you can reach the namenodes in your browser running on your mac as: <a href="http://localhost:4915X">http://localhost:4915X</a>
+<code>
+boot2docker stop
+for i in {49000..49900}; do
+ echo -n .
+ VBoxManage modifyvm "boot2docker-vm" --natpf1 "tcp-port$i,tcp,,$i,,$i";
+ VBoxManage modifyvm "boot2docker-vm" --natpf1 "udp-port$i,udp,,$i,,$i";
+done
+boot2docker up
+</code>
+That&rsquo;s it. I hope this helps you to start with building your own Docker images. Let us know how it goes, we are happy to help to let you quick start Hadoop on Docker.</p>
+]]></content>
+  </entry>
+  
+</feed>
