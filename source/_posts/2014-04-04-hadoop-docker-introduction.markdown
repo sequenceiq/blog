@@ -143,4 +143,4 @@ for i in {49000..49900}; do
 done
 boot2docker up
 ```
-That's it. I hope this helps you to start with building your own Docker images. Let us know how it goes, we are happy to help to let you quick start Hadoop on Docker.
+That's it. Hope this helps you to start with building your own Docker images. Let us know how it goes, we are happy to help you quick start Hadoop on Docker.
