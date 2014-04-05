@@ -8,7 +8,7 @@ published: true
 author: Krisztian Horvath
 ---
 
-In the last few weeks we've created and published several Docker images ([Hadoop](https://github.com/sequenceiq/hadoop-docker), [Hoya](https://github.com/sequenceiq/hoya-docker),[Tez](https://github.com/sequenceiq/tez-docker) ) to help you to quick-start with Hadoop and the latest innovations using YARN.
+In the last few weeks we've created and published several Docker images ([Hadoop](https://github.com/sequenceiq/hadoop-docker), [Hoya](https://github.com/sequenceiq/hoya-docker), [Tez](https://github.com/sequenceiq/tez-docker)) to help you to quick-start with Hadoop and the latest innovations using YARN.
 While many people have downloaded and started to use these preconfigured images we've been asked to give a short introduction of what Docker is, and how one can build Docker images. Also during the Hadoop Summit in Amsterdem we have been inquired in particular about running Hadoop on Docker, so this post is our answer for all the requests we received.
 
 
