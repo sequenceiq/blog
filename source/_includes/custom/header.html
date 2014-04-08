@@ -1,6 +1,6 @@
 
-<div class="jumbotron seq-jumborton">
-  <div class="container">
+<!--<div class="jumbotron seq-jumborton">-->
+  <!--<div class="container">
       <a href="{{ site.root }}">
         <img src="/images/logo.png" >
       </a>
@@ -11,35 +11,61 @@
          Here are some thoughts of mine.
       {% endif %}
     </h3>
-  </div>
+  </div>-->
+    <header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner" >
+        <div class="">
+            <div class="navbar-header">
+                <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a href="http://sequenceiq.com/index.html" class="navbar-brand">
+                    <img id="logo" src="http://sequenceiq.com/img/logo.png" alt="SequenceIQ">
+                </a>
+            </div>
+            <div class="container">
+                <nav class="collapse navbar-collapse bs-navbar-collapse pull-right" role="navigation">
+                    <ul class="nav navbar-nav" id="menu-tag">
+                        <li><a href="http://sequenceiq.com/products.html" >Products</a></li>
+                        <li><a href="http://sequenceiq.com/services.html" >Services</a></li>
+                        <li><a href="http://sequenceiq.com/about.html" >About</a></li>
+                        <li><a href="http://blog.sequenceiq.com/" >Blog</a></li>
+                        <li><a href="http://sequenceiq.com/login.html" >Login/Sign Up</a></li>
+                    </ul>
+
+                </nav>
+            </div>
+        </div>
+    </header>
   <div class="container social-jumbotron-container">
       <div class="row">
+        {% if site.github_user %}
+        <div class="col-md-1"><a class="social-link" href="http://github.com/{{ site.github_user }}" title="Github Profile"><i class="icon-github-sign social-navbar"></i></a></div>
+        {% endif %}
+        {% if site.bitbucket_user %}
+        <div class="col-md-1"><a class="social-link" href="http://bitbucket.org/{{ site.bitbucket_user }}" title="BitBucket Profile"><i class="icon-bitbucket-sign social-navbar"></i></a></div>
+        {% endif %}
+        {% if site.linkedin_user %}
+        <div class="col-md-1"><a class="social-link" href="http://linkedin.com/company/{{ site.linkedin_user }}" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></div>
+        {% endif %}
+        {% if site.twitter_user %}
+        <div class="col-md-1"><a class="social-link" href="http://twitter.com/{{ site.twitter_user }}" title="Twitter Profile"><i class="icon-twitter-sign social-navbar"></i></a></div>
+        {% endif %}
+        {% if site.googleplus_user %}
+        <div class="col-md-1"><a class="social-link" href="http://plus.google.com/{{ site.googleplus_user }}" title="Google+ Profile"><i class="icon-google-plus-sign social-navbar"></i></a></div>
+        {% endif %}
+        {% if site.facebook_user %}
+        <div class="col-md-1"><a class="social-link" href="http://facebook.com/{{ site.facebook_user }}" title="Facebook Profile"><i class="icon-facebook-sign social-navbar"></i></a></div>
+        {% endif %}
+        {% if site.flickr_user %}
+        <div class="col-md-1"><a class="social-link" href="http://flickr.com/photos/{{ site.flickr_user }}" title="Flickr Profile"><i class="icon-flickr social-navbar"></i></a></div>
+        {% endif %}
 
-    {% if site.github_user %}
-    <div class="col-md-1"><a class="social-link" href="http://github.com/{{ site.github_user }}" title="Github Profile"><i class="icon-github-sign social-navbar"></i></a></div>
-    {% endif %}
-    {% if site.bitbucket_user %}
-    <div class="col-md-1"><a class="social-link" href="http://bitbucket.org/{{ site.bitbucket_user }}" title="BitBucket Profile"><i class="icon-bitbucket-sign social-navbar"></i></a></div>
-    {% endif %}
-    {% if site.linkedin_user %}
-    <div class="col-md-1"><a class="social-link" href="http://linkedin.com/company/{{ site.linkedin_user }}" title="Linkedin Profile"><i class="icon-linkedin-sign social-navbar"></i></a></div>
-    {% endif %}
-    {% if site.twitter_user %}
-    <div class="col-md-1"><a class="social-link" href="http://twitter.com/{{ site.twitter_user }}" title="Twitter Profile"><i class="icon-twitter-sign social-navbar"></i></a></div>
-    {% endif %}
-    {% if site.googleplus_user %}
-    <div class="col-md-1"><a class="social-link" href="http://plus.google.com/{{ site.googleplus_user }}" title="Google+ Profile"><i class="icon-google-plus-sign social-navbar"></i></a></div>
-    {% endif %}
-    {% if site.facebook_user %}
-    <div class="col-md-1"><a class="social-link" href="http://facebook.com/{{ site.facebook_user }}" title="Facebook Profile"><i class="icon-facebook-sign social-navbar"></i></a></div>
-    {% endif %}
-    {% if site.flickr_user %}
-    <div class="col-md-1"><a class="social-link" href="http://flickr.com/photos/{{ site.flickr_user }}" title="Flickr Profile"><i class="icon-flickr social-navbar"></i></a></div>
-    {% endif %}
-
-    {% if site.email %}
-    <div class="col-md-1"><a class="social-link" href="mailto:{{ site.email }}" title="Email"><i class="icon-envelope-alt social-navbar"></i></a></div>
-    {% endif %}
+        {% if site.email %}
+        <div class="col-md-1"><a class="social-link" href="mailto:{{ site.email }}" title="Email"><i class="icon-envelope-alt social-navbar"></i></a></div>
+        {% endif %}
      </div>
   </div>
-</div>
+<!--</div>-->

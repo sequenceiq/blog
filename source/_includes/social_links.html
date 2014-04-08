@@ -1,0 +1,27 @@
+<div class="row">
+    {% if site.github_user %}
+    <div class="col-md-1"><a class="social-link" href="http://github.com/{{ site.github_user }}" title="Github Profile"><i class="fa fa-github fa-lg"></i></a></div>
+    {% endif %}
+    {% if site.bitbucket_user %}
+    <div class="col-md-1"><a class="social-link" href="http://bitbucket.org/{{ site.bitbucket_user }}" title="BitBucket Profile"><i class="fa fa-bitbucket fa-lg"></i></a></div>
+    {% endif %}
+    {% if site.linkedin_user %}
+    <div class="col-md-1"><a class="social-link" href="http://linkedin.com/company/{{ site.linkedin_user }}" title="Linkedin Profile"><i class="fa fa-linkedin fa-lg"></i></a></div>
+    {% endif %}
+    {% if site.twitter_user %}
+    <div class="col-md-1"><a class="social-link" href="http://twitter.com/{{ site.twitter_user }}" title="Twitter Profile"><i class="fa fa-twitter fa-lg"></i></a></div>
+    {% endif %}
+    {% if site.googleplus_user %}
+    <div class="col-md-1"><a class="social-link" href="http://plus.google.com/{{ site.googleplus_user }}" title="Google+ Profile"><i class="fa fa-google-plus fa-lg"></i></a></div>
+    {% endif %}
+    {% if site.facebook_user %}
+    <div class="col-md-1"><a class="social-link" href="http://facebook.com/{{ site.facebook_user }}" title="Facebook Profile"><i class="fa fa-facebook fa-lg"></i></a></div>
+    {% endif %}
+    {% if site.flickr_user %}
+    <div class="col-md-1"><a class="social-link" href="http://flickr.com/photos/{{ site.flickr_user }}" title="Flickr Profile"><i class="fa fa-flickr fa-lg"></i></a></div>
+    {% endif %}
+
+    {% if site.email %}
+    <div class="col-md-1"><a class="social-link" href="mailto:{{ site.email }}" title="Email"><i class="icon-envelope-alt social-navbar"></i></a></div>
+    {% endif %}
+</div>
