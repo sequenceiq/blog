@@ -8,7 +8,7 @@ header {
   top: 0;
   width: 100%;
   z-index: 999 !important;
-  height: 7em;
+  height: 6.88em;
 }
 
 body {
@@ -93,6 +93,8 @@ p>a {
   background: rgba(0,49,64,0.0) !important;
   z-index: 999 !important;
   color: #fff !important;
+  font-family: 'Roboto', Helvetica, Arial, sans !important;
+  font-size: 16px !important;
 }
 
 #article-container {
@@ -108,7 +110,7 @@ body {
 }
 
 #silent-container {
-  height: 8.3em;
+  height: 6.88em;
   background: #003140;
 }
 
@@ -205,8 +207,8 @@ figure {
 }
 
 .navbar-header>a{
-  padding: 30px 15px !important;
-  margin-left: 70px;
+  padding: 30px !important;
+  margin-left: 10.5em;
 }
 
 h1>a{
