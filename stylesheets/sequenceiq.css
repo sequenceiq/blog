@@ -1,5 +1,5 @@
 #main {
-    margin-top: 10px
+    margin-top: 20px
 }
 
 header {
@@ -23,6 +23,13 @@ nav {
 #recent_posts {
     list-style-type: none;
     padding-left: 0;
+}
+
+#company_div {
+    background-color: #f3a536;
+    display: block;
+    position: fixed !important;
+    width: 100%;
 }
 
 .blue {
@@ -89,8 +96,8 @@ body {
 }
 
 #silent-container {
-    height: 7em;
-    background: #003140
+    height: 8.3em;
+    background: #003140;
 }
 
 .gutter {
