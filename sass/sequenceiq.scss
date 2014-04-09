@@ -20,6 +20,34 @@ nav {
   top: 2.4em !important;
 }
 
+#company_link {
+  margin: 0;
+  margin-right: 5px;
+  color: #003140;
+  font-size: 10px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-right: 50px;
+  font-weight: bolder
+}
+
+
+#recent_posts {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+#company_div {
+  background-color: #f3a536;
+  display: block;
+  position: fixed !important;
+  width: 100%;
+}
+
+.blue {
+  color: #428bca;
+}
+
 #footer-container {
   background-color: #003140;
   color: white;
@@ -80,7 +108,7 @@ body {
 }
 
 #silent-container {
-  height: 7em;
+  height: 8.3em;
   background: #003140;
 }
 
