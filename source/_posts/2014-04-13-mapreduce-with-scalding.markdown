@@ -5,7 +5,7 @@ date: 2014-04-14 13:55:38 +0200
 comments: true
 categories: [Scalding, Hadoop]
 author: Richard Doktorics
-published: false
+published: true
 ---
 
 At SequenceIQ we have many pre-built and configurable MapReduce jobs (complex math algorithms, filtering, sorting and correlation patterns, samplings, top-n, joins, partitioning, etc) - as building blocks of our job worklow. We needed to find a quick way to build and test these jobs during developement on 'local' mode and be able to push the same jobs to a large test cluster without any modifications. 
