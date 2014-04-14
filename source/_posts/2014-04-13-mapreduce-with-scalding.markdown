@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Mapreduce with Scalding"
+title: "Writing MapReduce jobs in Scala"
 date: 2014-04-14 13:55:38 +0200
 comments: true
 categories: [Scalding, Hadoop]
