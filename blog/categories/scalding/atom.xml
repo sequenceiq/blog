@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Scalding | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com/blog/categories/scalding/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-04-14T12:44:30+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
+  <author>
+    <name><![CDATA[SequenceIQ]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Mapreduce with Scalding]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/04/14/mapreduce-with-scalding/"/>
+    <updated>2014-04-14T11:55:38+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/04/14/mapreduce-with-scalding</id>
+    <content type="html"><![CDATA[<p>At SequenceIQ we have many pre-built and configurable MapReduce jobs (complex math algorithms, filtering, sorting and correlation patterns, samplings, top-n, joins, partitioning, etc) &ndash; as building blocks of our job worklow. We needed to find a quick way to build and test these jobs during developement on &lsquo;local&rsquo; mode and be able to push the same jobs to a large test cluster without any modifications.
+Though in general we use Java, we always strive for efficiency when we need to solve a problem and we use different  languages (not just JVM based) in our stack (e.g. Groovy, Go and R) &ndash; to write MapReduce jobs we have choosen Scala and the Scalding library. Scalding is a Scala library developed by Twitter that abstracts and makes easy to write Hadoop MapReduce jobs. In many ways Scalding is similar to Pig, but it was writen in Scala, bringing the advantages of Scala to your MapReduce jobs (e.g. type safety &ndash; how many times you have submitted a job to a cluster only to learn 5 hours later that you can&rsquo;t convert a String to Double).</p>
+
+<p>This example will show you how you can use Scalding with Hadoop 2.3 and how easy is to write a MapReduce job with few lines of Scala code.</p>
+
+<h2>Build the project</h2>
+
+<p>In our example we will transform a csv file to an other one with a filter step.
+To build the project use:</p>
+
+<p><code>./gradlew clean build</code> in the project library.</p>
+
+<h2>Run the sample</h2>
+
+<p>To run the sample with these parameters in local mode:</p>
+
+<p><code>bash
+yarn jar scalding-sample-0.1.jar com.sequenceiq.samples.scalding.CsvToCsvFilterJob --local --schema {YOUR_SCHEME} --input {INPUT} --type {TYPE} --operator {OPERATOR} --field {FILTER_FIELD} --operand {OPERAND} --output {OUTPUT_PATH}
+</code></p>
+
+<p>or if you want to run the exampke using HDFS then use:
+<code>bash
+yarn jar scalding-sample-0.1.jar com.sequenceiq.samples.scalding.CsvToCsvFilterJob --hdfs --schema {YOUR_SCHEME} --input {INPUT} --type {TYPE} --operator {OPERATOR} --field {FILTER_FIELD} --operand {OPERAND} --output {OUTPUT_PATH}
+</code></p>
+
+<p>To run the filtering example the parameters are like this:
+<code>bash
+yarn jar scalding-sample-0.1.jar com.sequenceiq.samples.scalding.CsvToCsvFilterJob --hdfs --schema id,name --input /input.csv --type int --operator eq --field id --operand 1 --output /output.csv
+</code></p>
+
+<p>The code looks extremely simple:</p>
+
+<p>``` java
+validation()
+  input(args)</p>
+
+<pre><code>.filter(filterableField) {field: String =&gt; createFilterCriterion(field)}
+.write(output(args))
+</code></pre>
+
+<p>```</p>
+
+<p>First there is a validation and in case of the input data is OK then we are doing a filtering with the specified criterias.
+In this example (as in all our other examples) we are using Hadoop 2 &ndash; with the ability to submit Scalding jobs into a remote Hadoop 2 cluster. Note that Scalding depends on the Cascading library which does not support Hadoop 2 and there is no ability to submit jobs to a remote cluster &ndash; our example has removed the Hadoop 1 dependencies and lets you to submit jobs to any remote Hadoop 2 cluster.</p>
+
+<p>``` java</p>
+
+<pre><code>JobRunner.runJob(
+    configurationService.getConfiguration(),
+    new String[]{
+        parameters..
+    }
+);
+</code></pre>
+
+<p>```
+You can get the example project from our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/scalding-sample">GitHub</a> repository.</p>
+
+<p>Should you have any Scalding or Scala questions or observations let us know.
+Enjoy,
+SequenceIQ</p>
+]]></content>
+  </entry>
+  
+</feed>

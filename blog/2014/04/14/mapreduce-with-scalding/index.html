@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: Docker - SequenceIQ Blog</title>
+  <title>Mapreduce with Scalding - SequenceIQ Blog</title>
   <meta name="author" content="SequenceIQ">
 
    
-  <meta name="description" content="Category: Docker">
+  <meta name="description" content="">
   
   <meta name="keywords" content="">
 
@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.sequenceiq.comblog/categories/docker">
+  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2014/04/14/mapreduce-with-scalding">
   <link href="/favicon.png" rel="icon">
   <link href='http://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
@@ -119,58 +119,158 @@
               <div class="col-md-9" id="">
                   <div class="">
                    <!-- <div id="content">-->
-                      <article role="article">
+                      <div>
+<h1 class="article-style"> Mapreduce with Scalding </h1>
+<article class="hentry" role="article">
   
- <!-- <header>
-
-    
-  </header>-->
-  
-  <div id="blog-archives" class="category">
-
-  
-  <div class="row">
-    <div class="col-md-1">
-  	
-  	
-  	  
-  	    <h2>2014</h2>
-  	
-    </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-04-04T18:24:17+00:00" pubdate><span class='month'>Apr</span> <span class='day'>04</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/04/04/hadoop-docker-introduction/">Hadoop on Docker introduction</a></h1>
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
-
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/docker/'>Docker</a>, <a class='category' href='/blog/categories/hadoop/'>Hadoop</a>, <a class='category' href='/blog/categories/hadoop-vm/'>Hadoop VM</a></span>
-		</footer>
-		
-	</div>
-</div>
 
 
-  	</article>
+  <div class="row-fluid">
+    <div class="span12">
+      <p>At SequenceIQ we have many pre-built and configurable MapReduce jobs (complex math algorithms, filtering, sorting and correlation patterns, samplings, top-n, joins, partitioning, etc) &ndash; as building blocks of our job worklow. We needed to find a quick way to build and test these jobs during developement on &lsquo;local&rsquo; mode and be able to push the same jobs to a large test cluster without any modifications.
+Though in general we use Java, we always strive for efficiency when we need to solve a problem and we use different  languages (not just JVM based) in our stack (e.g. Groovy, Go and R) &ndash; to write MapReduce jobs we have choosen Scala and the Scalding library. Scalding is a Scala library developed by Twitter that abstracts and makes easy to write Hadoop MapReduce jobs. In many ways Scalding is similar to Pig, but it was writen in Scala, bringing the advantages of Scala to your MapReduce jobs (e.g. type safety &ndash; how many times you have submitted a job to a cluster only to learn 5 hours later that you can&rsquo;t convert a String to Double).</p>
+
+<p>This example will show you how you can use Scalding with Hadoop 2.3 and how easy is to write a MapReduce job with few lines of Scala code.</p>
+
+<h2>Build the project</h2>
+
+<p>In our example we will transform a csv file to an other one with a filter step.
+To build the project use:</p>
+
+<p><code>./gradlew clean build</code> in the project library.</p>
+
+<h2>Run the sample</h2>
+
+<p>To run the sample with these parameters in local mode:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>yarn jar scalding-sample-0.1.jar com.sequenceiq.samples.scalding.CsvToCsvFilterJob --local --schema <span class="o">{</span>YOUR_SCHEME<span class="o">}</span> --input <span class="o">{</span>INPUT<span class="o">}</span> --type <span class="o">{</span>TYPE<span class="o">}</span> --operator <span class="o">{</span>OPERATOR<span class="o">}</span> --field <span class="o">{</span>FILTER_FIELD<span class="o">}</span> --operand <span class="o">{</span>OPERAND<span class="o">}</span> --output <span class="o">{</span>OUTPUT_PATH<span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>or if you want to run the exampke using HDFS then use:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>yarn jar scalding-sample-0.1.jar com.sequenceiq.samples.scalding.CsvToCsvFilterJob --hdfs --schema <span class="o">{</span>YOUR_SCHEME<span class="o">}</span> --input <span class="o">{</span>INPUT<span class="o">}</span> --type <span class="o">{</span>TYPE<span class="o">}</span> --operator <span class="o">{</span>OPERATOR<span class="o">}</span> --field <span class="o">{</span>FILTER_FIELD<span class="o">}</span> --operand <span class="o">{</span>OPERAND<span class="o">}</span> --output <span class="o">{</span>OUTPUT_PATH<span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To run the filtering example the parameters are like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>yarn jar scalding-sample-0.1.jar com.sequenceiq.samples.scalding.CsvToCsvFilterJob --hdfs --schema id,name --input /input.csv --type int --operator eq --field id --operand 1 --output /output.csv
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The code looks extremely simple:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">validation</span><span class="o">()</span>
+</span><span class='line'>  <span class="n">input</span><span class="o">(</span><span class="n">args</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">filterableField</span><span class="o">)</span> <span class="o">{</span><span class="nl">field:</span> <span class="n">String</span> <span class="o">=&gt;</span> <span class="n">createFilterCriterion</span><span class="o">(</span><span class="n">field</span><span class="o">)}</span>
+</span><span class='line'>    <span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">output</span><span class="o">(</span><span class="n">args</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>First there is a validation and in case of the input data is OK then we are doing a filtering with the specified criterias.
+In this example (as in all our other examples) we are using Hadoop 2 &ndash; with the ability to submit Scalding jobs into a remote Hadoop 2 cluster. Note that Scalding depends on the Cascading library which does not support Hadoop 2 and there is no ability to submit jobs to a remote cluster &ndash; our example has removed the Hadoop 1 dependencies and lets you to submit jobs to any remote Hadoop 2 cluster.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>     <span class="n">JobRunner</span><span class="o">.</span><span class="na">runJob</span><span class="o">(</span>
+</span><span class='line'>          <span class="n">configurationService</span><span class="o">.</span><span class="na">getConfiguration</span><span class="o">(),</span>
+</span><span class='line'>        <span class="k">new</span> <span class="n">String</span><span class="o">[]{</span>
+</span><span class='line'>            <span class="n">parameters</span><span class="o">..</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can get the example project from our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/scalding-sample">GitHub</a> repository.</p>
+
+<p>Should you have any Scalding or Scala questions or observations let us know.
+Enjoy,
+SequenceIQ</p>
+
     </div>
   </div>
 
+
+
+  <footer>
+    <hr>
+    
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Richard Doktorics</span></span>
+
+    
+    <div class="row">
+      
+      <div class="col-md-6 span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+
+  <a href="/blog/categories/scalding/"><span class="label label-warning">Scalding</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="col-md-5 social-sharing pull-right">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
+  
+  <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+  
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
 </div>
 
+      </div>
+      
+      
+    </div>
+    
+    <div class="row">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2014/04/04/hadoop-docker-introduction/" title="Previous Post: Hadoop on Docker introduction">&laquo; Hadoop on Docker introduction</a>
+          
+          
+        </p>
+      </div>
+    </div>
+  </footer>
 </article>
 
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
 
 
 
@@ -288,7 +388,10 @@
       var disqus_shortname = 'sequenceiqblog';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2014/04/14/mapreduce-with-scalding/';
+        var disqus_url = 'http://blog.sequenceiq.com/blog/2014/04/14/mapreduce-with-scalding/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
