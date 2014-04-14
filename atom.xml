@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-04-14T16:27:18+00:00</updated>
+  <updated>2014-04-14T16:28:09+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -64,6 +64,9 @@ To build the project use:</p>
 </span><span class='line'>    <span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">filterableField</span><span class="o">)</span> <span class="o">{</span><span class="nl">field:</span> <span class="n">String</span> <span class="o">=&gt;</span> <span class="n">createFilterCriterion</span><span class="o">(</span><span class="n">field</span><span class="o">)}</span>
 </span><span class='line'>    <span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">output</span><span class="o">(</span><span class="n">args</span><span class="o">))</span>
 </span></code></pre></td></tr></table></div></figure>
+
+
+<!-- more -->
 
 
 <p>First there is a validation and in case of the input data is OK then we are doing a filtering with the specified criterias.

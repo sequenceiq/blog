@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-04-14T16:27:18+00:00</updated>
+  <updated>2014-04-14T16:28:09+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -59,6 +59,9 @@ validation()
 </code></pre>
 
 <p>```</p>
+
+<!-- more -->
+
 
 <p>First there is a validation and in case of the input data is OK then we are doing a filtering with the specified criterias.
 In this example (as in all our other examples) we are using Hadoop 2 &ndash; with the ability to submit Scalding jobs into a remote Hadoop 2 cluster. Note that Scalding depends on the Cascading library which does not support Hadoop 2 and there is no ability to submit jobs to a remote cluster &ndash; our example has removed the Hadoop 1 dependencies and lets you to submit jobs to any remote Hadoop 2 cluster.</p>
