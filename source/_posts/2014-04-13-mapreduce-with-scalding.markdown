@@ -45,6 +45,7 @@ validation()
     .filter(filterableField) {field: String => createFilterCriterion(field)}
     .write(output(args))
 ```
+<!-- more -->
 
 First there is a validation and in case of the input data is OK then we are doing a filtering with the specified criterias.
 In this example (as in all our other examples) we are using Hadoop 2 - with the ability to submit Scalding jobs into a remote Hadoop 2 cluster. Note that Scalding depends on the Cascading library which does not support Hadoop 2 and there is no ability to submit jobs to a remote cluster - our example has removed the Hadoop 1 dependencies and lets you to submit jobs to any remote Hadoop 2 cluster.
