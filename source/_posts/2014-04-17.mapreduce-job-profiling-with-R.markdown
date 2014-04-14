@@ -1,0 +1,9 @@
+---
+layout: post
+title: "Job profiling with R"
+date: 2014-04-17 16:17:04 +0100
+comments: true
+categories: [YARN, R, Profiling, Hadoop]
+author: Janos Matyas
+published: false
+---
