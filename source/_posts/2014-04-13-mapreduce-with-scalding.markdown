@@ -57,6 +57,8 @@ In this example (as in all our other examples) we are using Hadoop 2 - with the 
         }
     );
 ```
-You can get the example project from our [GitHub](https://github.com/sequenceiq/sequenceiq-samples/tree/master/scalding-sample) repository. Should you have any Scalding or Scala questions or observations let us know.
+You can get the example project from our [GitHub](https://github.com/sequenceiq/sequenceiq-samples/tree/master/scalding-sample) repository.
+In the [src/main/resources](https://github.com/sequenceiq/sequenceiq-samples/blob/master/scalding-sample/src/main/resources/sample.txt) you can find a very simple csv for testing.
+Should you have any Scalding or Scala questions or observations let us know.
 Enjoy,
 SequenceIQ
