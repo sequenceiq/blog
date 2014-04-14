@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-04-14T12:44:30+00:00</updated>
+  <updated>2014-04-14T12:46:26+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Mapreduce with Scalding]]></title>
+    <title type="html"><![CDATA[Writing MapReduce jobs in Scala]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/04/14/mapreduce-with-scalding/"/>
     <updated>2014-04-14T11:55:38+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/04/14/mapreduce-with-scalding</id>
