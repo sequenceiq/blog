@@ -8,8 +8,56 @@ header {
   top: 0;
   width: 100%;
   z-index: 999 !important;
-  height: 6.88em;
+  min-height: 80px;
 }
+
+.navbar-brand {
+  float: left !important;
+  padding: 26px 15px !important;
+  font-size: 20px !important;
+  line-height: 28px !important;
+  height: 80px !important;
+}
+
+.navbar {
+  min-height: 80px !important;
+}
+
+
+
+.navbar-nav>li>a {
+  padding-top: 26px !important;
+  padding-bottom: 26px !important;
+  border-top-color: #fff;
+  border-top-style: none;
+  border-top-width: 0px;
+  box-sizing: border-box;
+  cursor: auto;
+  display: block !important;
+  height: 80px;
+  color: #fff;
+  line-height: 28px !important;
+  list-style-image: none;
+  list-style-position: outside;
+  list-style-type: none;
+  padding-left: 15px !important;
+  padding-right: 15px !important;
+  position: relative !important;
+  text-align: left;
+  text-decoration: none solid #fff;
+}
+
+.navbar-nav>li:hover {
+  color: #f3a536 !important;
+  background: rgba(0,49,64,0.85) !important;
+  text-decoration: none solid #f3a536 !important;
+}
+
+.navbar-nav>li>a:hover {
+  color: #f3a536 !important;
+}
+
+
 
 body {
   font-family: 'Roboto Condensed', Helvetica, Arial, sans !important;
@@ -92,7 +140,6 @@ p>a {
 #menu-tag>li>a {
   background: rgba(0,49,64,0.0) !important;
   z-index: 999 !important;
-  color: #fff !important;
   font-family: 'Roboto', Helvetica, Arial, sans !important;
   font-size: 16px !important;
 }
@@ -110,7 +157,7 @@ body {
 }
 
 #silent-container {
-  height: 6.88em;
+  min-height: 80px;
   background: #003140;
 }
 
@@ -200,15 +247,6 @@ figure {
 .pull-right {
   float: right;
   margin-right: 20px; /*set margin this way in your custom styesheet*/
-}
-
-.navbar-nav>li>a {
-  top: 2.4em;
-}
-
-.navbar-header>a{
-  padding: 30px !important;
-  margin-left: 11.4em;
 }
 
 h1>a{
