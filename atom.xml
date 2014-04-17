@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-04-17T13:49:45+00:00</updated>
+  <updated>2014-04-17T13:55:55+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,16 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Phoenix (sneak peak)]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/04/17/apache-phoenix-sneak-peak/"/>
+    <updated>2014-04-17T13:51:08+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/04/17/apache-phoenix-sneak-peak</id>
+    <content type="html"><![CDATA[<script type="text/javascript" src="https://asciinema.org/a/8982.js" id="asciicast-8982" async></script>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Writing MapReduce jobs in Scala]]></title>
