@@ -27,7 +27,7 @@ HBASE_HOME/lib). If you have multiple nodes it has to be there on every node. Re
 Yes!
 
 ## Sample
-We've pre-coocked a [Docker](https://github.com/sequenceiq/phoenix-docker) image for you so you can follow this sample and play with it
+We've pre-cooked a [Docker](https://github.com/sequenceiq/phoenix-docker) image for you so you can follow this sample and play with it
 (the image is based on Hadoop 2.4, HBase 0.98.1, Phoenix 4.1.0-SNAPSHOT).
 
 <!-- more -->
@@ -53,7 +53,7 @@ DESCRIPTION                                                                     
  che.phoenix.hbase.index.Indexer|1073741823|index.builder=org.apache.phoenix.index.PhoenixIndexBuilder,org.apache.hadoop.hbase.inde
  x.codec.class=org.apache.phoenix.index.PhoenixIndexCodec'}, {NAME => '0', DATA_BLOCK_ENCODING => 'FAST_DIFF', BLOOMFILTER => 'ROW'
  , REPLICATION_SCOPE => '0', VERSIONS => '1', COMPRESSION => 'NONE', MIN_VERSIONS => '0', TTL => '2147483647', KEEP_DELETED_CELLS =
- > 'true', BLOCKSIZE => '65536', IN_MEMORY => 'false', BLOCKCACHE => 'true'}  
+ > 'true', BLOCKSIZE => '65536', IN_MEMORY => 'false', BLOCKCACHE => 'true'}
 ```
 As you can see there are bunch of co-processors. Co-processors were introduced in version 0.92.0 to push arbitrary computation out
 to the HBase nodes and run in parallel across all the RegionServers. There are two types of them: observers and endpoints.
