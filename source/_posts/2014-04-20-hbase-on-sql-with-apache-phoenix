@@ -68,8 +68,8 @@ After the tables are created fill them with data. For this purpose we'll use the
 The related sample project (Spring based) can be found in our
 [GitHub](https://github.com/sequenceiq/sequenceiq-samples/tree/master/phoenix-jooq) repository. To connect you'll need Phoenix's
 JDBC driver on your classpath (org.apache.phoenix.jdbc.PhoenixDriver). At the moment it is not available anywhere, but temporary we
-deployed into our [maven](https://github.com/sequenceiq/sequenceiq-maven-repo) repository, so use it if you will, but be careful it
-won't be always there in this form. The url to connect to should be familiar as it uses the same Zookeeper QuorumPeer's address:
+deployed into our [maven](https://github.com/sequenceiq/sequenceiq-maven-repo) repository, so use it if you'd like, but don't rely on that
+it will be always there in this form. The url to connect to should be familiar as it uses the same Zookeeper QuorumPeer's address:
 `jdbc:phoenix:localhost:2181`. Unfortunately Jooq's insert statement is not suitable for us since the JDBC driver only supports the
 upsert statement so we cannot make use of the fluent API here.
 ```java
