@@ -111,14 +111,18 @@ The graph above contains the number of active tasks at each time. It shows the m
 
 ![](https://raw.githubusercontent.com/sequenceiq/yarn-monitoring/master/images/48_mappers_20_reducers_reduce_phases.png)
 
+
 This graph shows only the reduce part with the three phases: shuffle, merge, reduce. The times are absolute times (could show absolute values as well).
 
 `plotTimeBoxes<-function(data, nodeNum=21, slotsPerNode=4)`
 
-![](https://raw.githubusercontent.com/sequenceiq/yarn-monitoring/11a2387d2235e62cb37ff6ec82ed1fcbd0a591f3/images/48_mappers_20_reducers_mr_by_nodes.png)
+![](https://raw.githubusercontent.com/sequenceiq/yarn-monitoring/master/images/48_mappers_20_reducers_mr_by_nodes.png)
 
 
-As you can see monitoring a MapReduce job through the HistoryServer it is extremely easy, and R is very usefull to apply different statistics and plot graphs.
+As you can see monitoring a MapReduce job through the HistoryServer it is extremely easy, and R is very usefull to apply different statistics and plot graphs. Also as you start playing with different setups the results can quickly be retrived, the graphs regenerated to analyze how different configuratins are affecting the outcomes of the jobs.
+
+![](https://raw.githubusercontent.com/sequenceiq/yarn-monitoring/master/images/96_mappers_20_reducers_mr_by_nodes.png)
+
 
 The example project is available at our [GitHub](https://github.com/sequenceiq/yarn-monitoring) page. We are working on a `heuristic` scheduler for a better utilization of our cluster, and also to provide QoS on Hadoop - profiling and understanding the MapReduce jobs and the job queues are essential. Follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/) to read about the progress and get early access to the scheduler code, or feel free to contribute to our YARN monitoring project.
 
