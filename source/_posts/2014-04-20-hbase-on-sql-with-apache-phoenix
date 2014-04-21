@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "HBase on SQL with Apache Phoenix"
+title: "SQL on HBase with Apache Phoenix"
 date: 2014-04-20 14:24:11 +0200
 comments: true
 categories: [HBase, Apache Phoenix, Jooq]
