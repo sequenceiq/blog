@@ -28,7 +28,7 @@ Yes!
 
 ## Sample
 We've pre-cooked a [Docker](https://github.com/sequenceiq/phoenix-docker) image for you so you can follow this sample and play with it
-(the image is based on Hadoop 2.4, HBase 0.98.1, Phoenix 4.1.0-SNAPSHOT).
+(the image is based on Hadoop 2.4, HBase 0.98.1, Phoenix 4.1.0-SNAPSHOT) `docker run -i -t sequenceiq/phoenix`.
 
 <!-- more -->
 
