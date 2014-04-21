@@ -5,6 +5,7 @@ date: 2014-04-20 14:24:11 +0200
 comments: true
 categories: [HBase, Apache Phoenix, Jooq]
 author: Krisztian Horvath
+published: false
 ---
 HBase is an open-source, distributed, versioned, non-relational database modeled after Google's Bigtable. It's designed to handle
 billions of rows X millions of columns. However, using it as a relational database where you would store your data normalized,
