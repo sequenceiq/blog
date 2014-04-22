@@ -12,7 +12,7 @@ Management of a large Hadoop cluster is not an easy task - however thanks to pro
 
 At SequenceIQ in order to profile MapReduce jobs, understand (job)internal statistics and create usefull graphs many times we rely on [R](http://www.r-project.org/). The metrics are collected from Ambari and the [YARN History Server](http://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-site/HistoryServerRest.html).
 
-In this blog post we would like to explain and guide you through a simple process of collecting MapReduce job related metrics, calculate different statistics and generate easy to understand charts.
+In this blog post we would like to explain and guide you through a simple process of collecting MapReduce job metrics, calculate different statistics and generate easy to understand charts.
 
 The MapReduce application is the following:
 * The input set of data is 12*1 GB size files. Each file containes the same line of 16 bytes (012345678998765 plus the new line character)
@@ -30,11 +30,11 @@ First we load the R functions:
 
 `source("JobHistory.r")`
 
-Then we extract/read the job from the HistoryServer. It is actually using the Rest API of HistoryServer by parsing the JSON output of it.
+Then we extract/read the job from the HistoryServer. It is actually using the Rest API of HistoryServer, parsing the JSON output.
 
 `job<-getJob("job_1395530889914_0005","node02:19888")`
 
-The structure of the job follows the structure that is returned from the HistoryServer except that for example the parameters of all the tasks are converted into vectors so that can be easily handled.
+The structure of the job follows the structure that is returned from the HistoryServer except that for example the parameters of all the tasks are converted into vectors so that can be easily handled in R.
 
 A job is a list of `things`:
 
@@ -99,7 +99,7 @@ The are two types of graphs for the beginning
 
 ![](https://raw.githubusercontent.com/sequenceiq/yarn-monitoring/master/images/48_mappers_20_reducers_mr_task_times.png)
 
-This graphs shows start and finish times for each tasks (mappers and reducers as well). The tasks are sorted by their start times, so the reducers are on the top. 48 mappers and 20 reducers can be seen. The times are relative to the startTime of the first mapper in milliseconds(could show absolute values as well).
+This graph shows start and finish times for each tasks (mappers and reducers as well). The tasks are sorted by their start times, so the reducers are on the top. There are 48 mappers and 20 reducers. The times are relative to the startTime of the first mapper in milliseconds(could show absolute values as well).
 
 `plotActiveMRTasksNum(job)`
 
@@ -119,13 +119,15 @@ This graph shows only the reduce part with the three phases: shuffle, merge, red
 ![](https://raw.githubusercontent.com/sequenceiq/yarn-monitoring/master/images/48_mappers_20_reducers_mr_by_nodes.png)
 
 
-As you can see monitoring a MapReduce job through the HistoryServer it is extremely easy, and R is very usefull to apply different statistics and plot graphs. Also as you start playing with different setups the results can quickly be retrived, the graphs regenerated to analyze how different configuratins are affecting the outcomes of the jobs.
+As you can see monitoring a MapReduce job through the HistoryServer it is extremely easy, and R is very usefull to apply different statistics and plot graphs. Also as you start playing with different setups the results can quickly be retrived, the graphs regenerated to analyze how different configuratins are affecting the execution time/behaviour of the jobs.
 
 ![](https://raw.githubusercontent.com/sequenceiq/yarn-monitoring/master/images/96_mappers_20_reducers_mr_by_nodes.png)
 
 
-The example project is available at our [GitHub](https://github.com/sequenceiq/yarn-monitoring) page. We are working on a `heuristic` scheduler for a better utilization of our cluster, and also to provide QoS on Hadoop - profiling and understanding the MapReduce jobs and the job queues are essential. Follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/) to read about the progress and get early access to the scheduler code, or feel free to contribute to our YARN monitoring project.
+As always, the example project is available at our [GitHub](https://github.com/sequenceiq/yarn-monitoring) page. We are working on a `heuristic` queue scheduler for a better utilization of our cluster, and also to provide QoS on Hadoop - profiling and understanding the running MapReduce jobs and the job queues are essential for that. Also based on the charts broken down by nodes we can quickly identify servers with potential issues (slow I/O, memory, etc).
 
-Thanks.
+Follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/) to read about how we progress with the sceduler and get early access, or feel free to contribute to our YARN monitoring project.
+
+
 
 
