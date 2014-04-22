@@ -7,6 +7,11 @@ categories: [HBase, Apache Phoenix, Jooq]
 author: Krisztian Horvath
 published: false
 ---
+
+At [SequenceIQ](http://sequenceiq.com/) we use HBase to store large amounts of high velocity data and interact with them - many times we use native HBase interfaces but recently there was a need (internal and external) to access the data through a well known SQL interface. 
+
+## Introduction
+
 HBase is an open-source, distributed, versioned, non-relational database modeled after Google's Bigtable. It's designed to handle
 billions of rows and millions of columns. However, using it as a relational database where you would store your data normalized,
 split into multiple tables is not easy and most likely you will struggle with it as you would do in any other non-relational database.
@@ -126,4 +131,4 @@ the contributors are dedicated and working hard to make this project moving forw
 Follow up with [us](https://www.linkedin.com/company/sequenceiq/) if you are interested in HBase and building an SQL interface on top.
 Don't hesitate to contact us should you have any questions.
 
-http://sequenceiq.com/
+[SequenceIQ](http://sequenceiq.com/)
