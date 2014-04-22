@@ -2,84 +2,84 @@
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/02/07/hdp2-on-amazon/</loc>
-        <lastmod>2014-04-21T18:36:49+00:00</lastmod>
+        <lastmod>2014-04-22T08:34:39+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/02/22/custom-flume-source/</loc>
-        <lastmod>2014-04-21T18:36:49+00:00</lastmod>
+        <lastmod>2014-04-22T08:34:39+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/02/26/vote-for-us/</loc>
-        <lastmod>2014-04-21T18:36:49+00:00</lastmod>
+        <lastmod>2014-04-22T08:34:39+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/02/28/etl-and-data-quality/</loc>
-        <lastmod>2014-04-21T18:36:49+00:00</lastmod>
+        <lastmod>2014-04-22T08:34:39+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/03/05/access-hdp2-sandbox/</loc>
-        <lastmod>2014-04-21T18:36:49+00:00</lastmod>
+        <lastmod>2014-04-22T08:34:39+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/03/07/read-from-hdfs/</loc>
-        <lastmod>2014-04-21T18:36:49+00:00</lastmod>
+        <lastmod>2014-04-22T08:34:39+00:00</lastmod>
     </url>
     <url>
         <loc>
             http://blog.sequenceiq.com/blog/2014/03/11/data-cleaning-with-mapreduce-and-morphlines/
         </loc>
-        <lastmod>2014-04-21T18:36:49+00:00</lastmod>
+        <lastmod>2014-04-22T08:34:39+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler/</loc>
-        <lastmod>2014-04-21T18:36:49+00:00</lastmod>
+        <lastmod>2014-04-22T08:34:39+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/03/19/hadoop-2-dot-3-with-docker/</loc>
-        <lastmod>2014-04-21T18:36:49+00:00</lastmod>
+        <lastmod>2014-04-22T08:34:39+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/03/24/hoya-at-sequenceiq/</loc>
-        <lastmod>2014-04-21T18:36:49+00:00</lastmod>
+        <lastmod>2014-04-22T08:34:39+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/03/31/mahout-on-tez/</loc>
-        <lastmod>2014-04-21T18:36:49+00:00</lastmod>
+        <lastmod>2014-04-22T08:34:39+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/04/04/hadoop-docker-introduction/</loc>
-        <lastmod>2014-04-21T18:36:49+00:00</lastmod>
+        <lastmod>2014-04-22T08:34:39+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/04/14/mapreduce-with-scalding/</loc>
-        <lastmod>2014-04-21T18:36:49+00:00</lastmod>
+        <lastmod>2014-04-22T08:34:39+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/04/17/apache-phoenix-sneak-peak/</loc>
-        <lastmod>2014-04-21T18:36:49+00:00</lastmod>
+        <lastmod>2014-04-22T08:34:39+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/</loc>
-        <lastmod>2014-04-21T18:36:49+00:00</lastmod>
+        <lastmod>2014-04-22T08:34:39+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/categories/</loc>
-        <lastmod>2014-04-21T18:36:49+00:00</lastmod>
+        <lastmod>2014-04-22T08:34:39+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/archives/</loc>
-        <lastmod>2014-04-21T18:36:49+00:00</lastmod>
+        <lastmod>2014-04-22T08:34:39+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/404.html</loc>
-        <lastmod>2014-04-21T18:36:49+00:00</lastmod>
+        <lastmod>2014-04-22T08:34:39+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/robots.txt</loc>
-        <lastmod>2014-04-21T18:36:49+00:00</lastmod>
+        <lastmod>2014-04-22T08:34:39+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/archives/</loc>
-        <lastmod>2014-04-21T18:36:49+00:00</lastmod>
+        <lastmod>2014-04-22T08:34:39+00:00</lastmod>
     </url>
 </urlset>
