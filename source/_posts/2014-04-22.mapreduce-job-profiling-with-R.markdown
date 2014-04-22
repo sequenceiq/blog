@@ -129,5 +129,5 @@ As always, the example project is available at our [GitHub](https://github.com/s
 Follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/) to read about how we progress with the sceduler and get early access, or feel free to contribute to our YARN monitoring project.
 
 
-
+ 
 
