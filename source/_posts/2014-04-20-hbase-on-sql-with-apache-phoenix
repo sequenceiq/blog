@@ -8,27 +8,28 @@ author: Krisztian Horvath
 published: false
 ---
 HBase is an open-source, distributed, versioned, non-relational database modeled after Google's Bigtable. It's designed to handle
-billions of rows X millions of columns. However, using it as a relational database where you would store your data normalized,
+billions of rows and millions of columns. However, using it as a relational database where you would store your data normalized,
 split into multiple tables is not easy and most likely you will struggle with it as you would do in any other non-relational database.
-Here comes [Apache Phoenix](http://phoenix.incubator.apache.org/) to the picture. It's an SQL skin over HBase delivered as a
+Here comes [Apache Phoenix](http://phoenix.incubator.apache.org/) in the picture. It's an SQL skin over HBase delivered as a
 client-embedded JDBC driver targeting low latency queries. The project is in incubating state and under heavy development, but you
 can already start embracing it.
 
 ## Installation
-Download the appropriate distribution from [here](http://xenia.sote.hu/ftp/mirrors/www.apache.org/incubator/phoenix/) and by appropriate
-I mean compatibility:
+Download the appropriate distribution from [here](http://xenia.sote.hu/ftp/mirrors/www.apache.org/incubator/phoenix/):
 
  * Phoenix 2.x - HBase 0.94.x
  * Phoenix 3.x - HBase 0.94.x
  * Phoenix 4.x - HBase 0.98.1+
 
-or clone their [repository](https://github.com/apache/incubator-phoenix/tree/4.0) and build it yourself (mvn clean install -DskipTests).
-It should contain a jar file like this: phoenix-`version`-incubating-client.jar. Copy it to HBase's classpath (easiest way to copy it to
+_Note the compatibilities between the HBase and Phoenix versions_
+
+Alternatively you can clone the [repository](https://github.com/apache/incubator-phoenix/tree/4.0) and build it yourself (mvn clean install -DskipTests).
+It should produce a jar file like this: phoenix-`version`-incubating-client.jar. Copy it to HBase's classpath (easiest way is to copy into
 HBASE_HOME/lib). If you have multiple nodes it has to be there on every node. Restart the RegionServers and you are good to go. That's it?
 Yes!
 
 ## Sample
-We've pre-cooked a [Docker](https://github.com/sequenceiq/phoenix-docker) image for you so you can follow this sample and play with it
+We've pre-cooked a [Docker](https://github.com/sequenceiq/phoenix-docker) image for you so you can follow this sample and play with it:
 (the image is based on Hadoop 2.4, HBase 0.98.1, Phoenix 4.1.0-SNAPSHOT) `docker run -i -t sequenceiq/phoenix`.
 
 <!-- more -->
@@ -57,7 +58,7 @@ DESCRIPTION                                                                     
  > 'true', BLOCKSIZE => '65536', IN_MEMORY => 'false', BLOCKCACHE => 'true'}
 ```
 As you can see there are bunch of co-processors. Co-processors were introduced in version 0.92.0 to push arbitrary computation out
-to the HBase nodes and run in parallel across all the RegionServers. There are two types of them: observers and endpoints.
+to the HBase nodes and run in parallel across all the RegionServers. There are two types of them: `observers` and `endpoints`.
 Observers allow the cluster to behave differently during normal client operations. Endpoints allow you to extend the cluster’s
 capabilities, exposing new operations to client applications. Phoenix uses them to translate the SQL queries to scans and that's
 why it can operate so quickly. It is also possible to map an existing HBase table to a Phoenix table. In this case the binary
@@ -99,7 +100,7 @@ dslContext
           .orderBy(fieldByName("c.name").asc())
           .fetch();
 ```
-This query resulted on my machine the following:
+This query resulted the following:
 ```
 +----+------------+-----+-----------+----+----------+-------------+--------+
 |C.ID|C.NAME      |C.AGE|C.CITY     |O.ID|O.DATE    |O.CUSTOMER_ID|O.AMOUNT|
@@ -119,5 +120,10 @@ select c.name as name, o.amount as amount, o.date as date from customers as c in
 Nested queries are not supported yet, but it will come soon.
 
 ## Summary
-As you saw it is pretty easy to get started with Phoenix both command line and programmatically. There are lack of lots of feature, but
-the contributors are dedicated and working hard to make this project production ready. Next step? ORM for HBase? It is also ongoing.. :)
+As you saw it is pretty easy to get started with Phoenix both command line and programmatically. There are lots of lacking features, but
+the contributors are dedicated and working hard to make this project moving forward. Next step? ORM for HBase? It is also ongoing.. :)
+
+Follow up with [us](https://www.linkedin.com/company/sequenceiq/) if you are interested in HBase and building an SQL interface on top.
+Don't hesitate to contact us should you have any questions.
+
+http://sequenceiq.com/
