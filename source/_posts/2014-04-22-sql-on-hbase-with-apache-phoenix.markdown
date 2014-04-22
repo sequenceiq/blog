@@ -1,9 +1,9 @@
 ---
 layout: post
 title: "SQL on HBase with Apache Phoenix"
-date: 2014-04-20 14:24:11 +0200
+date: 2014-04-22 14:24:11 +0200
 comments: true
-categories: [HBase, Apache Phoenix, Jooq]
+categories: [HBase, Apache Phoenix, Jooq, SQL]
 author: Krisztian Horvath
 published: true
 ---
