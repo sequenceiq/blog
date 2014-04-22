@@ -5,7 +5,7 @@ date: 2014-04-20 14:24:11 +0200
 comments: true
 categories: [HBase, Apache Phoenix, Jooq]
 author: Krisztian Horvath
-published: false
+published: true
 ---
 
 At [SequenceIQ](http://sequenceiq.com/) we use HBase to store large amounts of high velocity data and interact with them - many times we use native HBase interfaces but recently there was a need (internal and external) to access the data through an SQL interface. 
