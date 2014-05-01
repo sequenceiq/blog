@@ -181,40 +181,6 @@
 
 <p>The structure of the job follows the structure that is returned from the HistoryServer except that for example the parameters of all the tasks are converted into vectors so that can be easily handled in R.</p>
 
-<p>A job is a list of <code>things</code>:</p>
-
-<p><code>&gt; names(job)</code></p>
-
-<p><code>[1] "job"      "counters" "tasks"    "attempts"</code></p>
-
-<p>The job$job contains some basic data</p>
-
-<p><code>&gt; names(job$job)</code></p>
-
-<p><code>[1] "startTime"                "finishTime"               "id"                       "name"                     "queue"</code></p>
-
-<p><code>[6] "user"                     "state"                    "mapsTotal"                "mapsCompleted"            "reducesTotal"</code></p>
-
-<p><code>[11] "reducesCompleted"         "uberized"                 "diagnostics"              "avgMapTime"               "avgReduceTime"</code></p>
-
-<p><code>[16] "avgShuffleTime"           "avgMergeTime"             "failedReduceAttempts"     "killedReduceAttempts"     "successfulReduceAttempts"</code></p>
-
-<p><code>[21] "failedMapAttempts"        "killedMapAttempts"        "successfulMapAttempts"</code></p>
-
-<p>The items below job$tasks are all vectors (if there are numeric) or non-named lists:</p>
-
-<p><code>&gt; names(job$tasks)</code></p>
-
-<p><code>[1] "startTime"         "finishTime"        "elapsedTime"       "progress"          "id"          "state"             "type"</code></p>
-
-<p><code>[8] "successfulAttempt"</code></p>
-
-<p>This way we can easily calculate the mean of the <code>running</code> times of all the tasks like this:</p>
-
-<p><code>mean(job$tasks$finishTime-job$tasks$startTime)</code></p>
-
-<p><code>[1] 147307</code></p>
-
 
       
        <a href="/blog/2014/05/01/mapreduce-job-profiling-with-R/">Read on &rarr;</a> 

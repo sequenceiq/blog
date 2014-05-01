@@ -4,7 +4,7 @@
   <title><![CDATA[Category: YARN | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/yarn/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-05-01T20:25:54+00:00</updated>
+  <updated>2014-05-01T20:28:14+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -46,6 +46,9 @@
 
 <p>The structure of the job follows the structure that is returned from the HistoryServer except that for example the parameters of all the tasks are converted into vectors so that can be easily handled in R.</p>
 
+<!-- more -->
+
+
 <p>A job is a list of <code>things</code>:</p>
 
 <p><code>&gt; names(job)</code></p>
@@ -79,9 +82,6 @@
 <p><code>mean(job$tasks$finishTime-job$tasks$startTime)</code></p>
 
 <p><code>[1] 147307</code></p>
-
-<!-- more -->
-
 
 <p>The <code>attempts</code> list also contains vectors or lists of parameters. Only the successful attempts are in the attempt list.</p>
 
