@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-05-01T20:08:45+00:00</updated>
+  <updated>2014-05-01T20:09:09+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,131 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Job profiling with R]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/05/01/mapreduce-job-profiling-with-R/"/>
+    <updated>2014-05-01T21:08:04+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/05/01/mapreduce-job-profiling-with-R</id>
+    <content type="html"><![CDATA[<p>Management of a large Hadoop cluster is not an easy task &ndash; however thanks to projects like <a href="http://ambari.apache.org/">Apache Ambari</a> these tasks are getting easier. Ambari provides an intuitive, easy-to-use Hadoop management web UI backed by its REST API to provision, manage and monitor a Hadoop cluster. While Ambari helps us a lot to monitor a cluster (leverages <a href="http://ganglia.sourceforge.net/">Ganglia</a> and <a href="http://www.nagios.org/">Nagios</a>), many times we have to profile our MapReduce jobs as well.</p>
+
+<p>At SequenceIQ in order to profile MapReduce jobs, understand (job)internal statistics and create usefull graphs many times we rely on <a href="http://www.r-project.org/">R</a>. The metrics are collected from Ambari and the <a href="http://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-site/HistoryServerRest.html">YARN History Server</a>.</p>
+
+<p>In this blog post we would like to explain and guide you through a simple process of collecting MapReduce job metrics, calculate different statistics and generate easy to understand charts.</p>
+
+<p>The MapReduce application is the following:
+* The input set of data is 12<em>1 GB size files. Each file containes the same line of 16 bytes (012345678998765 plus the new line character)
+* The number of mappers running is 48, because the block size on HDFS is 256 MB and there are 12 files.
+* We use TextInputFormat (line num, line content) pairs. The output of the mapper function is the same as the input <code>IdentityMapper</code>
+* The number of reducers is 20.
+* For simplicity we use <code>IdentityReducer</code> as the reducer function.
+* We use a special partitioner called <code>LinePartitoner</code>. The partitioning is based on line numbers (the key) and it makes sure that each reducer gets the same amount of data (line number </em>modulo* reducer number).</p>
+
+<h2>How to get the job results with R</h2>
+
+<p>The job id that we are analysing with R is job_1395530889914_0005 (<em>replace this with your job is</em>)</p>
+
+<p>First we load the R functions:</p>
+
+<p><code>source("JobHistory.r")</code></p>
+
+<p>Then we extract/read the job from the HistoryServer. It is actually using the Rest API of HistoryServer, parsing the JSON output.</p>
+
+<p><code>job&lt;-getJob("job_1395530889914_0005","node02:19888")</code></p>
+
+<p>The structure of the job follows the structure that is returned from the HistoryServer except that for example the parameters of all the tasks are converted into vectors so that can be easily handled in R.</p>
+
+<p>A job is a list of <code>things</code>:</p>
+
+<p><code>&gt; names(job)</code></p>
+
+<p><code>[1] "job"      "counters" "tasks"    "attempts"</code></p>
+
+<p>The job$job contains some basic data</p>
+
+<p><code>&gt; names(job$job)</code></p>
+
+<p><code>[1] "startTime"                "finishTime"               "id"                       "name"                     "queue"</code></p>
+
+<p><code>[6] "user"                     "state"                    "mapsTotal"                "mapsCompleted"            "reducesTotal"</code></p>
+
+<p><code>[11] "reducesCompleted"         "uberized"                 "diagnostics"              "avgMapTime"               "avgReduceTime"</code></p>
+
+<p><code>[16] "avgShuffleTime"           "avgMergeTime"             "failedReduceAttempts"     "killedReduceAttempts"     "successfulReduceAttempts"</code></p>
+
+<p><code>[21] "failedMapAttempts"        "killedMapAttempts"        "successfulMapAttempts"</code></p>
+
+<p>The items below job$tasks are all vectors (if there are numeric) or non-named lists:</p>
+
+<p><code>&gt; names(job$tasks)</code></p>
+
+<p><code>[1] "startTime"         "finishTime"        "elapsedTime"       "progress"          "id"          "state"             "type"</code></p>
+
+<p><code>[8] "successfulAttempt"</code></p>
+
+<p>This way we can easily calculate the mean of the <code>running</code> times of all the tasks like this:</p>
+
+<p><code>mean(job$tasks$finishTime-job$tasks$startTime)</code></p>
+
+<p><code>[1] 147307</code></p>
+
+<p>The <code>attempts</code> list also contains vectors or lists of parameters. Only the successful attempts are in the attempt list.</p>
+
+<p><code>&gt; names(job$attempts)</code></p>
+
+<p><code>[1] "startTime"           "finishTime"          "elapsedTime"         "progress"            "id"                  "rack"</code></p>
+
+<p><code>[7] "state"               "nodeHttpAddress"     "diagnostics"         "type"                "assignedContainerId" "shuffleFinishTime"</code></p>
+
+<p><code>[13] "mergeFinishTime"     "elapsedShuffleTime"  "elapsedMergeTime"    "elapsedReduceTime"</code></p>
+
+<p>This way we can easily calculate the average <code>merge</code> times:</p>
+
+<p><code>&gt; mean(job$attempts$mergeFinishTime-job$attempts$shuffleFinishTime)</code></p>
+
+<p><code>[1] 4875.15</code></p>
+
+<p>Which is the same as:</p>
+
+<p><code>&gt; mean(job$attempts$elapsedMergeTime)</code></p>
+
+<p><code>[1] 4875.15</code></p>
+
+<h2>The R generated graphs</h2>
+
+<p>The are two types of graphs for the beginning</p>
+
+<p><code>plotTasksTimes(job)</code></p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/48_mappers_20_reducers_mr_task_times.png" alt="" /></p>
+
+<p>This graph shows start and finish times for each tasks (mappers and reducers as well). The tasks are sorted by their start times, so the reducers are on the top. There are 48 mappers and 20 reducers. The times are relative to the startTime of the first mapper in milliseconds(could show absolute values as well).</p>
+
+<p><code>plotActiveMRTasksNum(job)</code></p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/48_mappers_20_reducers_mr.png" alt="" /></p>
+
+<p>The graph above contains the number of active tasks at each time. It shows the mappers with green and also show the reduce phases as well. The shuffle part is orange, the merge part is magenta and the reduce part (reducer function is running) is blue. The times are relative to the startTime of the first mapper in milliseconds (could show absolute values as well).</p>
+
+<p><code>plotActiveReduceTasksNumDetailed(job, FALSE)</code></p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/48_mappers_20_reducers_reduce_phases.png" alt="" /></p>
+
+<p>This graph shows only the reduce part with the three phases: shuffle, merge, reduce. The times are absolute times (could show absolute values as well).</p>
+
+<p><code>plotTimeBoxes&lt;-function(data, nodeNum=21, slotsPerNode=4)</code></p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/48_mappers_20_reducers_mr_by_nodes.png" alt="" /></p>
+
+<p>As you can see monitoring a MapReduce job through the HistoryServer it is extremely easy, and R is very usefull to apply different statistics and plot graphs. Also as you start playing with different setups the results can quickly be retrived, the graphs regenerated to analyze how different configuratins are affecting the execution time/behaviour of the jobs.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/96_mappers_20_reducers_mr_by_nodes.png" alt="" /></p>
+
+<p>As always, the example project is available at our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/yarn-monitoring-R">GitHub</a> page. We are working on a <code>heuristic</code> queue scheduler for a better utilization of our cluster, and also to provide QoS on Hadoop &ndash; profiling and understanding the running MapReduce jobs and the job queues are essential for that. Also based on the charts broken down by nodes we can quickly identify servers with potential issues (slow I/O, memory, etc).</p>
+
+<p>Follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a> to read about how we progress with the sceduler and get early access, or feel free to contribute to our YARN monitoring project.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[SQL on HBase with Apache Phoenix]]></title>
