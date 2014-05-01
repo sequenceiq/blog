@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Job profiling with R"
-date: 2014-04-22 10:35:04 +0100
+date: 2014-05-01 22:08:04 +0100
 comments: true
 categories: [YARN, R, Profiling, Hadoop, Ambari]
 author: Janos Matyas
