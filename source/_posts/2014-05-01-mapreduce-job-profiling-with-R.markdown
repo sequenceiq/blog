@@ -36,6 +36,8 @@ Then we extract/read the job from the HistoryServer. It is actually using the Re
 
 The structure of the job follows the structure that is returned from the HistoryServer except that for example the parameters of all the tasks are converted into vectors so that can be easily handled in R.
 
+<!-- more -->
+
 A job is a list of `things`:
 
 `> names(job)`
@@ -70,7 +72,6 @@ This way we can easily calculate the mean of the `running` times of all the task
 
 `[1] 147307`
 
-<!-- more -->
 
 The `attempts` list also contains vectors or lists of parameters. Only the successful attempts are in the attempt list.
 
