@@ -15,7 +15,7 @@ At SequenceIQ in order to profile MapReduce jobs, understand (job)internal stati
 In this blog post we would like to explain and guide you through a simple process of collecting MapReduce job metrics, calculate different statistics and generate easy to understand charts.
 
 The MapReduce application is the following:
-* The input set of data is 12*1 GB size files. Each file containes the same line of 16 bytes (012345678998765 plus the new line character)
+* The input set of data is 12 - 1 GB size files. Each file containes the same line of 16 bytes (012345678998765 plus the new line character)
 * The number of mappers running is 48, because the block size on HDFS is 256 MB and there are 12 files.
 * We use TextInputFormat (line num, line content) pairs. The output of the mapper function is the same as the input `IdentityMapper`
 * The number of reducers is 20.
@@ -69,6 +69,8 @@ This way we can easily calculate the mean of the `running` times of all the task
 `mean(job$tasks$finishTime-job$tasks$startTime)`
 
 `[1] 147307`
+
+<!-- more -->
 
 The `attempts` list also contains vectors or lists of parameters. Only the successful attempts are in the attempt list.
 
