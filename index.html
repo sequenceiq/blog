@@ -159,13 +159,17 @@
 
 <p>In this blog post we would like to explain and guide you through a simple process of collecting MapReduce job metrics, calculate different statistics and generate easy to understand charts.</p>
 
-<p>The MapReduce application is the following:
- * The input set of data is 12 pieces of 1 GB size files. Each file containes the same line of 16 bytes (012345678998765 plus the new line character)
- * The number of mappers running is 48, because the block size on HDFS is 256 MB and there are 12 files.
- * We use TextInputFormat (line num, line content) pairs. The output of the mapper function is the same as the input <code>IdentityMapper</code>
- * The number of reducers is 20.
- * For simplicity we use <code>IdentityReducer</code> as the reducer function.
- * We use a special partitioner called <code>LinePartitoner</code>. The partitioning is based on line numbers (the key) and it makes sure that each reducer gets the same amount of data (line number <em>modulo</em> reducer number).</p>
+<p>The MapReduce application is the following:</p>
+
+<ul>
+<li>The input set of data is 12 pieces of 1 GB size files. Each file containes the same line of 16 bytes (012345678998765 plus the new line character)</li>
+<li>The number of mappers running is 48, because the block size on HDFS is 256 MB and there are 12 files.</li>
+<li>We use TextInputFormat (line num, line content) pairs. The output of the mapper function is the same as the input <code>IdentityMapper</code></li>
+<li>The number of reducers is 20.</li>
+<li>For simplicity we use <code>IdentityReducer</code> as the reducer function.</li>
+<li>We use a special partitioner called <code>LinePartitoner</code>. The partitioning is based on line numbers (the key) and it makes sure that each reducer gets the same amount of data (line number <em>modulo</em> reducer number).</li>
+</ul>
+
 
 <h2>How to get the job results with R</h2>
 
