@@ -15,12 +15,12 @@ At SequenceIQ in order to profile MapReduce jobs, understand (job)internal stati
 In this blog post we would like to explain and guide you through a simple process of collecting MapReduce job metrics, calculate different statistics and generate easy to understand charts.
 
 The MapReduce application is the following:
-* The input set of data is 12 pieces of 1 GB size files. Each file containes the same line of 16 bytes (012345678998765 plus the new line character)
-* The number of mappers running is 48, because the block size on HDFS is 256 MB and there are 12 files.
-* We use TextInputFormat (line num, line content) pairs. The output of the mapper function is the same as the input `IdentityMapper`
-* The number of reducers is 20.
-* For simplicity we use `IdentityReducer` as the reducer function.
-* We use a special partitioner called `LinePartitoner`. The partitioning is based on line numbers (the key) and it makes sure that each reducer gets the same amount of data (line number *modulo* reducer number).
+ * The input set of data is 12 pieces of 1 GB size files. Each file containes the same line of 16 bytes (012345678998765 plus the new line character)
+ * The number of mappers running is 48, because the block size on HDFS is 256 MB and there are 12 files.
+ * We use TextInputFormat (line num, line content) pairs. The output of the mapper function is the same as the input `IdentityMapper`
+ * The number of reducers is 20.
+ * For simplicity we use `IdentityReducer` as the reducer function.
+ * We use a special partitioner called `LinePartitoner`. The partitioning is based on line numbers (the key) and it makes sure that each reducer gets the same amount of data (line number *modulo* reducer number).
 
 ## How to get the job results with R
 
