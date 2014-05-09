@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ansible | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/ansible/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-05-09T12:23:12+00:00</updated>
+  <updated>2014-05-09T12:26:13+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -30,6 +30,9 @@
 
 <p>Our CI and CD process at SequenceIQ is based on Ansible, Jenkins and of course Docker.
 When we started to build our own process, we decided that we don&rsquo;t want to commit the same mistake that a lot of companies make about their build environment. At these companies the build servers where Jenkins and/or the other build tools are installed are often prepared once in the far past by someone who probably doesn&rsquo;t work there anymore. It quickly becomes something that everyone is afraid to touch and just hope that it will work forever. As the projects improve there will be a lot of different tools with a lot of different versions on the build machine and soon it leads to a small chaos, where the maintenance will involve a lot of hard manual work. To get rid of these problems, we use <a href="http://www.ansible.com/">Ansible</a> to &ldquo;build the build infrastructure&rdquo;, and Docker to run the builds in separated self-sufficient containers.</p>
+
+<!-- more -->
+
 
 <h2>Ansible</h2>
 
