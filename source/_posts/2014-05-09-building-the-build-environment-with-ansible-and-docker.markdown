@@ -21,6 +21,8 @@ We'll share two blog posts about our continuous delivery at SequenceIQ: the firs
 Our CI and CD process at SequenceIQ is based on Ansible, Jenkins and of course Docker.
 When we started to build our own process, we decided that we don't want to commit the same mistake that a lot of companies make about their build environment. At these companies the build servers where Jenkins and/or the other build tools are installed are often prepared once in the far past by someone who probably doesn't work there anymore. It quickly becomes something that everyone is afraid to touch and just hope that it will work forever. As the projects improve there will be a lot of different tools with a lot of different versions on the build machine and soon it leads to a small chaos, where the maintenance will involve a lot of hard manual work. To get rid of these problems, we use [Ansible](http://www.ansible.com/) to "build the build infrastructure", and Docker to run the builds in separated self-sufficient containers.
 
+<!-- more -->
+
 ## Ansible
 
 We have an Ansible script which starts an EC2 instance in the cloud and provisions everything on this server automatically. This script can be easily executed with a single command from a developer laptop:
