@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-05-09T11:59:53+00:00</updated>
+  <updated>2014-05-09T12:23:12+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,246 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Building the build environment with Ansible and Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/05/09/building-the-build-environment-with-ansible-and-docker/"/>
+    <updated>2014-05-09T11:51:57+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/05/09/building-the-build-environment-with-ansible-and-docker</id>
+    <content type="html"><![CDATA[<p>At SequenceIQ we put a strong emphasis on automating everything we can and this automation starts with our continuous integration &amp; delivery process.</p>
+
+<h2>Introduction</h2>
+
+<p>Lately there is a lot of buzz around continuous integration, development and deployment. More and more companies are moving away from long release cycles towards the &ldquo;release early, release often&rdquo; approach. The advantages of this approach are well known: lower overhead, earlier bug discovery and bug fixing, fewer context switches for the developers to name just a few. There are very good resources to learn about these concepts &ndash; blog posts by different companies (e.g.: by <a href="http://techblog.netflix.com/2013/08/deploying-netflix-api.html">Netflix</a>) and of course the <a href="http://www.amazon.com/dp/0321601912">book</a> &lsquo;Continuous Delivery&rsquo; by Jez Humble and David Farley &ndash; we&rsquo;ll now try to add our own experiences as well.</p>
+
+<p>We&rsquo;ll share two blog posts about our continuous delivery at SequenceIQ: the first one being an introductory post about some tools we use to make the whole process easier and more robust, the second one explains the <a href="http://scottchacon.com/2011/08/31/github-flow.html">flow</a> we use from committing changes to being the changes available in our different environments.</p>
+
+<h2>Tools</h2>
+
+<p>Our CI and CD process at SequenceIQ is based on Ansible, Jenkins and of course Docker.
+When we started to build our own process, we decided that we don&rsquo;t want to commit the same mistake that a lot of companies make about their build environment. At these companies the build servers where Jenkins and/or the other build tools are installed are often prepared once in the far past by someone who probably doesn&rsquo;t work there anymore. It quickly becomes something that everyone is afraid to touch and just hope that it will work forever. As the projects improve there will be a lot of different tools with a lot of different versions on the build machine and soon it leads to a small chaos, where the maintenance will involve a lot of hard manual work. To get rid of these problems, we use <a href="http://www.ansible.com/">Ansible</a> to &ldquo;build the build infrastructure&rdquo;, and Docker to run the builds in separated self-sufficient containers.</p>
+
+<h2>Ansible</h2>
+
+<p>We have an Ansible script which starts an EC2 instance in the cloud and provisions everything on this server automatically. This script can be easily executed with a single command from a developer laptop:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ansible-playbook -i hosts ci.yml</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To run this command Ansible, python and some python modules must be installed on the local machine. To avoid having different version of these tools on the development machines we automated the installation of our development environment too &ndash; maybe the topic of another post in the future.
+So let&rsquo;s see how the Ansible script works exactly.</p>
+
+<h3>Creating an instance in the cloud</h3>
+
+<p>First it needs to start an instance in the AWS cloud, so it invokes our <strong>ec2 role</strong> on localhost:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="p-Indicator">-</span> <span class="l-Scalar-Plain">name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Request and init EC2 instance</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">hosts</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">localhost</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">roles</span><span class="p-Indicator">:</span>
+</span><span class='line'>     <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">ec2</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The ec2 role requests an EC2 spot priced instance and associates it with an elastic IP. We can easily use a spot priced instance because if it gets shut down by AWS we can recreate it in a few minutes! Ansible has a few <a href="http://docs.ansible.com/list_of_cloud_modules.html">cloud modules</a> which makes it quite easy to manage EC2 instances. Requesting a spot priced instance looks like this (the placeholders come from Ansible group variables):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="p-Indicator">-</span> <span class="l-Scalar-Plain">name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Create an EC2 spot priced instance</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">local_action</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">module</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">ec2</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">key_name</span><span class="p-Indicator">:</span> <span class="s">&quot;{{</span><span class="nv"> </span><span class="s">ec2.keypair</span><span class="nv"> </span><span class="s">}}&quot;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">group</span><span class="p-Indicator">:</span> <span class="s">&quot;{{</span><span class="nv"> </span><span class="s">ec2.security_group</span><span class="nv"> </span><span class="s">}}&quot;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">instance_type</span><span class="p-Indicator">:</span> <span class="s">&quot;{{</span><span class="nv"> </span><span class="s">ec2.instance_type</span><span class="nv"> </span><span class="s">}}&quot;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">spot_price</span><span class="p-Indicator">:</span> <span class="s">&quot;{{</span><span class="nv"> </span><span class="s">ec2.spot_price</span><span class="nv"> </span><span class="s">}}&quot;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">image</span><span class="p-Indicator">:</span> <span class="s">&quot;{{</span><span class="nv"> </span><span class="s">ec2.image</span><span class="nv"> </span><span class="s">}}&quot;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">wait</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">yes</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">region</span><span class="p-Indicator">:</span> <span class="s">&quot;{{</span><span class="nv"> </span><span class="s">ec2.region</span><span class="nv"> </span><span class="s">}}&quot;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">id</span><span class="p-Indicator">:</span> <span class="s">&quot;{{</span><span class="nv"> </span><span class="s">ec2.idempotent_id</span><span class="nv"> </span><span class="s">}}&quot;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">register</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">ec2result</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Provisioning the build server</h3>
+
+<p>After the EC2 instance is running and accepting SSH connections, the script can go on and start to install the tools needed. Because almost everything is running in separated Docker containers, we only need 3 things: Docker, Nginx and Jenkins. Installing Docker is pretty easy as the new Amazon Linux AMIs are <a href="http://aws.amazon.com/amazon-linux-ami/2014.03-release-notes/">prepared</a> to run Docker. We only need to install it from Amazon&rsquo;s provided Software Repository, and start the service. It looks like this in the Ansible script:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="p-Indicator">-</span> <span class="l-Scalar-Plain">name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Install Docker on Amazon Linux AMI</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">when</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">ansible_os_family == &quot;RedHat&quot;</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">yum</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">name=docker state=present</span>
+</span><span class='line'>
+</span><span class='line'><span class="p-Indicator">-</span> <span class="l-Scalar-Plain">name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Start Docker service</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">service</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">name=docker state=started</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After Docker is installed we can start some containers that are used by some Jenkins builds later (e.g.: a SonarQube server and a MySQL database that holds the results &ndash; we&rsquo;ve created publicly available <a href="https://index.docker.io/u/sequenceiq/sonar-server/">containers</a> on our Github page.</p>
+
+<p>To install and configure Nginx we use an <a href="https://galaxy.ansible.com/list#/roles/466">existing role</a> from Ansible Galaxy that is well prepared and easily configurable. We are configuring Nginx to forward requests from port 80 to either Jenkins or Sonar.</p>
+
+<p>For example the configuration for Jenkins is the following in the Ansible group variables:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">nginx_sites</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">default</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">listen 80</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">server_name jenkins.sequenceiq.com</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">location / {</span>
+</span><span class='line'>       <span class="l-Scalar-Plain">proxy_pass http://jenkins;</span>
+</span><span class='line'>       <span class="l-Scalar-Plain">proxy_redirect off;</span>
+</span><span class='line'>       <span class="l-Scalar-Plain">proxy_set_header Host $host;</span>
+</span><span class='line'>       <span class="l-Scalar-Plain">proxy_set_header X-Forwarded-Host $server_name;</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">}</span>
+</span><span class='line'><span class="l-Scalar-Plain">nginx_configs</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">proxy</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">proxy_set_header X-Real-IP $remote_addr</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">upstream</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">upstream jenkins { server 127.0.0.1:8080 weight=10; }</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The most difficult thing to install is Jenkins: we want our configurations and jobs to be instantly available as well. Jenkins has a <a href="https://wiki.jenkins-ci.org/display/JENKINS/Jenkins+CLI">command-line interface</a> that allows access from a script. It has a lot of built-in commands to manage jobs and other configurations and it even has a command to execute a Groovy script on the server. We use these features extensively to prepare the whole Jenkins environment from sketch. Our Jenkins role (that will be available soon on Ansible Galaxy) is able to do the following:
+&ndash; Install Jenkins and its dependencies, and get the Jenkins CLI jar from the specified URL.
+&ndash; Configure the global Jenkins properties like the mail server, or the properties needed for the Github pull request builder plugin &ndash; it is simply achieved by copying a global config.xml to the Jenkins home directory using Ansible&rsquo;s copy module.
+&ndash; Install and update plugins through the Jenkins CLI. Installing plugins looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="p-Indicator">-</span> <span class="l-Scalar-Plain">name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Install plugins</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">sudo</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">yes</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">shell</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">java -jar {{ jenkins.cli_dest }} -s http://localhost:8080/ install-plugin {{item.item}}</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">when</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">item.stdout.find(&#39;false&#39;) != -1</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">with_items</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">check_plugins.results</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">notify</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="p-Indicator">-</span> <span class="s">&#39;Restart</span><span class="nv"> </span><span class="s">Jenkins&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Configure security (we use Github OAuth). The Jenkins CLI doesn&rsquo;t have any dedicated commands for setting security, but it can be configured with a Groovy script that can be invoked from the CLI:</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'><span class="kt">def</span> <span class="n">githubSecurityRealm</span> <span class="o">=</span> <span class="k">new</span> <span class="n">org</span><span class="o">.</span><span class="na">jenkinsci</span><span class="o">.</span><span class="na">plugins</span><span class="o">.</span><span class="na">GithubSecurityRealm</span><span class="o">(</span><span class="s2">&quot;https://github.com&quot;</span><span class="o">,</span> <span class="s2">&quot;https://api.github.com&quot;</span><span class="o">,</span> <span class="n">clientId</span><span class="o">,</span> <span class="n">clientSecret</span><span class="o">)</span>
+</span><span class='line'><span class="kt">def</span> <span class="n">authorizationStrategy</span> <span class="o">=</span> <span class="k">new</span> <span class="n">org</span><span class="o">.</span><span class="na">jenkinsci</span><span class="o">.</span><span class="na">plugins</span><span class="o">.</span><span class="na">GithubAuthorizationStrategy</span><span class="o">(</span><span class="s2">&quot;admin1,admin2&quot;</span><span class="o">,</span><span class="kc">true</span><span class="o">,</span><span class="s2">&quot;organization name&quot;</span><span class="o">,</span><span class="kc">true</span><span class="o">,</span><span class="kc">false</span><span class="o">,</span><span class="kc">false</span><span class="o">)</span>
+</span><span class='line'><span class="n">jenkins</span><span class="o">.</span><span class="na">model</span><span class="o">.</span><span class="na">Jenkins</span><span class="o">.</span><span class="na">instance</span><span class="o">.</span><span class="na">setSecurityRealm</span><span class="o">(</span><span class="n">githubSecurityRealm</span><span class="o">)</span>
+</span><span class='line'><span class="n">jenkins</span><span class="o">.</span><span class="na">model</span><span class="o">.</span><span class="na">Jenkins</span><span class="o">.</span><span class="na">instance</span><span class="o">.</span><span class="na">setAuthorizationStrategy</span><span class="o">(</span><span class="n">authorizationStrategy</span><span class="o">)</span>
+</span><span class='line'><span class="n">jenkins</span><span class="o">.</span><span class="na">model</span><span class="o">.</span><span class="na">Jenkins</span><span class="o">.</span><span class="na">instance</span><span class="o">.</span><span class="na">save</span><span class="o">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><p>Copy private keys for Github builds &ndash; it simply copies the predefined private SSH keys from a local directory to the <code>~/.ssh</code> directory of the Jenkins user. We use a dedicated Github user to communicate with Github from Jenkins.</p></li>
+<li><p>Creating jobs from XML configuration. The Jenkins CLI supports the creation of Jenkins jobs through the create-job command that accepts an XML file as input that defines the Jenkins job. Currently our Jenkins role works by invoking this command for every job that is defined in the variables and has a corresponding XML file in a predefined directory.  We are planning to later modify this role to have a template that holds the structure of a Jenkins job XML so it won&rsquo;t be needed to create the whole XML file manually, only the required parameters among the Ansible variables.</p></li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="p-Indicator">-</span> <span class="l-Scalar-Plain">name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Create jenkins jobs</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">shell</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">java -jar {{ jenkins.cli_dest }} -s http://localhost:8080/ create-job {{ item }} &lt; {{ jenkins.dest }}/{{item}}.xml</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">with_items</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">jenkins_jobs</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">when</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">existing_jobs.changed and existing_jobs.stdout.find(&#39;{{ item }}&#39;) == -1</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Docker</h2>
+
+<p>The other tool besides Ansible that we use extensively in our build environment is Docker. Docker is a quickly expanding technology that enables the creation of lightweight application containers. If you don&rsquo;t know about Docker yet, check out the official <a href="https://www.docker.io/gettingstarted/">Getting Started guide</a> or our own <a href="http://blog.sequenceiq.com/blog/2014/04/04/hadoop-docker-introduction/">blog post</a> about it.
+With the help of Docker we don&rsquo;t need to worry about the tools needed for the builds or its dependencies on the continuous integration server as they are packaged in separate containers. Every one of our builds on Jenkins are only a few lines that runs a container, maybe copies something out of it and removes the container after it finished. We provide a few environment variables, some shared directories or some links between containers where needed. One of our jobs in Jenkins that builds the master branch looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>docker run -i --name <span class="nv">$BUILD_TAG</span> <span class="se">\</span>
+</span><span class='line'>-v <span class="s2">&quot;/var/lib/jenkins/.gradle-api:/root/.gradle:rw&quot;</span> <span class="se">\</span>
+</span><span class='line'>-e <span class="s2">&quot;SONAR_USERNAME=$SONAR_USERNAME&quot;</span> <span class="se">\</span>
+</span><span class='line'>-e <span class="s2">&quot;SONAR_PW=$SONAR_PW&quot;</span> <span class="se">\</span>
+</span><span class='line'>-e <span class="s2">&quot;BUILD_NUMBER=$BUILD_NUMBER&quot;</span> <span class="se">\</span>
+</span><span class='line'>-e <span class="s2">&quot;KEY=$(cat /var/lib/jenkins/.ssh/id_rsa| base64 -w 0)&quot;</span> <span class="se">\</span>
+</span><span class='line'>-e <span class="s2">&quot;REPO=$REPO_ADDRESS&quot;</span> <span class="se">\</span>
+</span><span class='line'>-e <span class="s2">&quot;BRANCH=master&quot;</span> <span class="se">\</span>
+</span><span class='line'>-e <span class="s2">&quot;BUILD_TASKS=clean build sonarRunner uploadArchives&quot;</span> <span class="se">\</span>
+</span><span class='line'>-e <span class="s2">&quot;BUILD_ENV=jenkins&quot;</span> <span class="se">\</span>
+</span><span class='line'>-e <span class="s2">&quot;GRADLE_OPTS=-XX:MaxPermSize=512m&quot;</span> <span class="se">\</span>
+</span><span class='line'>--link sonar_server:sonar <span class="se">\</span>
+</span><span class='line'>--link sonar_mysql:sonar_db <span class="se">\</span>
+</span><span class='line'>sequenceiq/build /etc/build-project.sh
+</span><span class='line'>sleep 5
+</span><span class='line'>docker cp <span class="nv">$BUILD_TAG</span>:/tmp/prj/build/build.info <span class="nv">$WORKSPACE</span>
+</span><span class='line'>docker rm <span class="nv">$BUILD_TAG</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And not only our builds run in Docker, some other tools we use on the build environment also run in containers. For instance our code quality management tool, SonarQube and the MySQL database it uses also runs in separate containers. This way we don&rsquo;t need to install them on the EC2 instance directly, we only need to link them where needed &ndash; see the example above!</p>
+
+<p>In our next blog post about continuous integration we&rsquo;ll explain the process we use at SequenceIQ to continuously deliver the new features to production using the Github flow with Jenkins and Docker.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Job profiling with R]]></title>
