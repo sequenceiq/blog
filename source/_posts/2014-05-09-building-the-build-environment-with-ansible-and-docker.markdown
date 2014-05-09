@@ -3,7 +3,7 @@ layout: post
 title: "Building the build environment with Ansible and Docker"
 date: 2014-05-09 13:51:57 +0200
 comments: true
-categories: [Ansible,Docker,CI,Jenkins]
+categories: [Ansible,Docker,CI,Jenkins,devops]
 author: Marton Sereg
 published: true
 ---
