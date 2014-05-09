@@ -5,18 +5,18 @@ date: 2014-05-09 13:51:57 +0200
 comments: true
 categories: [Ansible,Docker,CI,Jenkins]
 author: Marton Sereg
-published: false
+published: true
 ---
 
 At SequenceIQ we put a strong emphasis on automating everything we can and this automation starts with our continuous integration & delivery process.
 
-# Introduction
+## Introduction
 
 Lately there is a lot of buzz around continuous integration, development and deployment. More and more companies are moving away from long release cycles towards the "release early, release often" approach. The advantages of this approach are well known: lower overhead, earlier bug discovery and bug fixing, fewer context switches for the developers to name just a few. There are very good resources to learn about these concepts - blog posts by different companies (e.g.: by [Netflix](http://techblog.netflix.com/2013/08/deploying-netflix-api.html)) and of course the [book](http://www.amazon.com/dp/0321601912) 'Continuous Delivery' by Jez Humble and David Farley - we'll now try to add our own experiences as well.
 
 We'll share two blog posts about our continuous delivery at SequenceIQ: the first one being an introductory post about some tools we use to make the whole process easier and more robust, the second one explains the [flow](http://scottchacon.com/2011/08/31/github-flow.html) we use from committing changes to being the changes available in our different environments.
 
-# Tools
+## Tools
 
 Our CI and CD process at SequenceIQ is based on Ansible, Jenkins and of course Docker.
 When we started to build our own process, we decided that we don't want to commit the same mistake that a lot of companies make about their build environment. At these companies the build servers where Jenkins and/or the other build tools are installed are often prepared once in the far past by someone who probably doesn't work there anymore. It quickly becomes something that everyone is afraid to touch and just hope that it will work forever. As the projects improve there will be a lot of different tools with a lot of different versions on the build machine and soon it leads to a small chaos, where the maintenance will involve a lot of hard manual work. To get rid of these problems, we use [Ansible](http://www.ansible.com/) to "build the build infrastructure", and Docker to run the builds in separated self-sufficient containers.
@@ -25,7 +25,9 @@ When we started to build our own process, we decided that we don't want to commi
 
 We have an Ansible script which starts an EC2 instance in the cloud and provisions everything on this server automatically. This script can be easily executed with a single command from a developer laptop:
 
-```ansible-playbook -i hosts ci.yml```
+```
+ansible-playbook -i hosts ci.yml
+```
 
 To run this command Ansible, python and some python modules must be installed on the local machine. To avoid having different version of these tools on the development machines we automated the installation of our development environment too - maybe the topic of another post in the future.
 So let's see how the Ansible script works exactly.
@@ -41,6 +43,7 @@ First it needs to start an instance in the AWS cloud, so it invokes our **ec2 ro
 ```
 
 The ec2 role requests an EC2 spot priced instance and associates it with an elastic IP. We can easily use a spot priced instance because if it gets shut down by AWS we can recreate it in a few minutes! Ansible has a few [cloud modules](http://docs.ansible.com/list_of_cloud_modules.html) which makes it quite easy to manage EC2 instances. Requesting a spot priced instance looks like this (the placeholders come from Ansible group variables):
+{% raw %}
 ```yaml
 - name: Create an EC2 spot priced instance
   local_action:
@@ -55,6 +58,7 @@ The ec2 role requests an EC2 spot priced instance and associates it with an elas
   id: "{{ ec2.idempotent_id }}"
   register: ec2result
 ```
+{% endraw %}
 
 ### Provisioning the build server
 
@@ -99,6 +103,7 @@ The most difficult thing to install is Jenkins: we want our configurations and j
 - Configure the global Jenkins properties like the mail server, or the properties needed for the Github pull request builder plugin - it is simply achieved by copying a global config.xml to the Jenkins home directory using Ansible's copy module.
 - Install and update plugins through the Jenkins CLI. Installing plugins looks like this:
 
+{% raw %}
 ```yaml
 - name: Install plugins
   sudo: yes
@@ -108,6 +113,7 @@ The most difficult thing to install is Jenkins: we want our configurations and j
   notify:
   - 'Restart Jenkins'
 ```
+{% endraw %}
 
 - Configure security (we use Github OAuth). The Jenkins CLI doesn't have any dedicated commands for setting security, but it can be configured with a Groovy script that can be invoked from the CLI:
 
@@ -124,12 +130,14 @@ jenkins.model.Jenkins.instance.save()
 
 - Creating jobs from XML configuration. The Jenkins CLI supports the creation of Jenkins jobs through the create-job command that accepts an XML file as input that defines the Jenkins job. Currently our Jenkins role works by invoking this command for every job that is defined in the variables and has a corresponding XML file in a predefined directory.  We are planning to later modify this role to have a template that holds the structure of a Jenkins job XML so it won't be needed to create the whole XML file manually, only the required parameters among the Ansible variables.
 
+{% raw %}
 ```yaml
 - name: Create jenkins jobs
   shell: java -jar {{ jenkins.cli_dest }} -s http://localhost:8080/ create-job {{ item }} < {{ jenkins.dest }}/{{item}}.xml
   with_items: jenkins_jobs
   when: existing_jobs.changed and existing_jobs.stdout.find('{{ item }}') == -1
 ```
+{% endraw %}
 
 ## Docker
 
