@@ -29,14 +29,14 @@ The goal is to provide an interactive command line tool which supports:
 * tab completion
 * required/optional parameter support
 
-Since we're open sourcing the project (because sharing is caring) it should be available and part of the official Ambari repository soon,
+Since we're open sourcing the project, it should be available and part of the official Ambari repository soon,
 but if you're eager to try it you can build your own from our [repository](https://github.com/sequenceiq/ambari-shell) (mvn clean install).
 The shell is distributed as a single executable jar with the help of another project called [Spring Boot](http://projects.spring.io/spring-boot/).
 Let's see how it works in real life.
 
 <!-- more -->
 
-As usual we've crated a [Docker](https://github.com/sequenceiq/ambari-docker) image so you can start experimenting with the shell and is
+As usual we've crated a [Docker](https://github.com/sequenceiq/ambari-docker) image so you can start experimenting with the shell and it's
 available at the Docker repository, which means you only need to run the following to get a running Ambari server:
 ```
 docker run -d -P -h server.ambari.com --name ambari-singlenode sequenceiq/ambari
@@ -138,6 +138,9 @@ Progress can be checked either at the Amabri UI or using the `tasks` command.
   MAPREDUCE2_CLIENT INSTALL   PENDING
   SECONDARY_NAMENODE INSTALL  QUEUED
 ```
+
+Each time you start the shell the executed commands are logged in a file line by line and later either with the `script` command
+or specifying an `--cmdfile` option the same commands can be executed.
 
 ## Summary
 To sum it up in less than two minutes:
