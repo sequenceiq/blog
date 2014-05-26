@@ -215,7 +215,7 @@ So let&rsquo;s see how the Ansible script works exactly.</p>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>After Docker is installed we can start some containers that are used by some Jenkins builds later (e.g.: a Sonar server and a MySQL database that holds the results &ndash; we&rsquo;ve created publicly available <a href="https://index.docker.io/u/sequenceiq/sonar-server/">containers</a> on our Github page.</p>
+<p>After Docker is installed we can start some containers that are used by some Jenkins builds later (e.g.: a SonarQube server and a MySQL database that holds the results &ndash; we&rsquo;ve created publicly available <a href="https://index.docker.io/u/sequenceiq/sonar-server/">containers</a> on our Github page.</p>
 
 <p>To install and configure Nginx we use an <a href="https://galaxy.ansible.com/list#/roles/466">existing role</a> from Ansible Galaxy that is well prepared and easily configurable. We are configuring Nginx to forward requests from port 80 to either Jenkins or Sonar.</p>
 
