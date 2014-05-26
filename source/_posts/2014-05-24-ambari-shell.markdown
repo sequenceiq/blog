@@ -1,21 +1,21 @@
 ---
 layout: post
 title: "Apache Ambari + Spring Shell = Ambari Shell"
-date: 2014-05-24 17:42:11 +0200
+date: 2014-05-27 17:42:11 +0200
 comments: true
 categories: [Apache Ambari,Spring Shell,Hadoop]
-published: false
+published: true
 author: Krisztian Horvath
 ---
 
 ## Introduction
 
-[Apache Ambari](http://ambari.apache.org/) is aimed at making Hadoop cluster management as simple as possible. It provides an intuitive easy-to-use
+[Apache Ambari's](http://ambari.apache.org/) goal is to make Hadoop cluster management as simple as possible. It provides an intuitive easy-to-use
 web UI backed by its RESTful API. With only a few clicks you're able to install Hadoop services across any number of hosts and Ambari will take
 care of the configurations as well. After the installation is complete you can monitor your cluster taking leverage of
 [Ganglia](http://ganglia.sourceforge.net/) and [Nagios](http://www.nagios.org/). At SequenceIQ we use command line tools whenever it's possible,
 because it's much faster than interacting with a web UI and it's a better candidate for automation. Here comes
-[Spring Shell](https://github.com/spring-projects/spring-shell#readme) to the rescue. An interactive shell that can be easily extended
+[Spring Shell](https://github.com/spring-projects/spring-shell#readme) to our rescue. An interactive shell that can be easily extended
 using a Spring based programming model and battle tested in various projects like [Spring Roo](http://projects.spring.io/spring-roo/) and
 [Spring XD](http://docs.spring.io/spring-xd/docs/1.0.0.BUILD-SNAPSHOT/reference/html/). Combine these two projects and a really powerful tool
 will come to light.
@@ -143,5 +143,5 @@ Each time you start the shell the executed commands are logged in a file line by
 or specifying an `--cmdfile` option the same commands can be executed.
 
 ## Summary
-To sum it up in less than two minutes:
+To sum it up in less than two minutes watch this video:
 <script type="text/javascript" src="https://asciinema.org/a/9783.js" id="asciicast-9783" async></script>
