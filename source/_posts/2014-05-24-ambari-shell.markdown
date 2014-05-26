@@ -48,7 +48,7 @@ java -jar ambari-shell-1.0-SNAPSHOT.jar --ambari.server=localhost --ambari.port=
 The `--ambari` options can be omitted if the values are the defaults otherwise you only need to specify the difference,
 e.g just the port is different: `--ambari.port=49178`.
 ```
-        _                _                   _  ____   _            _  _
+    _                _                   _  ____   _            _  _
    / \    _ __ ___  | |__    __ _  _ __ (_)/ ___| | |__    ___ | || |
   / _ \  | '_ ` _ \ | '_ \  / _` || '__|| |\___ \ | '_ \  / _ \| || |
  / ___ \ | | | | | || |_) || (_| || |   | | ___) || | | ||  __/| || |
