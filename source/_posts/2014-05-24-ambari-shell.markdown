@@ -29,8 +29,6 @@ The goal is to provide an interactive command line tool which supports:
 * tab completion
 * required/optional parameter support
 
-<!-- more -->
-
 Since we're open sourcing the project, it should be available and part of the official Ambari repository soon,
 but if you're eager to try it you can build your own from our [repository](https://github.com/sequenceiq/ambari-shell) (mvn clean install).
 The shell is distributed as a single executable jar with the help of another project called [Spring Boot](http://projects.spring.io/spring-boot/).
