@@ -8,7 +8,7 @@ author: Marton Sereg
 published: true
 ---
 
-At SequenceIQ we put a strong emphasis on automating everything we can and this automation starts with our continuous integration & delivery process.
+at SequenceIQ we put a strong emphasis on automating everything we can and this automation starts with our continuous integration & delivery process.
 
 ## Introduction
 
