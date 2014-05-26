@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-05-26T15:52:58+00:00</updated>
+  <updated>2014-05-26T16:08:18+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -101,7 +101,7 @@ e.g just the port is different: <code>--ambari.port=49178</code>.</p>
 </span><span class='line'> / ___ \ | | | | | || |_) || (_| || |   | | ___) || | | ||  __/| || |
 </span><span class='line'>/_/   \_\|_| |_| |_||_.__/  \__,_||_|   |_||____/ |_| |_| \___||_||_|
 </span><span class='line'>
-</span><span class='line'>Welcome to Ambari Shell. For assistance press tab or use the `hint` command.</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>Welcome to Ambari Shell. For command and param completion press TAB, for assistance type 'hint'.</span></code></pre></td></tr></table></div></figure>
 
 
 <p>The currently supported commands are:</p>
