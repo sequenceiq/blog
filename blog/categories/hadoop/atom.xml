@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-05-26T14:28:27+00:00</updated>
+  <updated>2014-05-26T14:31:38+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -42,7 +42,7 @@ will come to light.</p>
 </ul>
 
 
-<p>Since we&rsquo;re open sourcing the project, it should be available and part of the official Ambari repository soon,
+<p>Since we&rsquo;re open sourcing the project, it should be available and part of the official Ambari repository <a href="https://issues.apache.org/jira/browse/AMBARI-5482">soon</a>,
 but if you&rsquo;re eager to try it you can build your own from our <a href="https://github.com/sequenceiq/ambari-shell">repository</a> (mvn clean install).
 The shell is distributed as a single executable jar with the help of another project called <a href="http://projects.spring.io/spring-boot/">Spring Boot</a>.
 Let&rsquo;s see how it works in real life.</p>
