@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-05-26T13:48:53+00:00</updated>
+  <updated>2014-05-26T13:49:47+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -40,6 +40,9 @@ will come to light.</p>
 <li>tab completion</li>
 <li>required/optional parameter support</li>
 </ul>
+
+
+<!-- more -->
 
 
 <p>Since we&rsquo;re open sourcing the project, it should be available and part of the official Ambari repository soon,
