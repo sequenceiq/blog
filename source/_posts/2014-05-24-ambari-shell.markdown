@@ -43,7 +43,18 @@ docker run -d -P -h server.ambari.com --name ambari-singlenode sequenceiq/ambari
 ```
 and you can connect to it with the shell:
 ```
-java -jar ambari-shell-1.0-SNAPSHOT.jar --ambari.server=localhost --ambari.port=8080 --ambari.user=admin --ambari.password=admin
+Usage:
+  java -jar ambari-shell.jar                  : Starts Ambari Shell in interactive mode.
+  java -jar ambari-shell.jar --cmdfile=<FILE> : Ambari Shell executes commands read from the file.
+
+Options:
+  --ambari.host=<HOSTNAME>       Hostname of the Ambari Server [default: localhost].
+  --ambari.port=<PORT>           Port of the Ambari Server [default: 8080].
+  --ambari.user=<USER>           Username of the Ambari admin [default: admin].
+  --ambari.password=<PASSWORD>   Password of the Ambari admin [default: admin].
+
+Note:
+  At least one option is mandatory.
 ```
 The `--ambari` options can be omitted if the values are the defaults otherwise you only need to specify the difference,
 e.g just the port is different: `--ambari.port=49178`.
