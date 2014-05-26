@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-05-25T18:30:47+00:00</updated>
+  <updated>2014-05-26T13:41:52+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,211 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Ambari + Spring Shell = Ambari Shell]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/05/27/ambari-shell/"/>
+    <updated>2014-05-27T15:42:11+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/05/27/ambari-shell</id>
+    <content type="html"><![CDATA[<h2>Introduction</h2>
+
+<p><a href="http://ambari.apache.org/">Apache Ambari&rsquo;s</a> goal is to make Hadoop cluster management as simple as possible. It provides an intuitive easy-to-use
+web UI backed by its RESTful API. With only a few clicks you&rsquo;re able to install Hadoop services across any number of hosts and Ambari will take
+care of the configurations as well. After the installation is complete you can monitor your cluster taking leverage of
+<a href="http://ganglia.sourceforge.net/">Ganglia</a> and <a href="http://www.nagios.org/">Nagios</a>. At SequenceIQ we use command line tools whenever it&rsquo;s possible,
+because it&rsquo;s much faster than interacting with a web UI and it&rsquo;s a better candidate for automation. Here comes
+<a href="https://github.com/spring-projects/spring-shell#readme">Spring Shell</a> to our rescue. An interactive shell that can be easily extended
+using a Spring based programming model and battle tested in various projects like <a href="http://projects.spring.io/spring-roo/">Spring Roo</a> and
+<a href="http://docs.spring.io/spring-xd/docs/1.0.0.BUILD-SNAPSHOT/reference/html/">Spring XD</a>. Combine these two projects and a really powerful tool
+will come to light.</p>
+
+<h2>Ambari Shell</h2>
+
+<p>The goal is to provide an interactive command line tool which supports:</p>
+
+<ul>
+<li>all functionality available through the Ambari web UI</li>
+<li>context aware command availability</li>
+<li>tab completion</li>
+<li>required/optional parameter support</li>
+</ul>
+
+
+<p>Since we&rsquo;re open sourcing the project, it should be available and part of the official Ambari repository soon,
+but if you&rsquo;re eager to try it you can build your own from our <a href="https://github.com/sequenceiq/ambari-shell">repository</a> (mvn clean install).
+The shell is distributed as a single executable jar with the help of another project called <a href="http://projects.spring.io/spring-boot/">Spring Boot</a>.
+Let&rsquo;s see how it works in real life.</p>
+
+<!-- more -->
+
+
+<p>As usual we&rsquo;ve crated a <a href="https://github.com/sequenceiq/ambari-docker">Docker</a> image so you can start experimenting with the shell and it&rsquo;s
+available at the Docker repository, which means you only need to run the following to get a running Ambari server:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -d -P -h server.ambari.com --name ambari-singlenode sequenceiq/ambari</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and you can connect to it with the shell:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>java -jar ambari-shell-1.0-SNAPSHOT.jar --ambari.server=localhost --ambari.port=8080 --ambari.user=admin --ambari.password=admin</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>--ambari</code> options can be omitted if the values are the defaults otherwise you only need to specify the difference,
+e.g just the port is different: <code>--ambari.port=49178</code>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>    _                _                   _  ____   _            _  _
+</span><span class='line'>   / \    _ __ ___  | |__    __ _  _ __ (_)/ ___| | |__    ___ | || |
+</span><span class='line'>  / _ \  | '_ ` _ \ | '_ \  / _` || '__|| |\___ \ | '_ \  / _ \| || |
+</span><span class='line'> / ___ \ | | | | | || |_) || (_| || |   | | ___) || | | ||  __/| || |
+</span><span class='line'>/_/   \_\|_| |_| |_||_.__/  \__,_||_|   |_||____/ |_| |_| \___||_||_|
+</span><span class='line'>
+</span><span class='line'>Welcome to Ambari Shell. For assistance press tab or use the `hint` command.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The currently supported commands are:</p>
+
+<ul>
+<li><code>blueprint add</code> &ndash; Add a new blueprint with either &mdash;url or &mdash;file</li>
+<li><code>blueprint defaults</code> &ndash; Adds the default blueprints to Ambari</li>
+<li><code>blueprint list</code> &ndash; Lists all known blueprints</li>
+<li><code>blueprint show</code> &ndash; Shows the blueprint by its id</li>
+<li><code>cluster assign</code> &ndash; Assign host to host group</li>
+<li><code>cluster build</code> &ndash; Starts to build a cluster</li>
+<li><code>cluster create</code> &ndash; Create a cluster based on current blueprint and assigned hosts</li>
+<li><code>cluster delete</code> &ndash; Delete the cluster</li>
+<li><code>cluster preview</code> &ndash; Shows the currently assigned hosts</li>
+<li><code>cluster reset</code> &ndash; Clears the host &ndash; host group assignments</li>
+<li><code>debug off</code> &ndash; Stops showing the URL of the API calls</li>
+<li><code>debug on</code> &ndash; Shows the URL of the API calls</li>
+<li><code>exit</code> &ndash; Exits the shell</li>
+<li><code>hello</code> &ndash; Prints a simple elephant to the console</li>
+<li><code>help</code> &ndash; List all commands usage</li>
+<li><code>hint</code> &ndash; Shows some hints</li>
+<li><code>host components</code> &ndash; Lists the components assigned to the selected host</li>
+<li><code>host focus</code> &ndash; Sets the useHost to the specified host</li>
+<li><code>host list</code> &ndash; Lists the available hosts</li>
+<li><code>quit</code> &ndash; Exits the shell</li>
+<li><code>script</code> &ndash; Parses the specified resource file and executes its commands</li>
+<li><code>service components</code> &ndash; Lists all services with their components</li>
+<li><code>service list</code> &ndash; Lists the available services</li>
+<li><code>tasks</code> &ndash; Lists the Ambari tasks</li>
+<li><code>version</code> &ndash; Displays shell version</li>
+</ul>
+
+
+<p>All commands are context aware and are available only when it makes sense. For example the <code>cluster create</code> command is not available
+until a blueprint hasn&rsquo;t been added or selected. A good approach is to use the <code>hint</code> command &ndash; as the Ambari UI, this will give
+you hints about the available commands and the flow of creating or configuring a cluster. You can always use TAB for completion
+or available parameters. Be nice and say <code>hello</code>:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>            .-.._
+</span><span class='line'>      __  /`     '.
+</span><span class='line'>   .-'  `/   (   a \
+</span><span class='line'>  /      (    \,_   \
+</span><span class='line'> /|       '---` |\ =|
+</span><span class='line'>` \    /__.-/  /  | |
+</span><span class='line'>   |  / / \ \  \   \_\
+</span><span class='line'>   |__|_|  |_|__\</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Initially there are no blueprints available &ndash; you can add blueprints from file or URL. For your convenience we&rsquo;ve added two
+blueprints as defaults. You can get these blueprints by using the <code>blueprint defaults</code> command. The result is the following:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  BLUEPRINT              STACK
+</span><span class='line'>  ---------------------  -------
+</span><span class='line'>  multi-node-hdfs-yarn   HDP:2.0
+</span><span class='line'>  single-node-hdfs-yarn  HDP:2.0</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once the blueprints are added you can use them to create a cluster by typing <code>cluster build --blueprint single-node-hdfs-yarn</code>.
+Now that the blueprint is selected you have to assign the hosts to the available host groups. Use
+<code>cluster assign --hostGroup host_group_1 --host server.ambari.com</code>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  HOSTGROUP     HOST
+</span><span class='line'>  ------------  -----------------
+</span><span class='line'>  host_group_1  server.ambari.com</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once you are happy with the host &ndash; host group associations you can choose <code>cluster create</code> to start building the cluster.
+Progress can be checked either at the Amabri UI or using the <code>tasks</code> command.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  TASK                        STATUS
+</span><span class='line'>  --------------------------  -------
+</span><span class='line'>  HISTORYSERVER INSTALL       QUEUED
+</span><span class='line'>  ZOOKEEPER_SERVER START      PENDING
+</span><span class='line'>  ZOOKEEPER_CLIENT INSTALL    PENDING
+</span><span class='line'>  HDFS_CLIENT INSTALL         PENDING
+</span><span class='line'>  HISTORYSERVER START         PENDING
+</span><span class='line'>  NODEMANAGER INSTALL         QUEUED
+</span><span class='line'>  NODEMANAGER START           PENDING
+</span><span class='line'>  ZOOKEEPER_SERVER INSTALL    QUEUED
+</span><span class='line'>  YARN_CLIENT INSTALL         PENDING
+</span><span class='line'>  NAMENODE INSTALL            QUEUED
+</span><span class='line'>  RESOURCEMANAGER INSTALL     QUEUED
+</span><span class='line'>  NAMENODE START              PENDING
+</span><span class='line'>  RESOURCEMANAGER START       PENDING
+</span><span class='line'>  DATANODE START              PENDING
+</span><span class='line'>  SECONDARY_NAMENODE START    PENDING
+</span><span class='line'>  DATANODE INSTALL            QUEUED
+</span><span class='line'>  MAPREDUCE2_CLIENT INSTALL   PENDING
+</span><span class='line'>  SECONDARY_NAMENODE INSTALL  QUEUED</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Each time you start the shell the executed commands are logged in a file line by line and later either with the <code>script</code> command
+or specifying an <code>--cmdfile</code> option the same commands can be executed.</p>
+
+<h2>Summary</h2>
+
+<p>To sum it up in less than two minutes watch this video:</p>
+
+<script type="text/javascript" src="https://asciinema.org/a/9783.js" id="asciicast-9783" async></script>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Building the build environment with Ansible and Docker]]></title>

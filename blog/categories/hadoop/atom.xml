@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-05-25T18:30:47+00:00</updated>
+  <updated>2014-05-26T13:41:52+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,173 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Ambari + Spring Shell = Ambari Shell]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/05/27/ambari-shell/"/>
+    <updated>2014-05-27T15:42:11+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/05/27/ambari-shell</id>
+    <content type="html"><![CDATA[<h2>Introduction</h2>
+
+<p><a href="http://ambari.apache.org/">Apache Ambari&rsquo;s</a> goal is to make Hadoop cluster management as simple as possible. It provides an intuitive easy-to-use
+web UI backed by its RESTful API. With only a few clicks you&rsquo;re able to install Hadoop services across any number of hosts and Ambari will take
+care of the configurations as well. After the installation is complete you can monitor your cluster taking leverage of
+<a href="http://ganglia.sourceforge.net/">Ganglia</a> and <a href="http://www.nagios.org/">Nagios</a>. At SequenceIQ we use command line tools whenever it&rsquo;s possible,
+because it&rsquo;s much faster than interacting with a web UI and it&rsquo;s a better candidate for automation. Here comes
+<a href="https://github.com/spring-projects/spring-shell#readme">Spring Shell</a> to our rescue. An interactive shell that can be easily extended
+using a Spring based programming model and battle tested in various projects like <a href="http://projects.spring.io/spring-roo/">Spring Roo</a> and
+<a href="http://docs.spring.io/spring-xd/docs/1.0.0.BUILD-SNAPSHOT/reference/html/">Spring XD</a>. Combine these two projects and a really powerful tool
+will come to light.</p>
+
+<h2>Ambari Shell</h2>
+
+<p>The goal is to provide an interactive command line tool which supports:</p>
+
+<ul>
+<li>all functionality available through the Ambari web UI</li>
+<li>context aware command availability</li>
+<li>tab completion</li>
+<li>required/optional parameter support</li>
+</ul>
+
+
+<p>Since we&rsquo;re open sourcing the project, it should be available and part of the official Ambari repository soon,
+but if you&rsquo;re eager to try it you can build your own from our <a href="https://github.com/sequenceiq/ambari-shell">repository</a> (mvn clean install).
+The shell is distributed as a single executable jar with the help of another project called <a href="http://projects.spring.io/spring-boot/">Spring Boot</a>.
+Let&rsquo;s see how it works in real life.</p>
+
+<!-- more -->
+
+
+<p>As usual we&rsquo;ve crated a <a href="https://github.com/sequenceiq/ambari-docker">Docker</a> image so you can start experimenting with the shell and it&rsquo;s
+available at the Docker repository, which means you only need to run the following to get a running Ambari server:
+<code>
+docker run -d -P -h server.ambari.com --name ambari-singlenode sequenceiq/ambari
+</code>
+and you can connect to it with the shell:
+<code>
+java -jar ambari-shell-1.0-SNAPSHOT.jar --ambari.server=localhost --ambari.port=8080 --ambari.user=admin --ambari.password=admin
+</code>
+The <code>--ambari</code> options can be omitted if the values are the defaults otherwise you only need to specify the difference,
+e.g just the port is different: <code>--ambari.port=49178</code>.
+```</p>
+
+<pre><code>    _                _                   _  ____   _            _  _
+</code></pre>
+
+<p>   / \    _ <strong> </strong><em>  | |<strong>    </strong> _  _ __ (</em>)/ <em><strong>| | |</strong>    </em><strong> | || |
+  / _ \  | &lsquo;_ <code>_ \ | '_ \  / _</code> || &rsquo;</strong>|| |_<strong> \ | &lsquo;<em> \  / _ \| || |
+ / </em></strong> \ | | | | | || |<em>) || (</em>| || |   | | <em><strong>) || | | ||  </strong>/| || |
+/</em>/   _\|<em>| |</em>| |<em>||</em>.<strong>/  _<em>,</em>||<em>|   |</em>||</strong><strong>/ |<em>| |</em>| _</strong>||<em>||</em>|</p>
+
+<p>Welcome to Ambari Shell. For assistance press tab or use the <code>hint</code> command.
+```
+The currently supported commands are:</p>
+
+<ul>
+<li><code>blueprint add</code> &ndash; Add a new blueprint with either &mdash;url or &mdash;file</li>
+<li><code>blueprint defaults</code> &ndash; Adds the default blueprints to Ambari</li>
+<li><code>blueprint list</code> &ndash; Lists all known blueprints</li>
+<li><code>blueprint show</code> &ndash; Shows the blueprint by its id</li>
+<li><code>cluster assign</code> &ndash; Assign host to host group</li>
+<li><code>cluster build</code> &ndash; Starts to build a cluster</li>
+<li><code>cluster create</code> &ndash; Create a cluster based on current blueprint and assigned hosts</li>
+<li><code>cluster delete</code> &ndash; Delete the cluster</li>
+<li><code>cluster preview</code> &ndash; Shows the currently assigned hosts</li>
+<li><code>cluster reset</code> &ndash; Clears the host &ndash; host group assignments</li>
+<li><code>debug off</code> &ndash; Stops showing the URL of the API calls</li>
+<li><code>debug on</code> &ndash; Shows the URL of the API calls</li>
+<li><code>exit</code> &ndash; Exits the shell</li>
+<li><code>hello</code> &ndash; Prints a simple elephant to the console</li>
+<li><code>help</code> &ndash; List all commands usage</li>
+<li><code>hint</code> &ndash; Shows some hints</li>
+<li><code>host components</code> &ndash; Lists the components assigned to the selected host</li>
+<li><code>host focus</code> &ndash; Sets the useHost to the specified host</li>
+<li><code>host list</code> &ndash; Lists the available hosts</li>
+<li><code>quit</code> &ndash; Exits the shell</li>
+<li><code>script</code> &ndash; Parses the specified resource file and executes its commands</li>
+<li><code>service components</code> &ndash; Lists all services with their components</li>
+<li><code>service list</code> &ndash; Lists the available services</li>
+<li><code>tasks</code> &ndash; Lists the Ambari tasks</li>
+<li><code>version</code> &ndash; Displays shell version</li>
+</ul>
+
+
+<p>All commands are context aware and are available only when it makes sense. For example the <code>cluster create</code> command is not available
+until a blueprint hasn&rsquo;t been added or selected. A good approach is to use the <code>hint</code> command &ndash; as the Ambari UI, this will give
+you hints about the available commands and the flow of creating or configuring a cluster. You can always use TAB for completion
+or available parameters. Be nice and say <code>hello</code>:
+```</p>
+
+<pre><code>            .-.._
+      __  /`     '.
+   .-'  `/   (   a \
+  /      (    \,_   \
+ /|       '---` |\ =|
+` \    /__.-/  /  | |
+   |  / / \ \  \   \_\
+   |__|_|  |_|__\
+</code></pre>
+
+<p><code>
+Initially there are no blueprints available - you can add blueprints from file or URL. For your convenience we've added two
+blueprints as defaults. You can get these blueprints by using the `blueprint defaults` command. The result is the following:
+</code>
+  BLUEPRINT              STACK</p>
+
+<hr />
+
+<p>  multi-node-hdfs-yarn   HDP:2.0
+  single-node-hdfs-yarn  HDP:2.0
+<code>
+Once the blueprints are added you can use them to create a cluster by typing `cluster build --blueprint single-node-hdfs-yarn`.
+Now that the blueprint is selected you have to assign the hosts to the available host groups. Use
+`cluster assign --hostGroup host_group_1 --host server.ambari.com`.
+</code>
+  HOSTGROUP     HOST</p>
+
+<hr />
+
+<p>  host_group_1  server.ambari.com
+<code>
+Once you are happy with the host - host group associations you can choose `cluster create` to start building the cluster.
+Progress can be checked either at the Amabri UI or using the `tasks` command.
+</code>
+  TASK                        STATUS</p>
+
+<hr />
+
+<p>  HISTORYSERVER INSTALL       QUEUED
+  ZOOKEEPER_SERVER START      PENDING
+  ZOOKEEPER_CLIENT INSTALL    PENDING
+  HDFS_CLIENT INSTALL         PENDING
+  HISTORYSERVER START         PENDING
+  NODEMANAGER INSTALL         QUEUED
+  NODEMANAGER START           PENDING
+  ZOOKEEPER_SERVER INSTALL    QUEUED
+  YARN_CLIENT INSTALL         PENDING
+  NAMENODE INSTALL            QUEUED
+  RESOURCEMANAGER INSTALL     QUEUED
+  NAMENODE START              PENDING
+  RESOURCEMANAGER START       PENDING
+  DATANODE START              PENDING
+  SECONDARY_NAMENODE START    PENDING
+  DATANODE INSTALL            QUEUED
+  MAPREDUCE2_CLIENT INSTALL   PENDING
+  SECONDARY_NAMENODE INSTALL  QUEUED
+```</p>
+
+<p>Each time you start the shell the executed commands are logged in a file line by line and later either with the <code>script</code> command
+or specifying an <code>--cmdfile</code> option the same commands can be executed.</p>
+
+<h2>Summary</h2>
+
+<p>To sum it up in less than two minutes watch this video:</p>
+
+<script type="text/javascript" src="https://asciinema.org/a/9783.js" id="asciicast-9783" async></script>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Job profiling with R]]></title>
@@ -433,115 +600,6 @@ compiled with 64 bit CentOS. So I created <a href="https://bintray.com/sequencei
 <h2>Automate everything</h2>
 
 <p>As I&rsquo;m an automation fetishist, a Docker file was created, and released in the official <a href="https://index.docker.io/u/sequenceiq/hadoop-docker/">docker repo</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[YARN Capacity Scheduler]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler/"/>
-    <updated>2014-03-14T15:17:04+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler</id>
-    <content type="html"><![CDATA[<p>Since the emergence of Hadoop 2 and the YARN based architecture we have a platform where we can run multiple applications (of different types) not constrained only to MapReduce. Different applications or different MapReduce job profiles have different resource needs, however since Hadoop 2.0 is a multi tenant platform the different users could have different access patterns or need for cluster capacity. In Hadoop 2.0 this is achieved through YARN schedulers — to allocate resources to various applications subject to constraints of capacities and queues (for more information on YARN follow this <a href="http://hortonworks.com/hadoop/yarn/">link</a> or feel free to ask us should you have any questions).</p>
-
-<p>In Hadoop 2.0, the scheduler is a pluggable piece of code that lives inside the <em>ResourceManager</em> (the JobTracker in MR1) &ndash; the ultimate authority that arbitrates resources among all the applications in the system. The scheduler in YARN does not perform monitoring or status tracking and offers no guarantees to restart failed tasks — check our sample <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/yarn-queue-tests">GitHub</a> project to check how monitoring or progress can be tracked.</p>
-
-<p>The Capacity Scheduler was designed to allow significantly higher cluster utilization while still providing predictability for Hadoop workloads, while sharing resources in a predictable and simple manner, using the common notion of <em>job queues</em>.</p>
-
-<p>In our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/yarn-queue-tests">example</a> we show you how to use the Capacity Scheduler, configure queues with different priorities, submit MapReduce jobs into these queues, monitor and track the progress of the jobs &ndash; and ultimately see the differences between execution times and throughput of different queue setups.</p>
-
-<p>First, let’s config the Capacity Scheduler (you can use xml, <a href="http://ambari.apache.org/">Apache Ambari</a> or you can configure queues programmatically). In this example we use a simple xml configuration.</p>
-
-<p><code>xml
-&lt;property&gt;
-  &lt;name&gt;yarn.scheduler.capacity.root.queues&lt;/name&gt;
-  &lt;value&gt;default,highPriority,lowPriority&lt;/value&gt;
-&lt;/property&gt;
-&lt;property&gt;
-  &lt;name&gt;yarn.scheduler.capacity.root.highPriority.capacity&lt;/name&gt;
-  &lt;value&gt;70&lt;/value&gt;
-&lt;/property&gt;
-&lt;property&gt;
-  &lt;name&gt;yarn.scheduler.capacity.root.lowPriority.capacity&lt;/name&gt;
-  &lt;value&gt;20&lt;/value&gt;
-&lt;/property&gt;
-&lt;property&gt;
-  &lt;name&gt;yarn.scheduler.capacity.root.default.capacity&lt;/name&gt;
-  &lt;value&gt;10&lt;/value&gt;
-&lt;/property&gt;
-</code>
-We have 3 queues, with different queue setups/priorities. Each queue is given a <em>minimum</em> guaranteed percentage of total cluster capacity available &ndash; the total guaranteed capacity must equal 100%. In our example the <em>highPriority</em> queue has 70% of the resources, the <em>lowPriority</em> 20%, and the default queue has the remaining 10%. While it is not highlight in the example above, the Capacity Scheduler provides elastic resource scheduling, which means that if there are idle resources in the cluster, then one queue can take up more of the cluster capacity than was minimally allocated . In our case we could allocate a <em>maximum</em> capacity to the <em>lowPriority</em> queue:</p>
-
-<p><code>xml
-&lt;property&gt;
-  &lt;name&gt;yarn.scheduler.capacity.root. lowPriority.maximum-capacity&lt;/name&gt;
-  &lt;value&gt;50&lt;/value&gt;
-&lt;/property&gt;
-</code></p>
-
-<!-- more -->
-
-
-<p>Now lets submit some jobs into these queues. We will use the QuasiMonteCarlo.java example (coming with Hadoop) &ndash; a MapReduce job that estimates the value of Pi, and submit the same MapReduce jobs into the low and high priority queues.</p>
-
-<p>``` java</p>
-
-<pre><code>//get a configuration
-Configuration priorityConf = new Configuration();
-priorityConf.set("mapreduce.job.queuename", queueName);
-………………………     
-//submit the job
-JobID jobID = QuasiMonteCarlo.submitPiEstimationMRApp(“Pi estimation into: "+ queueName, 10, 3, tempDir, priorityConf);
-</code></pre>
-
-<p>```
-Once the jobs are submitted in the different queues, you can track the MapReduce job progress and monitor the queues through YARN. Using YARNRunner you can get ahold of a job status, and retrieve different informations:</p>
-
-<p>``` java</p>
-
-<pre><code>//print overall job M/R progresses
-LOGGER.info("\nJob " + jobStatus.getJobName() + "in queue (" + jobStatus.getQueue() + ")" + " progress M/R: " +                 jobStatus.getMapProgress() + "/" + jobStatus.getReduceProgress());
-LOGGER.info("Tracking URL : " + jobStatus.getTrackingUrl());
-LOGGER.info("Reserved memory : " + jobStatus.getReservedMem() + ", used memory : "+ jobStatus.getUsedMem() + " and          used slots : "+ jobStatus.getNumUsedSlots());
-
-// list map &amp; reduce tasks statuses and progress        
-TaskReport[] reports = yarnRunner.getTaskReports(jobID, TaskType.MAP);
-for (int i = 0; i &lt; reports.length; i++) {
-LOGGER.info("MAP: Status " + reports[i].getCurrentStatus() + " with task ID " + reports[i].getTaskID() + ", and                 progress " + reports[i].getProgress()); 
-}
-</code></pre>
-
-<p>```</p>
-
-<p>Same way the queue capacity can be tracked as well:</p>
-
-<p>```java</p>
-
-<pre><code>ArrayNode queues = (ArrayNode) jsonNode.path("scheduler").path("schedulerInfo").path("queues").get("queue");
-for (int i = 0; i &lt; queues.size(); i++) {
-JsonNode queueNode = queues.get(i);                     
-LOGGER.info("queueName / usedCapacity / absoluteUsedCap / absoluteCapacity / absMaxCapacity: " + 
-                    queueNode.findValue("queueName") + " / " +
-                    queueNode.findValue("usedCapacity") + " / " + 
-                    queueNode.findValue("absoluteUsedCapacity") + " / " + 
-                    queueNode.findValue("absoluteCapacity") + " / " +
-                    queueNode.findValue("absoluteMaxCapacity"));
-}
-</code></pre>
-
-<p><code>``
-You can run the example with</code>hadoop jar yarn-queue-tests-1.0-SNAPSHOT.jar com.sequenceiq.yarntest.client.JobClient<code>, and play with different queue setups. Once you have changed the queue setup you can refresh the settings with</code>yarn rmadmin -refreshQueues`.</p>
-
-<p>You can check the progress through the <a href="https://gist.github.com/matyix/9528220">logs</a>.The <a href="http://sandbox.hortonworks.com:8088/cluster/scheduler">cluster statistics</a> and <a href="http://sandbox.hortonworks.com:8088/cluster/apps">application statistics</a> are available as well (we run this example on Hortonworks HDP2 sandbox, but any other Hadoop 2 distribution works &ndash; you can set your own cluster on Amazon EC2 using SequenceIQ&rsquo;s setup scripts from our <a href="https://github.com/sequenceiq/hadoop-cloud-scripts">GitHub</a> page).</p>
-
-<p>As you expect, the jobs submitted into the  <code>highPriority</code> queue are finished earlier than those submitted into the <code>lowPriority</code> one &ndash; though (in case of submitting into the same queue) the MapReduce jobs should take the same time (as they are the same MapReduce job, have the same job profile).</p>
-
-<p>This is a good way to start experimenting multi-tenancy and parallel jobs submission into a shared cluster (beyond the Fair Scheduler). At <a href="http://sequenceiq.com">SequenceIQ</a> we are working on a heuristic YARN scheduler &ndash; where we can adapt to increased work loads, submit jobs into queues based on different customer QoS profiles, and increase or downsize our cloud based cluster based on load and capacity.</p>
-
-<p>For more details and updates please follow us through our <a href="http://www.linkedin.com/company/sequenceiq/">LinkedIn</a> page.
-You can access the code from our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/yarn-queue-tests">GitHub</a> repository.</p>
-
-<p>Thanks,
-SequenceIQ</p>
 ]]></content>
   </entry>
   

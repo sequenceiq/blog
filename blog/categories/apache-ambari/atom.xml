@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Apache Ambari | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com/blog/categories/apache-ambari/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-05-26T13:41:52+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
+  <author>
+    <name><![CDATA[SequenceIQ]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Ambari + Spring Shell = Ambari Shell]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/05/27/ambari-shell/"/>
+    <updated>2014-05-27T15:42:11+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/05/27/ambari-shell</id>
+    <content type="html"><![CDATA[<h2>Introduction</h2>
+
+<p><a href="http://ambari.apache.org/">Apache Ambari&rsquo;s</a> goal is to make Hadoop cluster management as simple as possible. It provides an intuitive easy-to-use
+web UI backed by its RESTful API. With only a few clicks you&rsquo;re able to install Hadoop services across any number of hosts and Ambari will take
+care of the configurations as well. After the installation is complete you can monitor your cluster taking leverage of
+<a href="http://ganglia.sourceforge.net/">Ganglia</a> and <a href="http://www.nagios.org/">Nagios</a>. At SequenceIQ we use command line tools whenever it&rsquo;s possible,
+because it&rsquo;s much faster than interacting with a web UI and it&rsquo;s a better candidate for automation. Here comes
+<a href="https://github.com/spring-projects/spring-shell#readme">Spring Shell</a> to our rescue. An interactive shell that can be easily extended
+using a Spring based programming model and battle tested in various projects like <a href="http://projects.spring.io/spring-roo/">Spring Roo</a> and
+<a href="http://docs.spring.io/spring-xd/docs/1.0.0.BUILD-SNAPSHOT/reference/html/">Spring XD</a>. Combine these two projects and a really powerful tool
+will come to light.</p>
+
+<h2>Ambari Shell</h2>
+
+<p>The goal is to provide an interactive command line tool which supports:</p>
+
+<ul>
+<li>all functionality available through the Ambari web UI</li>
+<li>context aware command availability</li>
+<li>tab completion</li>
+<li>required/optional parameter support</li>
+</ul>
+
+
+<p>Since we&rsquo;re open sourcing the project, it should be available and part of the official Ambari repository soon,
+but if you&rsquo;re eager to try it you can build your own from our <a href="https://github.com/sequenceiq/ambari-shell">repository</a> (mvn clean install).
+The shell is distributed as a single executable jar with the help of another project called <a href="http://projects.spring.io/spring-boot/">Spring Boot</a>.
+Let&rsquo;s see how it works in real life.</p>
+
+<!-- more -->
+
+
+<p>As usual we&rsquo;ve crated a <a href="https://github.com/sequenceiq/ambari-docker">Docker</a> image so you can start experimenting with the shell and it&rsquo;s
+available at the Docker repository, which means you only need to run the following to get a running Ambari server:
+<code>
+docker run -d -P -h server.ambari.com --name ambari-singlenode sequenceiq/ambari
+</code>
+and you can connect to it with the shell:
+<code>
+java -jar ambari-shell-1.0-SNAPSHOT.jar --ambari.server=localhost --ambari.port=8080 --ambari.user=admin --ambari.password=admin
+</code>
+The <code>--ambari</code> options can be omitted if the values are the defaults otherwise you only need to specify the difference,
+e.g just the port is different: <code>--ambari.port=49178</code>.
+```</p>
+
+<pre><code>    _                _                   _  ____   _            _  _
+</code></pre>
+
+<p>   / \    _ <strong> </strong><em>  | |<strong>    </strong> _  _ __ (</em>)/ <em><strong>| | |</strong>    </em><strong> | || |
+  / _ \  | &lsquo;_ <code>_ \ | '_ \  / _</code> || &rsquo;</strong>|| |_<strong> \ | &lsquo;<em> \  / _ \| || |
+ / </em></strong> \ | | | | | || |<em>) || (</em>| || |   | | <em><strong>) || | | ||  </strong>/| || |
+/</em>/   _\|<em>| |</em>| |<em>||</em>.<strong>/  _<em>,</em>||<em>|   |</em>||</strong><strong>/ |<em>| |</em>| _</strong>||<em>||</em>|</p>
+
+<p>Welcome to Ambari Shell. For assistance press tab or use the <code>hint</code> command.
+```
+The currently supported commands are:</p>
+
+<ul>
+<li><code>blueprint add</code> &ndash; Add a new blueprint with either &mdash;url or &mdash;file</li>
+<li><code>blueprint defaults</code> &ndash; Adds the default blueprints to Ambari</li>
+<li><code>blueprint list</code> &ndash; Lists all known blueprints</li>
+<li><code>blueprint show</code> &ndash; Shows the blueprint by its id</li>
+<li><code>cluster assign</code> &ndash; Assign host to host group</li>
+<li><code>cluster build</code> &ndash; Starts to build a cluster</li>
+<li><code>cluster create</code> &ndash; Create a cluster based on current blueprint and assigned hosts</li>
+<li><code>cluster delete</code> &ndash; Delete the cluster</li>
+<li><code>cluster preview</code> &ndash; Shows the currently assigned hosts</li>
+<li><code>cluster reset</code> &ndash; Clears the host &ndash; host group assignments</li>
+<li><code>debug off</code> &ndash; Stops showing the URL of the API calls</li>
+<li><code>debug on</code> &ndash; Shows the URL of the API calls</li>
+<li><code>exit</code> &ndash; Exits the shell</li>
+<li><code>hello</code> &ndash; Prints a simple elephant to the console</li>
+<li><code>help</code> &ndash; List all commands usage</li>
+<li><code>hint</code> &ndash; Shows some hints</li>
+<li><code>host components</code> &ndash; Lists the components assigned to the selected host</li>
+<li><code>host focus</code> &ndash; Sets the useHost to the specified host</li>
+<li><code>host list</code> &ndash; Lists the available hosts</li>
+<li><code>quit</code> &ndash; Exits the shell</li>
+<li><code>script</code> &ndash; Parses the specified resource file and executes its commands</li>
+<li><code>service components</code> &ndash; Lists all services with their components</li>
+<li><code>service list</code> &ndash; Lists the available services</li>
+<li><code>tasks</code> &ndash; Lists the Ambari tasks</li>
+<li><code>version</code> &ndash; Displays shell version</li>
+</ul>
+
+
+<p>All commands are context aware and are available only when it makes sense. For example the <code>cluster create</code> command is not available
+until a blueprint hasn&rsquo;t been added or selected. A good approach is to use the <code>hint</code> command &ndash; as the Ambari UI, this will give
+you hints about the available commands and the flow of creating or configuring a cluster. You can always use TAB for completion
+or available parameters. Be nice and say <code>hello</code>:
+```</p>
+
+<pre><code>            .-.._
+      __  /`     '.
+   .-'  `/   (   a \
+  /      (    \,_   \
+ /|       '---` |\ =|
+` \    /__.-/  /  | |
+   |  / / \ \  \   \_\
+   |__|_|  |_|__\
+</code></pre>
+
+<p><code>
+Initially there are no blueprints available - you can add blueprints from file or URL. For your convenience we've added two
+blueprints as defaults. You can get these blueprints by using the `blueprint defaults` command. The result is the following:
+</code>
+  BLUEPRINT              STACK</p>
+
+<hr />
+
+<p>  multi-node-hdfs-yarn   HDP:2.0
+  single-node-hdfs-yarn  HDP:2.0
+<code>
+Once the blueprints are added you can use them to create a cluster by typing `cluster build --blueprint single-node-hdfs-yarn`.
+Now that the blueprint is selected you have to assign the hosts to the available host groups. Use
+`cluster assign --hostGroup host_group_1 --host server.ambari.com`.
+</code>
+  HOSTGROUP     HOST</p>
+
+<hr />
+
+<p>  host_group_1  server.ambari.com
+<code>
+Once you are happy with the host - host group associations you can choose `cluster create` to start building the cluster.
+Progress can be checked either at the Amabri UI or using the `tasks` command.
+</code>
+  TASK                        STATUS</p>
+
+<hr />
+
+<p>  HISTORYSERVER INSTALL       QUEUED
+  ZOOKEEPER_SERVER START      PENDING
+  ZOOKEEPER_CLIENT INSTALL    PENDING
+  HDFS_CLIENT INSTALL         PENDING
+  HISTORYSERVER START         PENDING
+  NODEMANAGER INSTALL         QUEUED
+  NODEMANAGER START           PENDING
+  ZOOKEEPER_SERVER INSTALL    QUEUED
+  YARN_CLIENT INSTALL         PENDING
+  NAMENODE INSTALL            QUEUED
+  RESOURCEMANAGER INSTALL     QUEUED
+  NAMENODE START              PENDING
+  RESOURCEMANAGER START       PENDING
+  DATANODE START              PENDING
+  SECONDARY_NAMENODE START    PENDING
+  DATANODE INSTALL            QUEUED
+  MAPREDUCE2_CLIENT INSTALL   PENDING
+  SECONDARY_NAMENODE INSTALL  QUEUED
+```</p>
+
+<p>Each time you start the shell the executed commands are logged in a file line by line and later either with the <code>script</code> command
+or specifying an <code>--cmdfile</code> option the same commands can be executed.</p>
+
+<h2>Summary</h2>
+
+<p>To sum it up in less than two minutes watch this video:</p>
+
+<script type="text/javascript" src="https://asciinema.org/a/9783.js" id="asciicast-9783" async></script>
+
+]]></content>
+  </entry>
+  
+</feed>
