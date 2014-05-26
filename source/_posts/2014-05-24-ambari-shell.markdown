@@ -4,8 +4,8 @@ title: "Apache Ambari + Spring Shell = Ambari Shell"
 date: 2014-05-26 15:42:11 +0200
 comments: true
 categories: [Apache Ambari,Spring Shell,Hadoop]
-published: true
 author: Krisztian Horvath
+published: true
 ---
 
 ## Introduction
