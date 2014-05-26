@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Apache Ambari + Spring Shell = Ambari Shell"
-date: 2014-05-27 17:42:11 +0200
+date: 2014-05-26 17:42:11 +0200
 comments: true
 categories: [Apache Ambari,Spring Shell,Hadoop]
 published: true
