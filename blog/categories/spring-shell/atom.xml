@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Spring Shell | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/spring-shell/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-05-26T16:08:18+00:00</updated>
+  <updated>2014-05-26T16:18:08+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -70,8 +70,6 @@ Usage:
 <p>Note:
   At least one option is mandatory.
 <code>
-The `--ambari` options can be omitted if the values are the defaults otherwise you only need to specify the difference,
-e.g just the port is different: `--ambari.port=49178`.
 </code></p>
 
 <pre><code>    _                _                   _  ____   _            _  _
