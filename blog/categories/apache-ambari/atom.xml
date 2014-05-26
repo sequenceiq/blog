@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Apache Ambari | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/apache-ambari/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-05-26T14:25:42+00:00</updated>
+  <updated>2014-05-26T14:26:53+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -63,7 +63,7 @@ The <code>--ambari</code> options can be omitted if the values are the defaults 
 e.g just the port is different: <code>--ambari.port=49178</code>.
 ```</p>
 
-<pre><code>   _                _                   _  ____   _            _  _
+<pre><code>    _                _                   _  ____   _            _  _
 </code></pre>
 
 <p>   / \    _ <strong> </strong><em>  | |<strong>    </strong> _  _ __ (</em>)/ <em><strong>| | |</strong>    </em><strong> | || |
