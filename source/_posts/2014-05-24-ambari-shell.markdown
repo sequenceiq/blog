@@ -65,7 +65,7 @@ e.g just the port is different: `--ambari.port=49178`.
  / ___ \ | | | | | || |_) || (_| || |   | | ___) || | | ||  __/| || |
 /_/   \_\|_| |_| |_||_.__/  \__,_||_|   |_||____/ |_| |_| \___||_||_|
 
-Welcome to Ambari Shell. For assistance press tab or use the `hint` command.
+Welcome to Ambari Shell. For command and param completion press TAB, for assistance type 'hint'.
 ```
 The currently supported commands are:
 
