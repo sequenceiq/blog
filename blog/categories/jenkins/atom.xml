@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Jenkins | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/jenkins/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-05-26T14:16:03+00:00</updated>
+  <updated>2014-05-26T14:17:13+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -18,7 +18,7 @@
     <link href="http://blog.sequenceiq.com/blog/2014/05/09/building-the-build-environment-with-ansible-and-docker/"/>
     <updated>2014-05-09T11:51:57+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/05/09/building-the-build-environment-with-ansible-and-docker</id>
-    <content type="html"><![CDATA[<p>at SequenceIQ we put a strong emphasis on automating everything we can and this automation starts with our continuous integration &amp; delivery process.</p>
+    <content type="html"><![CDATA[<p>At SequenceIQ we put a strong emphasis on automating everything we can and this automation starts with our continuous integration &amp; delivery process.</p>
 
 <h2>Introduction</h2>
 
