@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Apache Ambari | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/apache-ambari/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-05-26T13:41:52+00:00</updated>
+  <updated>2014-05-26T13:42:18+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Apache Ambari + Spring Shell = Ambari Shell]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/05/27/ambari-shell/"/>
-    <updated>2014-05-27T15:42:11+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/05/27/ambari-shell</id>
+    <link href="http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell/"/>
+    <updated>2014-05-26T15:42:11+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell</id>
     <content type="html"><![CDATA[<h2>Introduction</h2>
 
 <p><a href="http://ambari.apache.org/">Apache Ambari&rsquo;s</a> goal is to make Hadoop cluster management as simple as possible. It provides an intuitive easy-to-use
