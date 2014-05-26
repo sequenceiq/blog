@@ -167,7 +167,29 @@ available at the Docker repository, which means you only need to run the followi
 <p>and you can connect to it with the shell:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>java -jar ambari-shell-1.0-SNAPSHOT.jar --ambari.server=localhost --ambari.port=8080 --ambari.user=admin --ambari.password=admin</span></code></pre></td></tr></table></div></figure>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Usage:
+</span><span class='line'>  java -jar ambari-shell.jar                  : Starts Ambari Shell in interactive mode.
+</span><span class='line'>  java -jar ambari-shell.jar --cmdfile=&lt;FILE&gt; : Ambari Shell executes commands read from the file.
+</span><span class='line'>
+</span><span class='line'>Options:
+</span><span class='line'>  --ambari.host=&lt;HOSTNAME&gt;       Hostname of the Ambari Server [default: localhost].
+</span><span class='line'>  --ambari.port=&lt;PORT&gt;           Port of the Ambari Server [default: 8080].
+</span><span class='line'>  --ambari.user=&lt;USER&gt;           Username of the Ambari admin [default: admin].
+</span><span class='line'>  --ambari.password=&lt;PASSWORD&gt;   Password of the Ambari admin [default: admin].
+</span><span class='line'>
+</span><span class='line'>Note:
+</span><span class='line'>  At least one option is mandatory.</span></code></pre></td></tr></table></div></figure>
 
 
 <p>The <code>--ambari</code> options can be omitted if the values are the defaults otherwise you only need to specify the difference,

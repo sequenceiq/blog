@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Apache Ambari | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/apache-ambari/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-05-26T14:31:38+00:00</updated>
+  <updated>2014-05-26T15:52:58+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -56,12 +56,23 @@ available at the Docker repository, which means you only need to run the followi
 docker run -d -P -h server.ambari.com --name ambari-singlenode sequenceiq/ambari
 </code>
 and you can connect to it with the shell:
+```
+Usage:
+  java -jar ambari-shell.jar                  : Starts Ambari Shell in interactive mode.
+  java -jar ambari-shell.jar &mdash;cmdfile=<FILE> : Ambari Shell executes commands read from the file.</p>
+
+<p>Options:
+  &mdash;ambari.host=<HOSTNAME>       Hostname of the Ambari Server [default: localhost].
+  &mdash;ambari.port=<PORT>           Port of the Ambari Server [default: 8080].
+  &mdash;ambari.user=<USER>           Username of the Ambari admin [default: admin].
+  &mdash;ambari.password=<PASSWORD>   Password of the Ambari admin [default: admin].</p>
+
+<p>Note:
+  At least one option is mandatory.
 <code>
-java -jar ambari-shell-1.0-SNAPSHOT.jar --ambari.server=localhost --ambari.port=8080 --ambari.user=admin --ambari.password=admin
-</code>
-The <code>--ambari</code> options can be omitted if the values are the defaults otherwise you only need to specify the difference,
-e.g just the port is different: <code>--ambari.port=49178</code>.
-```</p>
+The `--ambari` options can be omitted if the values are the defaults otherwise you only need to specify the difference,
+e.g just the port is different: `--ambari.port=49178`.
+</code></p>
 
 <pre><code>    _                _                   _  ____   _            _  _
 </code></pre>
