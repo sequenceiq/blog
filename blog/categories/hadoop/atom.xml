@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-05-27T11:33:15+00:00</updated>
+  <updated>2014-05-27T12:43:01+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -56,10 +56,14 @@ and a really powerful tool will come to light.</p>
 
 <h2>Install Ambari Shell</h2>
 
-<p>For now you have 3 options to give it a try:
-&ndash; use our prepared <a href="https://index.docker.io/u/sequenceiq/ambari-shell/">docker image</a>
-&ndash; download the latest self-containing executable jar form our maven repo
-&ndash; build it from source</p>
+<p>For now you have 3 options to give it a try:</p>
+
+<ul>
+<li>use our prepared <a href="https://index.docker.io/u/sequenceiq/ambari-shell/">docker image</a></li>
+<li>download the latest self-containing executable jar form our maven repo</li>
+<li>build it from source</li>
+</ul>
+
 
 <h3>Run via docker</h3>
 
