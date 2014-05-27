@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-05-26T16:18:08+00:00</updated>
+  <updated>2014-05-27T09:55:49+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -20,42 +20,96 @@
     <id>http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell</id>
     <content type="html"><![CDATA[<h2>Introduction</h2>
 
-<p><a href="http://ambari.apache.org/">Apache Ambari&rsquo;s</a> goal is to make Hadoop cluster management as simple as possible. It provides an intuitive easy-to-use
-web UI backed by its RESTful API. With only a few clicks you&rsquo;re able to install Hadoop services across any number of hosts and Ambari will take
-care of the configurations as well. After the installation is complete you can monitor your cluster taking leverage of
-<a href="http://ganglia.sourceforge.net/">Ganglia</a> and <a href="http://www.nagios.org/">Nagios</a>. At SequenceIQ we use command line tools whenever it&rsquo;s possible,
-because it&rsquo;s much faster than interacting with a web UI and it&rsquo;s a better candidate for automation. Here comes
-<a href="https://github.com/spring-projects/spring-shell#readme">Spring Shell</a> to our rescue. An interactive shell that can be easily extended
-using a Spring based programming model and battle tested in various projects like <a href="http://projects.spring.io/spring-roo/">Spring Roo</a> and
-<a href="http://docs.spring.io/spring-xd/docs/1.0.0.BUILD-SNAPSHOT/reference/html/">Spring XD</a>. Combine these two projects and a really powerful tool
-will come to light.</p>
+<p><a href="http://ambari.apache.org/">Apache Ambari&rsquo;s</a> goal is to make Hadoop cluster management
+as simple as possible. It provides an intuitive easy-to-use web UI backed by its RESTful API.
+With only a few clicks you&rsquo;re able to install Hadoop services across any number of hosts
+and Ambari will take care of the configurations as well. After the installation is complete
+you can monitor your cluster taking leverage of <a href="http://ganglia.sourceforge.net/">Ganglia</a>
+and <a href="http://www.nagios.org/">Nagios</a>.</p>
+
+<p>At SequenceIQ we prefer to use command line tools whenever it&rsquo;s possible,
+because it&rsquo;s much faster than interacting with a web UI and it&rsquo;s a better candidate for automation.
+Here comes <a href="https://github.com/spring-projects/spring-shell#readme">Spring Shell</a> to our rescue.</p>
+
+<p>It&rsquo;s an interactive shell that can be easily extended using a Spring based programming model and battle
+tested in various projects like <a href="http://projects.spring.io/spring-roo/">Spring Roo</a>,
+<a href="http://docs.spring.io/spring-xd/docs/1.0.0.BUILD-SNAPSHOT/reference/html/">Spring XD</a>, and
+<a href="https://github.com/spring-projects/rest-shell">Spring REST Shell</a> Combine these two projects
+and a really powerful tool will come to light.</p>
 
 <h2>Ambari Shell</h2>
 
 <p>The goal is to provide an interactive command line tool which supports:</p>
 
 <ul>
-<li>all functionality available through the Ambari web UI</li>
+<li>all functionality available through the REST API or Ambari web UI</li>
+<li>makes possible complete automation of management task via <strong>scripts</strong></li>
 <li>context aware command availability</li>
 <li>tab completion</li>
 <li>required/optional parameter support</li>
+<li><strong>hint</strong> command to guide you on the usual path</li>
 </ul>
 
 
-<p>Since we&rsquo;re open sourcing the project, it should be available and part of the official Ambari repository <a href="https://issues.apache.org/jira/browse/AMBARI-5482">soon</a>,
-but if you&rsquo;re eager to try it you can build your own from our <a href="https://github.com/sequenceiq/ambari-shell">repository</a> (mvn clean install).
-The shell is distributed as a single executable jar with the help of another project called <a href="http://projects.spring.io/spring-boot/">Spring Boot</a>.
-Let&rsquo;s see how it works in real life.</p>
+<p>Since we&rsquo;re open sourcing the project, it should be available and part of the official Ambari repository
+<a href="https://issues.apache.org/jira/browse/AMBARI-5482">soon</a>.</p>
+
+<h2>Install Ambari Shell</h2>
+
+<p>For now you have 3 options to give it a try:
+&ndash; use our prepared <a href="https://index.docker.io/u/sequenceiq/ambari-shell/">docker image</a>
+&ndash; download the latest self-containing executable jar form our maven repo
+&ndash; build it from source</p>
+
+<h3>Run via docker</h3>
+
+<p>As we love to dockerize everything, we prepared a <a href="https://index.docker.io/u/sequenceiq/ambari-shell/">docker image</a>
+with jdk1.7 on latest ubuntu, ambari-shell preinstalled. Detailed description is available on <a href="https://github.com/sequenceiq/ambari-shell-docker">github</a>.</p>
+
+<p><code>
+docker run -it --rm sequenceiq/ambari-shell --ambari.host=&lt;HOSTNAME&gt; --ambari.port=&lt;PORT&gt;
+</code></p>
 
 <!-- more -->
 
+
+<h3>Run latest snapshot</h3>
+
+<p>You need only jdk 1.7. The script below will download the latest ambari-shell.jar into a
+temporary folder, and give you instruction on how to use.</p>
+
+<p><code>
+curl -Ls https://raw.githubusercontent.com/sequenceiq/ambari-shell/master/latest-snap.sh | bash
+</code></p>
+
+<h3>Build from source</h3>
+
+<p>If want to check the code, or extend it with new commands, Follow the steps below. You will need:
+&ndash; jdk 1.7
+&ndash; maven 3.x.x</p>
+
+<p><code>
+git clone https://github.com/sequenceiq/ambari-shell.git
+cd ambari-shell
+mvn package
+</code></p>
+
+<p>The shell is built as a single executable jar with the help of <a href="http://projects.spring.io/spring-boot/">Spring Boot</a>.
+<code>
+java -jar target/ambari-shell-1.0-SNAPSHOT.jar --ambari.host=&lt;HOSTNAME&gt; --ambari.port=&lt;PORT&gt;
+</code></p>
+
+<h2>Start a &ldquo;sandbox&rdquo; Ambari Server</h2>
 
 <p>As usual we&rsquo;ve crated a <a href="https://github.com/sequenceiq/ambari-docker">Docker</a> image so you can start experimenting with the shell and it&rsquo;s
 available at the Docker repository, which means you only need to run the following to get a running Ambari server:
 <code>
 docker run -d -P -h server.ambari.com --name ambari-singlenode sequenceiq/ambari
-</code>
-and you can connect to it with the shell:
+</code></p>
+
+<h2>Connect Ambari Shell to the server</h2>
+
+<p>Once the server is up and running (10-20 sec) you can connect to it with the shell:
 ```
 Usage:
   java -jar ambari-shell.jar                  : Starts Ambari Shell in interactive mode.
@@ -69,20 +123,80 @@ Usage:
 
 <p>Note:
   At least one option is mandatory.
+```</p>
+
+<h2>Create a cluster</h2>
+
+<p>All commands are context aware and are available only when it makes sense. For example the <code>cluster create</code> command is not available
+until a blueprint hasn&rsquo;t been added or selected. A good approach is to use the <code>hint</code> command &ndash; as the Ambari UI, this will give
+you hints about the available commands and the flow of creating or configuring a cluster. You can always use TAB for completion
+or available parameters.</p>
+
+<p>Initially there are no blueprints available &ndash; you can add blueprints from file or URL. For your convenience we&rsquo;ve added two
+blueprints as defaults. You can get these blueprints by using the <code>blueprint defaults</code> command. The result is the following:
 <code>
+ambari-shell&gt; blueprint defaults
+ambari-shell&gt; blueprint list
+</code>
+```
+  BLUEPRINT              STACK</p>
+
+<hr />
+
+<p>  multi-node-hdfs-yarn   HDP:2.0
+  single-node-hdfs-yarn  HDP:2.0
+<code>``
+Once the blueprints are added you can use them to create a cluster by typing</code>cluster build &mdash;blueprint single-node-hdfs-yarn`.
+Now that the blueprint is selected you have to assign the hosts to the available host groups. Use</p>
+
+<p>```
+ambari-shell> cluster build &mdash;blueprint single-node-hdfs-yarn
+CLUSTER_BUILD:single-node-hdfs-yarn> cluster assign &mdash;hostGroup host_group_1 &mdash;host server.ambari.com</p>
+
+<p>  HOSTGROUP     HOST</p>
+
+<hr />
+
+<p>  host_group_1  server.ambari.com
+<code>
+Once you are happy with the host - host group associations you can choose `cluster create` to start building the cluster.
+Progress can be checked either at the Amabri UI or using the `tasks` command.
 </code></p>
 
-<pre><code>    _                _                   _  ____   _            _  _
-</code></pre>
+<p>CLUSTER_BUILD:single-node-hdfs-yarn> cluster create
+Successfully created the cluster
+CLUSTER:single-node-hdfs-yarn> tasks</p>
 
-<p>   / \    _ <strong> </strong><em>  | |<strong>    </strong> _  _ __ (</em>)/ <em><strong>| | |</strong>    </em><strong> | || |
-  / _ \  | &lsquo;_ <code>_ \ | '_ \  / _</code> || &rsquo;</strong>|| |_<strong> \ | &lsquo;<em> \  / _ \| || |
- / </em></strong> \ | | | | | || |<em>) || (</em>| || |   | | <em><strong>) || | | ||  </strong>/| || |
-/</em>/   _\|<em>| |</em>| |<em>||</em>.<strong>/  _<em>,</em>||<em>|   |</em>||</strong><strong>/ |<em>| |</em>| _</strong>||<em>||</em>|</p>
+<p>  TASK                        STATUS</p>
 
-<p>Welcome to Ambari Shell. For command and param completion press TAB, for assistance type &lsquo;hint&rsquo;.
-```
-The currently supported commands are:</p>
+<hr />
+
+<p>  HISTORYSERVER INSTALL       QUEUED
+  ZOOKEEPER_SERVER START      PENDING
+  ZOOKEEPER_CLIENT INSTALL    PENDING
+  HDFS_CLIENT INSTALL         PENDING
+  HISTORYSERVER START         PENDING
+  NODEMANAGER INSTALL         QUEUED
+  NODEMANAGER START           PENDING
+  ZOOKEEPER_SERVER INSTALL    QUEUED
+  YARN_CLIENT INSTALL         PENDING
+  NAMENODE INSTALL            QUEUED
+  RESOURCEMANAGER INSTALL     QUEUED
+  NAMENODE START              PENDING
+  RESOURCEMANAGER START       PENDING
+  DATANODE START              PENDING
+  SECONDARY_NAMENODE START    PENDING
+  DATANODE INSTALL            QUEUED
+  MAPREDUCE2_CLIENT INSTALL   PENDING
+  SECONDARY_NAMENODE INSTALL  QUEUED
+```</p>
+
+<p>Each time you start the shell the executed commands are logged in a file line by line and later either with the <code>script</code> command
+or specifying an <code>--cmdfile</code> option the same commands can be executed.</p>
+
+<h2>Commands</h2>
+
+<p>The currently supported commands are:</p>
 
 <ul>
 <li><code>blueprint add</code> &ndash; Add a new blueprint with either &mdash;url or &mdash;file</li>
@@ -112,73 +226,6 @@ The currently supported commands are:</p>
 <li><code>version</code> &ndash; Displays shell version</li>
 </ul>
 
-
-<p>All commands are context aware and are available only when it makes sense. For example the <code>cluster create</code> command is not available
-until a blueprint hasn&rsquo;t been added or selected. A good approach is to use the <code>hint</code> command &ndash; as the Ambari UI, this will give
-you hints about the available commands and the flow of creating or configuring a cluster. You can always use TAB for completion
-or available parameters. Be nice and say <code>hello</code>:
-```</p>
-
-<pre><code>            .-.._
-      __  /`     '.
-   .-'  `/   (   a \
-  /      (    \,_   \
- /|       '---` |\ =|
-` \    /__.-/  /  | |
-   |  / / \ \  \   \_\
-   |__|_|  |_|__\
-</code></pre>
-
-<p><code>
-Initially there are no blueprints available - you can add blueprints from file or URL. For your convenience we've added two
-blueprints as defaults. You can get these blueprints by using the `blueprint defaults` command. The result is the following:
-</code>
-  BLUEPRINT              STACK</p>
-
-<hr />
-
-<p>  multi-node-hdfs-yarn   HDP:2.0
-  single-node-hdfs-yarn  HDP:2.0
-<code>
-Once the blueprints are added you can use them to create a cluster by typing `cluster build --blueprint single-node-hdfs-yarn`.
-Now that the blueprint is selected you have to assign the hosts to the available host groups. Use
-`cluster assign --hostGroup host_group_1 --host server.ambari.com`.
-</code>
-  HOSTGROUP     HOST</p>
-
-<hr />
-
-<p>  host_group_1  server.ambari.com
-<code>
-Once you are happy with the host - host group associations you can choose `cluster create` to start building the cluster.
-Progress can be checked either at the Amabri UI or using the `tasks` command.
-</code>
-  TASK                        STATUS</p>
-
-<hr />
-
-<p>  HISTORYSERVER INSTALL       QUEUED
-  ZOOKEEPER_SERVER START      PENDING
-  ZOOKEEPER_CLIENT INSTALL    PENDING
-  HDFS_CLIENT INSTALL         PENDING
-  HISTORYSERVER START         PENDING
-  NODEMANAGER INSTALL         QUEUED
-  NODEMANAGER START           PENDING
-  ZOOKEEPER_SERVER INSTALL    QUEUED
-  YARN_CLIENT INSTALL         PENDING
-  NAMENODE INSTALL            QUEUED
-  RESOURCEMANAGER INSTALL     QUEUED
-  NAMENODE START              PENDING
-  RESOURCEMANAGER START       PENDING
-  DATANODE START              PENDING
-  SECONDARY_NAMENODE START    PENDING
-  DATANODE INSTALL            QUEUED
-  MAPREDUCE2_CLIENT INSTALL   PENDING
-  SECONDARY_NAMENODE INSTALL  QUEUED
-```</p>
-
-<p>Each time you start the shell the executed commands are logged in a file line by line and later either with the <code>script</code> command
-or specifying an <code>--cmdfile</code> option the same commands can be executed.</p>
 
 <h2>Summary</h2>
 
