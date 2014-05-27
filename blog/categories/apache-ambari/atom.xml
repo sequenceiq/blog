@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Apache Ambari | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/apache-ambari/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-05-27T09:55:49+00:00</updated>
+  <updated>2014-05-27T11:33:15+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -101,8 +101,7 @@ java -jar target/ambari-shell-1.0-SNAPSHOT.jar --ambari.host=&lt;HOSTNAME&gt; --
 
 <h2>Start a &ldquo;sandbox&rdquo; Ambari Server</h2>
 
-<p>As usual we&rsquo;ve crated a <a href="https://github.com/sequenceiq/ambari-docker">Docker</a> image so you can start experimenting with the shell and it&rsquo;s
-available at the Docker repository, which means you only need to run the following to get a running Ambari server:
+<p>The image is available at the Docker repository, which means you only need to run the following to get a running Ambari server:
 <code>
 docker run -d -P -h server.ambari.com --name ambari-singlenode sequenceiq/ambari
 </code></p>
