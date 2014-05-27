@@ -43,6 +43,7 @@ Since we're open sourcing the project, it should be available and part of the of
 
 ## Install Ambari Shell
 For now you have 3 options to give it a try:
+
 - use our prepared [docker image](https://index.docker.io/u/sequenceiq/ambari-shell/)
 - download the latest self-containing executable jar form our maven repo
 - build it from source
