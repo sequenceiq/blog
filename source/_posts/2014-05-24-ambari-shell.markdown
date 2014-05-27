@@ -86,8 +86,7 @@ java -jar target/ambari-shell-1.0-SNAPSHOT.jar --ambari.host=<HOSTNAME> --ambari
 
 ## Start a "sandbox" Ambari Server
 
-As usual we've crated a [Docker](https://github.com/sequenceiq/ambari-docker) image so you can start experimenting with the shell and it's
-available at the Docker repository, which means you only need to run the following to get a running Ambari server:
+The image is available at the Docker repository, which means you only need to run the following to get a running Ambari server:
 ```
 docker run -d -P -h server.ambari.com --name ambari-singlenode sequenceiq/ambari
 ```
