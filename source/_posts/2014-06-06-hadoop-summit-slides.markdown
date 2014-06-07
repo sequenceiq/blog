@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Hadoop Summit 2014 - Our session"
+title: "Hadoop Summit 2014 - SequenceIQ slides"
 date: 2014-06-06 15:42:11 +0200
 comments: true
 categories: [Apache Ambari,Docker, Hadoop, DevOps]
