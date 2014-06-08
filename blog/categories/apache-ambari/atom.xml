@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Apache Ambari | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/apache-ambari/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-06-08T03:28:15+00:00</updated>
+  <updated>2014-06-08T03:31:21+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -22,7 +22,7 @@
 
 <p>Watch this space as <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a> will be open sourced in the coming weeks.</p>
 
-<iframe src="http://www.slideshare.net/slideshow/embed_code/35573123" width="640" height="534" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px 1px 0; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe>
+<iframe src="http://www.slideshare.net/slideshow/embed_code/35573123" width="640" height="400" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px 1px 0; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe>
 
 
 <p> <div style="margin-bottom:5px"> <strong> <a href="https://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning" title="Docker based Hadoop provisioning - Hadoop Summit 2014 " target="_blank">Docker based Hadoop provisioning &ndash; Hadoop Summit 2014 </a> </strong> from <strong><a href="http://www.slideshare.net/JanosMatyas" target="_blank">Janos Matyas</a></strong> </div></p>
