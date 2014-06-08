@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-05-27T12:43:01+00:00</updated>
+  <updated>2014-06-08T02:55:20+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,22 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Hadoop Summit 2014 - SequenceIQ slides]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/06/06/hadoop-summit-slides/"/>
+    <updated>2014-06-06T13:42:11+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/06/06/hadoop-summit-slides</id>
+    <content type="html"><![CDATA[<h2>Docker based Hadoop Provisioning</h2>
+
+<p>These are the slides of the session we had at the Hadoop Summit 2014, San Jose.</p>
+
+<iframe src="http://www.slideshare.net/slideshow/embed_code/35573123" width="427" height="356" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px 1px 0; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe>
+
+
+<p> <div style="margin-bottom:5px"> <strong> <a href="https://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning" title="Docker based Hadoop provisioning - Hadoop Summit 2014 " target="_blank">Docker based Hadoop provisioning &ndash; Hadoop Summit 2014 </a> </strong> from <strong><a href="http://www.slideshare.net/JanosMatyas" target="_blank">Janos Matyas</a></strong> </div></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Apache Ambari + Spring Shell = Ambari Shell]]></title>
@@ -596,69 +612,6 @@ done
 boot2docker up
 </code>
 That&rsquo;s it. Hope this helps you to start with building your own Docker images. Let us know how it goes, we are happy to help you quick start Hadoop on Docker.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Hadoop 2.3 with docker]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/03/19/hadoop-2-dot-3-with-docker/"/>
-    <updated>2014-03-19T03:54:09+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/03/19/hadoop-2-dot-3-with-docker</id>
-    <content type="html"><![CDATA[<p>You want to try out hadoop 2.3? Go to the zoo and <a href="http://sethgodin.typepad.com/seths_blog/2005/03/dont_shave_that.html">shave a yak</a>.
-Or simply just use <a href="https://www.docker.io/">docker</a>.</p>
-
-<p><code>
-docker run -i -t sequenceiq/hadoop-docker /etc/bootstrap.sh -bash
-</code></p>
-
-<h2>Testing</h2>
-
-<p>```bash</p>
-
-<h1>start ssh and hdfs</h1>
-
-<p>cd $HADOOP_PREFIX</p>
-
-<h1>run the mapreduce</h1>
-
-<p>bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.3.0.jar grep input output &lsquo;dfs[a-z.]+&rsquo;</p>
-
-<h1>check the output</h1>
-
-<p>bin/hdfs dfs -cat output/*
-```</p>
-
-<!-- more -->
-
-
-<h2>Yak shaving an elefant</h2>
-
-<p>I had problems installing hadoop 2.3 and by googling i stumbled upon this <a href="http://mail-archives.apache.org/mod_mbox/hadoop-mapreduce-user/201403.mbox/%3C53192FD4.2040003@oss.nttdata.co.jp%3E">email thread</a>,
-which references an <a href="http://aajisaka.github.io/hadoop-project/hadoop-project-dist/hadoop-common/SingleCluster.html#Standalone_Operation">alternative hadoop docs</a> deployed on github.</p>
-
-<p>By following that description i run into an other issue:
-hadoop is delivered with 32 bit native libraries. No big deal &hellip;</p>
-
-<h2>Hadoop native libraries</h2>
-
-<p>Of course there is an official <a href="http://hadoop.apache.org/docs/r2.3.0/hadoop-project-dist/hadoop-common/NativeLibraries.html">Native Libraries Guide</a> it instructs you
-to simple download the sources and <strong>mvn package</strong>. But than you face a new issue: missing <em>protobuf</em>. Eeeasy &hellip;</p>
-
-<h2>Protobuf 2.5</h2>
-
-<p>Unfortunately <strong>yum install protobuf</strong> installs an older 2.3 version, which is close but no cigar.
- So you download protobuf source, and <strong>./configure &amp;&amp; make &amp;&amp; make install</strong></p>
-
-<p>To succeed on that one you have to install a couple of development packages, and there you go.</p>
-
-<h2>Bintray</h2>
-
-<p>I wanted to save you those steps so created a binary distro of the native libs
-compiled with 64 bit CentOS. So I created <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.3.0/view/files">Bintray r̨epo</a>. Enjoy</p>
-
-<h2>Automate everything</h2>
-
-<p>As I&rsquo;m an automation fetishist, a Docker file was created, and released in the official <a href="https://index.docker.io/u/sequenceiq/hadoop-docker/">docker repo</a></p>
 ]]></content>
   </entry>
   
