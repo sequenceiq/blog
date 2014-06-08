@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Docker | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/docker/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-06-08T03:16:42+00:00</updated>
+  <updated>2014-06-08T03:25:15+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -18,9 +18,7 @@
     <link href="http://blog.sequenceiq.com/blog/2014/06/06/hadoop-summit-slides/"/>
     <updated>2014-06-06T13:42:11+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/06/06/hadoop-summit-slides</id>
-    <content type="html"><![CDATA[<h2>Docker based Hadoop Provisioning</h2>
-
-<p>These are the slides of our presentation from the Hadoop Summit 2014, San Jose. We would like to thank all who have joined the session and the positive feedbacks we have received. This gives us a great confidence and validates our efforts that there is a great need to an easy and seamless Hadoop provisionig &ndash; let it be bare metal, cloud or other virtualizations.</p>
+    <content type="html"><![CDATA[<p>These are the slides of our presentation from the Hadoop Summit 2014, San Jose. We would like to thank all who have joined the session and the positive feedbacks we have received. This gives us a great confidence and validates our efforts that there is a great need to an easy and seamless Hadoop provisionig &ndash; let it be bare metal, cloud or other virtualizations.</p>
 
 <p>Watch this space as <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a> will be open sourced in the coming weeks.</p>
 
