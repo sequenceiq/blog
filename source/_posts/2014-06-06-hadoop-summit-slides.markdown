@@ -8,8 +8,6 @@ author: Janos Matyas
 published: true
 ---
 
-## Docker based Hadoop Provisioning
-
 These are the slides of our presentation from the Hadoop Summit 2014, San Jose. We would like to thank all who have joined the session and the positive feedbacks we have received. This gives us a great confidence and validates our efforts that there is a great need to an easy and seamless Hadoop provisionig - let it be bare metal, cloud or other virtualizations.
 
 Watch this space as [Cloudbreak](http://docs.cloudbreak.apiary.io/) will be open sourced in the coming weeks. 
