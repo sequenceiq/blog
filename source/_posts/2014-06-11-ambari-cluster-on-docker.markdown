@@ -15,7 +15,7 @@ were presented recently on [Hadoop Summit](http://hadoopsummit.org/san-jose/), a
 there is an interest to know the technical details.
 
 We will provide a REST api to provision a hadoop cluster. The cluster can be hosted
-on AWS ec2, or azure, or even on you laptop, but always based on the same concept:
+on AWS ec2, or azure, or even on your laptop, but always based on the same concept:
 [Apache Ambari](http://ambari.apache.org/) managed [docker](http://www.docker.com/)
 containers.
 
@@ -43,7 +43,7 @@ the glue-code is different. Lets start with the most simple setup:
  - start an other container which:
    - waits for the agent connecting to the server
    - starts an ambari-shell, which will instruct ambari-server on its REST api:
-     - define an **[Ambari Blueprint](https://cwiki.apache.org/confluence/display/AMBARI/Blueprints)** vie the ambari REST api
+     - define an **[Ambari Blueprint](https://cwiki.apache.org/confluence/display/AMBARI/Blueprints)** via the ambari REST api
      - create a cluster by using the blueprint created in the previous step
 
 ```
@@ -59,7 +59,7 @@ curl -LOs j.mp/ambari-singlenode && . ambari-singlenode
 
 <!-- more -->
 
-When you pull the ``equenceiq/ambari` image first it will take a couple of minutes (for me it was 5 minutes).
+When you pull the `sequenceiq/ambari` image first it will take a couple of minutes (for me it was 5 minutes).
 Meanwhile lets explain all those parameters.
 
 ## 1. container: ambari-server and ambari-agent
@@ -85,7 +85,7 @@ What is [serf](http://www.serfdom.io/)? The definition goes like:
 
 > Serf is a decentralized solution for cluster membership, failure detection, and orchestration. Lightweight and highly available.
 
-Right now it doesn't seem to make any sense to talk about membership and cluster, but remembre we want to
+Right now it doesn't seem to make any sense to talk about membership and cluster, but remember we want to
 have the exact same process/tools for dev env and production.
 
 The only serf feature we use right now, that you can define shell script **event-handler** for
@@ -97,7 +97,7 @@ each membership events:
 
 The **member-join** event-handler script will check the serf tags, defined by `--tag name=value`
 an will start:
- - ambar-server java process: if the **ambari-server** tag is **true**
+ - ambari-server java process: if the **ambari-server** tag is **true**
  - ambari-agent python process: if the **ambari-agent** tag is **true**
 
 You might noted that only the **ambar-server** tag is defined. The reason is that
