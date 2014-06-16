@@ -114,7 +114,3 @@ docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariser
 - **-t** : pseudo terminal, to see the progress
 - **--rm** : remove the container once it's finished
 - **--entrypoint /bin/sh** : the default entrypoint runs the shell in interactive mode, we want to overwrite it with a script specified as `/tmp/install-cluster.sh`
-
-## Warmup image
-
-... todo description about sequenceiq/ambari-warm
