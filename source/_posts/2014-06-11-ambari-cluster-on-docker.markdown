@@ -15,8 +15,8 @@ The [slides](http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provision
 were presented recently at the [Hadoop Summit](http://hadoopsummit.org/san-jose/), and
 there is an interest to learn the technical details.
 
-The project (called Cloudbreak) will provide a REST API to provision a Hadoop cluster. The cluster can be hosted
-on AWS EC22, Azure, physical servers or even  your laptop, but always based on the same concept:
+The project (called Cloudbreak) will provide a REST API to provision a Hadoop cluster - anywhere. The cluster can be hosted
+on AWS EC22, Azure, physical servers or even your laptop, but always based on the same concept:
 [Apache Ambari](http://ambari.apache.org/) managed [Docker](http://www.docker.com/)
 containers.
 
