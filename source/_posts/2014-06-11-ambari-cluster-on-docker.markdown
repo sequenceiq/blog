@@ -5,46 +5,47 @@ date: 2014-06-11 12:51:14 +0200
 comments: true
 categories: [Apache Ambari,Docker, Hadoop, DevOps]
 author: Lajos Papp
+published: false
 ---
 
 # Apache Ambari cluster on docker
 
-We are getting close to release our **Docker-based Hadoop Provisioning** product.
+We are getting close to release our **Docker-based Hadoop Provisioning** project.
 The [slides](http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning)
-were presented recently on [Hadoop Summit](http://hadoopsummit.org/san-jose/), and
-there is an interest to know the technical details.
+were presented recently at the [Hadoop Summit](http://hadoopsummit.org/san-jose/), and
+there is an interest to learn the technical details.
 
-We will provide a REST api to provision a hadoop cluster. The cluster can be hosted
-on AWS ec2, or azure, or even on your laptop, but always based on the same concept:
-[Apache Ambari](http://ambari.apache.org/) managed [docker](http://www.docker.com/)
+The project (called Cloudbreak) will provide a REST API to provision a Hadoop cluster. The cluster can be hosted
+on AWS EC22, Azure, physical servers or even  your laptop, but always based on the same concept:
+[Apache Ambari](http://ambari.apache.org/) managed [Docker](http://www.docker.com/)
 containers.
 
-So this blog entry is the first in a series, where we describe the docker layer
+This blog entry is the first in a series, where we describe the Docker layer
 step-by-step:
 
-- Single-node docker "cluster" locally
-- Multi-node docker cluster locally
-- Multi-node docker cluster on ec2
+- Single-node Docker based Hadoop "cluster" locally
+- Multi-node Docker based Hadoop cluster 
+- Multi-node Docker based Hadoop cluster on EC22
 
-## Get docker
+## Get Docker
 
-The only required software is docker, so if you don't have it yet, jump to the
+The only required software is Docker, so if you don't have it yet, jump to the
 installation section of the [official documentation](https://docs.docker.com/installation/).
 
-The very basic you need to work with docker containers, is described in the
+The very basic you need to work with Docker containers, is described in the
 [users guide](https://docs.docker.com/userguide/dockerizing/).
 
 ## Single-node Cluster
 
-All setup is based on [docker images](https://hub.docker.com/u/sequenceiq/) only
+All setup is based on [Docker images](https://hub.docker.com/u/sequenceiq/) only
 the glue-code is different. Lets start with the most simple setup:
 
- - start a single docker container that runs **ambari-server** and **ambari-agent** in the background.
- - start an other container which:
+ - start a single Docker container that runs **ambari-server** and **ambari-agent** in the background.
+ - start another container which:
    - waits for the agent connecting to the server
-   - starts an ambari-shell, which will instruct ambari-server on its REST api:
-     - define an **[Ambari Blueprint](https://cwiki.apache.org/confluence/display/AMBARI/Blueprints)** via the ambari REST api
-     - create a cluster by using the blueprint created in the previous step
+   - starts an ambari-shell, which will instruct ambari-server on its REST API:
+     - define an **[Ambari Blueprint](https://cwiki.apache.org/confluence/display/AMBARI/Blueprints)** via the ambari REST API
+     - create a Hadoop cluster by using the blueprint created in the previous step
 
 ```
 docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/ambari --tag ambari-server=true
@@ -60,7 +61,7 @@ curl -LOs j.mp/ambari-singlenode && . ambari-singlenode
 <!-- more -->
 
 When you pull the `sequenceiq/ambari` image first it will take a couple of minutes (for me it was 5 minutes).
-Meanwhile lets explain all those parameters.
+Meanwhile you have sterted the download lets explain all those parameters.
 
 ## 1. container: ambari-server and ambari-agent
 
@@ -70,7 +71,7 @@ docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/amb
 ```
 
 - **-d** : Detached mode, container runs in the background
-- **-p 8080** : Publish ambari web and REST api port
+- **-p 8080** : Publish ambari web and REST API port
 - **-h amb0.mycorp.kom** : hostname
 - **--name ambari-singlenode** : assign a name to the container
 - **sequenceiq/ambari** : the name of the image
@@ -81,27 +82,28 @@ The default *entrypoint* of the image is `start-serf-agent.sh`
 so the `--tag ambari-server=true` command is actually an argument of the [serf agent](http://www.serfdom.io/).
 
 ### Serf
-What is [serf](http://www.serfdom.io/)? The definition goes like:
+What is [Serf](http://www.serfdom.io/)? The definition goes like:
 
 > Serf is a decentralized solution for cluster membership, failure detection, and orchestration. Lightweight and highly available.
 
 Right now it doesn't seem to make any sense to talk about membership and cluster, but remember we want to
 have the exact same process/tools for dev env and production.
 
-The only serf feature we use right now, that you can define shell script **event-handler** for
+The only Serf feature we use at this point  is that you can define shell script based **event-handlers** for
 each membership events:
 
 - member-join
 - member-failed
+- member-leave
 - member-xxx
 
-The **member-join** event-handler script will check the serf tags, defined by `--tag name=value`
-an will start:
+The **member-join** event-handler script will check the Serf tags, defined by `--tag name=value`
+and will start:
  - ambari-server java process: if the **ambari-server** tag is **true**
  - ambari-agent python process: if the **ambari-agent** tag is **true**
 
 You might noted that only the **ambar-server** tag is defined. The reason is that
- **ambari-agent** defined as **true** by default.
+ **ambari-agent** is defined as **true** by default.
 
 ## 2. container: ambari-shell
 
@@ -110,7 +112,8 @@ docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariser
 ```
 
 - **-e BLUEPRINT=single-node-hdfs-yarn** : the template to use for the cluster (single-node-hdfs-yarn/multi-node-hdfs-yarn/lambda-architecture) [see json on github](https://github.com/sequenceiq/ambari-rest-client/tree/master/src/main/resources/blueprints)
-- **--link ambari-singlenode:ambariserver ** : xx
+- **--link ambari-singlenode:ambariserver ** :  links the containers to discover and securely communicate with each other 
 - **-t** : pseudo terminal, to see the progress
 - **--rm** : remove the container once it's finished
 - **--entrypoint /bin/sh** : the default entrypoint runs the shell in interactive mode, we want to overwrite it with a script specified as `/tmp/install-cluster.sh`
+
