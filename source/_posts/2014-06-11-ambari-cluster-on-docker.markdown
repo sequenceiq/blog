@@ -8,7 +8,7 @@ author: Lajos Papp
 published: false
 ---
 
-# Apache Ambari cluster on docker
+# Apache Ambari provisioned Hadoop cluster on Docker
 
 We are getting close to release our **Docker-based Hadoop Provisioning** project.
 The [slides](http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning)
