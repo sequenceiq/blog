@@ -14,7 +14,7 @@ were presented recently at the [Hadoop Summit](http://hadoopsummit.org/san-jose/
 there is an interest from the community to learn the technical details.
 
 The project - called [Cloudbreak](http://docs.cloudbreak.apiary.io/) - will provide a REST API to provision a Hadoop cluster - anywhere. The cluster can be hosted
-on AWS EC22, Azure, physical servers or even your laptop, but always based on the same concept:
+on AWS EC2, Azure, physical servers or even your laptop - we are adding more providers - but always based on the same concept:
 [Apache Ambari](http://ambari.apache.org/) managed [Docker](http://www.docker.com/)
 containers.
 
