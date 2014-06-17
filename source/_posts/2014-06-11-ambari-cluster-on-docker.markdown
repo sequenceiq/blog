@@ -36,10 +36,10 @@ The very basic you need to work with Docker containers, is described in the
 ## Single-node Cluster
 
 All setup is based on [Docker images](https://hub.docker.com/u/sequenceiq/) only
-the glue-code is different. Lets start with the most simple setup:
+the glue-code is different. Let's start with the most simple setup:
 
- - starts a Docker container in the background that runs **ambari-server** and **ambari-agent**.
- - starts another container which:
+ - start the first Docker container in the background that runs **ambari-server** and **ambari-agent**.
+ - start the second Docker container which:
    - waits for the agent connecting to the server
    - starts an [ambari-shell](https://github.com/sequenceiq/ambari-shell), which will instruct ambari-server on its REST API:
      - define an **[Ambari Blueprint](https://cwiki.apache.org/confluence/display/AMBARI/Blueprints)** by posting a JSON to `<AMBARI_URL>/api/v1/blueprints`
@@ -50,7 +50,7 @@ docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/amb
 docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -t --rm --entrypoint /bin/sh sequenceiq/ambari -c /tmp/install-cluster.sh
 ```
 
-or if you want a **twitter-sized** one-liner to start with Hadoop in less then a minute:
+or if you want a **twitter-sized** one-liner to start with Hadoop in less than a minute:
 
 ```
 curl -LOs j.mp/ambari-singlenode && . ambari-singlenode
@@ -59,11 +59,11 @@ curl -LOs j.mp/ambari-singlenode && . ambari-singlenode
 <!-- more -->
 
 When you pull the `sequenceiq/ambari` image first it will take a couple of minutes (for me it was 4 minutes).
-Meanwhile you have sterted the download lets explain all those parameters.
+Meanwhile you have started and running the download let's explain all those parameters.
 
-## 1. container: ambari-server and ambari-agent
+## First container: ambari-server and ambari-agent
 
-Lets break down the parameters of the first container:
+Let's break down the parameters of the first container:
 ```
 docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/ambari --tag ambari-server=true
 ```
@@ -100,16 +100,16 @@ and will start:
  - ambari-server java process: if the **ambari-server** tag is **true**
  - ambari-agent python process: if the **ambari-agent** tag is **true**
 
-You might noted that only the **ambar-server** tag is defined. The reason is that **ambari-agent** is defined as **true** by default.
+You might noted that only the **ambari-server** tag is defined. The reason is that **ambari-agent** is defined as **true** by default.
 
-## 2. container: ambari-shell
+## Second container: ambari-shell
 
 ```
 docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -t --rm --entrypoint /bin/sh sequenceiq/ambari -c /tmp/install-cluster.sh
 ```
 
-- **-e BLUEPRINT=single-node-hdfs-yarn** : the template to use for the cluster (single-node-hdfs-yarn/multi-node-hdfs-yarn/lambda-architecture) [see json on github](https://github.com/sequenceiq/ambari-rest-client/tree/master/src/main/resources/blueprints)
-- **--link ambari-singlenode:ambariserver ** :  it will make all exposed ports and the private ip of `ambari-singlenode` available as `AMBARISERVER_xxx` env variables
+- **-e BLUEPRINT=single-node-hdfs-yarn** : the template to use for the cluster (single-node-hdfs-yarn/multi-node-hdfs-yarn/lambda-architecture) [see the blueprint JSON on GitHub](https://github.com/sequenceiq/ambari-rest-client/tree/master/src/main/resources/blueprints)
+- **--link ambari-singlenode:ambariserver ** :  it will make all exposed ports and the private IP of `ambari-singlenode` available as `AMBARISERVER_xxx` env variables
 - **-t** : pseudo terminal, to see the progress
 - **--rm** : remove the container once it's finished
 - **--entrypoint /bin/sh** : the default entrypoint runs the shell in interactive mode, we want to overwrite it with a script specified as `/tmp/install-cluster.sh`
@@ -132,4 +132,4 @@ docker port ambari-singlenode 8080
 
 # Next steps
 
-In the upcomming blog post we will do a multinode Hadoop cluster with the same toolset, so stay tuned ...
+In the upcomming blog posts we will do a multinode Hadoop cluster with the same toolset, so stay tuned ... 
