@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: HDP2 - SequenceIQ Blog</title>
+  <title>ambari cluster on docker - SequenceIQ Blog</title>
   <meta name="author" content="SequenceIQ">
 
    
-  <meta name="description" content="Category: HDP2">
+  <meta name="description" content="">
   
   <meta name="keywords" content="">
 
@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.sequenceiq.comblog/categories/hdp2">
+  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker">
   <link href="/favicon.png" rel="icon">
   <link href='http://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
@@ -117,130 +117,248 @@
               <div class="col-md-9" id="">
                   <div class="">
                    <!-- <div id="content">-->
-                      <article role="article">
+                      <div>
+<h1 class="article-style"> ambari cluster on docker </h1>
+<article class="hentry" role="article">
   
- <!-- <header>
+
+
+  <div class="row-fluid">
+    <div class="span12">
+      <h1>Apache Ambari provisioned Hadoop cluster on Docker</h1>
+
+<p>We are getting close to release and open source our <strong>Docker-based Hadoop Provisioning</strong> project.
+The <a href="http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning">slides</a>
+were presented recently at the <a href="http://hadoopsummit.org/san-jose/">Hadoop Summit</a>, and
+there is an interest from the community to learn the technical details.</p>
+
+<p>The project &ndash; called <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a> &ndash; will provide a REST API to provision a Hadoop cluster &ndash; anywhere. The cluster can be hosted
+on AWS EC22, Azure, physical servers or even your laptop, but always based on the same concept:
+<a href="http://ambari.apache.org/">Apache Ambari</a> managed <a href="http://www.docker.com/">Docker</a>
+containers.</p>
+
+<p>This blog entry is the first in a series, where we describe the Docker layer step-by-step:</p>
+
+<ul>
+<li>Single-node Docker based Hadoop &ldquo;cluster&rdquo; locally</li>
+<li>Multi-node Docker based Hadoop cluster</li>
+<li>Multi-node Docker based Hadoop cluster on EC2</li>
+<li>Cloudbreak</li>
+</ul>
+
+
+<h2>Get Docker</h2>
+
+<p>The only required software is Docker, so if you don&rsquo;t have it yet, jump to the
+installation section of the <a href="https://docs.docker.com/installation/">official documentation</a>.</p>
+
+<p>The very basic you need to work with Docker containers, is described in the
+<a href="https://docs.docker.com/userguide/dockerizing/">users guide</a>.</p>
+
+<h2>Single-node Cluster</h2>
+
+<p>All setup is based on <a href="https://hub.docker.com/u/sequenceiq/">Docker images</a> only
+the glue-code is different. Lets start with the most simple setup:</p>
+
+<ul>
+<li>starts a Docker container in the background that runs <strong>ambari-server</strong> and <strong>ambari-agent</strong>.</li>
+<li>starts another container which:
+
+<ul>
+<li>waits for the agent connecting to the server</li>
+<li>starts an <a href="https://github.com/sequenceiq/ambari-shell">ambari-shell</a>, which will instruct ambari-server on its REST API:
+
+<ul>
+<li>define an <strong><a href="https://cwiki.apache.org/confluence/display/AMBARI/Blueprints">Ambari Blueprint</a></strong> by posting a JSON to <code>&lt;AMBARI_URL&gt;/api/v1/blueprints</code></li>
+<li>create a Hadoop cluster by posting a JSON to <code>&lt;AMBARI_URL&gt;/api/v1/clusters</code> using the blueprint created in the previous step</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/ambari --tag ambari-server=true
+</span><span class='line'>docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -t --rm --entrypoint /bin/sh sequenceiq/ambari -c /tmp/install-cluster.sh</span></code></pre></td></tr></table></div></figure>
+
+
+<p>or if you want a <strong>twitter-sized</strong> one-liner to start with Hadoop in less then a minute:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -LOs j.mp/ambari-singlenode && . ambari-singlenode</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!-- more -->
+
+
+<p>When you pull the <code>sequenceiq/ambari</code> image first it will take a couple of minutes (for me it was 4 minutes).
+Meanwhile you have sterted the download lets explain all those parameters.</p>
+
+<h2>1. container: ambari-server and ambari-agent</h2>
+
+<p>Lets break down the parameters of the first container:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/ambari --tag ambari-server=true</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><strong>-d</strong> : Detached mode, container runs in the background</li>
+<li><strong>-p 8080</strong> : Publish ambari web and REST API port</li>
+<li><strong>-h amb0.mycorp.kom</strong> : hostname</li>
+<li><strong>&mdash;name ambari-singlenode</strong> : assign a name to the container</li>
+<li><strong>sequenceiq/ambari</strong> : the name of the image</li>
+<li><strong>&mdash;tag ambari-server=true</strong> : the <em>command</em> but please note that this is appended to the <em>entrypoint</em>.</li>
+</ul>
+
+
+<p>The default <em>entrypoint</em> of the image is <code>start-serf-agent.sh</code>
+<a href="https://github.com/sequenceiq/docker-ambari/blob/master/ambari-server/Dockerfile#L24">see the Dockerfile</a>
+so the <code>--tag ambari-server=true</code> command is actually an argument of the <a href="http://www.serfdom.io/">serf agent</a>.</p>
+
+<h3>Serf</h3>
+
+<p>What is <a href="http://www.serfdom.io/">Serf</a>? The definition goes like:</p>
+
+<blockquote><p>Serf is a decentralized solution for cluster membership, failure detection, and orchestration. Lightweight and highly available.</p></blockquote>
+
+<p>Right now it doesn&rsquo;t seem to make any sense to talk about membership and cluster, but remember we want to
+have the exact same process/tools for dev env and production.</p>
+
+<p>The only Serf feature we use at this point is that you can define shell scripts based <strong>event-handlers</strong> for
+each membership events:</p>
+
+<ul>
+<li>member-join</li>
+<li>member-failed</li>
+<li>member-leave</li>
+<li>member-xxx</li>
+</ul>
+
+
+<p>The <strong>member-join</strong> event-handler script will check the Serf tags, defined by <code>--tag name=value</code>
+and will start:
+ &ndash; ambari-server java process: if the <strong>ambari-server</strong> tag is <strong>true</strong>
+ &ndash; ambari-agent python process: if the <strong>ambari-agent</strong> tag is <strong>true</strong></p>
+
+<p>You might noted that only the <strong>ambar-server</strong> tag is defined. The reason is that <strong>ambari-agent</strong> is defined as <strong>true</strong> by default.</p>
+
+<h2>2. container: ambari-shell</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -t --rm --entrypoint /bin/sh sequenceiq/ambari -c /tmp/install-cluster.sh</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><strong>-e BLUEPRINT=single-node-hdfs-yarn</strong> : the template to use for the cluster (single-node-hdfs-yarn/multi-node-hdfs-yarn/lambda-architecture) <a href="https://github.com/sequenceiq/ambari-rest-client/tree/master/src/main/resources/blueprints">see json on github</a></li>
+<li><strong>&mdash;link ambari-singlenode:ambariserver </strong> :  it will make all exposed ports and the private ip of <code>ambari-singlenode</code> available as <code>AMBARISERVER_xxx</code> env variables</li>
+<li><strong>-t</strong> : pseudo terminal, to see the progress</li>
+<li><strong>&mdash;rm</strong> : remove the container once it&rsquo;s finished</li>
+<li><strong>&mdash;entrypoint /bin/sh</strong> : the default entrypoint runs the shell in interactive mode, we want to overwrite it with a script specified as <code>/tmp/install-cluster.sh</code></li>
+</ul>
+
+
+<h1>Install completed</h1>
+
+<p>Once Ambari-shell completed with the installation, you are ready to use it.
+To find out the IP of the Ambari server run:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker inspect -f "" ambari-singlenode</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To start with you can browse ambari web ui on <code>port 8080</code>. The default username/password is admin/admin.</p>
+
+<p>or if you can&rsquo;t reach directly the private IP of the container (windows users), use the port exposed to the host:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker port ambari-singlenode 8080</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Next steps</h1>
+
+<p>In the upcomming blog post we will do a multinode Hadoop cluster with the same toolset, so stay tuned &hellip;</p>
+
+    </div>
+  </div>
+
+
+
+  <footer>
+    <hr>
+    
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Lajos Papp</span></span>
 
     
-  </header>-->
+    <div class="row">
+      
+      <div class="col-md-6 span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/apache-ambari/"><span class="label label-warning">Apache Ambari</span></a>
+
+  <a href="/blog/categories/devops/"><span class="label label-warning">DevOps</span></a>
+
+  <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
+
+  <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="col-md-5 social-sharing pull-right">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
   
-  <div id="blog-archives" class="category">
-
+  <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
   
-  <div class="row">
-    <div class="col-md-1">
-  	
-  	
-  	  
-  	    <h2>2014</h2>
-  	
-    </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-03-07T08:12:44+00:00" pubdate><span class='month'>Mar</span> <span class='day'>07</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/03/07/read-from-hdfs/">HDFS and java.nio.channels</a></h1>
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
-
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/hdfs/'>HDFS</a>, <a class='category' href='/blog/categories/hdp2/'>HDP2</a>, <a class='category' href='/blog/categories/namenode/'>NameNode</a>, <a class='category' href='/blog/categories/remoteblockreader2/'>RemoteBlockReader2</a></span>
-		</footer>
-		
-	</div>
-</div>
-
-
-  	</article>
-    </div>
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
   </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
 
-  
-  <div class="row">
-    <div class="col-md-1">
-  	
-  	
+      </div>
+      
+      
     </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-03-05T08:12:44+00:00" pubdate><span class='month'>Mar</span> <span class='day'>05</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/03/05/access-hdp2-sandbox/">Accessing HDP2 sandbox from the host</a></h1>
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
-
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/hdp2/'>HDP2</a>, <a class='category' href='/blog/categories/hortonworks-sandbox/'>Hortonworks sandbox</a>, <a class='category' href='/blog/categories/socks-proxy/'>SOCKS proxy</a>, <a class='category' href='/blog/categories/ssl/'>SSL</a></span>
-		</footer>
-		
-	</div>
-</div>
-
-
-  	</article>
+    
+    <div class="row">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2014/06/06/hadoop-summit-slides/" title="Previous Post: Hadoop Summit 2014 - SequenceIQ slides">&laquo; Hadoop Summit 2014 - SequenceIQ slides</a>
+          
+          
+        </p>
+      </div>
     </div>
-  </div>
-
-  
-  <div class="row">
-    <div class="col-md-1">
-  	
-  	
-    </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-02-07T16:17:04+00:00" pubdate><span class='month'>Feb</span> <span class='day'>07</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/02/07/hdp2-on-amazon/">Set up HDP2 on Amazon EC2</a></h1>
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
-
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/ec2/'>EC2</a>, <a class='category' href='/blog/categories/hdp2/'>HDP2</a>, <a class='category' href='/blog/categories/hortonworks/'>Hortonworks</a></span>
-		</footer>
-		
-	</div>
-</div>
-
-
-  	</article>
-    </div>
-  </div>
-
-</div>
-
+  </footer>
 </article>
 
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
 
 
 
@@ -386,7 +504,10 @@
       var disqus_shortname = 'sequenceiqblog';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/';
+        var disqus_url = 'http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
