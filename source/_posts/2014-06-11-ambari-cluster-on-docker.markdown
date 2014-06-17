@@ -49,7 +49,7 @@ the glue-code is different. Lets start with the most simple setup:
 
 ```
 docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/ambari --tag ambari-server=true
-docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -it --rm --entrypoint /bin/sh sequenceiq/ambari-shell -c /tmp/install-cluster.sh
+docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -t --rm --entrypoint /bin/sh sequenceiq/ambari -c /tmp/install-cluster.sh
 ```
 
 or if you want to do it in a **twitter-sized** one-liner:
@@ -108,7 +108,7 @@ You might noted that only the **ambar-server** tag is defined. The reason is tha
 ## 2. container: ambari-shell
 
 ```
-docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -it --rm --entrypoint /bin/sh sequenceiq/ambari-shell -c /tmp/install-cluster.sh
+docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -t --rm --entrypoint /bin/sh sequenceiq/ambari -c /tmp/install-cluster.sh
 ```
 
 - **-e BLUEPRINT=single-node-hdfs-yarn** : the template to use for the cluster (single-node-hdfs-yarn/multi-node-hdfs-yarn/lambda-architecture) [see json on github](https://github.com/sequenceiq/ambari-rest-client/tree/master/src/main/resources/blueprints)
