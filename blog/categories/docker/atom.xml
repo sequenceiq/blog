@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Docker | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/docker/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-06-17T13:04:04+00:00</updated>
+  <updated>2014-06-17T13:18:19+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -24,7 +24,7 @@ were presented recently at the <a href="http://hadoopsummit.org/san-jose/">Hadoo
 there is an interest from the community to learn the technical details.</p>
 
 <p>The project &ndash; called <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a> &ndash; will provide a REST API to provision a Hadoop cluster &ndash; anywhere. The cluster can be hosted
-on AWS EC22, Azure, physical servers or even your laptop, but always based on the same concept:
+on AWS EC2, Azure, physical servers or even your laptop &ndash; we are adding more providers &ndash; but always based on the same concept:
 <a href="http://ambari.apache.org/">Apache Ambari</a> managed <a href="http://www.docker.com/">Docker</a>
 containers.</p>
 
