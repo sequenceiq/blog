@@ -1,14 +1,12 @@
 ---
 layout: post
-title: "ambari cluster on docker"
+title: "Ambari provisioned Hadoop cluster on Docker"
 date: 2014-06-17 10:51:14 +0200
 comments: true
 categories: [Apache Ambari,Docker, Hadoop, DevOps]
 author: Lajos Papp
 published: true
 ---
-
-# Apache Ambari provisioned Hadoop cluster on Docker
 
 We are getting close to release and open source our **Docker-based Hadoop Provisioning** project.
 The [slides](http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning)
