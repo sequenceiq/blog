@@ -119,8 +119,8 @@ docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariser
 
 # Install completed
 
-Once Ambari-shell completed with installation. You are ready to use it.
-To find out the IP of the ambari server run:
+Once Ambari-shell completed with the installation, you are ready to use it.
+To find out the IP of the Ambari server run:
 
 ```
 docker inspect -f "{{.NetworkSettings.IPAddress}}" ambari-singlenode
@@ -135,5 +135,4 @@ docker port ambari-singlenode 8080
 
 # Next steps
 
-In the upcomming blog post we will do a multinode hadoop cluster,
-witch the same toolset, so stay tuned ...
+In the upcomming blog post we will do a multinode Hadoop cluster with the same toolset, so stay tuned ...
