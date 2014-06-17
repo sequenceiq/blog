@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Apache Ambari | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/apache-ambari/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-06-17T13:01:49+00:00</updated>
+  <updated>2014-06-17T13:04:04+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -14,13 +14,11 @@
 
   
   <entry>
-    <title type="html"><![CDATA[ambari cluster on docker]]></title>
+    <title type="html"><![CDATA[Ambari provisioned Hadoop cluster on Docker]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/"/>
     <updated>2014-06-17T08:51:14+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker</id>
-    <content type="html"><![CDATA[<h1>Apache Ambari provisioned Hadoop cluster on Docker</h1>
-
-<p>We are getting close to release and open source our <strong>Docker-based Hadoop Provisioning</strong> project.
+    <content type="html"><![CDATA[<p>We are getting close to release and open source our <strong>Docker-based Hadoop Provisioning</strong> project.
 The <a href="http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning">slides</a>
 were presented recently at the <a href="http://hadoopsummit.org/san-jose/">Hadoop Summit</a>, and
 there is an interest from the community to learn the technical details.</p>
