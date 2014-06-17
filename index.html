@@ -182,11 +182,11 @@ installation section of the <a href="https://docs.docker.com/installation/">offi
 <h2>Single-node Cluster</h2>
 
 <p>All setup is based on <a href="https://hub.docker.com/u/sequenceiq/">Docker images</a> only
-the glue-code is different. Lets start with the most simple setup:</p>
+the glue-code is different. Let&rsquo;s start with the most simple setup:</p>
 
 <ul>
-<li>starts a Docker container in the background that runs <strong>ambari-server</strong> and <strong>ambari-agent</strong>.</li>
-<li>starts another container which:
+<li>start the first Docker container in the background that runs <strong>ambari-server</strong> and <strong>ambari-agent</strong>.</li>
+<li>start the second Docker container which:
 
 <ul>
 <li>waits for the agent connecting to the server</li>
@@ -208,7 +208,7 @@ the glue-code is different. Lets start with the most simple setup:</p>
 </span><span class='line'>docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -t --rm --entrypoint /bin/sh sequenceiq/ambari -c /tmp/install-cluster.sh</span></code></pre></td></tr></table></div></figure>
 
 
-<p>or if you want a <strong>twitter-sized</strong> one-liner to start with Hadoop in less then a minute:</p>
+<p>or if you want a <strong>twitter-sized</strong> one-liner to start with Hadoop in less than a minute:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>curl -LOs j.mp/ambari-singlenode && . ambari-singlenode</span></code></pre></td></tr></table></div></figure>

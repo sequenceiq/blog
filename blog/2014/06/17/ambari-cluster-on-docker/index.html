@@ -156,11 +156,11 @@ installation section of the <a href="https://docs.docker.com/installation/">offi
 <h2>Single-node Cluster</h2>
 
 <p>All setup is based on <a href="https://hub.docker.com/u/sequenceiq/">Docker images</a> only
-the glue-code is different. Lets start with the most simple setup:</p>
+the glue-code is different. Let&rsquo;s start with the most simple setup:</p>
 
 <ul>
-<li>starts a Docker container in the background that runs <strong>ambari-server</strong> and <strong>ambari-agent</strong>.</li>
-<li>starts another container which:
+<li>start the first Docker container in the background that runs <strong>ambari-server</strong> and <strong>ambari-agent</strong>.</li>
+<li>start the second Docker container which:
 
 <ul>
 <li>waits for the agent connecting to the server</li>
@@ -182,7 +182,7 @@ the glue-code is different. Lets start with the most simple setup:</p>
 </span><span class='line'>docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -t --rm --entrypoint /bin/sh sequenceiq/ambari -c /tmp/install-cluster.sh</span></code></pre></td></tr></table></div></figure>
 
 
-<p>or if you want a <strong>twitter-sized</strong> one-liner to start with Hadoop in less then a minute:</p>
+<p>or if you want a <strong>twitter-sized</strong> one-liner to start with Hadoop in less than a minute:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>curl -LOs j.mp/ambari-singlenode && . ambari-singlenode</span></code></pre></td></tr></table></div></figure>
@@ -194,11 +194,11 @@ the glue-code is different. Lets start with the most simple setup:</p>
 
 
 <p>When you pull the <code>sequenceiq/ambari</code> image first it will take a couple of minutes (for me it was 4 minutes).
-Meanwhile you have sterted the download lets explain all those parameters.</p>
+Meanwhile you have started and running the download let&rsquo;s explain all those parameters.</p>
 
-<h2>1. container: ambari-server and ambari-agent</h2>
+<h2>First container: ambari-server and ambari-agent</h2>
 
-<p>Lets break down the parameters of the first container:</p>
+<p>Let&rsquo;s break down the parameters of the first container:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/ambari --tag ambari-server=true</span></code></pre></td></tr></table></div></figure>
@@ -243,17 +243,17 @@ and will start:
  &ndash; ambari-server java process: if the <strong>ambari-server</strong> tag is <strong>true</strong>
  &ndash; ambari-agent python process: if the <strong>ambari-agent</strong> tag is <strong>true</strong></p>
 
-<p>You might noted that only the <strong>ambar-server</strong> tag is defined. The reason is that <strong>ambari-agent</strong> is defined as <strong>true</strong> by default.</p>
+<p>You might noted that only the <strong>ambari-server</strong> tag is defined. The reason is that <strong>ambari-agent</strong> is defined as <strong>true</strong> by default.</p>
 
-<h2>2. container: ambari-shell</h2>
+<h2>Second container: ambari-shell</h2>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -t --rm --entrypoint /bin/sh sequenceiq/ambari -c /tmp/install-cluster.sh</span></code></pre></td></tr></table></div></figure>
 
 
 <ul>
-<li><strong>-e BLUEPRINT=single-node-hdfs-yarn</strong> : the template to use for the cluster (single-node-hdfs-yarn/multi-node-hdfs-yarn/lambda-architecture) <a href="https://github.com/sequenceiq/ambari-rest-client/tree/master/src/main/resources/blueprints">see json on github</a></li>
-<li><strong>&mdash;link ambari-singlenode:ambariserver </strong> :  it will make all exposed ports and the private ip of <code>ambari-singlenode</code> available as <code>AMBARISERVER_xxx</code> env variables</li>
+<li><strong>-e BLUEPRINT=single-node-hdfs-yarn</strong> : the template to use for the cluster (single-node-hdfs-yarn/multi-node-hdfs-yarn/lambda-architecture) <a href="https://github.com/sequenceiq/ambari-rest-client/tree/master/src/main/resources/blueprints">see the blueprint JSON on GitHub</a></li>
+<li><strong>&mdash;link ambari-singlenode:ambariserver </strong> :  it will make all exposed ports and the private IP of <code>ambari-singlenode</code> available as <code>AMBARISERVER_xxx</code> env variables</li>
 <li><strong>-t</strong> : pseudo terminal, to see the progress</li>
 <li><strong>&mdash;rm</strong> : remove the container once it&rsquo;s finished</li>
 <li><strong>&mdash;entrypoint /bin/sh</strong> : the default entrypoint runs the shell in interactive mode, we want to overwrite it with a script specified as <code>/tmp/install-cluster.sh</code></li>
@@ -279,7 +279,7 @@ To find out the IP of the Ambari server run:</p>
 
 <h1>Next steps</h1>
 
-<p>In the upcomming blog post we will do a multinode Hadoop cluster with the same toolset, so stay tuned &hellip;</p>
+<p>In the upcomming blog posts we will do a multinode Hadoop cluster with the same toolset, so stay tuned &hellip;</p>
 
     </div>
   </div>
