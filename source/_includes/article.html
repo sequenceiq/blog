@@ -3,14 +3,14 @@
   <div class="row">
     <div class="col-md-2 post-meta">
 
-      {% assign date_str = (post.date) %}
-      <span class="badge name-badge">{{ post.date | date: "%d %B %Y" }}</span>
+
       <div class="row-fluid">
         {% if site.disqus_short_name and page.comments != false and post.comments != false and site.disqus_show_comment_count == true %}
             <a href="{% if index %}{{ site.url }}{{ root_url }}{{ post.url }}{% endif %}#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         {% endif %}
       </div>
-
+{% assign date_str = (post.date) %}
+<span class="badge name-badge">{{ post.date | date: "%d %B %Y" }}</span>
       {% if post.categories %}
         <div class="row-fluid">
             {% for category in post.categories %}
