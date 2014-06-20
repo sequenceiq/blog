@@ -49,15 +49,6 @@ amb-start-cluster 2
 amb-shell
 ```
 
-In AmbariShell the `hint` command will always guide you on the happy path,
-and remember that devops are lazy, so instead of typing press `<TAB>` for autocomplete or suggestions.
-
-Autocomplete will help you to:
-
- - complete the command in the given context (e.g. without any blueprint, cluster commands are not available)
- - add required parameters
- - add optional parameters: pres tab after double dash `--<TAB>`
- - complete parameter arguments, such as blueprint names, hostnames ...
 
 Below you will see a happy path to create a multi node Hadoop cluster using the Ambari shell.
 
