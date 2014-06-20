@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Multinode Hadoop cluster on Docker"
+title: "Multi-node Hadoop cluster on Docker"
 date: 2014-06-19 22:29:10 +0200
 comments: true
 categories: [Apache Ambari,Docker, Hadoop, DevOps, Multi-node]
@@ -24,7 +24,7 @@ Once you have the latest image, you can start runnin Docker containers.
 But instead of typing long commands like `docker run [options] image [command]`,
 we have created a couple of [shell functions](https://github.com/sequenceiq/docker-ambari/blob/master/ambari-functions) to help you with Docker commands.
 
-Using these functions the impatient can provision a 3 node Hadoop cluster with this oneliner:
+Using these functions the impatient can provision a 3 node Hadoop cluster with this one-liner:
 ```
 curl -Lo .amb j.mp/docker-ambari && . .amb && amb-deploy-cluster
 ```
@@ -54,7 +54,7 @@ and remember that devops are lazy, so instead of typing press `<TAB>` for autoco
 
 Autocomplete will help you to:
 
- - complete the command considering the context (without any blueprint, cluster commands are not available)
+ - complete the command in the given context (e.g. without any blueprint, cluster commands are not available)
  - add required parameters
  - add optional parameters: pres tab after double dash `--<TAB>`
  - complete parameter arguments, such as blueprint names, hostnames ...
@@ -71,6 +71,8 @@ cluster assign --hostGroup host_group_2 --host amb1.mycorp.kom
 cluster create
 ```
 
-Ever since we started to use Docker we are always developing against a multi node Hadoop cluster - as running a 3-4 node cluster in a laptop actually has less overhead than working on a Sandbox VM.
+Ever since we started to use Docker we are always developing against a multi-node Hadoop cluster - as running a 3-4 node cluster in a laptop actually has less overhead than working on a Sandbox VM.
 
-Hope this helps, let us know how it goes for you. 
+We are *Dockerizing* the Hadoop ecosystem and simplifying the provisioning process - watch this space or follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/) for the latest news about [Cloudbreak](docs.cloudbreak.apiary.io) - the cloud agnostic *Hadoop as a Service* API built on Docker.
+
+Hope this helps and simplifies your development process - let us know how it goes for you or if you need any help with Hadoop on Docker.
