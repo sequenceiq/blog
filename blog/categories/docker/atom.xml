@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Docker | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/docker/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-06-20T08:34:43+00:00</updated>
+  <updated>2014-06-20T11:26:18+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -45,8 +45,8 @@ curl -Lo .amb j.mp/docker-ambari &amp;&amp; . .amb &amp;&amp; amb-deploy-cluster
 <p>It does the following steps:</p>
 
 <ul>
-<li>starts Ambari server in a daemon Docker (background) container (and also an Ambari-agent self connecting)</li>
-<li>starts <code>n-1</code> daemon containers with <code>ambari-agent</code> connecting to the server</li>
+<li>runs <code>ambari-server start</code> in a daemon Docker (background) container (and also an <code>ambari-agent start</code>)</li>
+<li>runs <code>n-1</code> daemon containers with <code>ambari-agent start</code> connecting to the server</li>
 <li>runs AmbariShell with attached terminal (to see provision progress)
 
 <ul>
@@ -67,6 +67,24 @@ amb-start-cluster 2
 amb-shell
 </code></p>
 
+<p>AmbariShell will wait for:</p>
+
+<ul>
+<li>Ambari REST API
+Below you will see a happy path to create a multi node Hadoop cluster using the AmbariShell.</li>
+</ul>
+
+
+<p><code>
+host list
+blueprint add --url https://gist.githubusercontent.com/lalyos/xxx/raw/custum-blueprint.json
+cluster build --blueprint custom-blueprint
+cluster assign --hostGroup host_group_1 --host amb0.mycorp.kom
+cluster assign --hostGroup host_group_2 --host amb1.mycorp.kom
+cluster assign --hostGroup host_group_2 --host amb1.mycorp.kom
+cluster create
+</code></p>
+
 <p>In AmbariShell the <code>hint</code> command will always guide you on the happy path,
 and remember that devops are lazy, so instead of typing press <code>&lt;TAB&gt;</code> for autocomplete or suggestions.</p>
 
@@ -80,23 +98,19 @@ and remember that devops are lazy, so instead of typing press <code>&lt;TAB&gt;<
 </ul>
 
 
-<p>Below you will see a happy path to create a multi node Hadoop cluster using the Ambari shell.</p>
+<h2>Summary</h2>
 
-<p><code>
-host list
-blueprint add --url https://gist.githubusercontent.com/lalyos/xxx/raw/custum-blueprint.json
-cluster build --blueprint custom-blueprint
-cluster assign --hostGroup host_group_1 --host amb0.mycorp.kom
-cluster assign --hostGroup host_group_2 --host amb1.mycorp.kom
-cluster assign --hostGroup host_group_2 --host amb1.mycorp.kom
-cluster create
-</code></p>
+<p>Ever since we started to use Docker we are always developing against a multi-node
+Hadoop cluster &ndash; as running a 3-4 node cluster in a laptop actually has less overhead
+than working on a Sandbox VM.</p>
 
-<p>Ever since we started to use Docker we are always developing against a multi-node Hadoop cluster &ndash; as running a 3-4 node cluster in a laptop actually has less overhead than working on a Sandbox VM.</p>
+<p>We are <em>Dockerizing</em> the Hadoop ecosystem and simplifying the provisioning
+process &ndash; watch this space or follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>
+for the latest news about <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a> &ndash; the
+open source cloud agnostic <em>Hadoop as a Service</em> API built on Docker.</p>
 
-<p>We are <em>Dockerizing</em> the Hadoop ecosystem and simplifying the provisioning process &ndash; watch this space or follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a> for the latest news about <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a> &ndash; the open source cloud agnostic <em>Hadoop as a Service</em> API built on Docker.</p>
-
-<p>Hope this helps and simplifies your development process &ndash; let us know how it goes for you or if you need any help with Hadoop on Docker.</p>
+<p>Hope this helps and simplifies your development process &ndash; let us know how it goes
+for you or if you need any help with Hadoop on Docker.</p>
 ]]></content>
   </entry>
   
