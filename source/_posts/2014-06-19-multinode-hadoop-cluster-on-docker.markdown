@@ -33,8 +33,8 @@ curl -Lo .amb j.mp/docker-ambari && . .amb && amb-deploy-cluster
 
 It does the following steps:
 
-- starts Ambari server in a daemon Docker (background) container (and also an Ambari-agent self connecting)
-- starts `n-1` daemon containers with `ambari-agent` connecting to the server
+- runs `ambari-server start` in a daemon Docker (background) container (and also an `ambari-agent start`)
+- runs `n-1` daemon containers with `ambari-agent start` connecting to the server
 - runs AmbariShell with attached terminal (to see provision progress)
   - AmbariShell will post the built-in multi-node blueprint to `/api/v1/blueprints` REST API
   - AmbariShell auto-assign hosts to host_groups defined in the blueprint
@@ -49,8 +49,10 @@ amb-start-cluster 2
 amb-shell
 ```
 
+AmbariShell will wait for:
 
-Below you will see a happy path to create a multi node Hadoop cluster using the Ambari shell.
+- Ambari REST API
+Below you will see a happy path to create a multi node Hadoop cluster using the AmbariShell.
 
 ```
 host list
