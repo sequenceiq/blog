@@ -71,8 +71,26 @@ cluster assign --hostGroup host_group_2 --host amb1.mycorp.kom
 cluster create
 ```
 
-Ever since we started to use Docker we are always developing against a multi-node Hadoop cluster - as running a 3-4 node cluster in a laptop actually has less overhead than working on a Sandbox VM.
+In AmbariShell the `hint` command will always guide you on the happy path,
+and remember that devops are lazy, so instead of typing press `<TAB>` for autocomplete or suggestions.
 
-We are *Dockerizing* the Hadoop ecosystem and simplifying the provisioning process - watch this space or follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/) for the latest news about [Cloudbreak](http://docs.cloudbreak.apiary.io/) - the open source cloud agnostic *Hadoop as a Service* API built on Docker.
+Autocomplete will help you to:
 
-Hope this helps and simplifies your development process - let us know how it goes for you or if you need any help with Hadoop on Docker.
+ - complete the command in the given context (e.g. without any blueprint, cluster commands are not available)
+ - add required parameters
+ - add optional parameters: pres tab after double dash `--<TAB>`
+ - complete parameter arguments, such as blueprint names, hostnames ...
+
+## Summary
+
+Ever since we started to use Docker we are always developing against a multi-node
+Hadoop cluster - as running a 3-4 node cluster in a laptop actually has less overhead
+than working on a Sandbox VM.
+
+We are *Dockerizing* the Hadoop ecosystem and simplifying the provisioning
+process - watch this space or follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/)
+for the latest news about [Cloudbreak](http://docs.cloudbreak.apiary.io/) - the
+open source cloud agnostic *Hadoop as a Service* API built on Docker.
+
+Hope this helps and simplifies your development process - let us know how it goes
+for you or if you need any help with Hadoop on Docker.
