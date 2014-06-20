@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-06-20T08:13:03+00:00</updated>
+  <updated>2014-06-20T08:30:17+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Multinode Hadoop cluster on Docker]]></title>
+    <title type="html"><![CDATA[Multi-node Hadoop cluster on Docker]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/"/>
     <updated>2014-06-19T20:29:10+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker</id>
@@ -34,7 +34,7 @@ docker pull sequenceiq/ambari:latest
 But instead of typing long commands like <code>docker run [options] image [command]</code>,
 we have created a couple of <a href="https://github.com/sequenceiq/docker-ambari/blob/master/ambari-functions">shell functions</a> to help you with Docker commands.</p>
 
-<p>Using these functions the impatient can provision a 3 node Hadoop cluster with this oneliner:
+<p>Using these functions the impatient can provision a 3 node Hadoop cluster with this one-liner:
 <code>
 curl -Lo .amb j.mp/docker-ambari &amp;&amp; . .amb &amp;&amp; amb-deploy-cluster
 </code></p>
@@ -73,7 +73,7 @@ and remember that devops are lazy, so instead of typing press <code>&lt;TAB&gt;<
 <p>Autocomplete will help you to:</p>
 
 <ul>
-<li>complete the command considering the context (without any blueprint, cluster commands are not available)</li>
+<li>complete the command in the given context (e.g. without any blueprint, cluster commands are not available)</li>
 <li>add required parameters</li>
 <li>add optional parameters: pres tab after double dash <code>--&lt;TAB&gt;</code></li>
 <li>complete parameter arguments, such as blueprint names, hostnames &hellip;</li>
@@ -92,9 +92,11 @@ cluster assign --hostGroup host_group_2 --host amb1.mycorp.kom
 cluster create
 </code></p>
 
-<p>Ever since we started to use Docker we are always developing against a multi node Hadoop cluster &ndash; as running a 3-4 node cluster in a laptop actually has less overhead than working on a Sandbox VM.</p>
+<p>Ever since we started to use Docker we are always developing against a multi-node Hadoop cluster &ndash; as running a 3-4 node cluster in a laptop actually has less overhead than working on a Sandbox VM.</p>
 
-<p>Hope this helps, let us know how it goes for you.</p>
+<p>We are <em>Dockerizing</em> the Hadoop ecosystem and simplifying the provisioning process &ndash; watch this space or follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a> for the latest news about <a href="docs.cloudbreak.apiary.io">Cloudbreak</a> &ndash; the cloud agnostic <em>Hadoop as a Service</em> API built on Docker.</p>
+
+<p>Hope this helps and simplifies your development process &ndash; let us know how it goes for you or if you need any help with Hadoop on Docker.</p>
 ]]></content>
   </entry>
   
