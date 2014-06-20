@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-06-18T21:08:53+00:00</updated>
+  <updated>2014-06-20T05:09:02+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,42 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Multinode Hadoop cluster on Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/"/>
+    <updated>2014-06-19T20:29:10+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker</id>
+    <content type="html"><![CDATA[<h1>Multi-node hadoop cluster on Docker</h1>
+
+<p>In the <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/">previous post</a>
+you saw how easy is to create a single-node Hadoop <em>cluster</em> on your devbox.</p>
+
+<p>Now lets raise the bar and create a multinode Hadoop cluster on docker. Before we
+start, make sure you have the latest ambari image:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/ambari:latest</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>One-liner</h2>
+
+<p>Once you have the latest image, you can start runnin Docker containers.
+But instead of typing long command <code>docker run [options] image [command]</code>,
+we have created a couple of <a href="https://github.com/sequenceiq/docker-ambari/blob/master/ambari-functions">shell functions</a></p>
+
+<p>So the impatient can provision a 3 node Hadoop cluster by this oneliner:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -Lo .amb j.mp/docker-ambari && . .amb && amb-deploy-cluster</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!-- more -->
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Ambari provisioned Hadoop cluster on Docker]]></title>
@@ -2297,31 +2333,6 @@ agent.sources.websocket.path = /flume</p>
 
 
 <p>That&rsquo;s it. Hope you enjoyed. We will be back soon with some ETL processing examples.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Set up HDP2 on Amazon EC2]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/02/07/hdp2-on-amazon/"/>
-    <updated>2014-02-07T16:17:04+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/02/07/hdp2-on-amazon</id>
-    <content type="html"><![CDATA[<p>During the last years we have seen many blog entries and articles about how to set up Hadoop on Amazon EC2. All these tutorials and articles had one thing in common &ndash; you had to go through a large number of manual (and painful) steps, read screenshots and redo the whole thing all over again, in case you needed a new cluster.</p>
-
-<p>Since we use Amazon EC2 quite a lot, and Hadoop as well (Hortonworks distribution) we have gone through these steps many times &ndash; and have scripted the whole process from the first steps up to launching an N node Hadoop/HDP2 cluster in less then five minutes.</p>
-
-<p>Moreover, the cluster is a &lsquo;production ready&rsquo; setup from infrastructural point of view &ndash; it is provisioned in a logically isolated section of the cloud (Virtual Private Cloud), with his own IP address range, creation of subnets, and configuration of route tables and network gateways.</p>
-
-<p>Once the instances are provisoned, the HDP2 setup is done by Apache Ambari &ndash; for more advanced users we will provide the setup thorugh Ambari&rsquo;s RESTful API &ndash; watch this space or our GitHub page.</p>
-
-<p>All the EC2 instances are tagged with the user name &ndash; thus you can create different clusters for different employees, all under the same AWS account (with IAM).</p>
-
-<p>We believe that this is the right way to provision Hadoop in the cloud &ndash; during development and testing we had to provision Hadoop clusters of different sizes, and going through these steps manually would take lots of time.
-This way we are able to provision clusters in the cloud in the matter of minutes &ndash; independently of the size.</p>
-
-<p>The script is available at: <a href="https://github.com/sequenceiq/hadoop-cloud-scripts">https://github.com/sequenceiq/hadoop-cloud-scripts</a></p>
-
-<p>Enjoy,
-SequenceIQ</p>
 ]]></content>
   </entry>
   

@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: SQL - SequenceIQ Blog</title>
+  <title>Multinode Hadoop cluster on Docker - SequenceIQ Blog</title>
   <meta name="author" content="SequenceIQ">
 
    
-  <meta name="description" content="Category: SQL">
+  <meta name="description" content="">
   
   <meta name="keywords" content="">
 
@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.sequenceiq.comblog/categories/sql">
+  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker">
   <link href="/favicon.png" rel="icon">
   <link href='http://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
@@ -117,58 +117,119 @@
               <div class="col-md-9" id="">
                   <div class="">
                    <!-- <div id="content">-->
-                      <article role="article">
+                      <div>
+<h1 class="article-style"> Multinode Hadoop cluster on Docker </h1>
+<article class="hentry" role="article">
   
- <!-- <header>
-
-    
-  </header>-->
-  
-  <div id="blog-archives" class="category">
-
-  
-  <div class="row">
-    <div class="col-md-1">
-  	
-  	
-  	  
-  	    <h2>2014</h2>
-  	
-    </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-04-22T12:24:11+00:00" pubdate><span class='month'>Apr</span> <span class='day'>22</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/04/22/sql-on-hbase-with-apache-phoenix/">SQL on HBase with Apache Phoenix</a></h1>
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
-
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/apache-phoenix/'>Apache Phoenix</a>, <a class='category' href='/blog/categories/hbase/'>HBase</a>, <a class='category' href='/blog/categories/jooq/'>Jooq</a>, <a class='category' href='/blog/categories/sql/'>SQL</a></span>
-		</footer>
-		
-	</div>
-</div>
 
 
-  	</article>
+  <div class="row-fluid">
+    <div class="span12">
+      <h1>Multi-node hadoop cluster on Docker</h1>
+
+<p>In the <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/">previous post</a>
+you saw how easy is to create a single-node Hadoop <em>cluster</em> on your devbox.</p>
+
+<p>Now lets raise the bar and create a multinode Hadoop cluster on docker. Before we
+start, make sure you have the latest ambari image:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/ambari:latest</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>One-liner</h2>
+
+<p>Once you have the latest image, you can start runnin Docker containers.
+But instead of typing long command <code>docker run [options] image [command]</code>,
+we have created a couple of <a href="https://github.com/sequenceiq/docker-ambari/blob/master/ambari-functions">shell functions</a></p>
+
+<p>So the impatient can provision a 3 node Hadoop cluster by this oneliner:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -Lo .amb j.mp/docker-ambari && . .amb && amb-deploy-cluster</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!-- more -->
+
+
     </div>
   </div>
 
+
+
+  <footer>
+    <hr>
+    
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Lajos Papp</span></span>
+
+    
+    <div class="row">
+      
+      <div class="col-md-6 span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/apache-ambari/"><span class="label label-warning">Apache Ambari</span></a>
+
+  <a href="/blog/categories/devops/"><span class="label label-warning">DevOps</span></a>
+
+  <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
+
+  <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="col-md-5 social-sharing pull-right">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
+  
+  <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+  
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
 </div>
 
+      </div>
+      
+      
+    </div>
+    
+    <div class="row">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2014/06/17/ambari-cluster-on-docker/" title="Previous Post: Ambari provisioned Hadoop cluster on Docker">&laquo; Ambari provisioned Hadoop cluster on Docker</a>
+          
+          
+        </p>
+      </div>
+    </div>
+  </footer>
 </article>
 
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
 
 
 
@@ -318,7 +379,10 @@
       var disqus_shortname = 'sequenceiqblog';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/';
+        var disqus_url = 'http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

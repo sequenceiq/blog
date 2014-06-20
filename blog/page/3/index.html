@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: SQL - SequenceIQ Blog</title>
+  <title>SequenceIQ Blog</title>
   <meta name="author" content="SequenceIQ">
 
    
-  <meta name="description" content="Category: SQL">
+  <meta name="description" content="">
   
   <meta name="keywords" content="">
 
@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.sequenceiq.comblog/categories/sql">
+  <link rel="canonical" href="http://blog.sequenceiq.com/blog/page/3">
   <link href="/favicon.png" rel="icon">
   <link href='http://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
@@ -117,59 +117,78 @@
               <div class="col-md-9" id="">
                   <div class="">
                    <!-- <div id="content">-->
-                      <article role="article">
+                      <div class="blog-index">
   
- <!-- <header>
+  
+  
+    <article>
+      
 
-    
-  </header>-->
-  
-  <div id="blog-archives" class="category">
-
-  
   <div class="row">
-    <div class="col-md-1">
-  	
-  	
-  	  
-  	    <h2>2014</h2>
-  	
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
+            <a href="http://blog.sequenceiq.com/blog/2014/02/07/hdp2-on-amazon/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">07 February 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/ec2/"><span class="label label-warning">EC2</span></a>
+            
+            <a href="/blog/categories/hdp2/"><span class="label label-warning">HDP2</span></a>
+            
+            <a href="/blog/categories/hortonworks/"><span class="label label-warning">Hortonworks</span></a>
+            
+        </div>
+      
     </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-04-22T12:24:11+00:00" pubdate><span class='month'>Apr</span> <span class='day'>22</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/04/22/sql-on-hbase-with-apache-phoenix/">SQL on HBase with Apache Phoenix</a></h1>
-	</div>
-</div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/02/07/hdp2-on-amazon/">Set up HDP2 on Amazon EC2</a>
+          <span class="badge name-badge">Janos Matyas</span>
 
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
+      </h1>
+      <p>During the last years we have seen many blog entries and articles about how to set up Hadoop on Amazon EC2. All these tutorials and articles had one thing in common &ndash; you had to go through a large number of manual (and painful) steps, read screenshots and redo the whole thing all over again, in case you needed a new cluster.</p>
 
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/apache-phoenix/'>Apache Phoenix</a>, <a class='category' href='/blog/categories/hbase/'>HBase</a>, <a class='category' href='/blog/categories/jooq/'>Jooq</a>, <a class='category' href='/blog/categories/sql/'>SQL</a></span>
-		</footer>
-		
-	</div>
-</div>
+<p>Since we use Amazon EC2 quite a lot, and Hadoop as well (Hortonworks distribution) we have gone through these steps many times &ndash; and have scripted the whole process from the first steps up to launching an N node Hadoop/HDP2 cluster in less then five minutes.</p>
 
+<p>Moreover, the cluster is a &lsquo;production ready&rsquo; setup from infrastructural point of view &ndash; it is provisioned in a logically isolated section of the cloud (Virtual Private Cloud), with his own IP address range, creation of subnets, and configuration of route tables and network gateways.</p>
 
-  	</article>
+<p>Once the instances are provisoned, the HDP2 setup is done by Apache Ambari &ndash; for more advanced users we will provide the setup thorugh Ambari&rsquo;s RESTful API &ndash; watch this space or our GitHub page.</p>
+
+<p>All the EC2 instances are tagged with the user name &ndash; thus you can create different clusters for different employees, all under the same AWS account (with IAM).</p>
+
+<p>We believe that this is the right way to provision Hadoop in the cloud &ndash; during development and testing we had to provision Hadoop clusters of different sizes, and going through these steps manually would take lots of time.
+This way we are able to provision clusters in the cloud in the matter of minutes &ndash; independently of the size.</p>
+
+<p>The script is available at: <a href="https://github.com/sequenceiq/hadoop-cloud-scripts">https://github.com/sequenceiq/hadoop-cloud-scripts</a></p>
+
+<p>Enjoy,
+SequenceIQ</p>
+
+      
+      
     </div>
   </div>
 
+
+
+    </article>
+    
+  
+  <div class="pagination">
+    
+
+    
+    <a class="next" href="/blog/page/2/">Newer &rarr;</a>
+    
+  </div>
 </div>
-
-</article>
-
-
 
 
                     <!--</div>-->

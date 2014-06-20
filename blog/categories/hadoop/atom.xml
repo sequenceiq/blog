@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-06-18T21:08:53+00:00</updated>
+  <updated>2014-06-20T05:09:02+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,39 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Multinode Hadoop cluster on Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/"/>
+    <updated>2014-06-19T20:29:10+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker</id>
+    <content type="html"><![CDATA[<h1>Multi-node hadoop cluster on Docker</h1>
+
+<p>In the <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/">previous post</a>
+you saw how easy is to create a single-node Hadoop <em>cluster</em> on your devbox.</p>
+
+<p>Now lets raise the bar and create a multinode Hadoop cluster on docker. Before we
+start, make sure you have the latest ambari image:</p>
+
+<p><code>
+docker pull sequenceiq/ambari:latest
+</code></p>
+
+<h2>One-liner</h2>
+
+<p>Once you have the latest image, you can start runnin Docker containers.
+But instead of typing long command <code>docker run [options] image [command]</code>,
+we have created a couple of <a href="https://github.com/sequenceiq/docker-ambari/blob/master/ambari-functions">shell functions</a></p>
+
+<p>So the impatient can provision a 3 node Hadoop cluster by this oneliner:
+<code>
+curl -Lo .amb j.mp/docker-ambari &amp;&amp; . .amb &amp;&amp; amb-deploy-cluster
+</code></p>
+
+<!-- more -->
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Ambari provisioned Hadoop cluster on Docker]]></title>
@@ -542,78 +575,6 @@ or specifying an <code>--cmdfile</code> option the same commands can be executed
 <p>As always, the example project is available at our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/yarn-monitoring-R">GitHub</a> page. We are working on a <code>heuristic</code> queue scheduler for a better utilization of our cluster, and also to provide QoS on Hadoop &ndash; profiling and understanding the running MapReduce jobs and the job queues are essential for that. Also based on the charts broken down by nodes we can quickly identify servers with potential issues (slow I/O, memory, etc).</p>
 
 <p>Follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a> to read about how we progress with the sceduler and get early access, or feel free to contribute to our YARN monitoring project.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Writing MapReduce jobs in Scala]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/04/14/mapreduce-with-scalding/"/>
-    <updated>2014-04-14T11:55:38+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/04/14/mapreduce-with-scalding</id>
-    <content type="html"><![CDATA[<p>At SequenceIQ we have many pre-built and configurable MapReduce jobs (complex math algorithms, filtering, sorting and correlation patterns, samplings, top-n, joins, partitioning, etc) &ndash; as building blocks of our job worklow. We needed to find a quick way to build and test these jobs during developement on &lsquo;local&rsquo; mode and be able to push the same jobs to a large test cluster without any modifications.
-Though in general we use Java, we always strive for efficiency when we need to solve a problem and we use different  languages (not just JVM based) in our stack (e.g. Groovy, Go and R) &ndash; to write MapReduce jobs we have choosen Scala and the Scalding library. Scalding is a Scala library developed by Twitter that abstracts and makes easy to write Hadoop MapReduce jobs. In many ways Scalding is similar to Pig, but it was writen in Scala, bringing the advantages of Scala to your MapReduce jobs (e.g. type safety &ndash; how many times you have submitted a job to a cluster only to learn 5 hours later that you can&rsquo;t convert a String to Double).</p>
-
-<p>This example will show you how you can use Scalding with Hadoop 2.3 and how easy is to write a MapReduce job with few lines of Scala code.</p>
-
-<h2>Build the project</h2>
-
-<p>In our example we will transform a csv file to an other one with a filter step.
-To build the project use:</p>
-
-<p><code>./gradlew clean build</code> in the project library.</p>
-
-<h2>Run the sample</h2>
-
-<p>To run the sample with these parameters in local mode:</p>
-
-<p><code>bash
-yarn jar scalding-sample-0.1.jar com.sequenceiq.samples.scalding.CsvToCsvFilterJob --local --schema {YOUR_SCHEME} --input {INPUT} --type {TYPE} --operator {OPERATOR} --field {FILTER_FIELD} --operand {OPERAND} --output {OUTPUT_PATH}
-</code></p>
-
-<p>or if you want to run the exampke using HDFS then use:
-<code>bash
-yarn jar scalding-sample-0.1.jar com.sequenceiq.samples.scalding.CsvToCsvFilterJob --hdfs --schema {YOUR_SCHEME} --input {INPUT} --type {TYPE} --operator {OPERATOR} --field {FILTER_FIELD} --operand {OPERAND} --output {OUTPUT_PATH}
-</code></p>
-
-<p>To run the filtering example the parameters are like this:
-<code>bash
-yarn jar scalding-sample-0.1.jar com.sequenceiq.samples.scalding.CsvToCsvFilterJob --hdfs --schema id,name --input /input.csv --type int --operator eq --field id --operand 1 --output /output.csv
-</code></p>
-
-<p>The code looks extremely simple:</p>
-
-<p>``` java
-validation()
-  input(args)</p>
-
-<pre><code>.filter(filterableField) {field: String =&gt; createFilterCriterion(field)}
-.write(output(args))
-</code></pre>
-
-<p>```</p>
-
-<!-- more -->
-
-
-<p>First there is a validation and in case of the input data is OK then we are doing a filtering with the specified criterias.
-In this example (as in all our other examples) we are using Hadoop 2 &ndash; with the ability to submit Scalding jobs into a remote Hadoop 2 cluster. Note that Scalding depends on the Cascading library which does not support Hadoop 2 and there is no ability to submit jobs to a remote cluster &ndash; our example has removed the Hadoop 1 dependencies and lets you to submit jobs to any remote Hadoop 2 cluster.</p>
-
-<p>``` java</p>
-
-<pre><code>JobRunner.runJob(
-    configurationService.getConfiguration(),
-    new String[]{
-        parameters..
-    }
-);
-</code></pre>
-
-<p>```
-You can get the example project from our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/scalding-sample">GitHub</a> repository.</p>
-
-<p>Should you have any Scalding or Scala questions or observations let us know.
-Enjoy,
-SequenceIQ</p>
 ]]></content>
   </entry>
   
