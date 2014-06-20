@@ -8,8 +8,6 @@ author: Lajos Papp
 published: true
 ---
 
-# Multi-node hadoop cluster on Docker
-
 In the [previous post](http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/)
 you saw how easy is to create a single-node Hadoop *cluster* on your devbox.
 
