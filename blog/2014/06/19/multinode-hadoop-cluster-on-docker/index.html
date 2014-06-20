@@ -128,7 +128,7 @@
       <p>In the <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/">previous post</a>
 you saw how easy is to create a single-node Hadoop <em>cluster</em> on your devbox.</p>
 
-<p>Now lets raise the bar and create a multinode Hadoop cluster on docker. Before we
+<p>Now lets raise the bar and create a multinode Hadoop cluster on Docker. Before we
 start, make sure you have the latest ambari image:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -138,10 +138,10 @@ start, make sure you have the latest ambari image:</p>
 <h2>One-liner</h2>
 
 <p>Once you have the latest image, you can start runnin Docker containers.
-But instead of typing long command <code>docker run [options] image [command]</code>,
-we have created a couple of <a href="https://github.com/sequenceiq/docker-ambari/blob/master/ambari-functions">shell functions</a></p>
+But instead of typing long commands like <code>docker run [options] image [command]</code>,
+we have created a couple of <a href="https://github.com/sequenceiq/docker-ambari/blob/master/ambari-functions">shell functions</a> to help you with Docker commands.</p>
 
-<p>So the impatient can provision a 3 node Hadoop cluster by this oneliner:</p>
+<p>Using these functions the impatient can provision a 3 node Hadoop cluster with this oneliner:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>curl -Lo .amb j.mp/docker-ambari && . .amb && amb-deploy-cluster</span></code></pre></td></tr></table></div></figure>
@@ -155,14 +155,14 @@ we have created a couple of <a href="https://github.com/sequenceiq/docker-ambari
 <p>It does the following steps:</p>
 
 <ul>
-<li>starts ambari server in a daemon docker (background) container (and also an ambar-agent self connecting)</li>
+<li>starts Ambari server in a daemon Docker (background) container (and also an Ambari-agent self connecting)</li>
 <li>starts <code>n-1</code> daemon containers with <code>ambari-agent</code> connecting to the server</li>
 <li>runs AmbariShell with attached terminal (to see provision progress)
 
 <ul>
-<li>AmbariShell will post the built-in multi-node blueprint to <code>/api/v1/blueprints</code> REST api</li>
+<li>AmbariShell will post the built-in multi-node blueprint to <code>/api/v1/blueprints</code> REST API</li>
 <li>AmbariShell auto-assign hosts to host_groups defined in the blueprint</li>
-<li>cretaes a cluster, by posting to the <code>/api/v1/clusters</code> REST api</li>
+<li>creates a cluster, by posting to the <code>/api/v1/clusters</code> REST API</li>
 </ul>
 </li>
 </ul>
@@ -170,7 +170,7 @@ we have created a couple of <a href="https://github.com/sequenceiq/docker-ambari
 
 <h2>Custom blueprint</h2>
 
-<p>If you have your own blueprint, put it up into a <a href="https://gist.github.com/">gist</a>
+<p>If you have your own blueprint, put it into a <a href="https://gist.github.com/">gist</a>
 and you can use it from AmbariShell. First start AmbariShell:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -180,17 +180,19 @@ and you can use it from AmbariShell. First start AmbariShell:</p>
 
 
 <p>In AmbariShell the <code>hint</code> command will always guide you on the happy path,
-and remember that devops are lazy, so instead of typing press <code>&lt;TAB&gt;</code>.</p>
+and remember that devops are lazy, so instead of typing press <code>&lt;TAB&gt;</code> for autocomplete or suggestions.</p>
 
 <p>Autocomplete will help you to:</p>
 
 <ul>
-<li>complete command considering the context (without any blueprint, cluster command are not available)</li>
+<li>complete the command considering the context (without any blueprint, cluster commands are not available)</li>
 <li>add required parameters</li>
 <li>add optional parameters: pres tab after double dash <code>--&lt;TAB&gt;</code></li>
 <li>complete parameter arguments, such as blueprint names, hostnames &hellip;</li>
 </ul>
 
+
+<p>Below you will see a happy path to create a multi node Hadoop cluster using the Ambari shell.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -207,6 +209,10 @@ and remember that devops are lazy, so instead of typing press <code>&lt;TAB&gt;<
 </span><span class='line'>cluster assign --hostGroup host_group_2 --host amb1.mycorp.kom
 </span><span class='line'>cluster create</span></code></pre></td></tr></table></div></figure>
 
+
+<p>Ever since we started to use Docker we are always developing against a multi node Hadoop cluster &ndash; as running a 3-4 node cluster in a laptop actually has less overhead than working on a Sandbox VM.</p>
+
+<p>Hope this helps, let us know how it goes for you.</p>
 
     </div>
   </div>
@@ -237,6 +243,8 @@ and remember that devops are lazy, so instead of typing press <code>&lt;TAB&gt;<
   <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
 
   <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+
+  <a href="/blog/categories/multi-node/"><span class="label label-warning">Multi-node</span></a>
 
 
 
