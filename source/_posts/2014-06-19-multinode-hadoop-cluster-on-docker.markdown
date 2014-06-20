@@ -12,7 +12,7 @@ In the [previous post](http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster
 you saw how easy is to create a single-node Hadoop *cluster* on your devbox.
 
 Now lets raise the bar and create a multinode Hadoop cluster on Docker. Before we
-start, make sure you have the latest ambari image:
+start, make sure you have the latest Ambari image:
 
 ```
 docker pull sequenceiq/ambari:latest
@@ -20,7 +20,7 @@ docker pull sequenceiq/ambari:latest
 
 ## One-liner
 
-Once you have the latest image, you can start runnin Docker containers.
+Once you have the latest image, you can start running Docker containers.
 But instead of typing long commands like `docker run [options] image [command]`,
 we have created a couple of [shell functions](https://github.com/sequenceiq/docker-ambari/blob/master/ambari-functions) to help you with Docker commands.
 
@@ -30,6 +30,8 @@ curl -Lo .amb j.mp/docker-ambari && . .amb && amb-deploy-cluster
 ```
 
 <!-- more -->
+
+Note that you can always alter the default parameters as the blueprint, cluster size, etc ... check the shell `j.mp/docker-ambari` function's head for the parameters list.
 
 It does the following steps:
 
