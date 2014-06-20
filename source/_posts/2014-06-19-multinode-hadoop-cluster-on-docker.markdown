@@ -32,3 +32,40 @@ curl -Lo .amb j.mp/docker-ambari && . .amb && amb-deploy-cluster
 ```
 
 <!-- more -->
+
+It does the following steps:
+
+- starts ambari server in a daemon docker (background) container (and also an ambar-agent self connecting)
+- starts `n-1` daemon containers with `ambari-agent` connecting to the server
+- runs AmbariShell with attached terminal (to see provision progress)
+  - AmbariShell will post the built-in multi-node blueprint to `/api/v1/blueprints` REST api
+  - AmbariShell auto-assign hosts to host_groups defined in the blueprint
+  - cretaes a cluster, by posting to the `/api/v1/clusters` REST api
+
+## Custom blueprint
+
+If you have your own blueprint, put it up into a [gist](https://gist.github.com/)
+and you can use it from AmbariShell. First start AmbariShell:
+```
+amb-start-cluster 2
+amb-shell
+```
+
+In AmbariShell the `hint` command will always guide you on the happy path,
+and remember that devops are lazy, so instead of typing press `<TAB>`.
+
+Autocomplete will help you to:
+ - complete command considering the context (without any blueprint, cluster command are not available)
+ - add required parameters
+ - add optional parameters: pres tab after double dash `--<TAB>`
+ - complete parameter arguments, such as blueprint names, hostnames ...
+
+```
+host list
+blueprint add --url https://gist.githubusercontent.com/lalyos/xxx/raw/custum-blueprint.json
+cluster build --blueprint custom-blueprint
+cluster assign --hostGroup host_group_1 --host amb0.mycorp.kom
+cluster assign --hostGroup host_group_2 --host amb1.mycorp.kom
+cluster assign --hostGroup host_group_2 --host amb1.mycorp.kom
+cluster create
+```
