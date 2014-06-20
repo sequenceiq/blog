@@ -4,7 +4,7 @@
   <title><![CDATA[Category: DevOps | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/devops/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-06-20T08:30:17+00:00</updated>
+  <updated>2014-06-20T08:34:43+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -94,7 +94,7 @@ cluster create
 
 <p>Ever since we started to use Docker we are always developing against a multi-node Hadoop cluster &ndash; as running a 3-4 node cluster in a laptop actually has less overhead than working on a Sandbox VM.</p>
 
-<p>We are <em>Dockerizing</em> the Hadoop ecosystem and simplifying the provisioning process &ndash; watch this space or follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a> for the latest news about <a href="docs.cloudbreak.apiary.io">Cloudbreak</a> &ndash; the cloud agnostic <em>Hadoop as a Service</em> API built on Docker.</p>
+<p>We are <em>Dockerizing</em> the Hadoop ecosystem and simplifying the provisioning process &ndash; watch this space or follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a> for the latest news about <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a> &ndash; the open source cloud agnostic <em>Hadoop as a Service</em> API built on Docker.</p>
 
 <p>Hope this helps and simplifies your development process &ndash; let us know how it goes for you or if you need any help with Hadoop on Docker.</p>
 ]]></content>
