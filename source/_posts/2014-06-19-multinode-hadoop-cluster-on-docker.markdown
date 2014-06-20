@@ -53,6 +53,7 @@ In AmbariShell the `hint` command will always guide you on the happy path,
 and remember that devops are lazy, so instead of typing press `<TAB>`.
 
 Autocomplete will help you to:
+
  - complete command considering the context (without any blueprint, cluster command are not available)
  - add required parameters
  - add optional parameters: pres tab after double dash `--<TAB>`
