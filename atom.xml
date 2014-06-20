@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-06-20T05:52:42+00:00</updated>
+  <updated>2014-06-20T05:56:57+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -18,9 +18,7 @@
     <link href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/"/>
     <updated>2014-06-19T20:29:10+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker</id>
-    <content type="html"><![CDATA[<h1>Multi-node hadoop cluster on Docker</h1>
-
-<p>In the <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/">previous post</a>
+    <content type="html"><![CDATA[<p>In the <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/">previous post</a>
 you saw how easy is to create a single-node Hadoop <em>cluster</em> on your devbox.</p>
 
 <p>Now lets raise the bar and create a multinode Hadoop cluster on docker. Before we
@@ -77,11 +75,15 @@ and you can use it from AmbariShell. First start AmbariShell:</p>
 <p>In AmbariShell the <code>hint</code> command will always guide you on the happy path,
 and remember that devops are lazy, so instead of typing press <code>&lt;TAB&gt;</code>.</p>
 
-<p>Autocomplete will help you to:
- &ndash; complete command considering the context (without any blueprint, cluster command are not available)
- &ndash; add required parameters
- &ndash; add optional parameters: pres tab after double dash <code>--&lt;TAB&gt;</code>
- &ndash; complete parameter arguments, such as blueprint names, hostnames &hellip;</p>
+<p>Autocomplete will help you to:</p>
+
+<ul>
+<li>complete command considering the context (without any blueprint, cluster command are not available)</li>
+<li>add required parameters</li>
+<li>add optional parameters: pres tab after double dash <code>--&lt;TAB&gt;</code></li>
+<li>complete parameter arguments, such as blueprint names, hostnames &hellip;</li>
+</ul>
+
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
