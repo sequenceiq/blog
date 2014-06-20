@@ -73,6 +73,6 @@ cluster create
 
 Ever since we started to use Docker we are always developing against a multi-node Hadoop cluster - as running a 3-4 node cluster in a laptop actually has less overhead than working on a Sandbox VM.
 
-We are *Dockerizing* the Hadoop ecosystem and simplifying the provisioning process - watch this space or follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/) for the latest news about [Cloudbreak](docs.cloudbreak.apiary.io) - the cloud agnostic *Hadoop as a Service* API built on Docker.
+We are *Dockerizing* the Hadoop ecosystem and simplifying the provisioning process - watch this space or follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/) for the latest news about [Cloudbreak](http://docs.cloudbreak.apiary.io/) - the open source cloud agnostic *Hadoop as a Service* API built on Docker.
 
 Hope this helps and simplifies your development process - let us know how it goes for you or if you need any help with Hadoop on Docker.
