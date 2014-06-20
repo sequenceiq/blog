@@ -4,7 +4,7 @@
   <title><![CDATA[Category: DevOps | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/devops/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-06-20T05:09:02+00:00</updated>
+  <updated>2014-06-20T05:52:42+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -43,6 +43,50 @@ curl -Lo .amb j.mp/docker-ambari &amp;&amp; . .amb &amp;&amp; amb-deploy-cluster
 
 <!-- more -->
 
+
+<p>It does the following steps:</p>
+
+<ul>
+<li>starts ambari server in a daemon docker (background) container (and also an ambar-agent self connecting)</li>
+<li>starts <code>n-1</code> daemon containers with <code>ambari-agent</code> connecting to the server</li>
+<li>runs AmbariShell with attached terminal (to see provision progress)
+
+<ul>
+<li>AmbariShell will post the built-in multi-node blueprint to <code>/api/v1/blueprints</code> REST api</li>
+<li>AmbariShell auto-assign hosts to host_groups defined in the blueprint</li>
+<li>cretaes a cluster, by posting to the <code>/api/v1/clusters</code> REST api</li>
+</ul>
+</li>
+</ul>
+
+
+<h2>Custom blueprint</h2>
+
+<p>If you have your own blueprint, put it up into a <a href="https://gist.github.com/">gist</a>
+and you can use it from AmbariShell. First start AmbariShell:
+<code>
+amb-start-cluster 2
+amb-shell
+</code></p>
+
+<p>In AmbariShell the <code>hint</code> command will always guide you on the happy path,
+and remember that devops are lazy, so instead of typing press <code>&lt;TAB&gt;</code>.</p>
+
+<p>Autocomplete will help you to:
+ &ndash; complete command considering the context (without any blueprint, cluster command are not available)
+ &ndash; add required parameters
+ &ndash; add optional parameters: pres tab after double dash <code>--&lt;TAB&gt;</code>
+ &ndash; complete parameter arguments, such as blueprint names, hostnames &hellip;</p>
+
+<p><code>
+host list
+blueprint add --url https://gist.githubusercontent.com/lalyos/xxx/raw/custum-blueprint.json
+cluster build --blueprint custom-blueprint
+cluster assign --hostGroup host_group_1 --host amb0.mycorp.kom
+cluster assign --hostGroup host_group_2 --host amb1.mycorp.kom
+cluster assign --hostGroup host_group_2 --host amb1.mycorp.kom
+cluster create
+</code></p>
 ]]></content>
   </entry>
   
