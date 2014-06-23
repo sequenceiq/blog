@@ -1,24 +1,25 @@
 ---
 layout: post
-title: "Scalding correlation example"
-date: 2014-06-23 14:07:18 +0200
+title: "Pearson correlation with Scalding"
+date: 2014-06-23 20:07:18 +0200
 comments: true
 categories: [Scalding, Scala, Hadoop, HBase, Correlation]
-published: false
+published: true
 author: Oliver Szabo
 ---
 ## Introduction
 
-Previously we mention that we are using mostly scalding for batch processing.
-Scalding is a powerful tool and great choice if you want to simplify the writing of your MapReduce jobs.
-In the following detailed example we show how to write and test scalding jobs.
+At SequenceIQ we are processing data in batch and streaming - for both we use Scala as our prefered language; for batch processing in particular we use Scalding to build our job and data pipelines. Actually there is `Babilon` at SequenceIQ as we use Java, Scala, Go, R, Dockerfile, Ansible, JavaScript and what not - follow up with us for a post talking about the language heterogeneity. 
 
-## Writing Pearson correlation job
+Scalding is a powerful tool and great choice to simplify the writing and abstracting MapReduce jobs - an open source project originally developed by Twitter and recently the community.
+In the following detailed example we'd like show you an example of how to write and test Scalding jobs, running on Hadoop. 
 
-In our example, we calculate Pearson's product-moment coefficient on 2 columns of a given input.(you can find the data [here](https://github.com/sequenceiq/sequenceiq-samples/tree/master/scalding-correlation/data))
-This computation is the easiest way to find any dependence between two sets of data.
-Fist of all we need all the parameters for the given [formula](http://www.statisticshowto.com/what-is-the-correlation-coefficient-formula/).
-In Scala code it looks like this:
+## Writing a Pearson correlation job
+
+In this example, we'd like to calculate a Pearson's product-moment coefficient on 2 columns of a given [input](https://github.com/sequenceiq/sequenceiq-samples/tree/master/scalding-correlation/data).
+This is a simple computation and the easiest way to find any dependency between two datasets.
+First of all we need all the parameters for the given [formula](http://www.statisticshowto.com/what-is-the-correlation-coefficient-formula/).
+In Scala the code would look like this:
 
 ``` scala
 trait CorrelationOp {
@@ -29,9 +30,12 @@ trait CorrelationOp {
   }
 }
 ```
-At below we compute all the required parameters for the correlation formula in the scalding job with [Field API](https://github.com/twitter/scalding/wiki/Fields-based-API-Reference).
-Firstly we obtain input/output and 2 comparamble column arguments which comes from command line parameters (usage : --key value) and provide scheme for the CSV input.
-After the input is read we map the 2 selected fields (product and squares). With the underlined informations, we are able to produce the required parameters (grouping part).
+
+<!-- more -->
+
+In this example we compute all the required parameters for the correlation formula using the [Field API](https://github.com/twitter/scalding/wiki/Fields-based-API-Reference) of Scala.
+First we obtain the input/output and the two comparable column arguments which comes from command line parameters (usage : --key value) and provide the schema for the CSV input.
+After the input is read we map the two selected fields (product and squares); with the underlined informations, we are able to produce the required parameters (grouping part).
 At the end we just need to use the formula on the given fields (second map) and write the results into a TSV file.
 ``` scala
   val comparableColumn1 = args("column1")
@@ -67,13 +71,15 @@ At the end we just need to use the formula on the given fields (second map) and 
   .write(Tsv(args("output")))
 
 ```
-For running the example you have to run the following command: (you can use --hdfs instead of --local)
+
+For running the example you will have to run the following command: (_you can use --hdfs instead of --local_)
+
 ``` bash
 yarn jar scalding-correalation-1.0.jar com.sequenceiq.scalding.correlation.SimpleCorrelationJob --local --input data/data.csv --output data/corr-out.tsv --column1 num1 --column2 num2 --samplePercent 0.1
 ```
 ## Testing Scalding jobs
-Because mostly these kind of jobs represent the most critical operations in the business logic, you may want to test the jobs.
-For checking that your data transformations are correct, you can use
+
+In order to test that your data transformations are correct, you can use the 
 [JobTest](http://twitter.github.io/scalding/com/twitter/scalding/JobTest.html) class for unit testing.
 ``` scala
 @RunWith(classOf[JUnitRunner])
@@ -104,8 +110,8 @@ class SimpleCorrelationJobTest  extends Specification {
 
 ## Writing results to HBase
 
-In case of we want to store our data in a database we can use special Cascading Taps for it.
-Here I used [Spyglass](https://github.com/ParallelAI/SpyGlass) to store the correlation results to HBase.
+In case we'd like to store our data in a database (at SequenceIQ we use HBase) we can use a special Cascading Tap for it.
+In this example we used [Spyglass](https://github.com/ParallelAI/SpyGlass) to store the correlation results in HBase.
 ``` scala
   val tableName = args("tableName")
   val quorum_name = args("quorum")
@@ -126,10 +132,7 @@ Here I used [Spyglass](https://github.com/ParallelAI/SpyGlass) to store the corr
         timestamp = Platform.currentTime
       ))
 ```
-For running the example you have to run the following command: (you can use --hdfs instead of --local)
-``` bash
-yarn jar scalding-correalation-1.0.jar com.sequenceiq.scalding.hbase.HBaseWriterJob --local --input data/corr-out.tsv --tableName corrTable --quorum localhost --quorumPort 2181
-```
+
 ## Build the application
 ``` bash
 ./gradlew clean jar
@@ -139,4 +142,13 @@ or
 export GRADLE_OPTS="-XX:MaxPermSize=2048m" # for tests
 ./gradlew clean build
 ```
-You can get the example project from our [GitHub](https://github.com/sequenceiq/sequenceiq-samples/tree/master/scalding-correlation) repository
+
+## Running the example and persisting to HBase
+
+In order to run the example you'll have to run the following command: (you can use --hdfs instead of --local)
+``` bash
+yarn jar scalding-correalation-1.0.jar com.sequenceiq.scalding.hbase.HBaseWriterJob --local --input data/corr-out.tsv --tableName corrTable --quorum localhost --quorumPort 2181
+```
+
+Hope this correlation example and introduction into Scalding was useful - you can get the example project from our [GitHub](https://github.com/sequenceiq/sequenceiq-samples/tree/master/scalding-correlation) repository.
+
