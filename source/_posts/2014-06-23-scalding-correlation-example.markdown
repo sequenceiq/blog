@@ -9,7 +9,7 @@ author: Oliver Szabo
 ---
 ## Introduction
 
-At SequenceIQ we are processing data in batch and streaming - for both we use Scala as our prefered language; for batch processing in particular we use Scalding to build our job and data pipelines. Actually there is `Babilon` at SequenceIQ as we use Java, Scala, Go, R, Dockerfile, Ansible, JavaScript and what not - follow up with us for a post talking about the language heterogeneity. 
+At SequenceIQ we are processing data in batch and streaming - for both we use Scala as our prefered language; for batch processing in particular we use Scalding to build our job and data pipelines. Actually there is `Babylon` at SequenceIQ as we use Java, Scala, Go, R, Groovy, Ansible, shell, JavaScript and what not - follow up with us for a post talking about the language heterogeneity. 
 
 Scalding is a powerful tool and great choice to simplify the writing and abstracting MapReduce jobs - an open source project originally developed by Twitter and recently the community.
 In the following detailed example we'd like show you an example of how to write and test Scalding jobs, running on Hadoop. 
