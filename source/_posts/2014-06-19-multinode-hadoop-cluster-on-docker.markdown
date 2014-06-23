@@ -73,7 +73,7 @@ Autocomplete will help you to:
 
  - complete the command in the given context (e.g. without any blueprint, cluster commands are not available)
  - add required parameters
- - add optional parameters: pres tab after double dash `--<TAB>`
+ - add optional parameters: press tab after double dash `--<TAB>`
  - complete parameter arguments, such as blueprint names, hostnames ...
 
 ## Summary
