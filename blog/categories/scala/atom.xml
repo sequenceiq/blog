@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Scala | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/scala/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-06-23T20:44:13+00:00</updated>
+  <updated>2014-06-23T21:22:04+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -20,7 +20,7 @@
     <id>http://blog.sequenceiq.com/blog/2014/06/23/scalding-correlation-example</id>
     <content type="html"><![CDATA[<h2>Introduction</h2>
 
-<p>At SequenceIQ we are processing data in batch and streaming &ndash; for both we use Scala as our prefered language; for batch processing in particular we use Scalding to build our job and data pipelines. Actually there is <code>Babilon</code> at SequenceIQ as we use Java, Scala, Go, R, Dockerfile, Ansible, JavaScript and what not &ndash; follow up with us for a post talking about the language heterogeneity.</p>
+<p>At SequenceIQ we are processing data in batch and streaming &ndash; for both we use Scala as our prefered language; for batch processing in particular we use Scalding to build our job and data pipelines. Actually there is <code>Babylon</code> at SequenceIQ as we use Java, Scala, Go, R, Groovy, Ansible, shell, JavaScript and what not &ndash; follow up with us for a post talking about the language heterogeneity.</p>
 
 <p>Scalding is a powerful tool and great choice to simplify the writing and abstracting MapReduce jobs &ndash; an open source project originally developed by Twitter and recently the community.
 In the following detailed example we&rsquo;d like show you an example of how to write and test Scalding jobs, running on Hadoop.</p>
