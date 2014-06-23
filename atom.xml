@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-06-23T19:35:21+00:00</updated>
+  <updated>2014-06-23T20:44:13+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,253 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Pearson correlation with Scalding]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/06/23/scalding-correlation-example/"/>
+    <updated>2014-06-23T18:07:18+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/06/23/scalding-correlation-example</id>
+    <content type="html"><![CDATA[<h2>Introduction</h2>
+
+<p>At SequenceIQ we are processing data in batch and streaming &ndash; for both we use Scala as our prefered language; for batch processing in particular we use Scalding to build our job and data pipelines. Actually there is <code>Babilon</code> at SequenceIQ as we use Java, Scala, Go, R, Dockerfile, Ansible, JavaScript and what not &ndash; follow up with us for a post talking about the language heterogeneity.</p>
+
+<p>Scalding is a powerful tool and great choice to simplify the writing and abstracting MapReduce jobs &ndash; an open source project originally developed by Twitter and recently the community.
+In the following detailed example we&rsquo;d like show you an example of how to write and test Scalding jobs, running on Hadoop.</p>
+
+<h2>Writing a Pearson correlation job</h2>
+
+<p>In this example, we&rsquo;d like to calculate a Pearson&rsquo;s product-moment coefficient on 2 columns of a given <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/scalding-correlation/data">input</a>.
+This is a simple computation and the easiest way to find any dependency between two datasets.
+First of all we need all the parameters for the given <a href="http://www.statisticshowto.com/what-is-the-correlation-coefficient-formula/">formula</a>.
+In Scala the code would look like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">CorrelationOp</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">calculateCorrelation</span><span class="o">(</span><span class="n">size</span><span class="k">:</span> <span class="kt">Long</span><span class="o">,</span> <span class="n">su1</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">su2</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">sq1</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">sq2</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">dotProd</span><span class="k">:</span> <span class="kt">Double</span><span class="o">)</span> <span class="k">:</span> <span class="kt">Double</span> <span class="o">=</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">dividend</span> <span class="k">=</span> <span class="o">(</span><span class="n">size</span> <span class="o">*</span> <span class="n">dotProd</span><span class="o">)</span> <span class="o">-</span> <span class="o">(</span><span class="n">su1</span> <span class="o">*</span> <span class="n">su2</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">divisor</span> <span class="k">=</span> <span class="n">scala</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="o">(</span><span class="n">size</span> <span class="o">*</span> <span class="n">sq1</span> <span class="o">-</span> <span class="n">su1</span> <span class="o">*</span> <span class="n">su1</span><span class="o">)</span> <span class="o">*</span> <span class="n">scala</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="o">(</span><span class="n">size</span> <span class="o">*</span> <span class="n">sq2</span> <span class="o">-</span> <span class="n">su2</span> <span class="o">*</span> <span class="n">su2</span><span class="o">)</span>
+</span><span class='line'>    <span class="n">dividend</span> <span class="o">/</span> <span class="n">divisor</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!-- more -->
+
+
+<p>In this example we compute all the required parameters for the correlation formula using the <a href="https://github.com/twitter/scalding/wiki/Fields-based-API-Reference">Field API</a> of Scala.
+First we obtain the input/output and the two comparable column arguments which comes from command line parameters (usage : &mdash;key value) and provide the schema for the CSV input.
+After the input is read we map the two selected fields (product and squares); with the underlined informations, we are able to produce the required parameters (grouping part).
+At the end we just need to use the formula on the given fields (second map) and write the results into a TSV file.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'>  <span class="k">val</span> <span class="n">comparableColumn1</span> <span class="k">=</span> <span class="n">args</span><span class="o">(</span><span class="s">&quot;column1&quot;</span><span class="o">)</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">comparableColumn2</span> <span class="k">=</span> <span class="n">args</span><span class="o">(</span><span class="s">&quot;column2&quot;</span><span class="o">)</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">samplePercent</span> <span class="k">=</span> <span class="n">args</span><span class="o">.</span><span class="n">getOrElse</span><span class="o">(</span><span class="s">&quot;samplePercent&quot;</span><span class="o">,</span><span class="s">&quot;1.00&quot;</span><span class="o">).</span><span class="n">toDouble</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">val</span> <span class="n">scheme</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Fields</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">,</span> <span class="s">&quot;num1&quot;</span><span class="o">,</span> <span class="s">&quot;num2&quot;</span><span class="o">,</span> <span class="s">&quot;num3&quot;</span><span class="o">,</span> <span class="s">&quot;num4&quot;</span><span class="o">,</span> <span class="s">&quot;num5&quot;</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nc">Csv</span><span class="o">(</span><span class="n">args</span><span class="o">(</span><span class="s">&quot;input&quot;</span><span class="o">),</span> <span class="n">fields</span> <span class="k">=</span> <span class="n">scheme</span><span class="o">,</span> <span class="n">skipHeader</span> <span class="k">=</span> <span class="kc">true</span><span class="o">).</span><span class="n">read</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">sample</span><span class="o">(</span><span class="n">samplePercent</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">map</span><span class="o">((</span><span class="n">comparableColumn1</span><span class="o">,</span><span class="n">comparableColumn2</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">(</span><span class="-Symbol">&#39;prod</span><span class="o">,</span> <span class="-Symbol">&#39;compSq1</span><span class="o">,</span> <span class="-Symbol">&#39;compSq2</span><span class="o">)){</span>
+</span><span class='line'>    <span class="n">values</span> <span class="k">:</span> <span class="o">(</span><span class="kt">Double</span><span class="o">,</span> <span class="kt">Double</span><span class="o">)</span> <span class="k">=&gt;</span>
+</span><span class='line'>      <span class="o">(</span><span class="n">values</span><span class="o">.</span><span class="n">_1</span> <span class="o">*</span> <span class="n">values</span><span class="o">.</span><span class="n">_2</span><span class="o">,</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="o">(</span><span class="n">values</span><span class="o">.</span><span class="n">_1</span><span class="o">,</span> <span class="mi">2</span><span class="o">),</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="o">(</span><span class="n">values</span><span class="o">.</span><span class="n">_2</span><span class="o">,</span> <span class="mi">2</span><span class="o">))</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">groupAll</span><span class="o">{</span>
+</span><span class='line'>    <span class="k">_</span><span class="o">.</span><span class="n">size</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">sum</span><span class="o">[</span><span class="kt">Double</span><span class="o">](</span><span class="n">comparableColumn1</span> <span class="o">-&gt;</span> <span class="-Symbol">&#39;compSum1</span><span class="o">)</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">sum</span><span class="o">[</span><span class="kt">Double</span><span class="o">](</span><span class="n">comparableColumn2</span> <span class="o">-&gt;</span> <span class="-Symbol">&#39;compSum2</span><span class="o">)</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">sum</span><span class="o">[</span><span class="kt">Double</span><span class="o">](</span><span class="-Symbol">&#39;compSq1</span> <span class="o">-&gt;</span> <span class="-Symbol">&#39;normSq1</span><span class="o">)</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">sum</span><span class="o">[</span><span class="kt">Double</span><span class="o">](</span><span class="-Symbol">&#39;compSq2</span> <span class="o">-&gt;</span> <span class="-Symbol">&#39;normSq2</span><span class="o">)</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">sum</span><span class="o">[</span><span class="kt">Double</span><span class="o">](</span><span class="-Symbol">&#39;prod</span> <span class="o">-&gt;</span> <span class="-Symbol">&#39;dotProduct</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">limit</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">project</span><span class="o">(</span><span class="-Symbol">&#39;size</span><span class="o">,</span><span class="-Symbol">&#39;compSum1</span><span class="o">,</span> <span class="-Symbol">&#39;compSum2</span><span class="o">,</span> <span class="-Symbol">&#39;normSq1</span><span class="o">,</span> <span class="-Symbol">&#39;normSq2</span><span class="o">,</span> <span class="-Symbol">&#39;dotProduct</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">map</span><span class="o">((</span><span class="-Symbol">&#39;size</span><span class="o">,</span> <span class="-Symbol">&#39;compSum1</span><span class="o">,</span> <span class="-Symbol">&#39;compSum2</span><span class="o">,</span><span class="-Symbol">&#39;normSq1</span><span class="o">,</span> <span class="-Symbol">&#39;normSq2</span><span class="o">,</span> <span class="-Symbol">&#39;dotProduct</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">-&gt;</span> <span class="o">(</span><span class="-Symbol">&#39;key</span><span class="o">,</span> <span class="-Symbol">&#39;correlation</span><span class="o">)){</span>
+</span><span class='line'>    <span class="n">fields</span> <span class="k">:</span> <span class="o">(</span><span class="kt">Long</span><span class="o">,</span> <span class="kt">Double</span><span class="o">,</span> <span class="nc">Double</span><span class="o">,</span> <span class="nc">Double</span><span class="o">,</span> <span class="nc">Double</span><span class="o">,</span> <span class="nc">Double</span><span class="o">)</span> <span class="k">=&gt;</span>
+</span><span class='line'>      <span class="k">val</span> <span class="o">(</span><span class="n">size</span><span class="o">,</span> <span class="n">sum1</span><span class="o">,</span> <span class="n">sum2</span><span class="o">,</span> <span class="n">normSq1</span><span class="o">,</span> <span class="n">normSq2</span><span class="o">,</span> <span class="n">dotProduct</span><span class="o">)</span> <span class="k">=</span> <span class="n">fields</span>
+</span><span class='line'>      <span class="k">val</span> <span class="n">corr</span> <span class="k">=</span> <span class="n">calculateCorrelation</span><span class="o">(</span><span class="n">size</span><span class="o">,</span> <span class="n">sum1</span><span class="o">,</span> <span class="n">sum2</span><span class="o">,</span> <span class="n">normSq1</span><span class="o">,</span> <span class="n">normSq2</span><span class="o">,</span> <span class="n">dotProduct</span><span class="o">)</span>
+</span><span class='line'>      <span class="o">(</span><span class="n">comparableColumn1</span> <span class="o">+</span> <span class="s">&quot;-&quot;</span> <span class="o">+</span> <span class="n">comparableColumn2</span><span class="o">,</span> <span class="n">corr</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">project</span><span class="o">(</span><span class="-Symbol">&#39;key</span><span class="o">,</span> <span class="-Symbol">&#39;correlation</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">.</span><span class="n">write</span><span class="o">(</span><span class="nc">Tsv</span><span class="o">(</span><span class="n">args</span><span class="o">(</span><span class="s">&quot;output&quot;</span><span class="o">)))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For running the example you will have to run the following command: (<em>you can use &mdash;hdfs instead of &mdash;local</em>)</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>yarn jar scalding-correalation-1.0.jar com.sequenceiq.scalding.correlation.SimpleCorrelationJob --local --input data/data.csv --output data/corr-out.tsv --column1 num1 --column2 num2 --samplePercent 0.1
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Testing Scalding jobs</h2>
+
+<p>In order to test that your data transformations are correct, you can use the
+<a href="http://twitter.github.io/scalding/com/twitter/scalding/JobTest.html">JobTest</a> class for unit testing.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="nd">@RunWith</span><span class="o">(</span><span class="n">classOf</span><span class="o">[</span><span class="kt">JUnitRunner</span><span class="o">])</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">SimpleCorrelationJobTest</span>  <span class="k">extends</span> <span class="nc">Specification</span> <span class="o">{</span>
+</span><span class='line'>  <span class="s">&quot;A SimpleCorrelation Job&quot;</span> <span class="n">should</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">input</span> <span class="k">=</span> <span class="nc">List</span><span class="o">((</span><span class="mi">1</span><span class="o">,</span><span class="mi">2</span><span class="o">,</span><span class="mi">3</span><span class="o">,</span><span class="mi">3</span><span class="o">,</span><span class="mi">4</span><span class="o">,</span><span class="mi">5</span><span class="o">),(</span><span class="mi">2</span><span class="o">,</span><span class="mi">1</span><span class="o">,</span><span class="mi">2</span><span class="o">,</span><span class="mi">3</span><span class="o">,</span><span class="mi">4</span><span class="o">,</span><span class="mi">5</span><span class="o">),(</span><span class="mi">3</span><span class="o">,</span><span class="mi">4</span><span class="o">,</span><span class="mi">5</span><span class="o">,</span><span class="mi">3</span><span class="o">,</span><span class="mi">4</span><span class="o">,</span><span class="mi">5</span><span class="o">))</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">correctOutputLimit</span> <span class="k">=</span> <span class="mf">0.8</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nc">JobTest</span><span class="o">(</span><span class="s">&quot;com.sequenceiq.scalding.correlation.SimpleCorrelationJob&quot;</span><span class="o">)</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">arg</span><span class="o">(</span><span class="s">&quot;input&quot;</span><span class="o">,</span> <span class="s">&quot;fakeInput&quot;</span><span class="o">)</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">arg</span><span class="o">(</span><span class="s">&quot;output&quot;</span><span class="o">,</span> <span class="s">&quot;fakeOutput&quot;</span><span class="o">)</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">arg</span><span class="o">(</span><span class="s">&quot;column1&quot;</span><span class="o">,</span> <span class="s">&quot;num1&quot;</span><span class="o">)</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">arg</span><span class="o">(</span><span class="s">&quot;column2&quot;</span><span class="o">,</span> <span class="s">&quot;num2&quot;</span><span class="o">)</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">arg</span><span class="o">(</span><span class="s">&quot;correlationThreshold&quot;</span><span class="o">,</span> <span class="s">&quot;0.8&quot;</span><span class="o">)</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">source</span><span class="o">(</span><span class="nc">Csv</span><span class="o">(</span><span class="s">&quot;fakeInput&quot;</span><span class="o">,</span> <span class="s">&quot;,&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="nc">Fields</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">,</span><span class="s">&quot;num1&quot;</span><span class="o">,</span><span class="s">&quot;num2&quot;</span><span class="o">,</span><span class="s">&quot;num3&quot;</span><span class="o">,</span><span class="s">&quot;num4&quot;</span><span class="o">,</span><span class="s">&quot;num5&quot;</span><span class="o">),</span><span class="n">skipHeader</span> <span class="k">=</span> <span class="kc">true</span><span class="o">),</span> <span class="n">input</span><span class="o">)</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">sink</span><span class="o">[(</span><span class="kt">String</span>, <span class="kt">Double</span><span class="o">)](</span><span class="nc">Tsv</span><span class="o">(</span><span class="s">&quot;fakeOutput&quot;</span><span class="o">,</span> <span class="n">fields</span> <span class="k">=</span> <span class="nc">Fields</span><span class="o">.</span><span class="nc">ALL</span><span class="o">))</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">outputBuf</span> <span class="k">=&gt;</span>
+</span><span class='line'>        <span class="k">val</span> <span class="n">actualOutput</span> <span class="k">=</span> <span class="n">outputBuf</span><span class="o">.</span><span class="n">toList</span><span class="o">.</span><span class="n">head</span><span class="o">.</span><span class="n">_2</span>
+</span><span class='line'>        <span class="s">&quot;return greater correlation result than 0.8&quot;</span> <span class="n">in</span> <span class="o">{</span>
+</span><span class='line'>          <span class="n">correctOutputLimit</span> <span class="n">must</span> <span class="n">be_&lt;</span> <span class="o">(</span><span class="n">actualOutput</span><span class="o">)</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">run</span>
+</span><span class='line'>      <span class="o">.</span><span class="n">finish</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Writing results to HBase</h2>
+
+<p>In case we&rsquo;d like to store our data in a database (at SequenceIQ we use HBase) we can use a special Cascading Tap for it.
+In this example we used <a href="https://github.com/ParallelAI/SpyGlass">Spyglass</a> to store the correlation results in HBase.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'>  <span class="k">val</span> <span class="n">tableName</span> <span class="k">=</span> <span class="n">args</span><span class="o">(</span><span class="s">&quot;tableName&quot;</span><span class="o">)</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">quorum_name</span> <span class="k">=</span> <span class="n">args</span><span class="o">(</span><span class="s">&quot;quorum&quot;</span><span class="o">)</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">quorum_port</span> <span class="k">=</span> <span class="n">args</span><span class="o">(</span><span class="s">&quot;quorumPort&quot;</span><span class="o">).</span><span class="n">toInt</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">val</span> <span class="n">scheme</span> <span class="k">=</span> <span class="nc">List</span><span class="o">(</span><span class="-Symbol">&#39;key</span><span class="o">,</span> <span class="-Symbol">&#39;correlation</span><span class="o">)</span>
+</span><span class='line'>  <span class="k">val</span> <span class="n">familyNames</span> <span class="k">=</span> <span class="nc">List</span><span class="o">(</span><span class="s">&quot;corrCf&quot;</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nc">Tsv</span><span class="o">(</span><span class="n">args</span><span class="o">(</span><span class="s">&quot;input&quot;</span><span class="o">)).</span><span class="n">read</span>
+</span><span class='line'>    <span class="o">.</span><span class="n">toBytesWritable</span><span class="o">(</span><span class="n">scheme</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">.</span><span class="n">write</span><span class="o">(</span>
+</span><span class='line'>      <span class="k">new</span> <span class="nc">HBaseSource</span><span class="o">(</span>
+</span><span class='line'>        <span class="n">tableName</span><span class="o">,</span>
+</span><span class='line'>        <span class="n">quorum_name</span> <span class="o">+</span> <span class="s">&quot;:&quot;</span> <span class="o">+</span> <span class="n">quorum_port</span><span class="o">,</span>
+</span><span class='line'>        <span class="n">scheme</span><span class="o">.</span><span class="n">head</span><span class="o">,</span>
+</span><span class='line'>        <span class="n">familyNames</span><span class="o">,</span>
+</span><span class='line'>        <span class="n">scheme</span><span class="o">.</span><span class="n">tail</span><span class="o">.</span><span class="n">map</span><span class="o">((</span><span class="n">x</span><span class="k">:</span> <span class="kt">Symbol</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="k">new</span> <span class="nc">Fields</span><span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="o">)).</span><span class="n">toList</span><span class="o">,</span>
+</span><span class='line'>        <span class="n">timestamp</span> <span class="k">=</span> <span class="nc">Platform</span><span class="o">.</span><span class="n">currentTime</span>
+</span><span class='line'>      <span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Build the application</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>./gradlew clean jar
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>or</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">export </span><span class="nv">GRADLE_OPTS</span><span class="o">=</span><span class="s2">&quot;-XX:MaxPermSize=2048m&quot;</span> <span class="c"># for tests</span>
+</span><span class='line'>./gradlew clean build
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Running the example and persisting to HBase</h2>
+
+<p>In order to run the example you&rsquo;ll have to run the following command: (you can use &mdash;hdfs instead of &mdash;local)</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>yarn jar scalding-correalation-1.0.jar com.sequenceiq.scalding.hbase.HBaseWriterJob --local --input data/corr-out.tsv --tableName corrTable --quorum localhost --quorumPort 2181
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Hope this correlation example and introduction into Scalding was useful &ndash; you can get the example project from our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/scalding-correlation">GitHub</a> repository.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Multi-node Hadoop cluster on Docker]]></title>
@@ -2317,100 +2564,6 @@ check our <a href="https://github.com/sequenceiq">GitHub</a> page.</p>
 <p>A showcase of our efforts to bring all our Hadoop based applications under one common cluster management framework &ndash; YARN.
 Our deployment consists of MR2, HBase, Mahout and Hive-all running within one single auto-scaling cluster. We have faced many challenges such as load imbalances, SLA misses, cluster scheduling and VM container deployments &ndash; and would like to share our struggle and solution with the community.
 As a startup, cost savings is important for us &ndash; switching to Hadoop 2.0 helped us save significant costs through better utilization of our hardware and cloud VMs. Our decision and investment of moving to YARN has paid off &ndash; and opened up new business and technical opportunities.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Custom Apache Flume source]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/02/22/custom-flume-source/"/>
-    <updated>2014-02-22T14:45:48+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/02/22/custom-flume-source</id>
-    <content type="html"><![CDATA[<p>The process of data analytics starts with collecting the data into a common system, in our case a Hadoop cluster. Flume is an Apache project aiming to help us solve this problem in a very efficient and elegant way.</p>
-
-<p>In Flume terminology a source is responsible to listen and consume events coming from many distributed clients and forwards them to one or more channels. Events can have any arbitrary format, it all depends on what source do we use. Flume provides many sources, but only a few of them is capable to collect data through network.</p>
-
-<p>In this article I will discuss how you can implement your own that meets your demands through creating a websocket source.
-There are two types of sources: event driven and pollable. In case of a pollable source, Flume will start a thread to periodically call the following method to check whether there is new data available or not:</p>
-
-<figure class='code'><figcaption><span>PollableSource interface</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Status</span> <span class="nf">process</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">EventDeliveryException</span><span class="o">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>With event driven source you will have to take care yourself of receiving the data from the clients. For our websocket example we will use embedded Jetty 9.1. Extend the AbstractEventDrivenSource class and override the mandatory methods to bootstrap the source. In the doConfigure method you can ask the properties you need from the context. These properties are coming from your agent’s configuration file. More on this later..</p>
-
-<figure class='code'><figcaption><span>protected void doConfigure(Context context)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">host</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">HOST_KEY</span><span class="o">);</span>
-</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">port</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getInteger</span><span class="o">(</span><span class="n">PORT_KEY</span><span class="o">);</span>
-</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">path</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">PATH_KEY</span><span class="o">);</span>
-</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">enableSsl</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getBoolean</span><span class="o">(</span><span class="n">SSL_KEY</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Eventually the doStart will kick off the embedded Jetty as shown:</p>
-
-<figure class='code'><figcaption><span>protected void doStart()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">JettyWebSocketServer</span> <span class="n">server</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JettyWebSocketServer</span><span class="o">(</span><span class="n">host</span><span class="o">,</span> <span class="n">port</span><span class="o">,</span> <span class="n">path</span><span class="o">,</span> <span class="n">getChannelProcessor</span><span class="o">());</span>
-</span><span class='line'>    <span class="n">server</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
-</span><span class='line'><span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">LOGGER</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">&quot;Error starting jetty server&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
-</span><span class='line'>    <span class="k">throw</span> <span class="k">new</span> <span class="nf">FlumeException</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<!-- more -->
-
-
-<p>Channel processor plays an important role here. Its purpose to forward the incoming events to the configured channels.</p>
-
-<p>Creating an embedded Jetty server is pretty easy and straightforward even with SSL support. I am not going into details you can find the source code here <a href="https://github.com/sequenceiq/sequenceiq-samples">https://github.com/sequenceiq/sequenceiq-samples</a> You will have to create a Servlet which will create a new listener for every session or you can just simply ignore some requests based on different headers. On new message all you have to do is create a flume event out of it and pass is to the channelprocessor.</p>
-
-<figure class='code'><figcaption><span>public void onWebSocketText(String s) </span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">SimpleEvent</span> <span class="n">event</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SimpleEvent</span><span class="o">();</span>
-</span><span class='line'><span class="n">event</span><span class="o">.</span><span class="na">setBody</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="na">getBytes</span><span class="o">());</span>
-</span><span class='line'><span class="n">channelProcessor</span><span class="o">.</span><span class="na">processEvent</span><span class="o">(</span><span class="n">event</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>From this point the data will travel through the configured channels and sinks to end up on its final destination. It is committed in one transaction so if any component fails the whole process fails.</p>
-
-<p>To deploy your custom source put the packaged jar to Flume’s classpath.</p>
-
-<blockquote><p>Flume now supports a special directory called plugins.d which automatically picks up plugins that are packaged in a specific format.</p></blockquote>
-
-
-<p>e.g plugins.d/websocket/lib/yoursource.jar</p>
-
-<p>From now on you can use it:<br/>
-agent.sources = websocket<br/>
-agent.sources.websocket.type = com.sequenceiq.samples.flume.source.JettyWebSocketSource<br/>
-agent.sources.websocket.host = localhost<br/>
-agent.sources.websocket.port = 60000<br/>
-agent.sources.websocket.path = /flume</p>
-
-<p>Test it directly from your browser:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">ws</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">WebSocket</span><span class="p">(</span><span class="s2">&quot;ws://127.0.0.1:60000/flume&quot;</span><span class="p">)</span>
-</span><span class='line'><span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="s2">&quot;Some message&quot;</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>That&rsquo;s it. Hope you enjoyed. We will be back soon with some ETL processing examples.</p>
 ]]></content>
   </entry>
   

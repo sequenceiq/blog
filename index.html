@@ -130,6 +130,89 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/06/23/scalding-correlation-example/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">23 June 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/correlation/"><span class="label label-warning">Correlation</span></a>
+            
+            <a href="/blog/categories/hbase/"><span class="label label-warning">HBase</span></a>
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+            <a href="/blog/categories/scala/"><span class="label label-warning">Scala</span></a>
+            
+            <a href="/blog/categories/scalding/"><span class="label label-warning">Scalding</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/06/23/scalding-correlation-example/">Pearson correlation with Scalding</a>
+          <span class="badge name-badge">Oliver Szabo</span>
+
+      </h1>
+      <h2>Introduction</h2>
+
+<p>At SequenceIQ we are processing data in batch and streaming &ndash; for both we use Scala as our prefered language; for batch processing in particular we use Scalding to build our job and data pipelines. Actually there is <code>Babilon</code> at SequenceIQ as we use Java, Scala, Go, R, Dockerfile, Ansible, JavaScript and what not &ndash; follow up with us for a post talking about the language heterogeneity.</p>
+
+<p>Scalding is a powerful tool and great choice to simplify the writing and abstracting MapReduce jobs &ndash; an open source project originally developed by Twitter and recently the community.
+In the following detailed example we&rsquo;d like show you an example of how to write and test Scalding jobs, running on Hadoop.</p>
+
+<h2>Writing a Pearson correlation job</h2>
+
+<p>In this example, we&rsquo;d like to calculate a Pearson&rsquo;s product-moment coefficient on 2 columns of a given <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/scalding-correlation/data">input</a>.
+This is a simple computation and the easiest way to find any dependency between two datasets.
+First of all we need all the parameters for the given <a href="http://www.statisticshowto.com/what-is-the-correlation-coefficient-formula/">formula</a>.
+In Scala the code would look like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">CorrelationOp</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">calculateCorrelation</span><span class="o">(</span><span class="n">size</span><span class="k">:</span> <span class="kt">Long</span><span class="o">,</span> <span class="n">su1</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">su2</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">sq1</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">sq2</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">dotProd</span><span class="k">:</span> <span class="kt">Double</span><span class="o">)</span> <span class="k">:</span> <span class="kt">Double</span> <span class="o">=</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">dividend</span> <span class="k">=</span> <span class="o">(</span><span class="n">size</span> <span class="o">*</span> <span class="n">dotProd</span><span class="o">)</span> <span class="o">-</span> <span class="o">(</span><span class="n">su1</span> <span class="o">*</span> <span class="n">su2</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">divisor</span> <span class="k">=</span> <span class="n">scala</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="o">(</span><span class="n">size</span> <span class="o">*</span> <span class="n">sq1</span> <span class="o">-</span> <span class="n">su1</span> <span class="o">*</span> <span class="n">su1</span><span class="o">)</span> <span class="o">*</span> <span class="n">scala</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="o">(</span><span class="n">size</span> <span class="o">*</span> <span class="n">sq2</span> <span class="o">-</span> <span class="n">su2</span> <span class="o">*</span> <span class="n">su2</span><span class="o">)</span>
+</span><span class='line'>    <span class="n">dividend</span> <span class="o">/</span> <span class="n">divisor</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+
+      
+       <a href="/blog/2014/06/23/scalding-correlation-example/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -829,83 +912,6 @@ To build the project use:</p>
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/04/04/hadoop-docker-introduction/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">04 April 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
-            
-            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
-            
-            <a href="/blog/categories/hadoop-vm/"><span class="label label-warning">Hadoop VM</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/04/04/hadoop-docker-introduction/">Hadoop on Docker introduction</a>
-          <span class="badge name-badge">Krisztian Horvath</span>
-
-      </h1>
-      <p>In the last few weeks we&rsquo;ve created and published several Docker images (<a href="https://github.com/sequenceiq/hadoop-docker">Hadoop</a>, <a href="https://github.com/sequenceiq/hoya-docker">Hoya</a>, <a href="https://github.com/sequenceiq/tez-docker">Tez</a>) to help you to quick-start with Hadoop and the latest innovations using YARN.
-While many people have downloaded and started to use these preconfigured images we&rsquo;ve been asked to give a short introduction of what Docker is, and how one can build Docker images. Also during the Hadoop Summit in Amsterdem we have been inquired in particular about running Hadoop on Docker, so this post is our answer for all the requests we received.</p>
-
-<p>Docker is an open-source engine that automates the deployment of any application as a lightweight, portable, self-sufficient container that will run virtually anywhere.</p>
-
-<h2>Installation</h2>
-
-<p>First install Docker with a package manager. On Ubuntu there is an easy way to start with by running a simple curl script which will do it for you:
-<code>curl -s https://get.docker.io/ubuntu/ | sudo sh</code>.
-Unfortunately Mac, Windows and some Linux distributions cannot natively run Docker (yet). At <a href="http://sequenceiq.com/">SequenceIQ</a> we develop on OSX and run a 3-6 node Hadoop mini cluster on our laptops. To overcome the limitation of running Docker natively
-you will have to install <code>boot2docker</code>. It is a Tiny Core Linux made specifically to run Docker containers and weights less than 24MB memory.
-Initialize <em>(boot2docker init)</em> and start <em>(boot2docker up)</em> and you can SSH into the VM <em>(boot2docker ssh, pass: tcuser)</em>.</p>
-
-<p>To verify the installation let&rsquo;s test it: <code>docker run ubuntu /bin/echo hello docker</code>. Docker did a bunch of things within seconds:</p>
-
-<ul>
-<li>Downloaded the base image from the docker.io index</li>
-<li>Created a new LXC container</li>
-<li>Allocated a filesystem for it</li>
-<li>Mounted a read-write layer</li>
-<li>Allocated a network interface</li>
-<li>Setup an IP for it, with network address translation</li>
-<li>Executed a process inside the container</li>
-<li>Captured the output and printed it</li>
-</ul>
-
-
-<p>You can run an interactive shell as well <code>docker run -i -t ubuntu /bin/bash</code> and use this shell as you would use any other shell.</p>
-
-<p>While there are lots of different Docker images available we would like to share how to create your own images.</p>
-
-
-      
-       <a href="/blog/2014/04/04/hadoop-docker-introduction/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -925,6 +931,10 @@ Initialize <em>(boot2docker init)</em> and start <em>(boot2docker up)</em> and y
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/06/23/scalding-correlation-example/">Pearson correlation with Scalding</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">Multi-node Hadoop cluster on Docker</a>
