@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-06-23T14:03:50+00:00</updated>
+  <updated>2014-06-23T19:35:21+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -106,7 +106,7 @@ and remember that devops are lazy, so instead of typing press <code>&lt;TAB&gt;<
 <ul>
 <li>complete the command in the given context (e.g. without any blueprint, cluster commands are not available)</li>
 <li>add required parameters</li>
-<li>add optional parameters: pres tab after double dash <code>--&lt;TAB&gt;</code></li>
+<li>add optional parameters: press tab after double dash <code>--&lt;TAB&gt;</code></li>
 <li>complete parameter arguments, such as blueprint names, hostnames &hellip;</li>
 </ul>
 
