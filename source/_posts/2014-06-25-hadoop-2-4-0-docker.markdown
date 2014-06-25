@@ -8,9 +8,9 @@ published: true
 author: Janos Matyas
 ---
 
-Following on the success of our Hadoop 2.3 Docker [image](https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/) and aligning with the Hadoop release cycle, 
-we have released a Hadoop 2.4 Docker image - same as the previous version this is available as a trusted and automated build on the official Docker registry.
+Following on the success of our Hadoop 2.3 Docker [image](https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/) and aligning with the Hadoop release cycle, we have released an Apache Hadoop 2.4 pseudo distributed Docker image - same as the previous version this is available as a trusted and automated build on the official Docker registry.
 
+Please note that beside this Docker image, we have released and maintain a [pseudo-distributed](http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/) and [distributed](http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/) Hadoop images provisioned with Apache Ambari. As they are provisioned with Ambari, you have the option to change, and and remove Hadoop components using cluster blueprints.
 
 ## Build the image
 
