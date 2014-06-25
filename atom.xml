@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-06-23T21:22:04+00:00</updated>
+  <updated>2014-06-25T14:35:21+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,62 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Hadoop 2.4.0 on Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/06/25/hadoop-2-4-0-docker/"/>
+    <updated>2014-06-25T18:07:18+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/06/25/hadoop-2-4-0-docker</id>
+    <content type="html"><![CDATA[<p>Following on the success of our Hadoop 2.3 Docker <a href="https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/">image</a> and aligning with the Hadoop release cycle,
+we have released a Hadoop 2.4 Docker image &ndash; same as the previous version this is available as a trusted and automated build on the official Docker registry.</p>
+
+<h2>Build the image</h2>
+
+<p>In case you&rsquo;d like to try directly from the <a href="https://github.com/sequenceiq/hadoop-docker">Dockerfile</a> you can build the image as:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker build  -t sequenceiq/hadoop-docker .</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Pull the image</h2>
+
+<p>As it is also released as an official Docker image from Docker&rsquo;s automated build repository &ndash; you can always pull or refer the image when launching containers.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/hadoop-docker:2.4.0</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Start a container</h2>
+
+<p>In order to use the Docker image you have just build or pulled use:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -i -t sequenceiq/hadoop-docker /etc/bootstrap.sh -bash</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Testing</h2>
+
+<p>You can run one of the stock examples:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cd $HADOOP_PREFIX
+</span><span class='line'># run the mapreduce
+</span><span class='line'>bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.4.0.jar grep input output 'dfs[a-z.]+'
+</span><span class='line'>
+</span><span class='line'># check the output
+</span><span class='line'>bin/hdfs dfs -cat output/*</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Hadoop native libraries, build, Bintray, etc</h2>
+
+<p>The Hadoop build process is no easy task &ndash; requires lots of libraries and their right version, protobuf, etc and takes some time &ndash; we have simplified all these, made the build and released a 64b version of Hadoop nativelibs on our <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.4.0/view/files">Bintray repo</a>. Enjoy.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Pearson correlation with Scalding]]></title>
@@ -2541,29 +2597,6 @@ SequenceIQ</p>
 
 <p>That’s it. You can find the samples at our <a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub page</a>.
 Hope you enjoy it, let us know if you need help or have any questions.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Vote for us - 2014 Hadoop Summit San Jose]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/02/26/vote-for-us/"/>
-    <updated>2014-02-26T10:17:04+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/02/26/vote-for-us</id>
-    <content type="html"><![CDATA[<p>While we are extremely proud that our abstract came 2nd (out of 107) in the 2014 Hadoop Summit in Amsterdam (see you all there in April 2-3), we will not stop there and our plan is to continue the hard work and we&rsquo;re looking forward to meet you at 2014 Hadoop Summit in San Jose.
-We would like to ask for your support by submitting your vote for our session in the largest Hadoop conference in the world.</p>
-
-<p>Please use the following link to vote, or read our abstract below.</p>
-
-<p><a href="http://hadoopsummit.uservoice.com/forums/242807-hadoop-deployment-operations-track/suggestions/5568417-moving-to-hadoop-2-0-yarn-at-sequenceiq">Vote for us</a></p>
-
-<p>Should you have any questions regarding our abstract, the technical solution or implementation detailsm feel free to contact us or
-check our <a href="https://github.com/sequenceiq">GitHub</a> page.</p>
-
-<p><strong>Moving to Hadoop 2.0/YARN at SequenceIQ</strong></p>
-
-<p>A showcase of our efforts to bring all our Hadoop based applications under one common cluster management framework &ndash; YARN.
-Our deployment consists of MR2, HBase, Mahout and Hive-all running within one single auto-scaling cluster. We have faced many challenges such as load imbalances, SLA misses, cluster scheduling and VM container deployments &ndash; and would like to share our struggle and solution with the community.
-As a startup, cost savings is important for us &ndash; switching to Hadoop 2.0 helped us save significant costs through better utilization of our hardware and cloud VMs. Our decision and investment of moving to YARN has paid off &ndash; and opened up new business and technical opportunities.</p>
 ]]></content>
   </entry>
   
