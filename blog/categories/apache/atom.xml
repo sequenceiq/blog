@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Apache | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/apache/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-06-25T14:43:20+00:00</updated>
+  <updated>2014-06-25T14:54:51+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -18,9 +18,11 @@
     <link href="http://blog.sequenceiq.com/blog/2014/06/25/hadoop-2-4-0-docker/"/>
     <updated>2014-06-25T18:07:18+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/06/25/hadoop-2-4-0-docker</id>
-    <content type="html"><![CDATA[<p>Following on the success of our Hadoop 2.3 Docker <a href="https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/">image</a> and aligning with the Hadoop release cycle, we have released an Apache Hadoop 2.4 pseudo distributed Docker image &ndash; same as the previous version this is available as a trusted and automated build on the official Docker registry.</p>
+    <content type="html"><![CDATA[<p>A few weeks ago we have released an Apache Hadoop 2.3 Docker image &ndash; in a very short time this become the most <a href="https://registry.hub.docker.com/search?q=hadoop&amp;s=downloads">popular</a> Hadoop image in the Docker <a href="https://registry.hub.docker.com/">registry</a>.</p>
 
-<p>Please note that beside this Docker image, we have released and maintain a <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/">pseudo-distributed</a> and <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">distributed</a> Hadoop images provisioned with Apache Ambari. As they are provisioned with Ambari, you have the option to change, and and remove Hadoop components using cluster blueprints.</p>
+<p>Following on the success of our Hadoop 2.3 Docker <a href="https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/">image</a>, the feedbacks and requests we have received and aligning with the Hadoop release cycle, we have released an Apache Hadoop 2.4 Docker image &ndash; same as the previous version this is available as a trusted and automated build on the official Docker <a href="https://registry.hub.docker.com/">registry</a>.</p>
+
+<p>Please note that beside this Hadoop image, we have released and maintain a <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/">pseudo-distributed</a> and <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">distributed</a> Hadoop Docker image provisioned with Apache Ambari. As they are provisioned with Ambari you have the option to change, add and remove Hadoop components using cluster blueprints.</p>
 
 <h2>Build the image</h2>
 
