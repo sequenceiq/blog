@@ -21,6 +21,7 @@ In case you'd like to try directly from the [Dockerfile](https://github.com/sequ
 ```
 docker build  -t sequenceiq/hadoop-docker .
 ```
+<!-- more -->
 
 ## Pull the image
 
