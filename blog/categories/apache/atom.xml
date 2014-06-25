@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Apache | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/apache/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-06-25T14:54:51+00:00</updated>
+  <updated>2014-06-25T15:14:00+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -31,6 +31,9 @@
 <p><code>
 docker build  -t sequenceiq/hadoop-docker .
 </code></p>
+
+<!-- more -->
+
 
 <h2>Pull the image</h2>
 

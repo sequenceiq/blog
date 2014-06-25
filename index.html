@@ -169,46 +169,9 @@
 </pre></td><td class='code'><pre><code class=''><span class='line'>docker build  -t sequenceiq/hadoop-docker .</span></code></pre></td></tr></table></div></figure>
 
 
-<h2>Pull the image</h2>
-
-<p>As it is also released as an official Docker image from Docker&rsquo;s automated build repository &ndash; you can always pull or refer the image when launching containers.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/hadoop-docker:2.4.0</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Start a container</h2>
-
-<p>In order to use the Docker image you have just build or pulled use:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -i -t sequenceiq/hadoop-docker /etc/bootstrap.sh -bash</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Testing</h2>
-
-<p>You can run one of the stock examples:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>cd $HADOOP_PREFIX
-</span><span class='line'># run the mapreduce
-</span><span class='line'>bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.4.0.jar grep input output 'dfs[a-z.]+'
-</span><span class='line'>
-</span><span class='line'># check the output
-</span><span class='line'>bin/hdfs dfs -cat output/*</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Hadoop native libraries, build, Bintray, etc</h2>
-
-<p>The Hadoop build process is no easy task &ndash; requires lots of libraries and their right version, protobuf, etc and takes some time &ndash; we have simplified all these, made the build and released a 64b version of Hadoop nativelibs on our <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.4.0/view/files">Bintray repo</a>. Enjoy.</p>
 
       
-      
+       <a href="/blog/2014/06/25/hadoop-2-4-0-docker/">Read on &rarr;</a> 
     </div>
   </div>
 
