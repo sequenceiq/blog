@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Apache | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/apache/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-06-30T20:38:25+00:00</updated>
+  <updated>2014-06-30T20:40:54+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -69,7 +69,7 @@ cd $HADOOP_PREFIX</p>
 
 <h2>Hadoop native libraries, build, Bintray, etc</h2>
 
-<p>The Hadoop build process is no easy task &ndash; requires lots of libraries and their right version, protobuf, etc and takes some time &ndash; we have simplified all these, made the build and released a 64b version of Hadoop nativelibs on our <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.4.0/view/files">Bintray repo</a>. Enjoy.</p>
+<p>The Hadoop build process is no easy task &ndash; requires lots of libraries and their right version, protobuf, etc and takes some time &ndash; we have simplified all these, made the build and released a 64b version of Hadoop nativelibs on our <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.4.1/view/files">Bintray repo</a>. Enjoy.</p>
 ]]></content>
   </entry>
   
