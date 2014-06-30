@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Apache | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/apache/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-06-25T15:14:00+00:00</updated>
+  <updated>2014-06-30T20:38:25+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -14,13 +14,13 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Apache Hadoop 2.4.0 on Docker]]></title>
+    <title type="html"><![CDATA[Apache Hadoop 2.4.1 on Docker]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/06/25/hadoop-2-4-0-docker/"/>
     <updated>2014-06-25T18:07:18+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/06/25/hadoop-2-4-0-docker</id>
     <content type="html"><![CDATA[<p>A few weeks ago we have released an Apache Hadoop 2.3 Docker image &ndash; in a very short time this become the most <a href="https://registry.hub.docker.com/search?q=hadoop&amp;s=downloads">popular</a> Hadoop image in the Docker <a href="https://registry.hub.docker.com/">registry</a>.</p>
 
-<p>Following on the success of our Hadoop 2.3 Docker <a href="https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/">image</a>, the feedbacks and requests we have received and aligning with the Hadoop release cycle, we have released an Apache Hadoop 2.4 Docker image &ndash; same as the previous version this is available as a trusted and automated build on the official Docker <a href="https://registry.hub.docker.com/">registry</a>.</p>
+<p>Following on the success of our Hadoop 2.3 Docker <a href="https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/">image</a>, the feedbacks and requests we have received and aligning with the Hadoop release cycle, we have released an Apache Hadoop 2.4.1 Docker image &ndash; same as the previous version this is available as a trusted and automated build on the official Docker <a href="https://registry.hub.docker.com/">registry</a>.</p>
 
 <p>Please note that beside this Hadoop image, we have released and maintain a <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/">pseudo-distributed</a> and <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">distributed</a> Hadoop Docker image provisioned with Apache Ambari. As they are provisioned with Ambari you have the option to change, add and remove Hadoop components using cluster blueprints.</p>
 
@@ -40,7 +40,7 @@ docker build  -t sequenceiq/hadoop-docker .
 <p>As it is also released as an official Docker image from Docker&rsquo;s automated build repository &ndash; you can always pull or refer the image when launching containers.</p>
 
 <p><code>
-docker pull sequenceiq/hadoop-docker:2.4.0
+docker pull sequenceiq/hadoop-docker:2.4.1
 </code></p>
 
 <h2>Start a container</h2>
@@ -60,7 +60,7 @@ cd $HADOOP_PREFIX</p>
 
 <h1>run the mapreduce</h1>
 
-<p>bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.4.0.jar grep input output &lsquo;dfs[a-z.]+&rsquo;</p>
+<p>bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.4.1.jar grep input output &lsquo;dfs[a-z.]+&rsquo;</p>
 
 <h1>check the output</h1>
 
