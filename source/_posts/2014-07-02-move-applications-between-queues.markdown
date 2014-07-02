@@ -1,27 +1,26 @@
 ---
 layout: post
-title: "Move applications between queues"
+title: "Re-prioritize running jobs with YARN schedulers"
 date: 2014-07-02 10:20:05 +0200
 comments: true
 categories: [Hadoop, Scheduler]
 published: false
 author: Krisztian Horvath
 ---
+At SequenceIQ we run different applications all within the same Hadoop YARN cluster. Often the deployed Hadoop stack is a multi-tenant and multi-application and runtime setup - and as usual for a scenario as such end users will try to use or book as much cluster capacity as possible. A great help for solving these problems are YARN schedulers - however in our case due to certain SLA and QoS requirements we needed to step further. We have invested a great effort to build custom YARN schedulers, learn about application insights (check our [blog post](http://blog.sequenceiq.com/blog/2014/05/01/mapreduce-job-profiling-with-R/) about how we use R to profile running jobs) and we would like to share our experience with the community. Lets dig into technical details.
 
-In YARN, the ResourceManager's most important role is the scheduling (-allocating available resources in the cluster) between competing
-applications. It doesn't care about per-application states nor internal flows and optimizations, but the overall resource requirements of
-each application. Currently there are 3 different scheduler implementations exist: FIFO, Fair, Capacity.  
+In YARN, one of the ResourceManager's most important role is the scheduling (allocating available resources in the cluster) between competing applications. It doesn't care about per-application states nor internal flows and optimizations, but the overall resource requirements of
+each application. Currently there are 3 different scheduler implementations available: FIFO, Fair, Capacity.  
 
-Going back few weeks in time we wrote about how to configure the
+Going back a few weeks in time we blogged about how to configure the
 [CapacityScheduler](http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler/) and use different queue
-setups and many people realized the lack of knowledge of how these schedulers work and asked us to explain them briefly. Good news, we didn't
-forget about you. We're going to start a series where we'll explain them a little bit detailed with fancy diagrams.
+setups. Based on the feedbacks we have received we realized that there is a lack of knowledge about how these schedulers work and many people have asked to fill that gap. Good news that we didn't
+forget about you. We're going to start a post series where we'll explain them a little bit detailed with fancy diagrams and code examples. 
 
-But before doing that, let's visit a concrete problem we encountered while we're developing our product.
-We wanted to use the CapacityScheduler, but for different reasons move the submitted applications to different queues to achieve priority
-between them (quick reminder: queues are either a composition of other queues or a collection of applications, forming a tree).
-Priority between applications isn't a thing yet, only priorities between tasks within the application. The only problem is if you check
-the code you'll find this:
+But before doing that, let's visit a concrete problem we encountered while we were developing our product stack.
+We wanted to use the CapacityScheduler, but for different reasons (SLA and QoS) move the submitted applications between different queues to set a priority among them - at runtime (quick reminder: queues are either a composition of other queues or a collection of applications, forming a tree).
+Cross application priorites can't be configured yet, only priorities between tasks within the application. The only problem is if you check the code you'll find this:
+
 ```java
 @Override
   public String moveApplication(ApplicationId appId, String newQueue) throws YarnException {
@@ -32,16 +31,15 @@ the code you'll find this:
 
 <!-- more -->
 
-Apparently only the FairScheduler supports it. Why is it not implemented? Answer it in comment and you might get a surprise :). But if we'd like
-to implement it what would be the steps? Given the following queue hierarchy and their capabilities taken from the integration tests:
+Currently this operation is supported only by the FairScheduler. Why is it not implemented? Let us know in a comment and you might receive a surprise present from us :). In the meantime if we'd like
+to implement it what would be the steps? Lets start with the following queue hierarchy and their capabilities taken from the integration tests:
 
 {% img http://yuml.me/1fe68e90 %}
 
-Assume we've submitted 2 applications, app1 to b2 and app2 to a2 (submitting applications is only allowed to leaf queues). What if app2 is
-pending for so long because of the queue capabilities and my friend's friend's friend cannot wait anymore to see his clustering's result? We could
-play with the queue capacities and max capacities, but then other apps might get scheduled, but we don't want that.
-Then we could move the app to a queue where it can get resources with a much bigger chance. To move an app to somewhere
-else in the hierarchy we have to consider and update a whole bunch of things. Let's move app1 to queue b1.
+Assume we've submitted 2 applications, **app1** to `b2` and **app2** to `a2` (submitting applications is only allowed to leaf queues). What if **app2** is
+pending for so long because of the queue capacity and my friend's friend's friend cannot wait anymore to see his data clustering result? We could play with the queue capacities and max capacities, but then other apps might get scheduled as well and we don't want that.
+Then we could move the app to a queue where it can get resources with a much higher chance. To move an app to somewhere
+else in the hierarchy we have to consider and update a whole bunch of things. Let's move **app1** to queue `b1`.
 
 Obviously we have to check if the target queue is a leaf queue and moving the app there does not violate any constraints. But how to do that?
 The first part is easy (leaf or parent), but what about the other one? It has to do something with queue capacities, but checking only the target
@@ -105,4 +103,4 @@ There are so many things implemented in these method calls it wouldn't fit here,
  * newQueue.submitApplicationAttempt(attempt, attempt.getUser());  
    Finally submit the application attempt to the queue.
 
-..ending
+As usual we always release the code as well - you can get the details from our [GitHub](https://github.com/sequenceiq) page. In case you are interested on the YARN Scheduler series make sure to follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/) or [Twitter](https://twitter.com/sequenceiq) for the upcoming posts.
