@@ -4,7 +4,7 @@ title: "Re-prioritize running jobs with YARN schedulers"
 date: 2014-07-02 10:20:05 +0200
 comments: true
 categories: [Hadoop, Scheduler]
-published: false
+published: true
 author: Krisztian Horvath
 ---
 At [SequenceIQ](http://sequenceiq.com/) we run different applications all within the same Hadoop YARN cluster. Often the deployed Hadoop stack is a multi-tenant and multi-application and runtime setup - and as usual for a scenario as such end users will try to use or book as much cluster capacity as possible. A great help for solving these problems are YARN schedulers - however in our case due to certain SLA and QoS requirements we needed to step further. We have invested a great effort to build custom YARN schedulers, learn about application insights (check our [blog post](http://blog.sequenceiq.com/blog/2014/05/01/mapreduce-job-profiling-with-R/) about how we use R to profile running jobs) and we would like to share our experience with the community. Let's dig into technical details.
