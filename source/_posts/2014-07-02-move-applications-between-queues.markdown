@@ -103,4 +103,11 @@ There are so many things implemented in these method calls it wouldn't fit here,
  * newQueue.submitApplicationAttempt(attempt, attempt.getUser());  
    Finally submit the application attempt to the queue.
 
-As usual we always release the code as well - you can get the details from our [GitHub](https://github.com/sequenceiq) page. In case you are interested on the YARN Scheduler series make sure to follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/) or [Twitter](https://twitter.com/sequenceiq) for the upcoming posts.
+As usual we always release the code as well - you can get the details from our [GitHub](https://github.com/sequenceiq) page. 
+
+Move applications between Capacity Scheduler queues [implementation](https://github.com/sequenceiq/hadoop-common/blob/branch-2.4.1/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/a/ExtendedCapacityScheduler.java#L924).
+
+Test case [implementation](https://github.com/sequenceiq/hadoop-common/blob/branch-2.4.1/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/test/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/a/TestExtendedCapacitySchedulerAppMove.java).
+
+
+In case you are interested on the YARN Scheduler series make sure to follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/) or [Twitter](https://twitter.com/sequenceiq) for the upcoming posts.
