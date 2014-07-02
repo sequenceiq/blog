@@ -37,7 +37,7 @@ to implement it what would be the steps? Lets start with the following queue hie
 {% img http://yuml.me/1fe68e90 %}
 
 Assume we've submitted 2 applications, **app1** to `b2` and **app2** to `a2` (submitting applications is only allowed to leaf queues). What if **app2** is
-pending for so long because of the queue capacity and my friend's friend's friend cannot wait anymore to see his data clustering result? We could play with the queue capacities and max capacities, but then other apps might get scheduled as well and we don't want that.
+pending for so long because of the queue capacity and my friend's friend's dog cannot wait anymore to see his data clustering result? We could play with the queue capacities and max capacities, but then other apps might get scheduled as well and we don't want that.
 Then we could move the app to a queue where it can get resources with a much higher chance. To move an app to somewhere
 else in the hierarchy we have to consider and update a whole bunch of things. Let's move **app1** to queue `b1`.
 
