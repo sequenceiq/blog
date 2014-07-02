@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Multi-node Hadoop cluster on Docker - SequenceIQ Blog</title>
+  <title>Category: Scheduler - SequenceIQ Blog</title>
   <meta name="author" content="SequenceIQ">
 
    
-  <meta name="description" content="">
+  <meta name="description" content="Category: Scheduler">
   
   <meta name="keywords" content="">
 
@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker">
+  <link rel="canonical" href="http://blog.sequenceiq.comblog/categories/scheduler">
   <link href="/favicon.png" rel="icon">
   <link href='http://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
@@ -117,201 +117,58 @@
               <div class="col-md-9" id="">
                   <div class="">
                    <!-- <div id="content">-->
-                      <div>
-<h1 class="article-style"> Multi-node Hadoop cluster on Docker </h1>
-<article class="hentry" role="article">
+                      <article role="article">
   
+ <!-- <header>
 
+    
+  </header>-->
+  
+  <div id="blog-archives" class="category">
 
-  <div class="row-fluid">
-    <div class="span12">
-      <p>In the <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/">previous post</a>
-you saw how easy is to create a single-node Hadoop <em>cluster</em> on your devbox.</p>
-
-<p>Now lets raise the bar and create a multinode Hadoop cluster on Docker. Before we
-start, make sure you have the latest Ambari image:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/ambari:latest</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>One-liner</h2>
-
-<p>Once you have the latest image, you can start running Docker containers.
-But instead of typing long commands like <code>docker run [options] image [command]</code>,
-we have created a couple of <a href="https://github.com/sequenceiq/docker-ambari/blob/master/ambari-functions">shell functions</a> to help you with Docker commands.</p>
-
-<p>Using these functions the impatient can provision a 3 node Hadoop cluster with this one-liner:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl -Lo .amb j.mp/docker-ambari && . .amb && amb-deploy-cluster</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<!-- more -->
-
-
-<p>Note that you can always alter the default parameters as the blueprint, cluster size, etc &hellip; check the shell <code>j.mp/docker-ambari</code> function&rsquo;s head for the parameters list.</p>
-
-<p>It does the following steps:</p>
-
-<ul>
-<li>runs <code>ambari-server start</code> in a daemon Docker (background) container (and also an <code>ambari-agent start</code>)</li>
-<li>runs <code>n-1</code> daemon containers with <code>ambari-agent start</code> connecting to the server</li>
-<li>runs AmbariShell with attached terminal (to see provision progress)
-
-<ul>
-<li>AmbariShell will post the built-in multi-node blueprint to <code>/api/v1/blueprints</code> REST API</li>
-<li>AmbariShell auto-assign hosts to host_groups defined in the blueprint</li>
-<li>creates a cluster, by posting to the <code>/api/v1/clusters</code> REST API</li>
-</ul>
-</li>
-</ul>
-
-
-<h2>Custom blueprint</h2>
-
-<p>If you have your own blueprint, put it into a <a href="https://gist.github.com/">gist</a>
-and you can use it from AmbariShell. First start AmbariShell:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>amb-start-cluster 2
-</span><span class='line'>amb-shell</span></code></pre></td></tr></table></div></figure>
-
-
-<p>AmbariShell will wait for:</p>
-
-<ul>
-<li>Ambari REST API
-Below you will see a happy path to create a multi node Hadoop cluster using the AmbariShell.</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>host list
-</span><span class='line'>blueprint add --url https://gist.githubusercontent.com/lalyos/xxx/raw/custum-blueprint.json
-</span><span class='line'>cluster build --blueprint custom-blueprint
-</span><span class='line'>cluster assign --hostGroup host_group_1 --host amb0.mycorp.kom
-</span><span class='line'>cluster assign --hostGroup host_group_2 --host amb1.mycorp.kom
-</span><span class='line'>cluster assign --hostGroup host_group_2 --host amb1.mycorp.kom
-</span><span class='line'>cluster create</span></code></pre></td></tr></table></div></figure>
-
-
-<p>In AmbariShell the <code>hint</code> command will always guide you on the happy path,
-and remember that devops are lazy, so instead of typing press <code>&lt;TAB&gt;</code> for autocomplete or suggestions.</p>
-
-<p>Autocomplete will help you to:</p>
-
-<ul>
-<li>complete the command in the given context (e.g. without any blueprint, cluster commands are not available)</li>
-<li>add required parameters</li>
-<li>add optional parameters: press tab after double dash <code>--&lt;TAB&gt;</code></li>
-<li>complete parameter arguments, such as blueprint names, hostnames &hellip;</li>
-</ul>
-
-
-<h2>Summary</h2>
-
-<p>Ever since we started to use Docker we are always developing against a multi-node
-Hadoop cluster &ndash; as running a 3-4 node cluster in a laptop actually has less overhead
-than working on a Sandbox VM.</p>
-
-<p>We are <em>Dockerizing</em> the Hadoop ecosystem and simplifying the provisioning
-process &ndash; watch this space or follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>
-for the latest news about <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a> &ndash; the
-open source cloud agnostic <em>Hadoop as a Service</em> API built on Docker.</p>
-
-<p>Hope this helps and simplifies your development process &ndash; let us know how it goes
-for you or if you need any help with Hadoop on Docker.</p>
-
+  
+  <div class="row">
+    <div class="col-md-1">
+  	
+  	
+  	  
+  	    <h2>2014</h2>
+  	
     </div>
-  </div>
-
-
-
-  <footer>
-    <hr>
-    
-  
-
-<span class="byline author vcard">Posted by <span class="fn">Lajos Papp</span></span>
-
-    
-    <div class="row">
-      
-      <div class="col-md-6 span6">
-        <p class="meta">
-        
-        
-
-
-
-  <a href="/blog/categories/apache-ambari/"><span class="label label-warning">Apache Ambari</span></a>
-
-  <a href="/blog/categories/devops/"><span class="label label-warning">DevOps</span></a>
-
-  <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
-
-  <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
-
-  <a href="/blog/categories/multi-node/"><span class="label label-warning">Multi-node</span></a>
-
-
-
-
-        </p>
-      </div>
-      
-      <div class="col-md-5 social-sharing pull-right">
-        <div class="sharing">
-  <div class="addthis_toolbox addthis_default_style ">
-  
-  <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
-  
-  
-  <a class="addthis_button_tweet"></a>
-  
-  
-  <a class="addthis_counter addthis_pill_style"></a>
-  </div>
-  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+    <div class="col-md-11">
+      <article>
+  	
+<div class="row">
+	<div class="col-md-2">
+		<h1 class="date-time"><time datetime="2014-07-02T08:20:05+00:00" pubdate><span class='month'>Jul</span> <span class='day'>02</span><span class='year'><!--2014--></span></time></h1>
+	</div>
+	<div class="col-md-10">
+		<h1 class="article-style"><a href="/blog/2014/07/02/move-applications-between-queues/">Re-prioritize running jobs with YARN schedulers</a></h1>
+	</div>
 </div>
 
-      </div>
-      
-      
+<div class="row">
+	<div class="col-md-2">
+	</div>
+	<div class="col-md-10">
+		
+
+		<footer class="archive">
+		  <span class="categories">posted in <a class='category' href='/blog/categories/hadoop/'>Hadoop</a>, <a class='category' href='/blog/categories/scheduler/'>Scheduler</a></span>
+		</footer>
+		
+	</div>
+</div>
+
+
+  	</article>
     </div>
-    
-    <div class="row">
-      <div class="span12">
-        <p class="meta">
-          
-            <a class="basic-alignment left" href="/blog/2014/06/17/ambari-cluster-on-docker/" title="Previous Post: Ambari provisioned Hadoop cluster on Docker">&laquo; Ambari provisioned Hadoop cluster on Docker</a>
-          
-          
-            <a class=" basic-alignment pull-right" href="/blog/2014/06/23/scalding-correlation-example/" title="Next Post: Pearson correlation with Scalding">Pearson correlation with Scalding &raquo;</a>
-          
-        </p>
-      </div>
-    </div>
-  </footer>
+  </div>
+
+</div>
+
 </article>
 
-  <section>
-    <h1>Comments</h1>
-    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-</div>
-  </section>
-
-</div>
 
 
 
@@ -473,10 +330,7 @@ for you or if you need any help with Hadoop on Docker.</p>
       var disqus_shortname = 'sequenceiqblog';
       
         
-        // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/';
-        var disqus_url = 'http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/';
-        var disqus_script = 'embed.js';
+        var disqus_script = 'count.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

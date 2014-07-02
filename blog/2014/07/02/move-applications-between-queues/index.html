@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Data cleaning with MapReduce and Morphlines - SequenceIQ Blog</title>
+  <title>Re-prioritize running jobs with YARN schedulers - SequenceIQ Blog</title>
   <meta name="author" content="SequenceIQ">
 
    
@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2014/03/11/data-cleaning-with-mapreduce-and-morphlines">
+  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues">
   <link href="/favicon.png" rel="icon">
   <link href='http://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
@@ -118,38 +118,73 @@
                   <div class="">
                    <!-- <div id="content">-->
                       <div>
-<h1 class="article-style"> Data cleaning with MapReduce and Morphlines </h1>
+<h1 class="article-style"> Re-prioritize running jobs with YARN schedulers </h1>
 <article class="hentry" role="article">
   
 
 
   <div class="row-fluid">
     <div class="span12">
-      <p>In one of our <a href="http://blog.sequenceiq.com/blog/2014/02/28/etl-and-data-quality/">previous</a> posts we showed how easy is to extend the Kite Morphlines framework with your custom commands. In this post we are going to use it to remove columns from a dataset to demonstrate how it can be used and embeded in MapReduce jobs.
-Download the MovieLens + IMDb/Rotten Tomatoes dataset from <a href="http://grouplens.org/datasets/hetrec-2011/">Grouplens</a>, extract it, and it should contain a file called user_ratedmovies.dat.
-It is a simple tsv file &ndash; we are going to use the same column names as it shows in the first line (header)</p>
+      <p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we run different applications all within the same Hadoop YARN cluster. Often the deployed Hadoop stack is a multi-tenant and multi-application and runtime setup &ndash; and as usual for a scenario as such end users will try to use or book as much cluster capacity as possible. A great help for solving these problems are YARN schedulers &ndash; however in our case due to certain SLA and QoS requirements we needed to step further. We have invested a great effort to build custom YARN schedulers, learn about application insights (check our <a href="http://blog.sequenceiq.com/blog/2014/05/01/mapreduce-job-profiling-with-R/">blog post</a> about how we use R to profile running jobs) and we would like to share our experience with the community. Let&rsquo;s dig into technical details.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p>In YARN, one of the ResourceManager&rsquo;s most important role is the scheduling (allocating available resources in the cluster) between competing applications. It doesn&rsquo;t care about per-application states nor internal flows and optimizations, but the overall resource requirements of
+each application. Currently there are 3 different scheduler implementations available: FIFO, Fair, Capacity.</p>
+
+<p>Going back a few weeks in time we blogged about how to configure the
+<a href="http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler/">CapacityScheduler</a> and use different queue
+setups. Based on the feedbacks we have received we realized that there is a lack of knowledge about how these schedulers work and many people have asked to fill that gap. Good news that we didn&rsquo;t
+forget about you. We&rsquo;re going to start a post series where we&rsquo;ll explain them a little bit detailed with fancy diagrams and code examples.</p>
+
+<p>But before doing that, let&rsquo;s visit a concrete problem we encountered while we were developing our product stack.
+We wanted to use the CapacityScheduler, but for different reasons (SLA and QoS) move the submitted applications between different queues to set a priority among them &ndash; at runtime (quick reminder: queues are either a composition of other queues or a collection of applications, forming a tree).
+Cross application priorites can&rsquo;t be configured yet, only priorities between tasks within the application. The only problem is if you check the code you&rsquo;ll find this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>userID   movieID rating  date_day  date_month  date_year date_hour  date_minute  date_second
-</span><span class='line'>75        3       1       29       10           2006      23          17          16
-</span><span class='line'>75        32      4.5     29       10           2006      23          23          44
-</span><span class='line'>75        110     4       29       10           2006      23          30          8
-</span><span class='line'>75        160     2       29       10           2006      23          16          52
-</span><span class='line'>75        163     4       29       10           2006      23          29          30
-</span><span class='line'>75        165     4.5     29       10           2006      23          25          15
-</span><span class='line'>75        173     3.5     29       10           2006      23          17          37</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">moveApplication</span><span class="o">(</span><span class="n">ApplicationId</span> <span class="n">appId</span><span class="o">,</span> <span class="n">String</span> <span class="n">newQueue</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">YarnException</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">throw</span> <span class="k">new</span> <span class="nf">YarnException</span><span class="o">(</span><span class="n">getClass</span><span class="o">().</span><span class="na">getSimpleName</span><span class="o">()</span>
+</span><span class='line'>        <span class="o">+</span> <span class="s">&quot; does not support moving apps between queues&quot;</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Let’s just pretend that we don’t need all the data from the file and remove the last 3 columns (date_hour, date_minute, date_second). We can achieve this task with the following 2 commands:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+
+<!-- more -->
+
+
+<p>Currently this operation is supported only by the FairScheduler. Why is it not implemented? Let us know in a comment and you might receive a surprise present from us :). In the meantime if we&rsquo;d like
+to implement it what would be the steps? Lets start with the following queue hierarchy and their capabilities taken from the integration tests:</p>
+
+<p><img src="http://yuml.me/1fe68e90"></p>
+
+<p>Assume we&rsquo;ve submitted 2 applications, <strong>app1</strong> to <code>b2</code> and <strong>app2</strong> to <code>a2</code> (submitting applications is only allowed to leaf queues). What if <strong>app2</strong> is
+pending for so long because of the queue capacity and my friend&rsquo;s friend&rsquo;s dog cannot wait anymore to see his data clustering result? We could play with the queue capacities and max capacities, but then other apps might get scheduled as well and we don&rsquo;t want that.
+Then we could move the app to a queue where it can get resources with a much higher chance. To move an app to somewhere
+else in the hierarchy we have to consider and update a whole bunch of things. Let&rsquo;s move <strong>app1</strong> to queue <code>b1</code>.</p>
+
+<p>Obviously we have to check if the target queue is a leaf queue and moving the app there does not violate any constraints. But how to do that?
+The first part is easy (leaf or parent), but what about the other one? It has to do something with queue capacities, but checking only the target
+queue&rsquo;s capacity is not enough, we have to go up in the hierarchy (because the parent queues also keep track the number of applications
+and resource usages) but for how deep? The lowest common ancestor of the source and target is enough, because above that nothing changes. In our
+case it&rsquo;s the <code>b</code> (b1, b2). Finding it is not that hard since the queues are declared like this:</p>
+
+<ul>
+<li>root.a.a1</li>
+<li>root.a.a2</li>
+<li>root.b.b1</li>
+<li>root.b.b2</li>
+<li>root.b.b3</li>
+</ul>
+
+
+<p>Going back until <code>b</code> and check the capacities:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -167,69 +202,28 @@ It is a simple tsv file &ndash; we are going to use the same column names as it 
 <span class='line-number'>16</span>
 <span class='line-number'>17</span>
 <span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>{
-</span><span class='line'>  readCSV {
-</span><span class='line'>          separator : "\t"
-</span><span class='line'>          columns : [userID,movieID,rating,date_day,date_month,date_year,date_hour,date_minute,date_second]
-</span><span class='line'>          ignoreFirstLine : false
-</span><span class='line'>          trim : true
-</span><span class='line'>          charset : UTF-8
-</span><span class='line'>  }
-</span><span class='line'>}  
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">CSQueue</span> <span class="n">currentQueue</span> <span class="o">=</span> <span class="n">targetQueue</span><span class="o">;</span>
+</span><span class='line'><span class="k">while</span> <span class="o">(</span><span class="n">currentQueue</span> <span class="o">!=</span> <span class="n">lowestCommonAncestor</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>  <span class="c1">// maxApps</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">currentQueue</span><span class="o">.</span><span class="na">getNumApplications</span><span class="o">()</span> <span class="o">==</span> <span class="k">this</span><span class="o">.</span><span class="na">conf</span><span class="o">.</span><span class="na">getMaximumApplicationsPerQueue</span><span class="o">(</span><span class="n">currentQueue</span><span class="o">.</span><span class="na">getQueueName</span><span class="o">()))</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">throw</span> <span class="k">new</span> <span class="nf">YarnException</span><span class="o">(</span><span class="s">&quot;Moving app attempt &quot;</span> <span class="o">+</span> <span class="n">appAttId</span> <span class="o">+</span> <span class="s">&quot; to queue &quot;</span>
+</span><span class='line'>      <span class="o">+</span> <span class="n">queueName</span> <span class="o">+</span> <span class="s">&quot; would violate queue maxApps constraints on&quot;</span>
+</span><span class='line'>      <span class="o">+</span> <span class="s">&quot; queue &quot;</span> <span class="o">+</span> <span class="n">currentQueue</span><span class="o">.</span><span class="na">getQueueName</span><span class="o">());</span>
+</span><span class='line'>  <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'>{
-</span><span class='line'>  java {
-</span><span class='line'>        imports : "import java.util.*;"
-</span><span class='line'>        code: """
-</span><span class='line'>          record.removeAll("date_hour");
-</span><span class='line'>          record.removeAll("date_minute");
-</span><span class='line'>          record.removeAll("date_second");
-</span><span class='line'>        return child.process(record);
-</span><span class='line'>  }
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<!-- more -->
-
-
-<p>Now lets create our mapper only job to process the data. What we need to do is build the Morphlines command chain by parsing the configuration file as shown</p>
-
-<figure class='code'><figcaption><span>protected void setup(Context context)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">File</span> <span class="n">morphLineFile</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="n">context</span><span class="o">.</span><span class="na">getConfiguration</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="n">MORPHLINE_FILE</span><span class="o">));</span>
-</span><span class='line'><span class="n">String</span> <span class="n">morphLineId</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getConfiguration</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="n">MORPHLINE_ID</span><span class="o">);</span>
-</span><span class='line'><span class="n">RecordEmitter</span> <span class="n">recordEmitter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">RecordEmitter</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
-</span><span class='line'><span class="n">MorphlineContext</span> <span class="n">morphlineContext</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MorphlineContext</span><span class="o">.</span><span class="na">Builder</span><span class="o">().</span><span class="na">build</span><span class="o">();</span>
-</span><span class='line'><span class="n">Command</span> <span class="n">morphline</span> <span class="o">=</span> <span class="k">new</span> <span class="n">org</span><span class="o">.</span><span class="na">kitesdk</span><span class="o">.</span><span class="na">morphline</span><span class="o">.</span><span class="na">base</span><span class="o">.</span><span class="na">Compiler</span><span class="o">().</span><span class="na">compile</span><span class="o">(</span><span class="n">morphLineFile</span><span class="o">,</span> <span class="n">morphLineId</span><span class="o">,</span> <span class="n">morphlineContext</span><span class="o">,</span> <span class="n">recordEmitter</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>and pass the lines through it.</p>
-
-<figure class='code'><figcaption><span>protected void map(Object key, Text value, Context context)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Record</span> <span class="n">record</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Record</span><span class="o">()</span>
-</span><span class='line'><span class="n">record</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">Fields</span><span class="o">.</span><span class="na">ATTACHMENT_BODY</span><span class="o">,</span> <span class="k">new</span> <span class="n">ByteArrayInputStream</span><span class="o">(</span><span class="n">value</span><span class="o">.</span><span class="na">toString</span><span class="o">().</span><span class="na">getBytes</span><span class="o">()));</span>
-</span><span class='line'><span class="k">if</span> <span class="o">(!</span><span class="n">morphline</span><span class="o">.</span><span class="na">process</span><span class="o">(</span><span class="n">record</span><span class="o">))</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">LOGGER</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&quot;Morphline failed to process record: {}&quot;</span><span class="o">,</span> <span class="n">record</span><span class="o">);</span>
+</span><span class='line'>  <span class="c1">// maxCapacity</span>
+</span><span class='line'>  <span class="kt">float</span> <span class="n">potentialNewCapacity</span> <span class="o">=</span> <span class="n">Resources</span><span class="o">.</span><span class="na">divide</span><span class="o">(</span><span class="n">calculator</span><span class="o">,</span> <span class="n">clusterResource</span><span class="o">,</span> <span class="n">Resources</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">currentQueue</span><span class="o">.</span><span class="na">getUsedResources</span><span class="o">(),</span> <span class="n">consumption</span><span class="o">),</span> <span class="n">clusterResource</span><span class="o">);</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">potentialNewCapacity</span> <span class="o">&gt;=</span> <span class="n">currentQueue</span><span class="o">.</span><span class="na">getAbsoluteMaximumCapacity</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">throw</span> <span class="k">new</span> <span class="nf">YarnException</span><span class="o">(</span><span class="s">&quot;Moving app attempt &quot;</span> <span class="o">+</span> <span class="n">appAttId</span> <span class="o">+</span> <span class="s">&quot; to queue &quot;</span>
+</span><span class='line'>      <span class="o">+</span> <span class="n">queueName</span> <span class="o">+</span> <span class="s">&quot; would violate queue maxCapacity constraints on&quot;</span>
+</span><span class='line'>      <span class="o">+</span> <span class="s">&quot; queue &quot;</span> <span class="o">+</span> <span class="n">currentQueue</span><span class="o">.</span><span class="na">getQueueName</span><span class="o">());</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="n">currentQueue</span> <span class="o">=</span> <span class="n">currentQueue</span><span class="o">.</span><span class="na">getParent</span><span class="o">();</span>
 </span><span class='line'><span class="o">}</span>
-</span><span class='line'><span class="n">record</span><span class="o">.</span><span class="na">removeAll</span><span class="o">(</span><span class="n">Fields</span><span class="o">.</span><span class="na">ATTACHMENT_BODY</span><span class="o">);</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Notice that the compile method takes an important parameter called finalChild which is in our example the <code>RecordEmitter</code>.
-The returned command will feed records into finalChild which means if this parameter is not provided a DropRecord command will
-be assigned automatically. In Apache Flume there is a Collector command to avoid loosing any transformed record.
-The only thing left is to outbox the processed record and write the results to HDFS. The RecordEmitter will serve this purpose:</p>
+<p>If everything is fine we can execute the movement.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -238,35 +232,41 @@ The only thing left is to outbox the processed record and write the results to H
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
-</span><span class='line'><span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">process</span><span class="o">(</span><span class="n">Record</span> <span class="n">record</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">line</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">record</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
-</span><span class='line'>  <span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">context</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">line</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
-</span><span class='line'>  <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">LOGGER</span><span class="o">.</span><span class="na">warn</span><span class="o">(</span><span class="s">&quot;Cannot write record to context&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>  <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="kt">void</span> <span class="nf">executeMove</span><span class="o">(</span><span class="n">SchedulerApplication</span> <span class="n">app</span><span class="o">,</span> <span class="n">FiCaSchedulerApp</span> <span class="n">attempt</span><span class="o">,</span> <span class="n">LeafQueue</span> <span class="n">oldQueue</span><span class="o">,</span> <span class="n">LeafQueue</span> <span class="n">newQueue</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">oldQueue</span><span class="o">.</span><span class="na">removeApplicationAttempt</span><span class="o">(</span><span class="n">attempt</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">attempt</span><span class="o">.</span><span class="na">move</span><span class="o">(</span><span class="n">newQueue</span><span class="o">);</span> <span class="c1">// This updates all the queue metrics &#39;til the parent</span>
+</span><span class='line'>    <span class="n">app</span><span class="o">.</span><span class="na">setQueue</span><span class="o">(</span><span class="n">newQueue</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">newQueue</span><span class="o">.</span><span class="na">trackApplications</span><span class="o">(</span><span class="n">attempt</span><span class="o">.</span><span class="na">getApplicationId</span><span class="o">(),</span> <span class="n">attempt</span><span class="o">.</span><span class="na">getUser</span><span class="o">());</span>
+</span><span class='line'>    <span class="n">newQueue</span><span class="o">.</span><span class="na">submitApplicationAttempt</span><span class="o">(</span><span class="n">attempt</span><span class="o">,</span> <span class="n">attempt</span><span class="o">.</span><span class="na">getUser</span><span class="o">());</span>
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>By default the readCSV command extracts the ATTACHMENT_BODY into headers with id provided in the columns field so the
-transformed data will look like this (3 columns were dropped):</p>
+<p>There are so many things implemented in these method calls it wouldn&rsquo;t fit here, but it serves the purpose here as pseudo code.</p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="o">{</span><span class="n">date_day</span><span class="o">=[</span><span class="mi">10</span><span class="o">],</span> <span class="n">date_month</span><span class="o">=[</span><span class="mi">10</span><span class="o">],</span> <span class="n">date_year</span><span class="o">=[</span><span class="mi">2008</span><span class="o">],</span> <span class="n">movieID</span><span class="o">=[</span><span class="mi">62049</span><span class="o">],</span> <span class="n">rating</span><span class="o">=[</span><span class="mf">4.5</span><span class="o">],</span> <span class="n">userID</span><span class="o">=[</span><span class="mi">71534</span><span class="o">]}</span>
-</span></code></pre></td></tr></table></div></figure>
+<ul>
+<li><p>oldQueue.removeApplicationAttempt(attempt);<br/>
+Remove the application from the active and pending list. Notify the parents that an app has been removed.</p></li>
+<li><p>attempt.move(newQueue);<br/>
+Update the queue metrics upwards to root.</p></li>
+<li><p>app.setQueue(newQueue);<br/>
+Set the target queue in the app.</p></li>
+<li><p>newQueue.trackApplications(attempt.getApplicationId(), attempt.getUser());<br/>
+Notify the parents that a new application has been moved here.</p></li>
+<li><p>newQueue.submitApplicationAttempt(attempt, attempt.getUser());<br/>
+Finally submit the application attempt to the queue.</p></li>
+</ul>
 
 
-<p>The source code is available in our samples repository on <a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub</a>.
-It is just a simple example but you can go further and download a much bigger dataset with 10 millions of lines and process it with multiple nodes to see how it scales.</p>
+<p>As usual we always release the code as well &ndash; you can get the details from our <a href="https://github.com/sequenceiq">GitHub</a> page.</p>
 
-<p>Enjoy,
-SequenceIQ</p>
+<ul>
+<li><p>Move applications between Capacity Scheduler queues <a href="https://github.com/sequenceiq/hadoop-common/blob/branch-2.4.1/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/a/ExtendedCapacityScheduler.java#L924">implementation</a>.</p></li>
+<li><p>Test case <a href="https://github.com/sequenceiq/hadoop-common/blob/branch-2.4.1/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/test/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/a/TestExtendedCapacitySchedulerAppMove.java">implementation</a>.</p></li>
+</ul>
+
+
+<p>In case you are interested on the YARN Scheduler series make sure to follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a> or <a href="https://twitter.com/sequenceiq">Twitter</a> for the upcoming posts.</p>
 
     </div>
   </div>
@@ -290,15 +290,9 @@ SequenceIQ</p>
 
 
 
-  <a href="/blog/categories/data-cleaning/"><span class="label label-warning">Data cleaning</span></a>
+  <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
 
-  <a href="/blog/categories/etl/"><span class="label label-warning">ETL</span></a>
-
-  <a href="/blog/categories/hdfs/"><span class="label label-warning">HDFS</span></a>
-
-  <a href="/blog/categories/mapreduce/"><span class="label label-warning">MapReduce</span></a>
-
-  <a href="/blog/categories/morphline/"><span class="label label-warning">Morphline</span></a>
+  <a href="/blog/categories/scheduler/"><span class="label label-warning">Scheduler</span></a>
 
 
 
@@ -330,10 +324,8 @@ SequenceIQ</p>
       <div class="span12">
         <p class="meta">
           
-            <a class="basic-alignment left" href="/blog/2014/03/07/read-from-hdfs/" title="Previous Post: HDFS and java.nio.channels">&laquo; HDFS and java.nio.channels</a>
+            <a class="basic-alignment left" href="/blog/2014/06/25/hadoop-2-4-0-docker/" title="Previous Post: Apache Hadoop 2.4.1 on Docker">&laquo; Apache Hadoop 2.4.1 on Docker</a>
           
-          
-            <a class=" basic-alignment pull-right" href="/blog/2014/03/14/yarn-capacity-scheduler/" title="Next Post: YARN Capacity Scheduler">YARN Capacity Scheduler &raquo;</a>
           
         </p>
       </div>
@@ -510,8 +502,8 @@ SequenceIQ</p>
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2014/03/11/data-cleaning-with-mapreduce-and-morphlines/';
-        var disqus_url = 'http://blog.sequenceiq.com/blog/2014/03/11/data-cleaning-with-mapreduce-and-morphlines/';
+        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues/';
+        var disqus_url = 'http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues/';
         var disqus_script = 'embed.js';
       
     (function () {
