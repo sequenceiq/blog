@@ -4,7 +4,7 @@
   <title><![CDATA[Category: nsenter | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/nsenter/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-07-05T13:42:16+00:00</updated>
+  <updated>2014-07-05T14:00:56+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -32,7 +32,14 @@ is a bit trickier.</p>
 <p>For the impatient here is a simple function, which lets you enter any docker
 container directly from OS X (or any boot2docker host):</p>
 
-<p><code>
+<p><em>one-liner</em> function installer
+<code>
+curl -Lo /tmp/docker-enter j.mp/docker-enter &amp;&amp; . /tmp/docker-enter
+</code></p>
+
+<p>or you can copy-paste it as a more readable <em>two-liner</em> function into your <code>~/.profile</code> or <code>~/.bash_profile</code>
+for permanent use:
+<code>
 docker-enter() {
   boot2docker ssh '[ -f /var/lib/boot2docker/nsenter ] || (docker run --rm -v /var/lib/boot2docker/:/target jpetazzo/nsenter ; sudo curl -Lo /var/lib/boot2docker/docker-enter https://raw.githubusercontent.com/jpetazzo/nsenter/master/docker-enter )'
   boot2docker ssh -t sudo /var/lib/boot2docker/docker-enter "$@"
