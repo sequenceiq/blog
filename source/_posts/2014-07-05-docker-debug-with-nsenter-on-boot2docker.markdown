@@ -22,6 +22,13 @@ is a bit trickier.
 For the impatient here is a simple function, which lets you enter any docker
 container directly from OS X (or any boot2docker host):
 
+*one-liner* function installer
+```
+curl -Lo /tmp/docker-enter j.mp/docker-enter && . /tmp/docker-enter
+```
+
+or you can copy-paste it as a more readable *two-liner* function into your `~/.profile` or `~/.bash_profile`
+for permanent use:
 ```
 docker-enter() {
   boot2docker ssh '[ -f /var/lib/boot2docker/nsenter ] || (docker run --rm -v /var/lib/boot2docker/:/target jpetazzo/nsenter ; sudo curl -Lo /var/lib/boot2docker/docker-enter https://raw.githubusercontent.com/jpetazzo/nsenter/master/docker-enter )'
