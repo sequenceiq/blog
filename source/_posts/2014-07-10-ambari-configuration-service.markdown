@@ -16,7 +16,7 @@ At Sequenceiq we use Ambari for building on-demand YARN clusters (see the relate
 
 To overcome the configuration maintenance problem in YARN client applications, we implemented an Ambari REST client application that embedded in client applications can dynamically retrieve configuration from an Ambari instance. Thus the only thing needed for an application to have the proper configuration is the access to the Ambari instance.
 
-The Ambari REST client is an open source project we developed while working on the Apache Ambari - it's a Groovy REST client used by the [Ambari Shell](https://github.com/sequenceiq/ambari-shell) and [Cloudbreak](http://docs.cloudbreak.apiary.io/).
+The Ambari REST client is an open source project we developed and contributed to Apache Ambari - it's a Groovy REST client used by the [Ambari Shell](https://github.com/sequenceiq/ambari-shell) and [Cloudbreak](http://docs.cloudbreak.apiary.io/).
 
 <!-- more -->
 
