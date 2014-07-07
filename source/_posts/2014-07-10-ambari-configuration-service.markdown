@@ -63,4 +63,7 @@ _Note: Apart of the ```getServiceConfigMap() ``` method you'll find a few intere
 You can get the Ambari client code from the [SequenceIQ GitHub repository](https://github.com/sequenceiq/ambari-rest-client)
 (Clone it, build it and add it as a dependency to your project).
 
-If you'd like to play with a "real" Ambari managed cluster check out [this](http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/) blogpost.
+If you'd like to play with a "real" Ambari managed cluster check out [this](http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/) older blogp ost as well.
+
+
+Let us know how it works for you - for updates follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
