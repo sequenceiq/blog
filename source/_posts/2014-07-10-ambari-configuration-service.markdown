@@ -8,7 +8,7 @@ published: false
 author: Laszlo Puskas
 ---
 
-At SequenceIQ we use Apache Ambari for provisioning, managing, and monitoring Apache Hadoop clusters on different environments. However Ambari has more than these - especially for us who frequently build (automated) large on-demand Hadoop clusters in cloud environments and submit different applications into. These Hadoop clusters carry different components, configurations and services - think of dev->test->UAT->PROD cluster lifecycles, different settings, SLA's, etc).
+At SequenceIQ we use Apache Ambari for provisioning, managing, and monitoring Apache Hadoop clusters on different environments. However Ambari has more useful features than these - especially for us who automate and frequently build on-demand Hadoop clusters in cloud environments and submit different applications into. These Hadoop clusters carry different components, configurations and services - think of dev->test->UAT->PROD cluster lifecycles, different settings, SLA's, etc).
 
 Configuration of applications that use dynamically built YARN clusters can be challenging. This is due to the huge amount of configuration properties, some of which needs to be kept in sync on YARN client application side. Think of _yarn.resourcemanager.address_, _fs.defaultFS_ to name a few. Each time these cluster specific entries change, client applications needs to be reconfigured. Those who ever played with clusters where the default properties are overridden know what this means...
 
@@ -58,12 +58,11 @@ public Configuration getConfiguration() {
     }
 }
 ```
-_Note: Apart of the ```getServiceConfigMap() ``` method you'll find a few interesting and useful operations_
+_Note: Apart from the ```getServiceConfigMap() ``` method you'll find a few interesting and useful operations_
 
-You can get the Ambari client code from the [SequenceIQ GitHub repository](https://github.com/sequenceiq/ambari-rest-client)
-(Clone it, build it and add it as a dependency to your project).
+You can get the Ambari client code from the [SequenceIQ GitHub repository](https://github.com/sequenceiq/ambari-rest-client) - clone it, build it and add it as a dependency to your project.
 
-If you'd like to play with a "real" Ambari managed cluster check out [this](http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/) older blogp ost as well.
+If you'd like to play with a real multi-node Ambari managed cluster check out [this](http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/) older blog post - this will set you up with a Hadoop cluster in less than 2 minutes / one-click.
 
 
 Let us know how it works for you - for updates follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
