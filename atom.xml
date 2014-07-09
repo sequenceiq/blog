@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-07-09T14:02:10+00:00</updated>
+  <updated>2014-07-09T14:07:40+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,107 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Ambari configuration service]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service/"/>
+    <updated>2014-07-09T08:20:05+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service</id>
+    <content type="html"><![CDATA[<p>At SequenceIQ we use Apache Ambari for provisioning, managing, and monitoring Apache Hadoop clusters on different environments. However Ambari has more useful features than these &ndash; especially for us who automate and frequently build on-demand Hadoop clusters in cloud environments and submit different applications into. These Hadoop clusters carry different components, configurations and services &ndash; think of dev->test->UAT->PROD cluster lifecycles, different settings, SLA&rsquo;s, etc).</p>
+
+<p>Configuration of applications that use dynamically built YARN clusters can be challenging. This is due to the huge amount of configuration properties, some of which needs to be kept in sync on YARN client application side. Think of <em>yarn.resourcemanager.address</em>, <em>fs.defaultFS</em>, <em>yarn.resourcemanager.scheduler.address</em> to name a few. Each time these cluster specific entries change, client applications needs to be reconfigured. Those who ever played with clusters where the default properties are overridden know what this means&hellip;</p>
+
+<p>At Sequenceiq we use Ambari for building on-demand YARN clusters (see the related <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/"> blog post</a>). In our case Ambari not only maintains the configuration of the cluster it manages but also provides access to them through a set of REST resources.</p>
+
+<p>To overcome the configuration maintenance problem in YARN client applications, we implemented an Ambari REST client application that embedded in client applications can dynamically retrieve configuration from an Ambari instance. Thus the only thing needed for an application to have the proper configuration is the access to the Ambari instance.</p>
+
+<p>The Ambari REST client is an open source project we developed and contributed to Apache Ambari &ndash; it&rsquo;s a Groovy REST client used by the <a href="https://github.com/sequenceiq/ambari-shell">Ambari Shell</a> and <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a>.</p>
+
+<!-- more -->
+
+
+<p>Here is a short example on how to make use of the Ambari client in an arbitrary application:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">AmbariConfigurationService</span> <span class="o">{</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="kd">private</span> <span class="n">AmbariClient</span> <span class="n">ambariClient</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="nf">AmbariConfigurationService</span><span class="o">(){</span>
+</span><span class='line'>  <span class="c1">// inject / provide the service with the ambari related properties</span>
+</span><span class='line'>  <span class="n">ambariClient</span> <span class="o">=</span> <span class="k">new</span> <span class="n">AmbariClient</span><span class="o">(</span><span class="n">ambariHost</span><span class="o">,</span> <span class="n">ambariPort</span><span class="o">,</span> <span class="n">ambariUser</span><span class="o">,</span> <span class="n">ambariPass</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// list with the properties needed by the application</span>
+</span><span class='line'><span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">configList</span> <span class="o">=</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="s">&quot;mapreduce.framework.name&quot;</span><span class="o">,</span> <span class="s">&quot;yarn.resourcemanager.address&quot;</span><span class="o">,</span> <span class="s">&quot;hbase.zookeeper.quorum&quot;</span> <span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// assembles a Configuration instance with the properties needed by the application</span>
+</span><span class='line'><span class="kd">public</span> <span class="n">Configuration</span> <span class="nf">getConfiguration</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">//  use this constructor to avoid loading of properties from the classpath!</span>
+</span><span class='line'>        <span class="n">Configuration</span> <span class="n">configuration</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Configuration</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Map with service specific configuration. The keys are service names: eg.: yarn-site, hbase-site, global ...</span>
+</span><span class='line'>        <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">serviceConfigMap</span> <span class="o">=</span> <span class="n">ambariClient</span><span class="o">.</span><span class="na">getServiceConfigMap</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">for</span> <span class="o">(</span><span class="n">Map</span><span class="o">.</span><span class="na">Entry</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">serviceEntry</span> <span class="o">:</span> <span class="n">serviceConfigMap</span><span class="o">.</span><span class="na">entrySet</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">for</span> <span class="o">(</span><span class="n">Map</span><span class="o">.</span><span class="na">Entry</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">configEntry</span> <span class="o">:</span> <span class="n">serviceEntry</span><span class="o">.</span><span class="na">getValue</span><span class="o">().</span><span class="na">entrySet</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">configList</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">configEntry</span><span class="o">.</span><span class="na">getKey</span><span class="o">()))</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">configuration</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">configEntry</span><span class="o">.</span><span class="na">getKey</span><span class="o">(),</span> <span class="n">configEntry</span><span class="o">.</span><span class="na">getValue</span><span class="o">());</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// decorate the config with application specific entries, like &quot;dfs.client.use.legacy.blockreader&quot;, &quot;mapreduce.job.user.classpath.first&quot;</span>
+</span><span class='line'>        <span class="n">decorateConfiguration</span><span class="o">(</span><span class="n">configuration</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="n">configuration</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><em>Note: Apart from the <code>getServiceConfigMap()</code> method you&rsquo;ll find a few interesting and useful operations</em></p>
+
+<p>You can get the Ambari client code from the <a href="https://github.com/sequenceiq/ambari-rest-client">SequenceIQ GitHub repository</a> &ndash; clone it, build it and add it as a dependency to your project.</p>
+
+<p>If you&rsquo;d like to play with a real multi-node Ambari managed cluster check out <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">this</a> older blog post &ndash; this will set you up with a Hadoop cluster in less than 2 minutes / one-click.</p>
+
+<p>Let us know how it works for you &ndash; for updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Docker debug with nsenter on boot2docker]]></title>
@@ -2535,126 +2636,6 @@ transformed data will look like this (3 columns were dropped):</p>
 It is just a simple example but you can go further and download a much bigger dataset with 10 millions of lines and process it with multiple nodes to see how it scales.</p>
 
 <p>Enjoy,
-SequenceIQ</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[HDFS and java.nio.channels]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/03/07/read-from-hdfs/"/>
-    <updated>2014-03-07T08:12:44+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/03/07/read-from-hdfs</id>
-    <content type="html"><![CDATA[<p>Many times there is a need to access files or interact with HDFS from Java applications or libraries. Hadoop has built in many tools in order to work or interact with HDFS &ndash; however in case you&rsquo;d like to read into a content of a file remotely (e.g. retrieve the headers of a CSV/TSV file) random exceptions can occurs. One of these remote exceptions coming from the HDFS NameNode is a <em>java.io.IOException: File /user/abc/xyz/ could only be replicated to 0 nodes, instead of 1.</em></p>
-
-<p>Such an exception can be reproduced by the following code snippet:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>java BufferedInputStream bufferedInputStream
-</span><span class='line'>
-</span><span class='line'>/**
-</span><span class='line'> * For the sake of readability, try/cacth/finally blocks are removed 
-</span><span class='line'> * Don't Say We Didn't Warn You
-</span><span class='line'> */
-</span><span class='line'>
-</span><span class='line'>FileSystem fs = FileSystem.get(configuration);
-</span><span class='line'>          Path filePath = getFilePath(dataPath);
-</span><span class='line'>
-</span><span class='line'>BufferedInputStream bufferedInputStream = new BufferedInputStream(fs.open(filePath));
-</span><span class='line'>  listReader = new CsvListReader(new BufferedReader(new InputStreamReader(bufferedInputStream)),
-</span><span class='line'>                      CsvPreference.STANDARD_PREFERENCE);
-</span><span class='line'>                     </span></code></pre></td></tr></table></div></figure>
-
-
-<p>The exception looks like this:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ERROR SimpleFeatureSelector:67 - Exception {}
-</span><span class='line'>java.lang.IllegalStateException: Must not use direct buffers with InputStream API
-</span><span class='line'>  at com.google.common.base.Preconditions.checkState(Preconditions.java:176)
-</span><span class='line'>  at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.doReadFully(PacketReceiver.java:211)
-</span><span class='line'>  at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.doRead(PacketReceiver.java:134)
-</span><span class='line'>  at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.receiveNextPacket(PacketReceiver.java:102)
-</span><span class='line'>  at org.apache.hadoop.hdfs.RemoteBlockReader2.readNextPacket(RemoteBlockReader2.java:170)</span></code></pre></td></tr></table></div></figure>
-
-
-<p><em>Note: actually all HDFS operations fail in case of the underlying input stream does not have a readable channel (check the java.nio.channels package. RemoteBlockReader2 needs channel based inputstreams to deal with direct buffers.</em></p>
-
-<!-- more -->
-
-
-<p>Digging into details and checking the Hadoop 2.2 source code we find the followings:</p>
-
-<p>Through the<code>org.apache.hadoop.hdfs.BlockReaderFactory</code> you can get access to a BlockReader implementation like <code>org.apache.hadoop.hdfs.RemoteBlockReader2</code>, which it is responsible for reading a single block from a single datanode.</p>
-
-<p>The blockreader is retrieved in the following way:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">&quot;deprecation&quot;</span><span class="o">)</span>
-</span><span class='line'><span class="kd">public</span> <span class="kd">static</span> <span class="n">BlockReader</span> <span class="nf">newBlockReader</span><span class="o">(</span>
-</span><span class='line'>                                     <span class="n">Conf</span> <span class="n">conf</span><span class="o">,</span>
-</span><span class='line'>                               <span class="n">Socket</span> <span class="n">sock</span><span class="o">,</span> <span class="n">String</span> <span class="n">file</span><span class="o">,</span>
-</span><span class='line'>                                     <span class="n">ExtendedBlock</span> <span class="n">block</span><span class="o">,</span>
-</span><span class='line'>                                     <span class="n">Token</span><span class="o">&lt;</span><span class="n">BlockTokenIdentifier</span><span class="o">&gt;</span> <span class="n">blockToken</span><span class="o">,</span>
-</span><span class='line'>                                     <span class="kt">long</span> <span class="n">startOffset</span><span class="o">,</span> <span class="kt">long</span> <span class="n">len</span><span class="o">,</span>
-</span><span class='line'>                                     <span class="kt">int</span> <span class="n">bufferSize</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">verifyChecksum</span><span class="o">,</span>
-</span><span class='line'>                                     <span class="n">String</span> <span class="n">clientName</span><span class="o">)</span>
-</span><span class='line'>                                     <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">conf</span><span class="o">.</span><span class="na">useLegacyBlockReader</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">return</span> <span class="n">RemoteBlockReader</span><span class="o">.</span><span class="na">newBlockReader</span><span class="o">(</span>
-</span><span class='line'>          <span class="n">sock</span><span class="o">,</span> <span class="n">file</span><span class="o">,</span> <span class="n">block</span><span class="o">,</span> <span class="n">blockToken</span><span class="o">,</span> <span class="n">startOffset</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span> <span class="n">bufferSize</span><span class="o">,</span> <span class="n">verifyChecksum</span><span class="o">,</span> <span class="n">clientName</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">return</span> <span class="n">RemoteBlockReader2</span><span class="o">.</span><span class="na">newBlockReader</span><span class="o">(</span>
-</span><span class='line'>          <span class="n">sock</span><span class="o">,</span> <span class="n">file</span><span class="o">,</span> <span class="n">block</span><span class="o">,</span> <span class="n">blockToken</span><span class="o">,</span> <span class="n">startOffset</span><span class="o">,</span> <span class="n">len</span><span class="o">,</span> <span class="n">bufferSize</span><span class="o">,</span> <span class="n">verifyChecksum</span><span class="o">,</span> <span class="n">clientName</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>In order to avoid the exception and use the right version of the block reader, the followin property <code>conf.useLegacyBlockReader</code> should be TRUE.</p>
-
-<p>Long story short, the configuration set of a job should be set to: <code>configuration.set("dfs.client.use.legacy.blockreader", "true")</code>.</p>
-
-<p>Unluckily in all cases when interacting with HDFS, and the underlying input stream does not have a readable channel, you can&rsquo;t use the <em>RemoteBlockReader2</em> implementation, but you have to fall back to the old legacy <em>RemoteBlockReader</em>.</p>
-
-<p>Hope this helps,
 SequenceIQ</p>
 ]]></content>
   </entry>

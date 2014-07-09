@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Ambari provisioned Hadoop cluster on Docker - SequenceIQ Blog</title>
+  <title>Apache Ambari configuration service - SequenceIQ Blog</title>
   <meta name="author" content="SequenceIQ">
 
    
@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker">
+  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service">
   <link href="/favicon.png" rel="icon">
   <link href='http://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
@@ -118,168 +118,106 @@
                   <div class="">
                    <!-- <div id="content">-->
                       <div>
-<h1 class="article-style"> Ambari provisioned Hadoop cluster on Docker </h1>
+<h1 class="article-style"> Apache Ambari configuration service </h1>
 <article class="hentry" role="article">
   
 
 
   <div class="row-fluid">
     <div class="span12">
-      <p>We are getting close to release and open source our <strong>Docker-based Hadoop Provisioning</strong> project.
-The <a href="http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning">slides</a>
-were presented recently at the <a href="http://hadoopsummit.org/san-jose/">Hadoop Summit</a>, and
-there is an interest from the community to learn the technical details.</p>
+      <p>At SequenceIQ we use Apache Ambari for provisioning, managing, and monitoring Apache Hadoop clusters on different environments. However Ambari has more useful features than these &ndash; especially for us who automate and frequently build on-demand Hadoop clusters in cloud environments and submit different applications into. These Hadoop clusters carry different components, configurations and services &ndash; think of dev->test->UAT->PROD cluster lifecycles, different settings, SLA&rsquo;s, etc).</p>
 
-<p>The project &ndash; called <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a> &ndash; will provide a REST API to provision a Hadoop cluster &ndash; anywhere. The cluster can be hosted
-on AWS EC2, Azure, physical servers or even your laptop &ndash; we are adding more providers &ndash; but always based on the same concept:
-<a href="http://ambari.apache.org/">Apache Ambari</a> managed <a href="http://www.docker.com/">Docker</a>
-containers.</p>
+<p>Configuration of applications that use dynamically built YARN clusters can be challenging. This is due to the huge amount of configuration properties, some of which needs to be kept in sync on YARN client application side. Think of <em>yarn.resourcemanager.address</em>, <em>fs.defaultFS</em>, <em>yarn.resourcemanager.scheduler.address</em> to name a few. Each time these cluster specific entries change, client applications needs to be reconfigured. Those who ever played with clusters where the default properties are overridden know what this means&hellip;</p>
 
-<p>This blog entry is the first in a series, where we describe the Docker layer step-by-step:</p>
+<p>At Sequenceiq we use Ambari for building on-demand YARN clusters (see the related <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/"> blog post</a>). In our case Ambari not only maintains the configuration of the cluster it manages but also provides access to them through a set of REST resources.</p>
 
-<ul>
-<li>Single-node Docker based Hadoop &ldquo;cluster&rdquo; locally</li>
-<li>Multi-node Docker based Hadoop cluster</li>
-<li>Multi-node Docker based Hadoop cluster on EC2</li>
-<li>Cloudbreak</li>
-</ul>
+<p>To overcome the configuration maintenance problem in YARN client applications, we implemented an Ambari REST client application that embedded in client applications can dynamically retrieve configuration from an Ambari instance. Thus the only thing needed for an application to have the proper configuration is the access to the Ambari instance.</p>
 
-
-<h2>Get Docker</h2>
-
-<p>The only required software is Docker, so if you don&rsquo;t have it yet, jump to the
-installation section of the <a href="https://docs.docker.com/installation/">official documentation</a>.</p>
-
-<p>The very basic you need to work with Docker containers, is described in the
-<a href="https://docs.docker.com/userguide/dockerizing/">users guide</a>.</p>
-
-<h2>Single-node Cluster</h2>
-
-<p>All setup is based on <a href="https://hub.docker.com/u/sequenceiq/">Docker images</a> only
-the glue-code is different. Let&rsquo;s start with the most simple setup:</p>
-
-<ul>
-<li>start the first Docker container in the background that runs <strong>ambari-server</strong> and <strong>ambari-agent</strong>.</li>
-<li>start the second Docker container which:
-
-<ul>
-<li>waits for the agent connecting to the server</li>
-<li>starts an <a href="https://github.com/sequenceiq/ambari-shell">ambari-shell</a>, which will instruct ambari-server on its REST API:
-
-<ul>
-<li>define an <strong><a href="https://cwiki.apache.org/confluence/display/AMBARI/Blueprints">Ambari Blueprint</a></strong> by posting a JSON to <code>&lt;AMBARI_URL&gt;/api/v1/blueprints</code></li>
-<li>create a Hadoop cluster by posting a JSON to <code>&lt;AMBARI_URL&gt;/api/v1/clusters</code> using the blueprint created in the previous step</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/ambari --tag ambari-server=true
-</span><span class='line'>docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -t --rm --entrypoint /bin/sh sequenceiq/ambari -c /tmp/install-cluster.sh</span></code></pre></td></tr></table></div></figure>
-
-
-<p>or if you want a <strong>twitter-sized</strong> one-liner to start with Hadoop in less than a minute:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl -LOs j.mp/ambari-singlenode && . ambari-singlenode</span></code></pre></td></tr></table></div></figure>
-
-
-
+<p>The Ambari REST client is an open source project we developed and contributed to Apache Ambari &ndash; it&rsquo;s a Groovy REST client used by the <a href="https://github.com/sequenceiq/ambari-shell">Ambari Shell</a> and <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a>.</p>
 
 <!-- more -->
 
 
-<p>When you pull the <code>sequenceiq/ambari</code> image first it will take a couple of minutes (for me it was 4 minutes).
-Meanwhile you have started and running the download let&rsquo;s explain all those parameters.</p>
+<p>Here is a short example on how to make use of the Ambari client in an arbitrary application:</p>
 
-<h2>First container: ambari-server and ambari-agent</h2>
-
-<p>Let&rsquo;s break down the parameters of the first container:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/ambari --tag ambari-server=true</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li><strong>-d</strong> : Detached mode, container runs in the background</li>
-<li><strong>-p 8080</strong> : Publish ambari web and REST API port</li>
-<li><strong>-h amb0.mycorp.kom</strong> : hostname</li>
-<li><strong>&mdash;name ambari-singlenode</strong> : assign a name to the container</li>
-<li><strong>sequenceiq/ambari</strong> : the name of the image</li>
-<li><strong>&mdash;tag ambari-server=true</strong> : the <em>command</em> but please note that this is appended to the <em>entrypoint</em>.</li>
-</ul>
-
-
-<p>The default <em>entrypoint</em> of the image is <code>start-serf-agent.sh</code>
-<a href="https://github.com/sequenceiq/docker-ambari/blob/master/ambari-server/Dockerfile#L24">see the Dockerfile</a>
-so the <code>--tag ambari-server=true</code> command is actually an argument of the <a href="http://www.serfdom.io/">serf agent</a>.</p>
-
-<h3>Serf</h3>
-
-<p>What is <a href="http://www.serfdom.io/">Serf</a>? The definition goes like:</p>
-
-<blockquote><p>Serf is a decentralized solution for cluster membership, failure detection, and orchestration. Lightweight and highly available.</p></blockquote>
-
-<p>Right now it doesn&rsquo;t seem to make any sense to talk about membership and cluster, but remember we want to
-have the exact same process/tools for dev env and production.</p>
-
-<p>The only Serf feature we use at this point is that you can define shell scripts based <strong>event-handlers</strong> for
-each membership events:</p>
-
-<ul>
-<li>member-join</li>
-<li>member-failed</li>
-<li>member-leave</li>
-<li>member-xxx</li>
-</ul>
-
-
-<p>The <strong>member-join</strong> event-handler script will check the Serf tags, defined by <code>--tag name=value</code>
-and will start:
- &ndash; ambari-server java process: if the <strong>ambari-server</strong> tag is <strong>true</strong>
- &ndash; ambari-agent python process: if the <strong>ambari-agent</strong> tag is <strong>true</strong></p>
-
-<p>You might noted that only the <strong>ambari-server</strong> tag is defined. The reason is that <strong>ambari-agent</strong> is defined as <strong>true</strong> by default.</p>
-
-<h2>Second container: ambari-shell</h2>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -t --rm --entrypoint /bin/sh sequenceiq/ambari -c /tmp/install-cluster.sh</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li><strong>-e BLUEPRINT=single-node-hdfs-yarn</strong> : the template to use for the cluster (single-node-hdfs-yarn/multi-node-hdfs-yarn/lambda-architecture) <a href="https://github.com/sequenceiq/ambari-rest-client/tree/master/src/main/resources/blueprints">see the blueprint JSON on GitHub</a></li>
-<li><strong>&mdash;link ambari-singlenode:ambariserver </strong> :  it will make all exposed ports and the private IP of <code>ambari-singlenode</code> available as <code>AMBARISERVER_xxx</code> env variables</li>
-<li><strong>-t</strong> : pseudo terminal, to see the progress</li>
-<li><strong>&mdash;rm</strong> : remove the container once it&rsquo;s finished</li>
-<li><strong>&mdash;entrypoint /bin/sh</strong> : the default entrypoint runs the shell in interactive mode, we want to overwrite it with a script specified as <code>/tmp/install-cluster.sh</code></li>
-</ul>
-
-
-<h1>Install completed</h1>
-
-<p>Once Ambari-shell completed with the installation, you are ready to use it.
-To find out the IP of the Ambari server run:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker inspect -f "" ambari-singlenode</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">AmbariConfigurationService</span> <span class="o">{</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="kd">private</span> <span class="n">AmbariClient</span> <span class="n">ambariClient</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="nf">AmbariConfigurationService</span><span class="o">(){</span>
+</span><span class='line'>  <span class="c1">// inject / provide the service with the ambari related properties</span>
+</span><span class='line'>  <span class="n">ambariClient</span> <span class="o">=</span> <span class="k">new</span> <span class="n">AmbariClient</span><span class="o">(</span><span class="n">ambariHost</span><span class="o">,</span> <span class="n">ambariPort</span><span class="o">,</span> <span class="n">ambariUser</span><span class="o">,</span> <span class="n">ambariPass</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// list with the properties needed by the application</span>
+</span><span class='line'><span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">configList</span> <span class="o">=</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="s">&quot;mapreduce.framework.name&quot;</span><span class="o">,</span> <span class="s">&quot;yarn.resourcemanager.address&quot;</span><span class="o">,</span> <span class="s">&quot;hbase.zookeeper.quorum&quot;</span> <span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// assembles a Configuration instance with the properties needed by the application</span>
+</span><span class='line'><span class="kd">public</span> <span class="n">Configuration</span> <span class="nf">getConfiguration</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">//  use this constructor to avoid loading of properties from the classpath!</span>
+</span><span class='line'>        <span class="n">Configuration</span> <span class="n">configuration</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Configuration</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// Map with service specific configuration. The keys are service names: eg.: yarn-site, hbase-site, global ...</span>
+</span><span class='line'>        <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">serviceConfigMap</span> <span class="o">=</span> <span class="n">ambariClient</span><span class="o">.</span><span class="na">getServiceConfigMap</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">for</span> <span class="o">(</span><span class="n">Map</span><span class="o">.</span><span class="na">Entry</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">serviceEntry</span> <span class="o">:</span> <span class="n">serviceConfigMap</span><span class="o">.</span><span class="na">entrySet</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">for</span> <span class="o">(</span><span class="n">Map</span><span class="o">.</span><span class="na">Entry</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">configEntry</span> <span class="o">:</span> <span class="n">serviceEntry</span><span class="o">.</span><span class="na">getValue</span><span class="o">().</span><span class="na">entrySet</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">configList</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">configEntry</span><span class="o">.</span><span class="na">getKey</span><span class="o">()))</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">configuration</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">configEntry</span><span class="o">.</span><span class="na">getKey</span><span class="o">(),</span> <span class="n">configEntry</span><span class="o">.</span><span class="na">getValue</span><span class="o">());</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// decorate the config with application specific entries, like &quot;dfs.client.use.legacy.blockreader&quot;, &quot;mapreduce.job.user.classpath.first&quot;</span>
+</span><span class='line'>        <span class="n">decorateConfiguration</span><span class="o">(</span><span class="n">configuration</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="n">configuration</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-<p>To start with you can browse ambari web ui on <code>port 8080</code>. The default username/password is admin/admin.</p>
+<p><em>Note: Apart from the <code>getServiceConfigMap()</code> method you&rsquo;ll find a few interesting and useful operations</em></p>
 
-<p>or if you can&rsquo;t reach directly the private IP of the container (windows users), use the port exposed to the host:</p>
+<p>You can get the Ambari client code from the <a href="https://github.com/sequenceiq/ambari-rest-client">SequenceIQ GitHub repository</a> &ndash; clone it, build it and add it as a dependency to your project.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker port ambari-singlenode 8080</span></code></pre></td></tr></table></div></figure>
+<p>If you&rsquo;d like to play with a real multi-node Ambari managed cluster check out <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">this</a> older blog post &ndash; this will set you up with a Hadoop cluster in less than 2 minutes / one-click.</p>
 
-
-<h1>Next steps</h1>
-
-<p>In the upcomming blog posts we will do a multinode Hadoop cluster with the same toolset, so stay tuned &hellip;</p>
+<p>Let us know how it works for you &ndash; for updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 
     </div>
   </div>
@@ -291,7 +229,7 @@ To find out the IP of the Ambari server run:</p>
     
   
 
-<span class="byline author vcard">Posted by <span class="fn">Lajos Papp</span></span>
+<span class="byline author vcard">Posted by <span class="fn">Laszlo Puskas</span></span>
 
     
     <div class="row">
@@ -303,13 +241,13 @@ To find out the IP of the Ambari server run:</p>
 
 
 
-  <a href="/blog/categories/apache-ambari/"><span class="label label-warning">Apache Ambari</span></a>
+  <a href="/blog/categories/ambari/"><span class="label label-warning">Ambari</span></a>
 
-  <a href="/blog/categories/devops/"><span class="label label-warning">DevOps</span></a>
-
-  <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
+  <a href="/blog/categories/configuration/"><span class="label label-warning">Configuration</span></a>
 
   <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+
+  <a href="/blog/categories/yarn/"><span class="label label-warning">YARN</span></a>
 
 
 
@@ -341,10 +279,8 @@ To find out the IP of the Ambari server run:</p>
       <div class="span12">
         <p class="meta">
           
-            <a class="basic-alignment left" href="/blog/2014/06/06/hadoop-summit-slides/" title="Previous Post: Hadoop Summit 2014 - SequenceIQ slides">&laquo; Hadoop Summit 2014 - SequenceIQ slides</a>
+            <a class="basic-alignment left" href="/blog/2014/07/05/docker-debug-with-nsenter-on-boot2docker/" title="Previous Post: Docker debug with nsenter on boot2docker">&laquo; Docker debug with nsenter on boot2docker</a>
           
-          
-            <a class=" basic-alignment pull-right" href="/blog/2014/06/19/multinode-hadoop-cluster-on-docker/" title="Next Post: Multi-node Hadoop cluster on Docker">Multi-node Hadoop cluster on Docker &raquo;</a>
           
         </p>
       </div>
@@ -529,8 +465,8 @@ To find out the IP of the Ambari server run:</p>
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/';
-        var disqus_url = 'http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/';
+        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service/';
+        var disqus_url = 'http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service/';
         var disqus_script = 'embed.js';
       
     (function () {
