@@ -28,7 +28,7 @@ At SequenceIQ we are running all our core processes in Docker containers - and t
 * Apache Ambari - to declaratively define of a Hadoop cluster
 * Serf - for cluster membership, failure detection, and orchestration that is decentralized, fault-tolerant and highly available for dynamic clusters
 
-<!--more—>
+<!-- more -->
 
 ##Cloudbreak main components
 
