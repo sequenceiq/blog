@@ -15,6 +15,6 @@ Coding in Groovy is fast and fun, isn't it? Except when problems come up at runt
 
 <!-- more -->
 
-The AmbariClient is written in Groovy and in this case used by a Java application. You can find the sample bug in our
+The Ambari REST Client is written in Groovy and in this case used by a Java application. You can find the sample bug in our
 [repository](https://github.com/sequenceiq/sequenceiq-samples/tree/master/groovy-bug). The same thing could have been achieved with
-reflection as well. Do you know why this can happen? It could be an interview question...
+reflection as well. Do you know why this can happen? It's a good candidate for an interview question, isn't it ... 
