@@ -51,7 +51,7 @@ In order to ease your work with the REST API we have created and use a Groovy RE
 
 ###Cloudbreak CLI
 
-As we are always automate everything and we are a very DevOps focused company we are always trying to create easy ways to interact with our systems and API’s. In case of Cloudbreak we have created and released a [command line shell](https://github.com/sequenceiq/cloudbreak-shell).
+As we automate everything and we are a very DevOps focused company we are always trying to create easy ways to interact with our systems and API’s. In case of Cloudbreak we have created and released a [command line shell](https://github.com/sequenceiq/cloudbreak-shell).
 
 ###Cloudbreak UI
 
