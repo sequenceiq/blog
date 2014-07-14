@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "Schedulers - Part 1: Capacity"
+title: "YARN Schedulers - Part 1: Capacity"
 date: 2014-07-13 13:13:39 +0200
 comments: false
-categories: [Hadoop, Scheduler]
+categories: [Hadoop, YARN, Scheduler]
 author: Krisztian Horvath
 published: false
 ---
