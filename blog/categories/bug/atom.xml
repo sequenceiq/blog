@@ -4,7 +4,7 @@
   <title><![CDATA[Category: bug | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/bug/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-07-14T16:17:35+00:00</updated>
+  <updated>2014-07-14T16:22:54+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -26,9 +26,9 @@ Coding in Groovy is fast and fun, isn&rsquo;t it? Except when problems come up a
 <!-- more -->
 
 
-<p>The AmbariClient is written in Groovy and in this case used by a Java application. You can find the sample bug in our
+<p>The Ambari REST Client is written in Groovy and in this case used by a Java application. You can find the sample bug in our
 <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/groovy-bug">repository</a>. The same thing could have been achieved with
-reflection as well. Do you know why this can happen? It could be an interview question&hellip;</p>
+reflection as well. Do you know why this can happen? It&rsquo;s a good candidate for an interview question, isn&rsquo;t it &hellip;</p>
 ]]></content>
   </entry>
   
