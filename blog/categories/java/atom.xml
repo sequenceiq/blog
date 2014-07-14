@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Java | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/java/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-07-14T16:15:44+00:00</updated>
+  <updated>2014-07-14T16:17:35+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -18,7 +18,7 @@
     <link href="http://blog.sequenceiq.com/blog/2014/07/13/groovy-and-java-runtime-bug/"/>
     <updated>2014-07-13T09:13:53+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/07/13/groovy-and-java-runtime-bug</id>
-    <content type="html"><![CDATA[<p>I can barely count how many languages we use at SequenceIQ <em>[based on our GitHUb repository it&rsquo;s Java, Scala, Groovy, Go, CoffeeScript, JavaScript, R and Shell (Ansible, Dockerfile, AWS CLI, what not)]</em>. Groovy is one of them.
+    <content type="html"><![CDATA[<p>I can barely count how many languages we use at SequenceIQ <em>[based on our <a href="https://github.com/sequenceiq">GitHub</a> repository it&rsquo;s Java, Scala, Groovy, Go, CoffeeScript, JavaScript, R and Shell (Ansible, Dockerfile, AWS CLI, what not)]</em>. Groovy is one of them.
 Coding in Groovy is fast and fun, isn&rsquo;t it? Except when problems come up at runtime. This is one of those.</p>
 
 <p><img class="<a" src="href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/groovy-bug/src/main/resources/wtf.png">https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/groovy-bug/src/main/resources/wtf.png</a>"></p>
