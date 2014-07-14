@@ -59,12 +59,10 @@ For those who does not want to use the REST API but would like to explore first 
 
 ##What’s next?
 
-After this post we will launch a few Cloudbreak related blog posts to drive you through the technology, API and Cloudbreak insigts. In the meantime we suggest you to go through our [documentations](http://sequenceiq.com/cloudbreak/), try [Cloudbreak](http://cloudbreak.sequenceiq.com/) and let us know how does it works for you.
+After this post we will launch a few Cloudbreak related blog posts to drive you through the technology, API and Cloudbreak insights. In the meantime we suggest you to go through our [documentations](http://sequenceiq.com/cloudbreak/), try [Cloudbreak](http://cloudbreak.sequenceiq.com/) and let us know how does it works for you.
 
 Please note that [Cloudbreak](http://cloudbreak.sequenceiq.com/) is under development, in public beta - while we consider the codebase stable for deployments please let us know if you face any problems through [GitHub](https://github.com/sequenceiq/cloudbreak) issues. Also we are welcome your open source contribution - let it be a bug fix or a new cloud provider [implementation](http://sequenceiq.com/cloudbreak/#add-new-cloud-providers).
 
-Finally your opinion is important for us - if you’d like to see your favourite cloud provider among the existing ones, please fill this questionnaire: https://docs.google.com/forms/d/129RVh6VfjRsuuHOcS3VPbFYTdM2SEjANDsGCR5Pul0I/viewform
+Finally your opinion is important for us - if you’d like to see your favorite cloud provider among the existing ones, please fill this questionnaire: https://docs.google.com/forms/d/129RVh6VfjRsuuHOcS3VPbFYTdM2SEjANDsGCR5Pul0I/viewform
 
 For updates follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
-
-
