@@ -8,7 +8,7 @@ author: Krisztian Horvath
 published: true
 ---
 
-I can barely count how many languages we use at SequenceIQ _[based on our GitHUb repository it's Java, Scala, Groovy, Go, CoffeeScript, JavaScript, R and Shell (Ansible, Dockerfile, AWS CLI, what not)]_. Groovy is one of them.
+I can barely count how many languages we use at SequenceIQ _[based on our [GitHub](https://github.com/sequenceiq) repository it's Java, Scala, Groovy, Go, CoffeeScript, JavaScript, R and Shell (Ansible, Dockerfile, AWS CLI, what not)]_. Groovy is one of them.
 Coding in Groovy is fast and fun, isn't it? Except when problems come up at runtime. This is one of those.  
 
 {% img https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/groovy-bug/src/main/resources/wtf.png %}
