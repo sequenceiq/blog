@@ -12,7 +12,9 @@ _Cloudbreak is a powerful left surf that breaks over a coral reef, a mile off so
 
 _Cloudbreak is a cloud agnostic Hadoop as a Service API. Abstracts the provisioning and ease management and monitoring of on-demand clusters._
 
-Today is a big day for us - we are announcing the first `public beta` version of our open source and cloud agnostic **Hadoop as a Service API**. During our daily work with large Hadoop clusters in the cloud, `dockerized` environments and bare metal we were doing the same things over and over again. Although we are automating and `dockerizing` always everything, we felt that something is missing - an open source, cloud agnostic Hadoop as a Service API. Welcome **[Cloudbreak]**(https://github.com/sequenceiq/cloudbreak) - you are one POST away from your on-demand Hadoop cluster on your favourite cloud provider.
+Today is a big day for us and the community - we are announcing the first `public beta` version of our open source and cloud agnostic **Hadoop as a Service API**. 
+
+During our daily work with large Hadoop clusters in the cloud, `dockerized` environments and bare metal we were doing the same things over and over again. Although we are automating and `dockerizing` always everything, we felt that something is missing - an open source, cloud agnostic Hadoop as a Service API. Welcome **[Cloudbreak]**(https://github.com/sequenceiq/cloudbreak) - you are one POST away from your on-demand Hadoop cluster on your favourite cloud provider.
 
 When we have started to work on Cloudbreak - first of all to solve our internal needs at SequenceIQ - we set the following criteria:
 
@@ -27,11 +29,12 @@ When we have started to work on Cloudbreak - first of all to solve our internal 
 
 ##Docker in the cloud
 
-At [SequenceIQ](http://sequenceiq.com/) we are running all our core applications and processes in Docker containers - and that is true for Hadoop and all of the services as well. During the last few months we have [blogged](http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/) and open sourced all of the [building blocks](https://hub.docker.com/u/sequenceiq/) of our `dockerized` systems and **Cloudbreak** is built on the foundation of these and reusing the same technologies we have released before. 
+At [SequenceIQ](http://sequenceiq.com/) we are running all our core applications and processes in Docker containers - and that is true for Hadoop and all of the services as well. During the last few months we have [blogged](http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/) and open sourced all of the [building blocks](https://hub.docker.com/u/sequenceiq/) of our `dockerized` systems and **Cloudbreak** is built on the foundation of these and reusing the same technologies we have released before. While Cloudbreak's primary role is to launch on-demand Hadoop clusters in the cloud, the underlying technology it actually does more. It can actually launch on-demand Hadoop clusters in any environment which does support Docker - in a dynamic way. There is no predefined configuration needed as all the setup, orchestration, networking and cluster membership is done dynamically. 
 
 * [Docker containers](https://hub.docker.com/u/sequenceiq/) - all the Hadoop services are installed and running inside Docker containers, and these containers are `shipped` between different cloud vendors, keeping Cloudbreak cloud agnostic
 * [Apache Ambari](https://github.com/sequenceiq/ambari-rest-client) - to declaratively define a Hadoop cluster
 * [Serf](https://github.com/sequenceiq/docker-serf) - for cluster membership, failure detection, and orchestration that is decentralised, fault-tolerant and highly available for dynamic clusters
+* [dnsmasq](https://github.com/sequenceiq/docker-dnsmasq) - to provide resolvable fully qualified domain names between dynamically created Docker containers.
 
 <!-- more -->
 
