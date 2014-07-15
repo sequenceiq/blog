@@ -12,7 +12,7 @@ _Cloudbreak is a powerful left surf that breaks over a coral reef, a mile off so
 
 _Cloudbreak is a cloud agnostic Hadoop as a Service API. Abstracts the provisioning and ease management and monitoring of on-demand clusters._
 
-Today is a great day for us and the open source community - we are announcing the first `public beta` version of our open source and cloud agnostic **Hadoop as a Service API**. During our daily work with large Hadoop clusters in the cloud, Dockerized environments and bare metal we were doing the same things over and over again. Although we are automating and `dockerizing` always everything we felt that something is missing - an open source, cloud agnostic Hadoop as a Service API. Welcome **Cloudbreak** - you are one POST away from your on-demand Hadoop cluster.
+Today is a great day for us and the open source community - we are announcing the first `public beta` version of our open source and cloud agnostic **Hadoop as a Service API**. During our daily work with large Hadoop clusters in the cloud, Dockerized environments and bare metal we were doing the same things over and over again. Although we are automating and `dockerizing` always everything we felt that something is missing - an open source, cloud agnostic Hadoop as a Service API. Welcome **[Cloudbreak]**(https://github.com/sequenceiq/cloudbreak) - you are one POST away from your on-demand Hadoop cluster.
 
 When we have started to work on Cloudbreak - first of all to solve our internal needs at SequenceIQ - we set the following criterias:
 
@@ -49,7 +49,7 @@ While there is an extensive list of articles explaining the benefits of using Do
 
 ###Cloudbreak API
 
-Cloudbreak is a RESTful Hadoop as a Service API. Once it is deployed in your favorite servlet container exposes a REST API allowing to span up Hadoop clusters of arbitary sizes on your selected cloud provider. With Cloudbreak you are one POST away from your on-demand Hadoop cluster. For further documentation please follow up with the [general](http://sequenceiq.com/cloudbreak/) and [API](http://docs.cloudbreak.apiary.io/) documentation, or subscribe to one of our social channels in order to receive notifications about further blog posts. We are launching a series of posts to dig into Cloudbreak details and make it easier for you to learn, understand and use Hadoop in the cloud.
+Cloudbreak is a RESTful Hadoop as a Service API. Once it is deployed in your favorite servlet container exposes a REST API allowing to span up Hadoop clusters of arbitary sizes on your selected cloud provider. With Cloudbreak you are one POST away from your on-demand Hadoop cluster. You can get the code from our [GitHub repository](https://github.com/sequenceiq/cloudbreak). For further documentation please follow up with the [general](http://sequenceiq.com/cloudbreak/) and [API](http://docs.cloudbreak.apiary.io/) documentation, or subscribe to one of our social channels in order to receive notifications about further blog posts. We are launching a series of posts to dig into Cloudbreak details and make it easier for you to learn, understand and use Hadoop in the cloud.
 
 ###Cloudbreak REST client
 
