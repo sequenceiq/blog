@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Cloudbreak - the Hadoop as a Service API"
-date: 2014-07-15 18:37:53 +0200
+date: 2014-07-16 18:37:53 +0200
 comments: true
 categories: [Hadoop as a Service, Hadoop, Docker, Cloud]
 author: Janos Matyas
@@ -50,7 +50,7 @@ While there is an extensive list of articles explaining the benefits of using Do
 * Smart resource allocation - containers can be `shipped` anywhere and resources can be allotted
 
 
-##Cloudbreak - Hadoop as a Service
+##Cloudbreak projects
 
 ###Cloudbreak API
 
