@@ -36,7 +36,7 @@ At [SequenceIQ](http://sequenceiq.com/) we are running all our core applications
 * [Serf](https://github.com/sequenceiq/docker-serf) - for cluster membership, failure detection, and orchestration that is decentralised, fault-tolerant and highly available for dynamic clusters
 * [dnsmasq](https://github.com/sequenceiq/docker-dnsmasq) - to provide resolvable fully qualified domain names between dynamically created Docker containers.
 
-We have presented the project at the Hadoop Summit 2014, you can check the slides [here](http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning).
+We have presented the project at the **Hadoop Summit 2014**, you can check the slides [here](http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning).
 
 <!-- more -->
 
