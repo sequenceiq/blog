@@ -27,6 +27,8 @@ When we have started to work on Cloudbreak - first of all to solve our internal 
 * Elastic and flexible, with the ability to resize running clusters
 * Secure
 
+<!-- more -->
+
 ##Docker in the cloud
 
 At [SequenceIQ](http://sequenceiq.com/) we are running all our core applications and processes in Docker containers - and that is true for Hadoop and all of the services as well. During the last few months we have [blogged](http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/) and open sourced all of the [building blocks](https://hub.docker.com/u/sequenceiq/) of our `dockerized` systems and **Cloudbreak** is built on the foundation of these and reusing the same technologies we have released before. While Cloudbreak's primary role is to launch on-demand Hadoop clusters in the cloud, the underlying technology it actually does more. It can actually launch on-demand Hadoop clusters in any environment which does support Docker - in a dynamic way. There is no predefined configuration needed as all the setup, orchestration, networking and cluster membership is done dynamically. 
@@ -37,8 +39,6 @@ At [SequenceIQ](http://sequenceiq.com/) we are running all our core applications
 * [dnsmasq](https://github.com/sequenceiq/docker-dnsmasq) - to provide resolvable fully qualified domain names between dynamically created Docker containers.
 
 We have presented the project at the **Hadoop Summit 2014**, you can check the slides [here](http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning).
-
-<!-- more -->
 
 While there is an extensive list of articles explaining the benefits of using Docker, we would like to highlight our motivations in a few bullet points.
 
