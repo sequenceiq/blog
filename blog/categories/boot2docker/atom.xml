@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Boot2docker | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/boot2docker/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-07-16T14:13:36+00:00</updated>
+  <updated>2014-07-16T15:00:44+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -32,18 +32,20 @@ is a bit trickier.</p>
 <p>For the impatient here is a simple function, which lets you enter any docker
 container directly from OS X (or any boot2docker host):</p>
 
-<p><em>one-liner</em> function installer
-<code>
-curl -Lo /tmp/docker-enter j.mp/docker-enter &amp;&amp; . /tmp/docker-enter
-</code></p>
-
-<p>or you can copy-paste it as a more readable <em>two-liner</em> function into your <code>~/.profile</code> or <code>~/.bash_profile</code>
-for permanent use:
-<code>
+<p><code>
 docker-enter() {
-  boot2docker ssh '[ -f /var/lib/boot2docker/nsenter ] || (docker run --rm -v /var/lib/boot2docker/:/target jpetazzo/nsenter ; sudo curl -Lo /var/lib/boot2docker/docker-enter https://raw.githubusercontent.com/jpetazzo/nsenter/master/docker-enter )'
+  boot2docker ssh '[ -f /var/lib/boot2docker/nsenter ] || docker run --rm -v /var/lib/boot2docker/:/target jpetazzo/nsenter'
   boot2docker ssh -t sudo /var/lib/boot2docker/docker-enter "$@"
 }
+</code></p>
+
+<p>the first line installs <code>nsenter</code> and <code>docker-enter</code> if missing and the second line
+does the actual call.</p>
+
+<p>once you declated the function, you can use it as:</p>
+
+<p><code>
+docker-enter &lt;CONTAINER-ID/CONTAINER-NAME&gt;
 </code></p>
 
 <!-- more -->
@@ -72,25 +74,20 @@ changes on the persistent <code>/var/lib/boot2docker</code> directory.</p>
 docker run --rm -v /var/lib/boot2docker/:/target jpetazzo/nsenter
 </code></p>
 
-<h2>install the docker-enter script</h2>
+<h2>the docker-enter script</h2>
 
 <p><a href="https://github.com/jpetazzo/nsenter/blob/master/docker-enter">docker-enter</a> is
 a helper script to do the following 2 steps:</p>
 
 <ul>
 <li>gets the <code>PID</code> of the docker container</li>
-<li>executes <code>nsenter</code> passing the correct parameters</li>
+<li>executes <code>nsenter</code> optionally passing the name of a program to execute inside
+the namespace. if no command is specified a shell will be invoked instead.</li>
 </ul>
 
 
-<p>You can install the <code>docker-enter</code> helper script into the same directory as
-nsenter via curl:</p>
-
-<p><code>
-sudo curl -L \
-   -o /var/lib/boot2docker/docker-enter \
-   https://raw.githubusercontent.com/jpetazzo/nsenter/master/docker-enter
-</code></p>
+<p>In the previous step, when you have installed <code>nseneter</code> the <code>docker-enter</code> srcipt
+<a href="https://github.com/jpetazzo/nsenter/blob/master/installer#L6">got installed</a> into the same directory.</p>
 
 <h2>Nsenter directly from OS X</h2>
 
@@ -103,7 +100,7 @@ can pass the command to the last argument of: <code>boot2docker ssh &lt;COMMAND&
 <p>So combine all the steps into a single <strong>one-liner</strong> function:</p>
 
 <p><code>
-docker-enter() { boot2docker ssh -t "[ -f /var/lib/boot2docker/nsenter ] || (docker run --rm -v /var/lib/boot2docker/:/target jpetazzo/nsenter ; sudo curl -Lo /var/lib/boot2docker/docker-enter https://raw.githubusercontent.com/jpetazzo/nsenter/master/docker-enter ) ; sudo /var/lib/boot2docker/docker-enter $@"; }
+docker-enter() { boot2docker ssh -t "[ -f /var/lib/boot2docker/nsenter ] || docker run --rm -v /var/lib/boot2docker/:/target jpetazzo/nsenter; sudo /var/lib/boot2docker/docker-enter $@"; }
 </code></p>
 
 <p>If you want it permanently either copy-paste it into your <code>~/.profile</code> or
