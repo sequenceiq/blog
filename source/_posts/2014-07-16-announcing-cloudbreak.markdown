@@ -69,6 +69,10 @@ In order to ease your work with the REST API and embed in your codebase we have 
 
 As we automate everything and we are a very DevOps focused company we are always trying to create easy ways to interact with our systems and API’s. In case of Cloudbreak we have created and released a [command line shell](https://github.com/sequenceiq/cloudbreak-shell), the Cloudbreak CLI. The CLI allows you to use all the REST calls, and it has a large number of easing commands. Interactive help and completion is available.
 
+###Cloudbreak documentation
+
+We have created two types of documentation. The [Cloudbreak Product](http://sequenceiq.com/cloudbreak/) documentation contains an overview, installation, architectural and technical content, whereas the [Cloudbreak API](http://docs.cloudbreak.apiary.io/) explains the REST API with examples and a mock server to test your integration.
+
 ##What’s next?
 
 After this post we will launch a few Cloudbreak related blog posts series to drive you through the technology, API and Cloudbreak insights. In the meantime we suggest you to go through our [documentation](http://sequenceiq.com/cloudbreak/), try [Cloudbreak](http://cloudbreak.sequenceiq.com/) and let us know how it works for you. We would like to understand your ideas and change requests. 
