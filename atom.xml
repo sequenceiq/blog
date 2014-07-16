@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-07-16T15:00:44+00:00</updated>
+  <updated>2014-07-16T15:01:57+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -165,7 +165,7 @@ container directly from OS X (or any boot2docker host):</p>
 <p>the first line installs <code>nsenter</code> and <code>docker-enter</code> if missing and the second line
 does the actual call.</p>
 
-<p>once you declated the function, you can use it as:</p>
+<p>once you declared the function, you can use it as:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>docker-enter &lt;CONTAINER-ID/CONTAINER-NAME&gt;</span></code></pre></td></tr></table></div></figure>

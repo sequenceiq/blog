@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Boot2docker | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/boot2docker/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-07-16T15:00:44+00:00</updated>
+  <updated>2014-07-16T15:01:57+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -42,7 +42,7 @@ docker-enter() {
 <p>the first line installs <code>nsenter</code> and <code>docker-enter</code> if missing and the second line
 does the actual call.</p>
 
-<p>once you declated the function, you can use it as:</p>
+<p>once you declared the function, you can use it as:</p>
 
 <p><code>
 docker-enter &lt;CONTAINER-ID/CONTAINER-NAME&gt;
