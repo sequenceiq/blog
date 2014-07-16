@@ -3,7 +3,7 @@ layout: post
 title: "Cloudbreak - the Hadoop as a Service API"
 date: 2014-07-17 18:37:37 +0200
 comments: true
-categories: [Hadoop as a Service, Hadoop, Docker, Cloud]
+categories: [Hadoop as a Service, Cloudbreak, Hadoop, Docker, Cloud]
 author: Janos Matyas
 published: false
 ---
