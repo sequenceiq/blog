@@ -12,9 +12,9 @@ _Cloudbreak is a powerful left surf that breaks over a coral reef, a mile off so
 
 _Cloudbreak is a cloud agnostic Hadoop as a Service API. Abstracts the provisioning and ease management and monitoring of on-demand clusters._
 
-Today is a big day for us and the community - we are announcing the first `public beta` version of our open source and cloud agnostic **Hadoop as a Service API**. 
+Today is a big day for us and the Hadoop community - we are announcing the first `public beta` version of our open source and cloud agnostic **Hadoop as a Service API**. 
 
-During our daily work with large Hadoop clusters in the cloud, `dockerized` environments and bare metal we were doing the same things over and over again. Although we are automating and `dockerizing` always everything, we felt that something is missing - an open source, cloud agnostic Hadoop as a Service API. Welcome **[Cloudbreak]**(https://github.com/sequenceiq/cloudbreak) - you are one POST away from your on-demand Hadoop cluster on your favorite cloud provider.
+During our daily work with large Hadoop clusters in the cloud, `dockerized` environments and bare metal we were doing the same things over and over again. Although we are automating and `dockerizing` always everything, we felt that something is missing - an open source, cloud agnostic Hadoop as a Service API. Welcome **[Cloudbreak]**(https://cloudbreak.sequenceiq.com) - you are one POST away from your on-demand Hadoop cluster on your favorite cloud provider.
 
 When we have started to work on Cloudbreak - first of all to solve our internal needs at SequenceIQ - we have set the following criteria:
 
@@ -23,6 +23,7 @@ When we have started to work on Cloudbreak - first of all to solve our internal 
 * Be cloud provider agnostic and create an SDK which allows to quickly add new providers
 * No more glue code, repeating the same things over and over again
 * Have a REST API and a CLI in order to be able to automate the whole process
+* Create an easy to use and responsive UI
 * Support different Hadoop services and configurations in a declarative way 
 * Elastic and flexible, with the ability to resize running clusters
 * Secure
@@ -50,7 +51,11 @@ While there is an extensive list of articles explaining the benefits of using Do
 * Smart resource allocation - containers can be `shipped` anywhere and resources can be allotted
 
 
-##Cloudbreak projects
+##Cloudbreak - the project
+
+###Cloudbreak UI
+
+[Cloudbreak](https://cloudbreak.sequenceiq.com/) UI is the easiest way to start exploring the system - a secure and intuitive way to launch on-demand Hadoop clusters with a few mouse clicks.
 
 ###Cloudbreak API
 
@@ -63,10 +68,6 @@ In order to ease your work with the REST API and embed in your codebase we have 
 ###Cloudbreak CLI
 
 As we automate everything and we are a very DevOps focused company we are always trying to create easy ways to interact with our systems and API’s. In case of Cloudbreak we have created and released a [command line shell](https://github.com/sequenceiq/cloudbreak-shell), the Cloudbreak CLI. The CLI allows you to use all the REST calls, and it has a large number of easing commands. Interactive help and completion is available.
-
-###Cloudbreak UI
-
-For those who do not want to use the REST API but would like to explore the capabilities of the Hadoop as a Service API first, we propose checking our hosted [Cloudbreak UI](https://cloudbreak.sequenceiq.com/). Cloudbreak UI is the easiest way to start exploring the system - a secure and intuitive way to launch on-demand Hadoop clusters. 
 
 ##What’s next?
 
