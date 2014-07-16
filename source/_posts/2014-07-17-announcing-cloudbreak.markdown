@@ -81,6 +81,6 @@ After this post we will launch a few Cloudbreak related blog posts series to dri
 
 Please note that [Cloudbreak](http://cloudbreak.sequenceiq.com/) is under development, in public beta - while we consider the codebase stable for deployments (and use it daily), please let us know if you face any problems through [GitHub](https://github.com/sequenceiq/cloudbreak) issues. Also we  welcome your open source contribution - let it be a bug fix or a new cloud provider [implementation](http://sequenceiq.com/cloudbreak/#add-new-cloud-providers).  
 
-Finally, your opinion is important to us - if you’d like to see your favourite cloud provider among the existing ones, please fill this [questionnaire](https://docs.google.com/forms/d/129RVh6VfjRsuuHOcS3VPbFYTdM2SEjANDsGCR5Pul0I/viewform). Make your voice heard!
+Finally, your opinion is important to us - if you’d like to see your **favourite cloud provider** among the existing ones, please fill this [questionnaire](https://docs.google.com/forms/d/129RVh6VfjRsuuHOcS3VPbFYTdM2SEjANDsGCR5Pul0I/viewform). Make your voice heard!
 
 For updates follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
