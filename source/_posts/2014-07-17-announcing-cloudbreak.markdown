@@ -75,6 +75,31 @@ As we automate everything and we are a very DevOps focused company we are always
 
 We have created two types of documentation. The [Cloudbreak Product](http://sequenceiq.com/cloudbreak/) documentation contains an overview, installation, architectural and technical content, whereas the [Cloudbreak API](http://docs.cloudbreak.apiary.io/) explains the REST API with examples and a mock server to test your integration.
 
+##Supported Hadoop services
+
+At high level the supported list of components can be grouped into two main categories: Master and Slave - and bundling them together form a Hadoop Service. [Cloudbreak](https://cloudbreak.sequenceiq.com/) supports the following Hadoop services.
+
+| Services    | Components                                                              |
+|:----------- |:------------------------------------------------------------------------|
+| HDFS		    | DATANODE, HDFS_CLIENT, JOURNALNODE, NAMENODE, SECONDARY_NAMENODE, ZKFC  |
+| YARN		    | APP_TIMELINE_SERVER, NODEMANAGER, RESOURCEMANAGER, YARN_CLIENT          |
+| MAPREDUCE2	| HISTORYSERVER, MAPREDUCE2_CLIENT                                        |
+| GANGLIA		  | GANGLIA_MONITOR, GANGLIA_SERVER                                         |
+| HBASE		    | HBASE_CLIENT, HBASE_MASTER, HBASE_REGIONSERVER                          |
+| HIVE		    | HIVE_CLIENT, HIVE_METASTORE, HIVE_SERVER, MYSQL_SERVER                  |
+| HCATALOG	  | HCAT                                                                    |
+| WEBHCAT		  | WEBHCAT_SERVER                                                          |
+| NAGIOS		  | NAGIOS_SERVER                                                           |
+| OOZIE		    | OOZIE_CLIENT, OOZIE_SERVER                                              |
+| PIG		      | PIG                                                                     |
+| SQOOP		    | SQOOP                                                                   |
+| STORM		    | DRPC_SERVER, NIMBUS, STORM_REST_API, STORM_UI_SERVER, SUPERVISOR        |
+| TEZ		      | TEZ_CLIENT                                                              |
+| FALCON		  | FALCON_CLIENT, FALCON_SERVER                                            |
+| ZOOKEEPER	  | ZOOKEEPER_CLIENT, ZOOKEEPER_SERVER                                      |
+
+Please note that you can always build your own custom stack beyond these services, using Ambari's custom stack definitions. 
+
 ##What’s next?
 
 We will follow up with a few posts to drive you through the technology, API and insights and make it easier for you to learn, understand and use Hadoop in the cloud.
