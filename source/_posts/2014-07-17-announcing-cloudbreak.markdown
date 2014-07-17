@@ -14,7 +14,7 @@ _Cloudbreak is a cloud agnostic Hadoop as a Service API. Abstracts the provision
 
 Today is a big day for us and the Hadoop community - we are announcing the first `public beta` version of our open source and cloud agnostic **Hadoop as a Service API**. 
 
-During our daily work with large Hadoop clusters in the cloud, `dockerized` environments and bare metal we were doing the same things over and over again. Although we are automating and `dockerizing` always everything, we felt that something is missing - an open source, cloud agnostic Hadoop as a Service API. Welcome **[Cloudbreak]**(https://cloudbreak.sequenceiq.com) - you are one POST away from your on-demand Hadoop cluster on your favorite cloud provider.
+During our daily work with large Hadoop clusters in the cloud, `dockerized` environments and bare metal we were doing the same things over and over again. Although we are automating and `dockerizing` always everything, we felt that something is missing - an open source, cloud agnostic Hadoop as a Service API. Welcome [Cloudbreak](https://cloudbreak.sequenceiq.com) - you are one POST away from your on-demand Hadoop cluster on your favorite cloud provider.
 
 When we have started to work on Cloudbreak - first of all to solve our internal needs at SequenceIQ - we have set the following criteria:
 
