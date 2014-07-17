@@ -55,13 +55,13 @@ While there is an extensive list of articles explaining the benefits of using Do
 
 ###Cloudbreak UI
 
-The easiest way to start your own Hadoop cluster in your favorite cloud provider is to use our hosted solution. We host, maintain and support [Cloudbreak UI](https://cloudbreak.sequenceiq.com/) for you. Cloudbreak UI is a secure and intuitive way to launch on-demand Hadoop clusters with a few mouse clicks.
+The easiest way to start your own Hadoop cluster in your favorite cloud provider is to use our hosted solution. We host, maintain and support [Cloudbreak](https://cloudbreak.sequenceiq.com/) for you. Cloudbreak UI is a secure and intuitive way to launch on-demand Hadoop clusters with a few mouse clicks. Please note that Cloudbreak is launching Hadoop clusters on the user's behalf - on different cloud providers. We do not store your cloud provider account details (such as username, password, keys, private SSL certificates, etc), but work around the concept that Identity and Access Management is fully controlled by you - the end user.
 
 ###Cloudbreak API
 
 Cloudbreak is a RESTful Hadoop as a Service API. The easiest way to use the API is by using our hosted [Cloudbreak API](https://cloudbreak-api.sequenceiq.com/).
 
-We have also give you the option to host Cloudbreak within your organization. Once it is deployed in your favourite servlet container exposes a REST API allowing to span up Hadoop clusters of arbitrary sizes on your selected cloud provider. With Cloudbreak you are one POST away from your on-demand Hadoop cluster. You can get the code from our [GitHub repository](https://github.com/sequenceiq/cloudbreak). For further documentation please follow up with the [general](http://sequenceiq.com/cloudbreak/) and [API](http://docs.cloudbreak.apiary.io/) documentation, or subscribe to one of our social channels in order to receive notifications about further blog posts and releases. We are launching a series of posts to dig into Cloudbreak details and make it easier for you to learn, understand and use Hadoop in the cloud.
+We have also give you the option to host Cloudbreak within your organization. Once it is deployed in your favourite servlet container exposes a REST API allowing to span up Hadoop clusters of arbitrary sizes on your selected cloud provider. With Cloudbreak you are one POST away from your on-demand Hadoop cluster. You can get the code from our [GitHub repository](https://github.com/sequenceiq/cloudbreak). For further documentation please follow up with the [general](http://sequenceiq.com/cloudbreak/) and [API](http://docs.cloudbreak.apiary.io/) documentation, or subscribe to one of our social channels in order to receive notifications about further blog posts and releases. 
 
 ###Cloudbreak REST client
 
@@ -77,7 +77,9 @@ We have created two types of documentation. The [Cloudbreak Product](http://sequ
 
 ##What’s next?
 
-After this post we will launch a few Cloudbreak related blog posts series to drive you through the technology, API and Cloudbreak insights. In the meantime we suggest you to go through our [documentation](http://sequenceiq.com/cloudbreak/), try [Cloudbreak](http://cloudbreak.sequenceiq.com/) and let us know how it works for you. We would like to understand your ideas and change requests. 
+We will follow up with a few posts to drive you through the technology, API and insights and make it easier for you to learn, understand and use Hadoop in the cloud.
+
+In the meantime we suggest you to go through the [documentation](http://sequenceiq.com/cloudbreak/), try [Cloudbreak](http://cloudbreak.sequenceiq.com/) and let us know how it works for you. 
 
 Please note that [Cloudbreak](http://cloudbreak.sequenceiq.com/) is under development, in public beta - while we consider the codebase stable for deployments (and use it daily), please let us know if you face any problems through [GitHub](https://github.com/sequenceiq/cloudbreak) issues. Also we  welcome your open source contribution - let it be a bug fix or a new cloud provider [implementation](http://sequenceiq.com/cloudbreak/#add-new-cloud-providers).  
 
