@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-07-17T14:15:06+00:00</updated>
+  <updated>2014-07-17T16:44:14+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,101 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Cloudbreak - the Hadoop as a Service API]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/07/17/announcing-cloudbreak/"/>
+    <updated>2014-07-17T16:37:37+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/07/17/announcing-cloudbreak</id>
+    <content type="html"><![CDATA[<p><em>Cloudbreak is a powerful left surf that breaks over a coral reef, a mile off southwest the island of Tavarua, Fiji.</em></p>
+
+<p><em>Cloudbreak is a cloud agnostic Hadoop as a Service API. Abstracts the provisioning and ease management and monitoring of on-demand clusters.</em></p>
+
+<p>Today is a big day for us and the Hadoop community &ndash; we are announcing the first <code>public beta</code> version of our open source and cloud agnostic <strong>Hadoop as a Service API</strong>.</p>
+
+<p>During our daily work with large Hadoop clusters in the cloud, <code>dockerized</code> environments and bare metal we were doing the same things over and over again. Although we are automating and <code>dockerizing</code> always everything, we felt that something is missing &ndash; an open source, cloud agnostic Hadoop as a Service API. Welcome <strong>[Cloudbreak]</strong>(<a href="https://cloudbreak.sequenceiq.com">https://cloudbreak.sequenceiq.com</a>) &ndash; you are one POST away from your on-demand Hadoop cluster on your favorite cloud provider.</p>
+
+<p>When we have started to work on Cloudbreak &ndash; first of all to solve our internal needs at SequenceIQ &ndash; we have set the following criteria:</p>
+
+<ul>
+<li>Use open source software and be <strong>100% open source</strong> under Apache 2 license</li>
+<li>Have the ability to quickly launch arbitrary sized Hadoop clusters</li>
+<li>Be cloud provider agnostic and create an SDK which allows to quickly add new providers</li>
+<li>No more glue code, repeating the same things over and over again</li>
+<li>Have a REST API and a CLI in order to be able to automate the whole process</li>
+<li>Create an easy to use and responsive UI</li>
+<li>Support different Hadoop services and configurations in a declarative way</li>
+<li>Elastic and flexible, with the ability to resize running clusters</li>
+<li>Secure</li>
+</ul>
+
+
+<!-- more -->
+
+
+<h2>Docker in the cloud</h2>
+
+<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we are running all our core applications and processes in Docker containers &ndash; and that is true for Hadoop and all of the services as well. During the last few months we have <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">blogged</a> and open sourced all of the <a href="https://hub.docker.com/u/sequenceiq/">building blocks</a> of our <code>dockerized</code> systems and <strong>Cloudbreak</strong> is built on the foundation of these and reusing the same technologies we have released before. While Cloudbreak&rsquo;s primary role is to launch on-demand Hadoop clusters in the cloud, the underlying technology actually does more. It can launch on-demand Hadoop clusters in any environment which supports Docker &ndash; in a dynamic way. There is no predefined configuration needed as all the setup, orchestration, networking and cluster membership is done dynamically.</p>
+
+<ul>
+<li><a href="https://hub.docker.com/u/sequenceiq/">Docker containers</a> &ndash; all the Hadoop services are installed and running inside Docker containers, and these containers are <code>shipped</code>  between different cloud vendors, keeping Cloudbreak cloud agnostic</li>
+<li><a href="https://github.com/sequenceiq/ambari-rest-client">Apache Ambari</a> &ndash; to declaratively define a Hadoop cluster</li>
+<li><a href="https://github.com/sequenceiq/docker-serf">Serf</a> &ndash; for cluster membership, failure detection, and orchestration that is decentralized, fault-tolerant and highly available for dynamic clusters</li>
+<li><a href="https://github.com/sequenceiq/docker-dnsmasq">dnsmasq</a> &ndash; to provide resolvable fully qualified domain names between dynamically created Docker containers.</li>
+</ul>
+
+
+<p>The project was presented at the <strong>Hadoop Summit 2014,</strong> in San Jose &ndash; you can get the slides from <a href="http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning">here</a>.</p>
+
+<p>While there is an extensive list of articles explaining the benefits of using Docker, we would like to highlight our motivations in a few bullet points.</p>
+
+<ul>
+<li>Write once, run anywhere &ndash; our solution uses the same Docker containers on different cloud providers, <code>dockerized</code>  environments or bare metal, no difference at all</li>
+<li>Reproducible, testable environment &ndash; we are recreating complete config environments in seconds, and being able to work with the same containers on our laptop, QA and production/cloud environments</li>
+<li>Isolation &ndash; each container is separated and runs in its own isolated sandbox</li>
+<li>Versioning &ndash; we are able to easily version and modify containers, and ship only the changed bits saving bandwidth; essential for large clusters deployed in the cloud</li>
+<li>Central repository &ndash; you can build an entire cluster from a trusted and centralised container repository, the Docker Registry/Hub</li>
+<li>Smart resource allocation &ndash; containers can be <code>shipped</code> anywhere and resources can be allotted</li>
+</ul>
+
+
+<h2>Cloudbreak &ndash; the project</h2>
+
+<h3>Cloudbreak UI</h3>
+
+<p>The easiest way to start your own Hadoop cluster in your favorite cloud provider is to use our hosted solution. We host, maintain and support <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> for you. Cloudbreak UI is a secure and intuitive way to launch on-demand Hadoop clusters with a few mouse clicks. Please note that Cloudbreak is launching Hadoop clusters on the user&rsquo;s behalf &ndash; on different cloud providers. We do not store your cloud provider account details (such as username, password, keys, private SSL certificates, etc), but work around the concept that Identity and Access Management is fully controlled by you &ndash; the end user.</p>
+
+<h3>Cloudbreak API</h3>
+
+<p>Cloudbreak is a RESTful Hadoop as a Service API. The easiest way to use the API is by using our hosted <a href="https://cloudbreak-api.sequenceiq.com/">Cloudbreak API</a>.</p>
+
+<p>We have also give you the option to host Cloudbreak within your organization. Once it is deployed in your favourite servlet container exposes a REST API allowing to span up Hadoop clusters of arbitrary sizes on your selected cloud provider. With Cloudbreak you are one POST away from your on-demand Hadoop cluster. You can get the code from our <a href="https://github.com/sequenceiq/cloudbreak">GitHub repository</a>. For further documentation please follow up with the <a href="http://sequenceiq.com/cloudbreak/">general</a> and <a href="http://docs.cloudbreak.apiary.io/">API</a> documentation, or subscribe to one of our social channels in order to receive notifications about further blog posts and releases.</p>
+
+<h3>Cloudbreak REST client</h3>
+
+<p>In order to ease your work with the REST API and embed in your codebase we have created (and also extensively use) a Groovy REST client. The code is available at our <a href="https://github.com/sequenceiq/cloudbreak-rest-client">GitHub</a> repository.</p>
+
+<h3>Cloudbreak CLI</h3>
+
+<p>As we automate everything and we are a very DevOps focused company we are always trying to create easy ways to interact with our systems and API’s. In case of Cloudbreak we have created and released a <a href="https://github.com/sequenceiq/cloudbreak-shell">command line shell</a>, the Cloudbreak CLI. The CLI allows you to use all the REST calls, and it has a large number of easing commands. Interactive help and completion is available.</p>
+
+<h3>Cloudbreak documentation</h3>
+
+<p>We have created two types of documentation. The <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak Product</a> documentation contains an overview, installation, architectural and technical content, whereas the <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak API</a> explains the REST API with examples and a mock server to test your integration.</p>
+
+<h2>What’s next?</h2>
+
+<p>We will follow up with a few posts to drive you through the technology, API and insights and make it easier for you to learn, understand and use Hadoop in the cloud.</p>
+
+<p>In the meantime we suggest you to go through the <a href="http://sequenceiq.com/cloudbreak/">documentation</a>, try <a href="http://cloudbreak.sequenceiq.com/">Cloudbreak</a> and let us know how it works for you.</p>
+
+<p>Please note that <a href="http://cloudbreak.sequenceiq.com/">Cloudbreak</a> is under development, in public beta &ndash; while we consider the codebase stable for deployments (and use it daily), please let us know if you face any problems through <a href="https://github.com/sequenceiq/cloudbreak">GitHub</a> issues. Also we  welcome your open source contribution &ndash; let it be a bug fix or a new cloud provider <a href="http://sequenceiq.com/cloudbreak/#add-new-cloud-providers">implementation</a>.</p>
+
+<p>Finally, your opinion is important to us &ndash; if you’d like to see your <strong>favourite cloud provider</strong> among the existing ones, please fill this <a href="https://docs.google.com/forms/d/129RVh6VfjRsuuHOcS3VPbFYTdM2SEjANDsGCR5Pul0I/viewform">questionnaire</a>. Make your voice heard!</p>
+
+<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Groovy and Java, the runtime bug]]></title>
@@ -2348,157 +2443,6 @@ compiled with 64 bit CentOS. So I created <a href="https://bintray.com/sequencei
 <h2>Automate everything</h2>
 
 <p>As I&rsquo;m an automation fetishist, a Docker file was created, and released in the official <a href="https://index.docker.io/u/sequenceiq/hadoop-docker/">docker repo</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[YARN Capacity Scheduler]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler/"/>
-    <updated>2014-03-14T15:17:04+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler</id>
-    <content type="html"><![CDATA[<p>Since the emergence of Hadoop 2 and the YARN based architecture we have a platform where we can run multiple applications (of different types) not constrained only to MapReduce. Different applications or different MapReduce job profiles have different resource needs, however since Hadoop 2.0 is a multi tenant platform the different users could have different access patterns or need for cluster capacity. In Hadoop 2.0 this is achieved through YARN schedulers — to allocate resources to various applications subject to constraints of capacities and queues (for more information on YARN follow this <a href="http://hortonworks.com/hadoop/yarn/">link</a> or feel free to ask us should you have any questions).</p>
-
-<p>In Hadoop 2.0, the scheduler is a pluggable piece of code that lives inside the <em>ResourceManager</em> (the JobTracker in MR1) &ndash; the ultimate authority that arbitrates resources among all the applications in the system. The scheduler in YARN does not perform monitoring or status tracking and offers no guarantees to restart failed tasks — check our sample <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/yarn-queue-tests">GitHub</a> project to check how monitoring or progress can be tracked.</p>
-
-<p>The Capacity Scheduler was designed to allow significantly higher cluster utilization while still providing predictability for Hadoop workloads, while sharing resources in a predictable and simple manner, using the common notion of <em>job queues</em>.</p>
-
-<p>In our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/yarn-queue-tests">example</a> we show you how to use the Capacity Scheduler, configure queues with different priorities, submit MapReduce jobs into these queues, monitor and track the progress of the jobs &ndash; and ultimately see the differences between execution times and throughput of different queue setups.</p>
-
-<p>First, let’s config the Capacity Scheduler (you can use xml, <a href="http://ambari.apache.org/">Apache Ambari</a> or you can configure queues programmatically). In this example we use a simple xml configuration.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;property&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;name&gt;</span>yarn.scheduler.capacity.root.queues<span class="nt">&lt;/name&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;value&gt;</span>default,highPriority,lowPriority<span class="nt">&lt;/value&gt;</span>
-</span><span class='line'><span class="nt">&lt;/property&gt;</span>
-</span><span class='line'><span class="nt">&lt;property&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;name&gt;</span>yarn.scheduler.capacity.root.highPriority.capacity<span class="nt">&lt;/name&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;value&gt;</span>70<span class="nt">&lt;/value&gt;</span>
-</span><span class='line'><span class="nt">&lt;/property&gt;</span>
-</span><span class='line'><span class="nt">&lt;property&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;name&gt;</span>yarn.scheduler.capacity.root.lowPriority.capacity<span class="nt">&lt;/name&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;value&gt;</span>20<span class="nt">&lt;/value&gt;</span>
-</span><span class='line'><span class="nt">&lt;/property&gt;</span>
-</span><span class='line'><span class="nt">&lt;property&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;name&gt;</span>yarn.scheduler.capacity.root.default.capacity<span class="nt">&lt;/name&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;value&gt;</span>10<span class="nt">&lt;/value&gt;</span>
-</span><span class='line'><span class="nt">&lt;/property&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>We have 3 queues, with different queue setups/priorities. Each queue is given a <em>minimum</em> guaranteed percentage of total cluster capacity available &ndash; the total guaranteed capacity must equal 100%. In our example the <em>highPriority</em> queue has 70% of the resources, the <em>lowPriority</em> 20%, and the default queue has the remaining 10%. While it is not highlight in the example above, the Capacity Scheduler provides elastic resource scheduling, which means that if there are idle resources in the cluster, then one queue can take up more of the cluster capacity than was minimally allocated . In our case we could allocate a <em>maximum</em> capacity to the <em>lowPriority</em> queue:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;property&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;name&gt;</span>yarn.scheduler.capacity.root. lowPriority.maximum-capacity<span class="nt">&lt;/name&gt;</span>
-</span><span class='line'>  <span class="nt">&lt;value&gt;</span>50<span class="nt">&lt;/value&gt;</span>
-</span><span class='line'><span class="nt">&lt;/property&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<!-- more -->
-
-
-<p>Now lets submit some jobs into these queues. We will use the QuasiMonteCarlo.java example (coming with Hadoop) &ndash; a MapReduce job that estimates the value of Pi, and submit the same MapReduce jobs into the low and high priority queues.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//get a configuration</span>
-</span><span class='line'><span class="n">Configuration</span> <span class="n">priorityConf</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Configuration</span><span class="o">();</span>
-</span><span class='line'><span class="n">priorityConf</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">&quot;mapreduce.job.queuename&quot;</span><span class="o">,</span> <span class="n">queueName</span><span class="o">);</span>
-</span><span class='line'><span class="err">………………………</span>      
-</span><span class='line'><span class="c1">//submit the job</span>
-</span><span class='line'><span class="n">JobID</span> <span class="n">jobID</span> <span class="o">=</span> <span class="n">QuasiMonteCarlo</span><span class="o">.</span><span class="na">submitPiEstimationMRApp</span><span class="o">(</span><span class="err">“</span><span class="n">Pi</span> <span class="n">estimation</span> <span class="nl">into:</span> <span class="err">&quot;</span><span class="o">+</span> <span class="n">queueName</span><span class="o">,</span> <span class="mi">10</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="n">tempDir</span><span class="o">,</span> <span class="n">priorityConf</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Once the jobs are submitted in the different queues, you can track the MapReduce job progress and monitor the queues through YARN. Using YARNRunner you can get ahold of a job status, and retrieve different informations:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">//print overall job M/R progresses</span>
-</span><span class='line'><span class="n">LOGGER</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&quot;\nJob &quot;</span> <span class="o">+</span> <span class="n">jobStatus</span><span class="o">.</span><span class="na">getJobName</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;in queue (&quot;</span> <span class="o">+</span> <span class="n">jobStatus</span><span class="o">.</span><span class="na">getQueue</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;)&quot;</span> <span class="o">+</span> <span class="s">&quot; progress M/R: &quot;</span> <span class="o">+</span>              <span class="n">jobStatus</span><span class="o">.</span><span class="na">getMapProgress</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span> <span class="o">+</span> <span class="n">jobStatus</span><span class="o">.</span><span class="na">getReduceProgress</span><span class="o">());</span>
-</span><span class='line'><span class="n">LOGGER</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&quot;Tracking URL : &quot;</span> <span class="o">+</span> <span class="n">jobStatus</span><span class="o">.</span><span class="na">getTrackingUrl</span><span class="o">());</span>
-</span><span class='line'><span class="n">LOGGER</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&quot;Reserved memory : &quot;</span> <span class="o">+</span> <span class="n">jobStatus</span><span class="o">.</span><span class="na">getReservedMem</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;, used memory : &quot;</span><span class="o">+</span> <span class="n">jobStatus</span><span class="o">.</span><span class="na">getUsedMem</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot; and          used slots : &quot;</span><span class="o">+</span> <span class="n">jobStatus</span><span class="o">.</span><span class="na">getNumUsedSlots</span><span class="o">());</span>
-</span><span class='line'>  
-</span><span class='line'><span class="c1">// list map &amp; reduce tasks statuses and progress     </span>
-</span><span class='line'><span class="n">TaskReport</span><span class="o">[]</span> <span class="n">reports</span> <span class="o">=</span> <span class="n">yarnRunner</span><span class="o">.</span><span class="na">getTaskReports</span><span class="o">(</span><span class="n">jobID</span><span class="o">,</span> <span class="n">TaskType</span><span class="o">.</span><span class="na">MAP</span><span class="o">);</span>
-</span><span class='line'><span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">reports</span><span class="o">.</span><span class="na">length</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
-</span><span class='line'><span class="n">LOGGER</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&quot;MAP: Status &quot;</span> <span class="o">+</span> <span class="n">reports</span><span class="o">[</span><span class="n">i</span><span class="o">].</span><span class="na">getCurrentStatus</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot; with task ID &quot;</span> <span class="o">+</span> <span class="n">reports</span><span class="o">[</span><span class="n">i</span><span class="o">].</span><span class="na">getTaskID</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;, and                 progress &quot;</span> <span class="o">+</span> <span class="n">reports</span><span class="o">[</span><span class="n">i</span><span class="o">].</span><span class="na">getProgress</span><span class="o">());</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Same way the queue capacity can be tracked as well:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">ArrayNode</span> <span class="n">queues</span> <span class="o">=</span> <span class="o">(</span><span class="n">ArrayNode</span><span class="o">)</span> <span class="n">jsonNode</span><span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;scheduler&quot;</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;schedulerInfo&quot;</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;queues&quot;</span><span class="o">).</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;queue&quot;</span><span class="o">);</span>
-</span><span class='line'><span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">queues</span><span class="o">.</span><span class="na">size</span><span class="o">();</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
-</span><span class='line'><span class="n">JsonNode</span> <span class="n">queueNode</span> <span class="o">=</span> <span class="n">queues</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">i</span><span class="o">);</span>                       
-</span><span class='line'><span class="n">LOGGER</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&quot;queueName / usedCapacity / absoluteUsedCap / absoluteCapacity / absMaxCapacity: &quot;</span> <span class="o">+</span>
-</span><span class='line'>                  <span class="n">queueNode</span><span class="o">.</span><span class="na">findValue</span><span class="o">(</span><span class="s">&quot;queueName&quot;</span><span class="o">)</span> <span class="o">+</span> <span class="s">&quot; / &quot;</span> <span class="o">+</span>
-</span><span class='line'>                  <span class="n">queueNode</span><span class="o">.</span><span class="na">findValue</span><span class="o">(</span><span class="s">&quot;usedCapacity&quot;</span><span class="o">)</span> <span class="o">+</span> <span class="s">&quot; / &quot;</span> <span class="o">+</span>
-</span><span class='line'>                  <span class="n">queueNode</span><span class="o">.</span><span class="na">findValue</span><span class="o">(</span><span class="s">&quot;absoluteUsedCapacity&quot;</span><span class="o">)</span> <span class="o">+</span> <span class="s">&quot; / &quot;</span> <span class="o">+</span>
-</span><span class='line'>                  <span class="n">queueNode</span><span class="o">.</span><span class="na">findValue</span><span class="o">(</span><span class="s">&quot;absoluteCapacity&quot;</span><span class="o">)</span> <span class="o">+</span> <span class="s">&quot; / &quot;</span> <span class="o">+</span>
-</span><span class='line'>                  <span class="n">queueNode</span><span class="o">.</span><span class="na">findValue</span><span class="o">(</span><span class="s">&quot;absoluteMaxCapacity&quot;</span><span class="o">));</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You can run the example with <code>hadoop jar yarn-queue-tests-1.0-SNAPSHOT.jar com.sequenceiq.yarntest.client.JobClient</code>, and play with different queue setups. Once you have changed the queue setup you can refresh the settings with <code>yarn rmadmin -refreshQueues</code>.</p>
-
-<p>You can check the progress through the <a href="https://gist.github.com/matyix/9528220">logs</a>.The <a href="http://sandbox.hortonworks.com:8088/cluster/scheduler">cluster statistics</a> and <a href="http://sandbox.hortonworks.com:8088/cluster/apps">application statistics</a> are available as well (we run this example on Hortonworks HDP2 sandbox, but any other Hadoop 2 distribution works &ndash; you can set your own cluster on Amazon EC2 using SequenceIQ&rsquo;s setup scripts from our <a href="https://github.com/sequenceiq/hadoop-cloud-scripts">GitHub</a> page).</p>
-
-<p>As you expect, the jobs submitted into the  <code>highPriority</code> queue are finished earlier than those submitted into the <code>lowPriority</code> one &ndash; though (in case of submitting into the same queue) the MapReduce jobs should take the same time (as they are the same MapReduce job, have the same job profile).</p>
-
-<p>This is a good way to start experimenting multi-tenancy and parallel jobs submission into a shared cluster (beyond the Fair Scheduler). At <a href="http://sequenceiq.com">SequenceIQ</a> we are working on a heuristic YARN scheduler &ndash; where we can adapt to increased work loads, submit jobs into queues based on different customer QoS profiles, and increase or downsize our cloud based cluster based on load and capacity.</p>
-
-<p>For more details and updates please follow us through our <a href="http://www.linkedin.com/company/sequenceiq/">LinkedIn</a> page.
-You can access the code from our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/yarn-queue-tests">GitHub</a> repository.</p>
-
-<p>Thanks,
-SequenceIQ</p>
 ]]></content>
   </entry>
   
