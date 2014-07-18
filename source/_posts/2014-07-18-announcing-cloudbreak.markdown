@@ -82,22 +82,22 @@ At high level the supported list of components can be grouped into two main cate
 
 | Services      | Components                                                              |
 | :------------ | :------------------------------------------------------------------------ |
-| HDFS		    | DATANODE, HDFS_CLIENT, JOURNALNODE, NAMENODE, SECONDARY_NAMENODE, ZKFC  |
-| YARN		    | APP_TIMELINE_SERVER, NODEMANAGER, RESOURCEMANAGER, YARN_CLIENT          |
-| MAPREDUCE2	  | HISTORYSERVER, MAPREDUCE2_CLIENT                                        |
-| GANGLIA		    | GANGLIA_MONITOR, GANGLIA_SERVER                                         |
-| HBASE		      | HBASE_CLIENT, HBASE_MASTER, HBASE_REGIONSERVER                          |
-| HIVE		    | HIVE_CLIENT, HIVE_METASTORE, HIVE_SERVER, MYSQL_SERVER                  |
-| HCATALOG	    | HCAT                                                                    |
-| WEBHCAT		    | WEBHCAT_SERVER                                                          |
-| NAGIOS		  | NAGIOS_SERVER                                                           |
-| OOZIE		      | OOZIE_CLIENT, OOZIE_SERVER                                              |
-| PIG		        | PIG                                                                     |
-| SQOOP		      | SQOOP                                                                   |
-| STORM		      | DRPC_SERVER, NIMBUS, STORM_REST_API, STORM_UI_SERVER, SUPERVISOR        |
-| TEZ		        | TEZ_CLIENT                                                              |
-| FALCON		  | FALCON_CLIENT, FALCON_SERVER                                            |
-| ZOOKEEPER	    | ZOOKEEPER_CLIENT, ZOOKEEPER_SERVER                                      |
+| HDFS		    | DATANODE, HDFS_CLIENT, JOURNALNODE, NAMENODE, SECONDARY_NAMENODE, ZKFC  
+| YARN		    | APP_TIMELINE_SERVER, NODEMANAGER, RESOURCEMANAGER, YARN_CLIENT           
+| MAPREDUCE2	  | HISTORYSERVER, MAPREDUCE2_CLIENT                                        
+| GANGLIA		    | GANGLIA_MONITOR, GANGLIA_SERVER                                         
+| HBASE		      | HBASE_CLIENT, HBASE_MASTER, HBASE_REGIONSERVER                          
+| HIVE		    | HIVE_CLIENT, HIVE_METASTORE, HIVE_SERVER, MYSQL_SERVER                  
+| HCATALOG	    | HCAT                                                                    
+| WEBHCAT		    | WEBHCAT_SERVER                                                          
+| NAGIOS		  | NAGIOS_SERVER                                                           
+| OOZIE		      | OOZIE_CLIENT, OOZIE_SERVER                                              
+| PIG		        | PIG                                                                     
+| SQOOP		      | SQOOP                                                                   
+| STORM		      | DRPC_SERVER, NIMBUS, STORM_REST_API, STORM_UI_SERVER, SUPERVISOR        
+| TEZ		        | TEZ_CLIENT                                                              
+| FALCON		  | FALCON_CLIENT, FALCON_SERVER                                            
+| ZOOKEEPER	    | ZOOKEEPER_CLIENT, ZOOKEEPER_SERVER                                      
 
 
 Please note that you can always build your own custom stack beyond these services, using Ambari's custom stack definitions. 
