@@ -205,97 +205,42 @@
 
 <p>At high level the supported list of components can be grouped into two main categories: Master and Slave &ndash; and bundling them together form a Hadoop Service. <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> supports the following Hadoop services.</p>
 
-<table>
-<thead>
-<tr>
-<th></th>
-<th align="center"> Services      </th>
-<th align="left"> Components                                                              </th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td align="center"> HDFS          </td>
-<td align="left"> DATANODE, HDFS_CLIENT, JOURNALNODE, NAMENODE, SECONDARY_NAMENODE, ZKFC  </td>
-</tr>
-<tr>
-<td></td>
-<td align="center"> YARN          </td>
-<td align="left"> APP_TIMELINE_SERVER, NODEMANAGER, RESOURCEMANAGER, YARN_CLIENT           </td>
-</tr>
-<tr>
-<td></td>
-<td align="center"> MAPREDUCE2      </td>
-<td align="left"> HISTORYSERVER, MAPREDUCE2_CLIENT                                        </td>
-</tr>
-<tr>
-<td></td>
-<td align="center"> GANGLIA           </td>
-<td align="left"> GANGLIA_MONITOR, GANGLIA_SERVER                                         </td>
-</tr>
-<tr>
-<td></td>
-<td align="center"> HBASE           </td>
-<td align="left"> HBASE_CLIENT, HBASE_MASTER, HBASE_REGIONSERVER                          </td>
-</tr>
-<tr>
-<td></td>
-<td align="center"> HIVE          </td>
-<td align="left"> HIVE_CLIENT, HIVE_METASTORE, HIVE_SERVER, MYSQL_SERVER                  </td>
-</tr>
-<tr>
-<td></td>
-<td align="center"> HCATALOG      </td>
-<td align="left"> HCAT                                                                    </td>
-</tr>
-<tr>
-<td></td>
-<td align="center"> WEBHCAT           </td>
-<td align="left"> WEBHCAT_SERVER                                                          </td>
-</tr>
-<tr>
-<td></td>
-<td align="center"> NAGIOS          </td>
-<td align="left"> NAGIOS_SERVER                                                           </td>
-</tr>
-<tr>
-<td></td>
-<td align="center"> OOZIE           </td>
-<td align="left"> OOZIE_CLIENT, OOZIE_SERVER                                              </td>
-</tr>
-<tr>
-<td></td>
-<td align="center"> PIG               </td>
-<td align="left"> PIG                                                                     </td>
-</tr>
-<tr>
-<td></td>
-<td align="center"> SQOOP           </td>
-<td align="left"> SQOOP                                                                   </td>
-</tr>
-<tr>
-<td></td>
-<td align="center"> STORM           </td>
-<td align="left"> DRPC_SERVER, NIMBUS, STORM_REST_API, STORM_UI_SERVER, SUPERVISOR        </td>
-</tr>
-<tr>
-<td></td>
-<td align="center"> TEZ               </td>
-<td align="left"> TEZ_CLIENT                                                              </td>
-</tr>
-<tr>
-<td></td>
-<td align="center"> FALCON          </td>
-<td align="left"> FALCON_CLIENT, FALCON_SERVER                                            </td>
-</tr>
-<tr>
-<td></td>
-<td align="center"> ZOOKEEPER     </td>
-<td align="left"> ZOOKEEPER_CLIENT, ZOOKEEPER_SERVER                                      </td>
-</tr>
-</tbody>
-</table>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>| Services    | Components                                                              |
+</span><span class='line'>|:----------- |:------------------------------------------------------------------------|
+</span><span class='line'>| HDFS            | DATANODE, HDFS_CLIENT, JOURNALNODE, NAMENODE, SECONDARY_NAMENODE, ZKFC  |
+</span><span class='line'>| YARN            | APP_TIMELINE_SERVER, NODEMANAGER, RESOURCEMANAGER, YARN_CLIENT          |
+</span><span class='line'>| MAPREDUCE2  | HISTORYSERVER, MAPREDUCE2_CLIENT                                        |
+</span><span class='line'>| GANGLIA       | GANGLIA_MONITOR, GANGLIA_SERVER                                         |
+</span><span class='line'>| HBASE           | HBASE_CLIENT, HBASE_MASTER, HBASE_REGIONSERVER                          |
+</span><span class='line'>| HIVE            | HIVE_CLIENT, HIVE_METASTORE, HIVE_SERVER, MYSQL_SERVER                  |
+</span><span class='line'>| HCATALOG      | HCAT                                                                    |
+</span><span class='line'>| WEBHCAT       | WEBHCAT_SERVER                                                          |
+</span><span class='line'>| NAGIOS        | NAGIOS_SERVER                                                           |
+</span><span class='line'>| OOZIE           | OOZIE_CLIENT, OOZIE_SERVER                                              |
+</span><span class='line'>| PIG           | PIG                                                                     |
+</span><span class='line'>| SQOOP           | SQOOP                                                                   |
+</span><span class='line'>| STORM           | DRPC_SERVER, NIMBUS, STORM_REST_API, STORM_UI_SERVER, SUPERVISOR        |
+</span><span class='line'>| TEZ           | TEZ_CLIENT                                                              |
+</span><span class='line'>| FALCON        | FALCON_CLIENT, FALCON_SERVER                                            |
+</span><span class='line'>| ZOOKEEPER     | ZOOKEEPER_CLIENT, ZOOKEEPER_SERVER                                      |</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Please note that you can always build your own custom stack beyond these services, using Ambari&rsquo;s custom stack definitions.</p>
