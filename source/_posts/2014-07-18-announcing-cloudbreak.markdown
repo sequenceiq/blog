@@ -81,7 +81,7 @@ At high level the supported list of components can be grouped into two main cate
 
 
 | Services    | Components                                                              |
-|:----------- |:------------------------------------------------------------------------|
+| :----------- | :------------------------------------------------------------------------ |
 | HDFS		  | DATANODE, HDFS_CLIENT, JOURNALNODE, NAMENODE, SECONDARY_NAMENODE, ZKFC  |
 | YARN		  | APP_TIMELINE_SERVER, NODEMANAGER, RESOURCEMANAGER, YARN_CLIENT          |
 | MAPREDUCE2	| HISTORYSERVER, MAPREDUCE2_CLIENT                                        |
