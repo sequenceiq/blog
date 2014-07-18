@@ -5,7 +5,7 @@ date: 2014-07-18 18:37:37 +0200
 comments: true
 categories: [Hadoop as a Service, Hadoop, Docker, Cloud, Cloudbreak]
 author: Janos Matyas
-published: false
+published: true
 ---
 
 _Cloudbreak is a powerful left surf that breaks over a coral reef, a mile off southwest the island of Tavarua, Fiji._
