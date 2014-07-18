@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Cloudbreak | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/cloudbreak/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-07-18T17:09:08+00:00</updated>
+  <updated>2014-07-18T17:21:18+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -78,7 +78,7 @@
 
 <h3>Cloudbreak API</h3>
 
-<p>Cloudbreak is a RESTful Hadoop as a Service API. The easiest way to use the API is by using our hosted <a href="https://cloudbreak-api.sequenceiq.com/">Cloudbreak API</a>.</p>
+<p>Cloudbreak is a RESTful Hadoop as a Service API. The easiest way to use the API is by using our hosted <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak API</a>.</p>
 
 <p>We have also give you the option to host Cloudbreak within your organization. Once it is deployed in your favourite servlet container exposes a REST API allowing to span up Hadoop clusters of arbitrary sizes on your selected cloud provider. With Cloudbreak you are one POST away from your on-demand Hadoop cluster. You can get the code from our <a href="https://github.com/sequenceiq/cloudbreak">GitHub repository</a>. For further documentation please follow up with the <a href="http://sequenceiq.com/cloudbreak/">general</a> and <a href="http://docs.cloudbreak.apiary.io/">API</a> documentation, or subscribe to one of our social channels in order to receive notifications about further blog posts and releases.</p>
 
