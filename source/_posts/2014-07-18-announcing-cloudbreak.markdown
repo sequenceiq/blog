@@ -59,7 +59,7 @@ The easiest way to start your own Hadoop cluster in your favorite cloud provider
 
 ###Cloudbreak API
 
-Cloudbreak is a RESTful Hadoop as a Service API. The easiest way to use the API is by using our hosted [Cloudbreak API](https://cloudbreak-api.sequenceiq.com/).
+Cloudbreak is a RESTful Hadoop as a Service API. The easiest way to use the API is by using our hosted [Cloudbreak API](http://docs.cloudbreak.apiary.io/).
 
 We have also give you the option to host Cloudbreak within your organization. Once it is deployed in your favourite servlet container exposes a REST API allowing to span up Hadoop clusters of arbitrary sizes on your selected cloud provider. With Cloudbreak you are one POST away from your on-demand Hadoop cluster. You can get the code from our [GitHub repository](https://github.com/sequenceiq/cloudbreak). For further documentation please follow up with the [general](http://sequenceiq.com/cloudbreak/) and [API](http://docs.cloudbreak.apiary.io/) documentation, or subscribe to one of our social channels in order to receive notifications about further blog posts and releases.
 
