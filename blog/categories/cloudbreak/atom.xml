@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Cloudbreak | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/cloudbreak/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-07-18T17:02:48+00:00</updated>
+  <updated>2014-07-18T17:05:34+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -101,21 +101,21 @@
 <p><code>
 | Services    | Components                                                              |
 |:----------- |:------------------------------------------------------------------------|
-| HDFS          | DATANODE, HDFS_CLIENT, JOURNALNODE, NAMENODE, SECONDARY_NAMENODE, ZKFC  |
-| YARN          | APP_TIMELINE_SERVER, NODEMANAGER, RESOURCEMANAGER, YARN_CLIENT          |
-| MAPREDUCE2    | HISTORYSERVER, MAPREDUCE2_CLIENT                                        |
-| GANGLIA         | GANGLIA_MONITOR, GANGLIA_SERVER                                         |
-| HBASE         | HBASE_CLIENT, HBASE_MASTER, HBASE_REGIONSERVER                          |
-| HIVE          | HIVE_CLIENT, HIVE_METASTORE, HIVE_SERVER, MYSQL_SERVER                  |
+| HDFS        | DATANODE, HDFS_CLIENT, JOURNALNODE, NAMENODE, SECONDARY_NAMENODE, ZKFC  |
+| YARN        | APP_TIMELINE_SERVER, NODEMANAGER, RESOURCEMANAGER, YARN_CLIENT          |
+| MAPREDUCE2  | HISTORYSERVER, MAPREDUCE2_CLIENT                                        |
+| GANGLIA     | GANGLIA_MONITOR, GANGLIA_SERVER                                         |
+| HBASE       | HBASE_CLIENT, HBASE_MASTER, HBASE_REGIONSERVER                          |
+| HIVE        | HIVE_CLIENT, HIVE_METASTORE, HIVE_SERVER, MYSQL_SERVER                  |
 | HCATALOG    | HCAT                                                                    |
-| WEBHCAT         | WEBHCAT_SERVER                                                          |
-| NAGIOS          | NAGIOS_SERVER                                                           |
-| OOZIE         | OOZIE_CLIENT, OOZIE_SERVER                                              |
-| PIG             | PIG                                                                     |
-| SQOOP         | SQOOP                                                                   |
-| STORM         | DRPC_SERVER, NIMBUS, STORM_REST_API, STORM_UI_SERVER, SUPERVISOR        |
-| TEZ             | TEZ_CLIENT                                                              |
-| FALCON          | FALCON_CLIENT, FALCON_SERVER                                            |
+| WEBHCAT     | WEBHCAT_SERVER                                                          |
+| NAGIOS      | NAGIOS_SERVER                                                           |
+| OOZIE       | OOZIE_CLIENT, OOZIE_SERVER                                              |
+| PIG         | PIG                                                                     |
+| SQOOP       | SQOOP                                                                   |
+| STORM       | DRPC_SERVER, NIMBUS, STORM_REST_API, STORM_UI_SERVER, SUPERVISOR        |
+| TEZ         | TEZ_CLIENT                                                              |
+| FALCON      | FALCON_CLIENT, FALCON_SERVER                                            |
 | ZOOKEEPER   | ZOOKEEPER_CLIENT, ZOOKEEPER_SERVER                                      |
 </code></p>
 
