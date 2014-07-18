@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-07-18T16:47:34+00:00</updated>
+  <updated>2014-07-18T16:51:33+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -109,83 +109,83 @@
 <tbody>
 <tr>
 <td></td>
-<td align="left"> HDFS          </td>
-<td align="left"> DATANODE, HDFS_CLIENT, JOURNALNODE, NAMENODE, SECONDARY_NAMENODE, ZKFC |</td>
+<td align="left"> HDFS        </td>
+<td align="left"> DATANODE, HDFS_CLIENT, JOURNALNODE, NAMENODE, SECONDARY_NAMENODE, ZKFC  |</td>
 </tr>
 <tr>
 <td></td>
-<td align="left"> YARN          </td>
-<td align="left"> APP_TIMELINE_SERVER, NODEMANAGER, RESOURCEMANAGER, YARN_CLIENT |</td>
+<td align="left"> YARN        </td>
+<td align="left"> APP_TIMELINE_SERVER, NODEMANAGER, RESOURCEMANAGER, YARN_CLIENT          |</td>
 </tr>
 <tr>
 <td></td>
 <td align="left"> MAPREDUCE2    </td>
-<td align="left"> HISTORYSERVER, MAPREDUCE2_CLIENT |</td>
+<td align="left"> HISTORYSERVER, MAPREDUCE2_CLIENT                                        |</td>
 </tr>
 <tr>
 <td></td>
 <td align="left"> GANGLIA         </td>
-<td align="left"> GANGLIA_MONITOR, GANGLIA_SERVER  |</td>
+<td align="left"> GANGLIA_MONITOR, GANGLIA_SERVER                                         |</td>
 </tr>
 <tr>
 <td></td>
 <td align="left"> HBASE         </td>
-<td align="left"> HBASE_CLIENT, HBASE_MASTER, HBASE_REGIONSERVER |</td>
+<td align="left"> HBASE_CLIENT, HBASE_MASTER, HBASE_REGIONSERVER                          |</td>
 </tr>
 <tr>
 <td></td>
-<td align="left"> HIVE          </td>
-<td align="left"> HIVE_CLIENT, HIVE_METASTORE, HIVE_SERVER, MYSQL_SERVER |</td>
+<td align="left"> HIVE        </td>
+<td align="left"> HIVE_CLIENT, HIVE_METASTORE, HIVE_SERVER, MYSQL_SERVER                  |</td>
 </tr>
 <tr>
 <td></td>
 <td align="left"> HCATALOG    </td>
-<td align="left"> HCAT |</td>
+<td align="left"> HCAT                                                                    |</td>
 </tr>
 <tr>
 <td></td>
 <td align="left"> WEBHCAT         </td>
-<td align="left"> WEBHCAT_SERVER |</td>
+<td align="left"> WEBHCAT_SERVER                                                          |</td>
 </tr>
 <tr>
 <td></td>
-<td align="left"> NAGIOS          </td>
-<td align="left"> NAGIOS_SERVER |</td>
+<td align="left"> NAGIOS        </td>
+<td align="left"> NAGIOS_SERVER                                                           |</td>
 </tr>
 <tr>
 <td></td>
 <td align="left"> OOZIE         </td>
-<td align="left"> OOZIE_CLIENT, OOZIE_SERVER |</td>
+<td align="left"> OOZIE_CLIENT, OOZIE_SERVER                                              |</td>
 </tr>
 <tr>
 <td></td>
 <td align="left"> PIG             </td>
-<td align="left"> PIG |</td>
+<td align="left"> PIG                                                                     |</td>
 </tr>
 <tr>
 <td></td>
 <td align="left"> SQOOP         </td>
-<td align="left"> SQOOP  |</td>
+<td align="left"> SQOOP                                                                   |</td>
 </tr>
 <tr>
 <td></td>
 <td align="left"> STORM         </td>
-<td align="left"> DRPC_SERVER, NIMBUS, STORM_REST_API, STORM_UI_SERVER, SUPERVISOR |</td>
+<td align="left"> DRPC_SERVER, NIMBUS, STORM_REST_API, STORM_UI_SERVER, SUPERVISOR        |</td>
 </tr>
 <tr>
 <td></td>
 <td align="left"> TEZ             </td>
-<td align="left"> TEZ_CLIENT |</td>
+<td align="left"> TEZ_CLIENT                                                              |</td>
 </tr>
 <tr>
 <td></td>
-<td align="left"> FALCON          </td>
-<td align="left"> FALCON_CLIENT, FALCON_SERVER  |</td>
+<td align="left"> FALCON        </td>
+<td align="left"> FALCON_CLIENT, FALCON_SERVER                                            |</td>
 </tr>
 <tr>
 <td></td>
 <td align="left"> ZOOKEEPER   </td>
-<td align="left"> ZOOKEEPER_CLIENT, ZOOKEEPER_SERVER  |</td>
+<td align="left"> ZOOKEEPER_CLIENT, ZOOKEEPER_SERVER                                      |</td>
 </tr>
 </tbody>
 </table>
