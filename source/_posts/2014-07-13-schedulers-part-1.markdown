@@ -220,11 +220,48 @@ capacity.LeafQueue (LeafQueue.java:removeApplicationAttempt(821)) - Application 
 amlauncher.AMLauncher (AMLauncher.java:run(262)) - Cleaning master appattempt_1405323437551_0001_000001
 ```
 ### NODE_UPDATE
+Normally `NodeUpdateSchedulerEvents` arrive every second from every node. By setting the earlier mentioned `schedule-asynchronously` to true
+the behavior of this event handling can be altered in a way that container allocations happen asynchronously from these events. Meaning
+the CapacityScheduler tries to allocate new containers in every 100ms on a different [thread](https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/CapacityScheduler.java#L361).
+Before going into details let's discuss another important aspect.
+#### Allocate
+The [allocate](https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/CapacityScheduler.java#L675)
+method is used as a heartbeat. This is the most important call between the `ApplicationMaster` and the scheduler. Instead of using a simple
+empty message, the heartbeat can contain resource requests of the application. The reason it is important here as the scheduler
+more precisely the queue when tries to allocate resources it will check the active applications in FIFO order and see their resource requests.
+```
+{Priority: 20, Capability: <memory:1024, vCores:1>, # Containers: 2, Location: *, Relax Locality: true}
+{Priority: 20, Capability: <memory:1024, vCores:1>, # Containers: 2, Location: /default-rack, Relax Locality: true}
+{Priority: 20, Capability: <memory:1024, vCores:1>, # Containers: 2, Location: amb1.mycorp.kom, Relax Locality: true}
+```
+Let's examine these request:
 
-TODO
+* Priority: requests with higher priority gets served first (mappers got 20, reducer 10, AM 0)
+* Capability: denotes the required container's size
+* Location: where the AM would like to get the containers. There are 3 types of locations: node-local, rack-local, off-switch.
+  The location is based on the location of the blocks of the data. It is the `ApplicationMaster`'s duty to locate them. Off-switch means
+  that any node in the cluster is good enough. Typically the `ApplicationMaster`'s container request is an off-switch request.
+* Relax locality: in case it is set to false, only node-local container can be allocated. By default it is set to true.
+
+#### NODE_UPDATE
+Let's get back to `NODE_UPDATE`. What happens at every node update and why it happens so frequently? First of all, nodes are running
+the containers. Containers start and stop all the time thus the scheduler needs an update about the state of the node. Also it
+updates the resource capability of the node. After the updates are noted, the scheduler tries to allocate containers on the node. The
+same applies to every node in the cluster. At every `NODE_UPDATE` the scheduler checks if an application reserved a container
+on this node. If there is reservation then tries to fulfill it. Every node can have only one reserved container. After the
+reservation it tries to allocate more containers by going through all the queues starting from `root`. The node can have one more container
+if it has at least the minimum allocation's resource capability. Going through the child queues of `root` it checks the queue's active
+applications and its resource requests by priority order. If the application has request for this node it tries to allocate it. If
+the relax locality set to true it could also allocate container even though there is no explicite request for this node, but that's
+not what's going to happen first. There is another term called delay scheduling. The scheduler tries to delay any non-data-local
+request, but cannot delay it for so long. The `localityWaitFactor` will determine how long to wait until fall back to rack-local then
+the end to off-switch requests. If everything works out it allocates a container and tracks its resource usage. If there is not enough
+resource capability one application can reserve a container on this node, and at the next update may can use this reservation. After
+the allocation is made the `ApplicationMaster` will submit a request to the node to launch this container and assign a task to it to run.
+The scheduler does not need to know what task the AM will run in the container.
 
 ### CONTAINER_EXPIRED
 The [ContainerAllocationExpirer's](https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/rmcontainer/ContainerAllocationExpirer.java)
 responsibility to check if a container expires and when it does it sends an `ContainerExpiredSchedulerEvent` and the scheduler
-will notify the application to remove the container from its list. The value of how long to wait until a container is considered dead can
+will notify the application to remove the container. The value of how long to wait until a container is considered dead can
 be configured.
