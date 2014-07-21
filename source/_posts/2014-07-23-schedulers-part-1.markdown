@@ -1,13 +1,14 @@
 ---
 layout: post
-title: "YARN Schedulers demistified - Part 1: Capacity"
+title: "YARN Schedulers demystified - Part 1: Capacity"
 date: 2014-07-23 13:13:39 +0200
 comments: true
 categories: [Hadoop, YARN, Schedulers]
 author: Krisztian Horvath
 published: false
 ---
-After our first [post](http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues/) about re-prioritizing already submitted and running jobs on different queues we have received many questions and feedbacks about the Capacity Scheduler internals. While there is `some` documentation available, there is no extensive and deep documentation about how it actually works internally. Since it's all based on a messaging subsytem it's pretty hard to understand the flow - let alone debuging it. At [SequenceIQ](http://sequenceiq.com/) we are working on a heuristic cluster scheduler - and understanding how YARN schedulers work was esential. This is part of a larger piece of work - which will lead to a fully dynamic Hadoop clusters - orchestraring [Clousbreak](http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/) - the first open source and Docker based **Hadoop as a Service API**. As usual for us, this work and what we have already done around Capacity and Fair schedulers will be open sourced (or already contributed back to Apache YARN project).
+
+After our first [post](http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues/) about re-prioritizing already submitted and running jobs on different queues we have received many questions and feedbacks about the Capacity Scheduler internals. While there is `some` documentation available, there is no extensive and deep documentation about how it actually works internally. Since it's all event based it's pretty hard to understand the flow - let alone debugging it. At [SequenceIQ](http://sequenceiq.com/) we are working on a heuristic cluster scheduler - and understanding how YARN schedulers work was essential. This is part of a larger piece of work - which will lead to a fully dynamic Hadoop clusters - orchestrating [Cloudbreak](http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/) - the first open source and Docker based **Hadoop as a Service API**. As usual for us, this work and what we have already done around Capacity and Fair schedulers will be open sourced (or already contributed back to Apache YARN project).
 
 ##The Capacity Scheduler internals 
 
@@ -186,7 +187,7 @@ There can be many reasons that a node is being removed from the cluster, but the
 `NodeRemovedSchedulerEvent` is sent and the scheduler subtracts the node's resources from the global and updates all the queue metrics.
 Things can be a little bit complicated since the node was active part of the resource scheduling and can have running containers and
 reserved resources. The scheduler will kill these containers and notify the applications so they can request new containers and
-unreserves the resources.
+unreserve the resources.
 ```
 rmnode.RMNodeImpl (RMNodeImpl.java:transition(569)) - Deactivating Node amb4.mycorp.kom:45454 as it is now DECOMMISSIONED
 rmnode.RMNodeImpl (RMNodeImpl.java:handle(385)) - amb4.mycorp.kom:45454 Node Transitioned from RUNNING to DECOMMISSIONED
@@ -254,7 +255,7 @@ Let's examine these requests:
 * Relax locality: in case it is set to false, only node-local container can be allocated. By default it is set to true.
 
 #### NODE_UPDATE
-Let's get back to `NODE_UPDATE`. What happens at every node update and why it happens so frequently? First of all, nodes are running the containers. Containers start and stop all the time thus the scheduler needs an update about the state of the nodes. Also it updates their resource capabilities as well. After the updates are noted, the scheduler tries to allocate containers on the nodes. The same applies to every node in the cluster. At every `NODE_UPDATE` the scheduler checks if an application reserved a container on this node. If there is reservation then tries to fulfill it. Every node can have only one reserved container. After the reservation it tries to allocate more containers by going through all the queues starting from `root`. The node can have one more container if it has at least the minimum allocation's resource capability. Going through the child queues of `root` it checks the queue's active applications and its resource requests by priority order. If the application has request for this node it tries to allocate it. If the relax locality is set to true it could also allocate container even though there is no explicite request for this node, but that's not what's going to happen first. There is another term called delay scheduling. The scheduler tries to delay any non-data-local
+Let's get back to `NODE_UPDATE`. What happens at every node update and why it happens so frequently? First of all, nodes are running the containers. Containers start and stop all the time thus the scheduler needs an update about the state of the nodes. Also it updates their resource capabilities as well. After the updates are noted, the scheduler tries to allocate containers on the nodes. The same applies to every node in the cluster. At every `NODE_UPDATE` the scheduler checks if an application reserved a container on this node. If there is reservation then tries to fulfill it. Every node can have only one reserved container. After the reservation it tries to allocate more containers by going through all the queues starting from `root`. The node can have one more container if it has at least the minimum allocation's resource capability. Going through the child queues of `root` it checks the queue's active applications and its resource requests by priority order. If the application has request for this node it tries to allocate it. If the relax locality is set to true it could also allocate container even though there is no explicit request for this node, but that's not what's going to happen first. There is another term called delay scheduling. The scheduler tries to delay any non-data-local
 request, but cannot delay it for so long. The `localityWaitFactor` will determine how long to wait until fall back to rack-local then the end to off-switch requests. If everything works out it allocates a container and tracks its resource usage. If there is not enough resource capability one application can reserve a container on this node, and at the next update may can use this reservation. After the allocation is made the `ApplicationMaster` will submit a request to the node to launch this container and assign a task to it to run.
 The scheduler does not need to know what task the AM will run in the container.
 
@@ -271,5 +272,3 @@ In the next part of this series I'll compare it with FairScheduler, to see the d
 For updates and further blog posts follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
 
 Enjoy.
-
-
