@@ -14,6 +14,13 @@ from a technical point of view (the implementation can be found [here](https://g
 as part of the ResourceManager). I'll try to keep it short and deal with the most important aspects, preventing to write a book
 about it.
 
+{% img https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-queue-tests/src/main/resources/event-flow.gif %}
+
+The animation shows a basic application submission event flow, but don't worry if you don't understand it yet, hopefully you will
+when you're done reading.
+
+<!-- more -->
+
 ## Configuration
 
 It all begins with the configuration. The scheduler consists of a queue hierarchy, something like this
@@ -50,8 +57,6 @@ The [initScheduler](https://github.com/apache/hadoop-common/blob/trunk/hadoop-ya
 will parse the configuration file and create either [parent](https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/ParentQueue.java)
 or [leaf](https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/LeafQueue.java)
 queues and compute their capabilities.
-
-<!-- more -->
 
 ```
 capacity.LeafQueue (LeafQueue.java:setupQueueConfigs(312)) - Initializing default
@@ -270,6 +275,10 @@ The [ContainerAllocationExpirer's](https://github.com/apache/hadoop-common/blob/
 responsibility to check if a container expires and when it does it sends an `ContainerExpiredSchedulerEvent` and the scheduler
 will notify the application to remove the container. The value of how long to wait until a container is considered dead can
 be configured.
+
+## Animation
+The animation on top shows a basic event flow starting from adding 2 nodes and submitting 2 applications with attempts. Eventually
+the node updates tries to allocate resources to those applications. After reading this post I hope it makes sense now.
 
 ## What's next?
 In the next part of this series I'll compare it with FairScheduler, to see the differences.
