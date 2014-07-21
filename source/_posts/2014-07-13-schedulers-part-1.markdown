@@ -10,8 +10,9 @@ published: false
 CapacityScheduler is the default scheduler that ships with Hadoop. Its purpose is to allow multi-tenancy and share resources between
 multiple organizations on the same cluster. You can read the high level abstraction
 [here](http://hadoop.apache.org/docs/r2.3.0/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html). In this blog entry we'll examine it
-from a technical point of view (the implementation can be found [here](https://github.com/apache/hadoop-common/tree/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity))
-as part of the ResourceManager.
+from a technical point of view (the implementation can be found [here](https://github.com/apache/hadoop-common/tree/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity)
+as part of the ResourceManager). I'll try to keep it short and deal with the most important aspects, preventing to write a book
+about it.
 
 ## Configuration
 
@@ -40,9 +41,12 @@ yarn.scheduler.capacity.root.queues=default,low
 
 {% img http://yuml.me/9d7e9977 %}
 
-Be careful when determining the queue capacities, because if you mess it up the ResourceManager won't start `(Service RMActiveServices
-failed in state INITED; cause: java.lang.IllegalArgumentException: Illegal capacity of 1.1 for children of queue root)`. The
-[initScheduler](https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/CapacityScheduler.java#L255)
+Generally, queues are for to forestall that applications consume more resources then they should.
+Be careful when determining the capacities, because if you mess it up the `ResourceManager` won't start:
+```
+Service RMActiveServices failed in state INITED cause: java.lang.IllegalArgumentException: Illegal capacity of 1.1 for children of queue root.
+```
+The [initScheduler](https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/CapacityScheduler.java#L255)
 will parse the configuration file and create either [parent](https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/ParentQueue.java)
 or [leaf](https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/LeafQueue.java)
 queues and compute their capabilities.
@@ -78,8 +82,9 @@ a queue called `default`. One interesting property is the `schedule-asynchronous
 
 Once the ResourceManager is up and running, the messaging starts. Mostly everything happens via events. These events are distributed with
 a [dispatcher](https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-common/src/main/java/org/apache/hadoop/yarn/event/AsyncDispatcher.java)
-among the registered event handlers. It's hard to follow the flow, because events can come from everywhere. The CapacityScheduler itself
-is registered for many events, and act based on these events. Code snippets are from branch `trunk` aka `3.0.0-SNAPSHOT`.
+among the registered event handlers. The down side of the event driven architecture that it's hard to follow the flow because
+events can come from everywhere. The CapacityScheduler itself is registered for many events, and act based on these events.
+Code snippets are from branch `trunk` aka `3.0.0-SNAPSHOT`.
 ```java
  @Override
   public void handle(SchedulerEvent event) {
@@ -210,7 +215,7 @@ it goes into the active applications list. This active application list is the o
 It works in FIFO order, but I'll elaborate on it in the `NODE_UPDATE` part.
 ### APP_ATTEMPT_REMOVED
 On `AppAttemptRemovedSchedulerEvent` the scheduler cleans up after the application. Releases all the allocated, acquired, running containers
-(In case of `ApplicationMaster` restart the running containers won't get killed), releases all reserved containers,
+(in case of `ApplicationMaster` restart the running containers won't get killed), releases all reserved containers,
 cleans up pending requests and informs the queues.
 ```
 rmapp.RMAppImpl (RMAppImpl.java:handle(639)) - application_1405323437551_0001 State change from FINISHING to FINISHED
@@ -234,7 +239,7 @@ more precisely the queue when tries to allocate resources it will check the acti
 {Priority: 20, Capability: <memory:1024, vCores:1>, # Containers: 2, Location: /default-rack, Relax Locality: true}
 {Priority: 20, Capability: <memory:1024, vCores:1>, # Containers: 2, Location: amb1.mycorp.kom, Relax Locality: true}
 ```
-Let's examine these request:
+Let's examine these requests:
 
 * Priority: requests with higher priority gets served first (mappers got 20, reducer 10, AM 0)
 * Capability: denotes the required container's size
@@ -245,8 +250,8 @@ Let's examine these request:
 
 #### NODE_UPDATE
 Let's get back to `NODE_UPDATE`. What happens at every node update and why it happens so frequently? First of all, nodes are running
-the containers. Containers start and stop all the time thus the scheduler needs an update about the state of the node. Also it
-updates the resource capability of the node. After the updates are noted, the scheduler tries to allocate containers on the node. The
+the containers. Containers start and stop all the time thus the scheduler needs an update about the state of the nodes. Also it
+updates their resource capabilities as well. After the updates are noted, the scheduler tries to allocate containers on the nodes. The
 same applies to every node in the cluster. At every `NODE_UPDATE` the scheduler checks if an application reserved a container
 on this node. If there is reservation then tries to fulfill it. Every node can have only one reserved container. After the
 reservation it tries to allocate more containers by going through all the queues starting from `root`. The node can have one more container
@@ -265,3 +270,6 @@ The [ContainerAllocationExpirer's](https://github.com/apache/hadoop-common/blob/
 responsibility to check if a container expires and when it does it sends an `ContainerExpiredSchedulerEvent` and the scheduler
 will notify the application to remove the container. The value of how long to wait until a container is considered dead can
 be configured.
+
+## What's next?
+In the next part of this series I'll compare it with FairScheduler, to see the differences.
