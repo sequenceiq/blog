@@ -1,23 +1,24 @@
 ---
 layout: post
-title: "YARN Schedulers - Part 1: Capacity"
-date: 2014-07-20 13:13:39 +0200
-comments: false
-categories: [Hadoop, YARN, Scheduler]
+title: "YARN Schedulers demistified - Part 1: Capacity"
+date: 2014-07-23 13:13:39 +0200
+comments: true
+categories: [Hadoop, YARN, Schedulers]
 author: Krisztian Horvath
 published: false
 ---
-CapacityScheduler is the default scheduler that ships with Hadoop. Its purpose is to allow multi-tenancy and share resources between
-multiple organizations on the same cluster. You can read the high level abstraction
+After our first [post](http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues/) about re-prioritizing already submitted and running jobs on different queues we have received many questions and feedbacks about the Capacity Scheduler internals. While there is `some` documentation available, there is no extensive and deep documentation about how it actually works internally. Since it's all based on a messaging subsytem it's pretty hard to understand the flow - let alone debuging it. At [SequenceIQ](http://sequenceiq.com/) we are working on a heuristic cluster scheduler - and understanding how YARN schedulers work was esential. This is part of a larger piece of work - which will lead to a fully dynamic Hadoop clusters - orchestraring [Clousbreak](http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/) - the first open source and Docker based **Hadoop as a Service API**. As usual for us, this work and what we have already done around Capacity and Fair schedulers will be open sourced (or already contributed back to Apache YARN project).
+
+##The Capacity Scheduler internals 
+
+The CapacityScheduler is the default scheduler used with Hadoop 2.x. Its purpose is to allow multi-tenancy and share resources between multiple organizations and applications on the same cluster. You can read about the high level abstraction
 [here](http://hadoop.apache.org/docs/r2.3.0/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html). In this blog entry we'll examine it
-from a technical point of view (the implementation can be found [here](https://github.com/apache/hadoop-common/tree/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity)
-as part of the ResourceManager). I'll try to keep it short and deal with the most important aspects, preventing to write a book
-about it.
+from a deep technical point of view (the implementation can be found [here](https://github.com/apache/hadoop-common/tree/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity)
+as part of the ResourceManager). I'll try to keep it short and deal with the most important aspects, preventing to write a book about it.
 
 {% img https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-queue-tests/src/main/resources/event-flow.gif %}
 
-The animation shows a basic application submission event flow, but don't worry if you don't understand it yet, hopefully you will
-when you're done reading.
+The animation shows a basic application submission event flow, but don't worry if you don't understand it yet, hopefully you will when you're done with the reading.
 
 <!-- more -->
 
@@ -48,7 +49,7 @@ yarn.scheduler.capacity.root.queues=default,low
 
 {% img http://yuml.me/9d7e9977 %}
 
-Generally, queues are for to forestall that applications consume more resources then they should.
+Generally, queues are for to prevent applications to consume more resources then they should.
 Be careful when determining the capacities, because if you mess it up the `ResourceManager` won't start:
 ```
 Service RMActiveServices failed in state INITED cause: java.lang.IllegalArgumentException: Illegal capacity of 1.1 for children of queue root.
@@ -81,7 +82,7 @@ acls = ADMINISTER_QUEUE: SUBMIT_APPLICATIONS:* [= configuredAcls ]
 nodeLocalityDelay = 40
 ```
 Although it does not imply, but application submission is only allowed to leaf queues. By default all application is submitted to
-a queue called `default`. One interesting property is the `schedule-asynchronously` which I'll talk about later.
+a queue called `default`. One interesting property is the `schedule-asynchronously` about which I'll talk later.
 
 ## Messaging
 
@@ -169,7 +170,7 @@ Code snippets are from branch `trunk` aka `3.0.0-SNAPSHOT`.
 ```
 
 ### NODE_ADDED
-Each time a node joins to the cluster the [ResourceTrackerService](https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/ResourceTrackerService.java#L237)
+Each time a node joins the cluster the [ResourceTrackerService](https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/ResourceTrackerService.java#L237)
 registers the `NodeManager` and as part of the transition sends a `NodeAddedSchedulerEvent`. The scheduler keeps track of
 the global cluster resources and adds the node's resources to the global.
 ```
@@ -179,6 +180,7 @@ Added node amb2.mycorp.kom:45454 clusterResource: <memory:10240, vCores:16>
 It is also needed to update all the queue metrics since the cluster got bigger, thus the queue capacities also change. More likely to happen
 that a new application can be scheduled. If the `isWorkPreservingRecoveryEnabled` is enabled on the `ResourceManager` it can recover
 containers on a re-joining node.
+
 ### NODE_REMOVED
 There can be many reasons that a node is being removed from the cluster, but the scenario is almost the same as adding one. A
 `NodeRemovedSchedulerEvent` is sent and the scheduler subtracts the node's resources from the global and updates all the queue metrics.
@@ -201,11 +203,10 @@ capacity.ParentQueue (ParentQueue.java:addApplication(495)) - Application added 
 capacity.CapacityScheduler (CapacityScheduler.java:addApplication(544)) - Accepted application application_1405323437551_0001 from user: hdfs, in queue: default
 ```
 ### APP_REMOVED
-The analogy is the same as between `NODE_ADDED` and `NODE_REMOVED`. Updates the queue metrics and notifies the parent's that and
-application finished, removes the application and sets its final state.
+The analogy is the same as between `NODE_ADDED` and `NODE_REMOVED`. Updates the queue metrics and notifies the parent's that an application finished, removes the application and sets its final state.
+
 ### APP_ATTEMPT_ADDED
-After the `APP_ADDED` event the application is in `inactive` mode. It means it won`t get any resources scheduled for it. Only by attempting
-to run it. One application can have many attempts as it can fail for many reasons.
+After the `APP_ADDED` event the application is in `inactive` mode. It means it won`t get any resources scheduled for - only an attempt to run it. One application can have many attempts as it can fail for many reasons.
 ```
 rmapp.RMAppImpl (RMAppImpl.java:handle(639)) - application_1405323437551_0001 State change from SUBMITTED to ACCEPTED
 resourcemanager.ApplicationMasterService (ApplicationMasterService.java:registerAppAttempt(611)) - Registering app attempt : appattempt_1405323437551_0001_000001
@@ -214,10 +215,9 @@ capacity.LeafQueue (LeafQueue.java:activateApplications(763)) - Application appl
 capacity.LeafQueue (LeafQueue.java:addApplicationAttempt(779)) - Application added - appId: application_1405323437551_0001 user: org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.LeafQueue$User@46a224a4, leaf-queue: default #user-pending-applications: 0 #user-active-applications: 1 #queue-pending-applications: 0 #queue-active-applications: 1
 capacity.CapacityScheduler (CapacityScheduler.java:addApplicationAttempt(567)) - Added Application Attempt appattempt_1405323437551_0001_000001 to scheduler from user hdfs in queue default
 ```
-Attempt states are transferred from one to another. By sending an `AppAttemptAddedSchedulerEvent` the scheduler actually tries to allocate
-resources. First, the application goes into the pending applications list of the queue and if the queue limits allows it,
-it goes into the active applications list. This active application list is the one that the queue uses when trying to allocate resources.
+Attempt states are transferred from one to another. By sending an `AppAttemptAddedSchedulerEvent` the scheduler actually tries to allocate resources. First, the application goes into the pending applications list of the queue and if the queue limits allows it, it goes into the active applications list. This active application list is the one that the queue uses when trying to allocate resources.
 It works in FIFO order, but I'll elaborate on it in the `NODE_UPDATE` part.
+
 ### APP_ATTEMPT_REMOVED
 On `AppAttemptRemovedSchedulerEvent` the scheduler cleans up after the application. Releases all the allocated, acquired, running containers
 (in case of `ApplicationMaster` restart the running containers won't get killed), releases all reserved containers,
@@ -229,16 +229,16 @@ scheduler.AppSchedulingInfo (AppSchedulingInfo.java:clearRequests(108)) - Applic
 capacity.LeafQueue (LeafQueue.java:removeApplicationAttempt(821)) - Application removed - appId: application_1405323437551_0001 user: hdfs queue: default #user-pending-applications: 0 #user-active-applications: 0 #queue-pending-applications: 0 #queue-active-applications: 0
 amlauncher.AMLauncher (AMLauncher.java:run(262)) - Cleaning master appattempt_1405323437551_0001_000001
 ```
+
 ### NODE_UPDATE
 Normally `NodeUpdateSchedulerEvents` arrive every second from every node. By setting the earlier mentioned `schedule-asynchronously` to true
 the behavior of this event handling can be altered in a way that container allocations happen asynchronously from these events. Meaning
 the CapacityScheduler tries to allocate new containers in every 100ms on a different [thread](https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/CapacityScheduler.java#L361).
 Before going into details let's discuss another important aspect.
+
 #### Allocate
 The [allocate](https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/CapacityScheduler.java#L675)
-method is used as a heartbeat. This is the most important call between the `ApplicationMaster` and the scheduler. Instead of using a simple
-empty message, the heartbeat can contain resource requests of the application. The reason it is important here as the scheduler
-more precisely the queue when tries to allocate resources it will check the active applications in FIFO order and see their resource requests.
+method is used as a heartbeat. This is the most important call between the `ApplicationMaster` and the scheduler. Instead of using a simple empty message, the heartbeat can contain resource requests of the application. The reason it is important here is that the scheduler, more precisely the queue - when tries to allocate resources - it will check the active applications in FIFO order and see their resource requests.
 ```
 {Priority: 20, Capability: <memory:1024, vCores:1>, # Containers: 2, Location: *, Relax Locality: true}
 {Priority: 20, Capability: <memory:1024, vCores:1>, # Containers: 2, Location: /default-rack, Relax Locality: true}
@@ -254,31 +254,22 @@ Let's examine these requests:
 * Relax locality: in case it is set to false, only node-local container can be allocated. By default it is set to true.
 
 #### NODE_UPDATE
-Let's get back to `NODE_UPDATE`. What happens at every node update and why it happens so frequently? First of all, nodes are running
-the containers. Containers start and stop all the time thus the scheduler needs an update about the state of the nodes. Also it
-updates their resource capabilities as well. After the updates are noted, the scheduler tries to allocate containers on the nodes. The
-same applies to every node in the cluster. At every `NODE_UPDATE` the scheduler checks if an application reserved a container
-on this node. If there is reservation then tries to fulfill it. Every node can have only one reserved container. After the
-reservation it tries to allocate more containers by going through all the queues starting from `root`. The node can have one more container
-if it has at least the minimum allocation's resource capability. Going through the child queues of `root` it checks the queue's active
-applications and its resource requests by priority order. If the application has request for this node it tries to allocate it. If
-the relax locality set to true it could also allocate container even though there is no explicite request for this node, but that's
-not what's going to happen first. There is another term called delay scheduling. The scheduler tries to delay any non-data-local
-request, but cannot delay it for so long. The `localityWaitFactor` will determine how long to wait until fall back to rack-local then
-the end to off-switch requests. If everything works out it allocates a container and tracks its resource usage. If there is not enough
-resource capability one application can reserve a container on this node, and at the next update may can use this reservation. After
-the allocation is made the `ApplicationMaster` will submit a request to the node to launch this container and assign a task to it to run.
+Let's get back to `NODE_UPDATE`. What happens at every node update and why it happens so frequently? First of all, nodes are running the containers. Containers start and stop all the time thus the scheduler needs an update about the state of the nodes. Also it updates their resource capabilities as well. After the updates are noted, the scheduler tries to allocate containers on the nodes. The same applies to every node in the cluster. At every `NODE_UPDATE` the scheduler checks if an application reserved a container on this node. If there is reservation then tries to fulfill it. Every node can have only one reserved container. After the reservation it tries to allocate more containers by going through all the queues starting from `root`. The node can have one more container if it has at least the minimum allocation's resource capability. Going through the child queues of `root` it checks the queue's active applications and its resource requests by priority order. If the application has request for this node it tries to allocate it. If the relax locality is set to true it could also allocate container even though there is no explicite request for this node, but that's not what's going to happen first. There is another term called delay scheduling. The scheduler tries to delay any non-data-local
+request, but cannot delay it for so long. The `localityWaitFactor` will determine how long to wait until fall back to rack-local then the end to off-switch requests. If everything works out it allocates a container and tracks its resource usage. If there is not enough resource capability one application can reserve a container on this node, and at the next update may can use this reservation. After the allocation is made the `ApplicationMaster` will submit a request to the node to launch this container and assign a task to it to run.
 The scheduler does not need to know what task the AM will run in the container.
 
 ### CONTAINER_EXPIRED
 The [ContainerAllocationExpirer's](https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/rmcontainer/ContainerAllocationExpirer.java)
-responsibility to check if a container expires and when it does it sends an `ContainerExpiredSchedulerEvent` and the scheduler
-will notify the application to remove the container. The value of how long to wait until a container is considered dead can
-be configured.
+responsibility to check if a container expires and when it does it sends an `ContainerExpiredSchedulerEvent` and the scheduler will notify the application to remove the container. The value of how long to wait until a container is considered dead can be configured.
 
 ## Animation
-The animation on top shows a basic event flow starting from adding 2 nodes and submitting 2 applications with attempts. Eventually
-the node updates tries to allocate resources to those applications. After reading this post I hope it makes sense now.
+The animation on top shows a basic event flow starting from adding 2 nodes and submitting 2 applications with attempts. Eventually the node updates tries to allocate resources to those applications. After reading this post I hope it makes sense now.
 
 ## What's next?
 In the next part of this series I'll compare it with FairScheduler, to see the differences.
+
+For updates and further blog posts follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
+
+Enjoy.
+
+
