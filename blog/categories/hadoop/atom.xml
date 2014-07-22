@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-07-22T12:56:41+00:00</updated>
+  <updated>2014-07-22T12:57:57+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,299 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[YARN Schedulers demystified - Part 1: Capacity]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1/"/>
+    <updated>2014-07-22T12:56:39+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1</id>
+    <content type="html"><![CDATA[<p>After our first <a href="http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues/">post</a> about re-prioritizing already submitted and running jobs on different queues we have received many questions and feedbacks about the Capacity Scheduler internals. While there is <code>some</code> documentation available, there is no extensive and deep documentation about how it actually works internally. Since it&rsquo;s all event based it&rsquo;s pretty hard to understand the flow &ndash; let alone debugging it. At <a href="http://sequenceiq.com/">SequenceIQ</a> we are working on a heuristic cluster scheduler &ndash; and understanding how YARN schedulers work was essential. This is part of a larger piece of work &ndash; which will lead to a fully dynamic Hadoop cluster &ndash; orchestrating <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; the first open source and Docker based <strong>Hadoop as a Service API</strong>. As usual for us, this work and what we have already done around Capacity and Fair schedulers will be open sourced (or already contributed back to Apache YARN project).</p>
+
+<h2>The Capacity Scheduler internals</h2>
+
+<p>The CapacityScheduler is the default scheduler used with Hadoop 2.x. Its purpose is to allow multi-tenancy and share resources between multiple organizations and applications on the same cluster. You can read about the high level abstraction
+<a href="http://hadoop.apache.org/docs/r2.3.0/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html">here</a>. In this blog entry we&rsquo;ll examine it
+from a deep technical point of view (the implementation can be found <a href="https://github.com/apache/hadoop-common/tree/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity">here</a>
+as part of the ResourceManager). I&rsquo;ll try to keep it short and deal with the most important aspects, preventing to write a book about it (would be still better than twilight).</p>
+
+<p><img class="<a" src="href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-queue-tests/src/main/resources/event-flow.gif">https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-queue-tests/src/main/resources/event-flow.gif</a>"></p>
+
+<p>The animation shows a basic application submission event flow, but don&rsquo;t worry if you don&rsquo;t understand it yet, hopefully you will when you&rsquo;re done with the reading.</p>
+
+<!-- more -->
+
+
+<h2>Configuration</h2>
+
+<p>It all begins with the configuration. The scheduler consists of a queue hierarchy, something like this
+(except it’s xml ah.. capacity-scheduler.xml):
+<code>
+yarn.scheduler.capacity.maximum-am-resource-percent=0.2
+yarn.scheduler.capacity.maximum-applications=10000
+yarn.scheduler.capacity.node-locality-delay=40
+yarn.scheduler.capacity.root.acl_administer_queue=*
+yarn.scheduler.capacity.root.capacity=100
+yarn.scheduler.capacity.root.default.acl_administer_jobs=*
+yarn.scheduler.capacity.root.default.acl_submit_applications=*
+yarn.scheduler.capacity.root.default.capacity=80
+yarn.scheduler.capacity.root.default.maximum-capacity=80
+yarn.scheduler.capacity.root.default.state=RUNNING
+yarn.scheduler.capacity.root.default.user-limit-factor=1
+yarn.scheduler.capacity.root.low.acl_administer_jobs=*
+yarn.scheduler.capacity.root.low.acl_submit_applications=*
+yarn.scheduler.capacity.root.low.capacity=20
+yarn.scheduler.capacity.root.low.maximum-capacity=40
+yarn.scheduler.capacity.root.low.state=RUNNING
+yarn.scheduler.capacity.root.low.user-limit-factor=1
+yarn.scheduler.capacity.root.queues=default,low
+</code></p>
+
+<p><img class="<a" src="href="http://yuml.me/9d7e9977">http://yuml.me/9d7e9977</a>"></p>
+
+<p>Generally, queues are for to prevent applications to consume more resources then they should.
+Be careful when determining the capacities, because if you mess it up the <code>ResourceManager</code> won&rsquo;t start:
+<code>
+Service RMActiveServices failed in state INITED cause: java.lang.IllegalArgumentException: Illegal capacity of 1.1 for children of queue root.
+</code>
+The <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/CapacityScheduler.java#L255">initScheduler</a>
+will parse the configuration file and create either <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/ParentQueue.java">parent</a>
+or <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/LeafQueue.java">leaf</a>
+queues and compute their capabilities.</p>
+
+<p><code>
+capacity.LeafQueue (LeafQueue.java:setupQueueConfigs(312)) - Initializing default
+capacity = 0.8 [= (float) configuredCapacity / 100 ]
+asboluteCapacity = 0.8 [= parentAbsoluteCapacity * capacity ]
+maxCapacity = 0.8 [= configuredMaxCapacity ]
+absoluteMaxCapacity = 0.8 [= 1.0 maximumCapacity undefined, (parentAbsoluteMaxCapacity * maximumCapacity) / 100 otherwise ]
+userLimit = 100 [= configuredUserLimit ]
+userLimitFactor = 1.0 [= configuredUserLimitFactor ]
+maxApplications = 8000 [= configuredMaximumSystemApplicationsPerQueue or (int)(configuredMaximumSystemApplications * absoluteCapacity)]
+maxApplicationsPerUser = 8000 [= (int)(maxApplications * (userLimit / 100.0f) * userLimitFactor) ]
+maxActiveApplications = 1 [= max((int)ceil((clusterResourceMemory / minimumAllocation) * maxAMResourcePerQueuePercent * absoluteMaxCapacity),1) ]
+maxActiveAppsUsingAbsCap = 1 [= max((int)ceil((clusterResourceMemory / minimumAllocation) *maxAMResourcePercent * absoluteCapacity),1) ]
+maxActiveApplicationsPerUser = 1 [= max((int)(maxActiveApplications * (userLimit / 100.0f) * userLimitFactor),1) ]
+usedCapacity = 0.0 [= usedResourcesMemory / (clusterResourceMemory * absoluteCapacity)]
+absoluteUsedCapacity = 0.0 [= usedResourcesMemory / clusterResourceMemory]
+maxAMResourcePerQueuePercent = 0.2 [= configuredMaximumAMResourcePercent ]
+minimumAllocationFactor = 0.75 [= (float)(maximumAllocationMemory - minimumAllocationMemory) / maximumAllocationMemory ]
+numContainers = 0 [= currentNumContainers ]
+state = RUNNING [= configuredState ]
+acls = ADMINISTER_QUEUE: SUBMIT_APPLICATIONS:* [= configuredAcls ]
+nodeLocalityDelay = 40
+</code>
+Although it does not imply, but application submission is only allowed to leaf queues. By default all application is submitted to
+a queue called <code>default</code>. One interesting property is the <code>schedule-asynchronously</code> about which I&rsquo;ll talk later.</p>
+
+<h2>Messaging</h2>
+
+<p>Once the ResourceManager is up and running, the messaging starts. Mostly everything happens via events. These events are distributed with
+a <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-common/src/main/java/org/apache/hadoop/yarn/event/AsyncDispatcher.java">dispatcher</a>
+among the registered event handlers. The down side of the event driven architecture that it&rsquo;s hard to follow the flow because
+events can come from everywhere. The CapacityScheduler itself is registered for many events, and act based on these events.
+Code snippets are from branch <code>trunk</code> aka <code>3.0.0-SNAPSHOT</code>.
+```java
+ @Override
+  public void handle(SchedulerEvent event) {</p>
+
+<pre><code>switch(event.getType()) {
+case NODE_ADDED:
+{
+  NodeAddedSchedulerEvent nodeAddedEvent = (NodeAddedSchedulerEvent)event;
+  addNode(nodeAddedEvent.getAddedRMNode());
+  recoverContainersOnNode(nodeAddedEvent.getContainerReports(),
+    nodeAddedEvent.getAddedRMNode());
+}
+break;
+case NODE_REMOVED:
+{
+  NodeRemovedSchedulerEvent nodeRemovedEvent = (NodeRemovedSchedulerEvent)event;
+  removeNode(nodeRemovedEvent.getRemovedRMNode());
+}
+break;
+case NODE_UPDATE:
+{
+  NodeUpdateSchedulerEvent nodeUpdatedEvent = (NodeUpdateSchedulerEvent)event;
+  RMNode node = nodeUpdatedEvent.getRMNode();
+  nodeUpdate(node);
+  if (!scheduleAsynchronously) {
+    allocateContainersToNode(getNode(node.getNodeID()));
+  }
+}
+break;
+case APP_ADDED:
+{
+  AppAddedSchedulerEvent appAddedEvent = (AppAddedSchedulerEvent) event;
+  addApplication(appAddedEvent.getApplicationId(),
+    appAddedEvent.getQueue(), appAddedEvent.getUser());
+}
+break;
+case APP_REMOVED:
+{
+  AppRemovedSchedulerEvent appRemovedEvent = (AppRemovedSchedulerEvent)event;
+  doneApplication(appRemovedEvent.getApplicationID(),
+    appRemovedEvent.getFinalState());
+}
+break;
+case APP_ATTEMPT_ADDED:
+{
+  AppAttemptAddedSchedulerEvent appAttemptAddedEvent =
+      (AppAttemptAddedSchedulerEvent) event;
+  addApplicationAttempt(appAttemptAddedEvent.getApplicationAttemptId(),
+    appAttemptAddedEvent.getTransferStateFromPreviousAttempt(),
+    appAttemptAddedEvent.getShouldNotifyAttemptAdded());
+}
+break;
+case APP_ATTEMPT_REMOVED:
+{
+  AppAttemptRemovedSchedulerEvent appAttemptRemovedEvent =
+      (AppAttemptRemovedSchedulerEvent) event;
+  doneApplicationAttempt(appAttemptRemovedEvent.getApplicationAttemptID(),
+    appAttemptRemovedEvent.getFinalAttemptState(),
+    appAttemptRemovedEvent.getKeepContainersAcrossAppAttempts());
+}
+break;
+case CONTAINER_EXPIRED:
+{
+  ContainerExpiredSchedulerEvent containerExpiredEvent =
+      (ContainerExpiredSchedulerEvent) event;
+  ContainerId containerId = containerExpiredEvent.getContainerId();
+  completedContainer(getRMContainer(containerId),
+      SchedulerUtils.createAbnormalContainerStatus(
+          containerId,
+          SchedulerUtils.EXPIRED_CONTAINER),
+      RMContainerEventType.EXPIRE);
+}
+break;
+default:
+  LOG.error("Invalid eventtype " + event.getType() + ". Ignoring!");
+}
+</code></pre>
+
+<p>  }
+```</p>
+
+<h3>NODE_ADDED</h3>
+
+<p>Each time a node joins the cluster the <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/ResourceTrackerService.java#L237">ResourceTrackerService</a>
+registers the <code>NodeManager</code> and as part of the transition sends a <code>NodeAddedSchedulerEvent</code>. The scheduler keeps track of
+the global cluster resources and adds the node&rsquo;s resources to the global.
+<code>
+Added node amb1.mycorp.kom:45454 clusterResource: &lt;memory:5120, vCores:8&gt;
+Added node amb2.mycorp.kom:45454 clusterResource: &lt;memory:10240, vCores:16&gt;
+</code>
+It is also needed to update all the queue metrics since the cluster got bigger, thus the queue capacities also change. More likely to happen
+that a new application can be scheduled. If the <code>isWorkPreservingRecoveryEnabled</code> is enabled on the <code>ResourceManager</code> it can recover
+containers on a re-joining node.</p>
+
+<h3>NODE_REMOVED</h3>
+
+<p>There can be many reasons that a node is being removed from the cluster, but the scenario is almost the same as adding one. A
+<code>NodeRemovedSchedulerEvent</code> is sent and the scheduler subtracts the node&rsquo;s resources from the global and updates all the queue metrics.
+Things can be a little bit complicated since the node was active part of the resource scheduling and can have running containers and
+reserved resources. The scheduler will kill these containers and notify the applications so they can request new containers and
+unreserve the resources.
+<code>
+rmnode.RMNodeImpl (RMNodeImpl.java:transition(569)) - Deactivating Node amb4.mycorp.kom:45454 as it is now DECOMMISSIONED
+rmnode.RMNodeImpl (RMNodeImpl.java:handle(385)) - amb4.mycorp.kom:45454 Node Transitioned from RUNNING to DECOMMISSIONED
+capacity.CapacityScheduler (CapacityScheduler.java:removeNode(980)) - Removed node amb4.mycorp.kom:45454 clusterResource: &lt;memory:15360, vCores:24&gt;
+</code></p>
+
+<h3>APP_ADDED</h3>
+
+<p>On application <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/RMAppManager.java#L266">submission</a>
+an <code>AppAddedSchedulerEvent</code> is made and the scheduler will decide to accept the application or not. It depends whether it
+was submitted to a leaf queue and the user have the appropriate rights (ACL) to submit to this queue and the queue can have more applications. If
+any of these fails the scheduler will reject the application by sending an <code>RMAppRejectedEvent</code>. Otherwise it will register a new
+<code>SchedulerApplication</code> and notify the target queue&rsquo;s parents about it and updates the queue metrics.
+<code>
+capacity.ParentQueue (ParentQueue.java:addApplication(495)) - Application added - appId: application_1405323437551_0001 user: hdfs leaf-queue of parent: root #applications: 1
+capacity.CapacityScheduler (CapacityScheduler.java:addApplication(544)) - Accepted application application_1405323437551_0001 from user: hdfs, in queue: default
+</code></p>
+
+<h3>APP_REMOVED</h3>
+
+<p>The analogy is the same as between <code>NODE_ADDED</code> and <code>NODE_REMOVED</code>. Updates the queue metrics and notifies the parent&rsquo;s that an application finished, removes the application and sets its final state.</p>
+
+<h3>APP_ATTEMPT_ADDED</h3>
+
+<p>After the <code>APP_ADDED</code> event the application is in <code>inactive</code> mode. It means it won<code>t get any resources scheduled for - only an attempt to run it. One application can have many attempts as it can fail for many reasons.
+```
+rmapp.RMAppImpl (RMAppImpl.java:handle(639)) - application_1405323437551_0001 State change from SUBMITTED to ACCEPTED
+resourcemanager.ApplicationMasterService (ApplicationMasterService.java:registerAppAttempt(611)) - Registering app attempt : appattempt_1405323437551_0001_000001
+attempt.RMAppAttemptImpl (RMAppAttemptImpl.java:handle(659)) - appattempt_1405323437551_0001_000001 State change from NEW to SUBMITTED
+capacity.LeafQueue (LeafQueue.java:activateApplications(763)) - Application application_1405323437551_0001 from user: hdfs activated in queue: default
+capacity.LeafQueue (LeafQueue.java:addApplicationAttempt(779)) - Application added - appId: application_1405323437551_0001 user: org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.LeafQueue$User@46a224a4, leaf-queue: default #user-pending-applications: 0 #user-active-applications: 1 #queue-pending-applications: 0 #queue-active-applications: 1
+capacity.CapacityScheduler (CapacityScheduler.java:addApplicationAttempt(567)) - Added Application Attempt appattempt_1405323437551_0001_000001 to scheduler from user hdfs in queue default
+```
+Attempt states are transferred from one to another. By sending an</code>AppAttemptAddedSchedulerEvent<code>the scheduler actually tries to allocate resources. First, the application goes into the pending applications list of the queue and if the queue limits allows it, it goes into the active applications list. This active application list is the one that the queue uses when trying to allocate resources.
+It works in FIFO order, but I'll elaborate on it in the</code>NODE_UPDATE` part.</p>
+
+<h3>APP_ATTEMPT_REMOVED</h3>
+
+<p>On <code>AppAttemptRemovedSchedulerEvent</code> the scheduler cleans up after the application. Releases all the allocated, acquired, running containers
+(in case of <code>ApplicationMaster</code> restart the running containers won&rsquo;t get killed), releases all reserved containers,
+cleans up pending requests and informs the queues.
+<code>
+rmapp.RMAppImpl (RMAppImpl.java:handle(639)) - application_1405323437551_0001 State change from FINISHING to FINISHED
+capacity.CapacityScheduler (CapacityScheduler.java:doneApplicationAttempt(598)) - Application Attempt appattempt_1405323437551_0001_000001 is done. finalState=FINISHED
+scheduler.AppSchedulingInfo (AppSchedulingInfo.java:clearRequests(108)) - Application application_1405323437551_0001 requests cleared
+capacity.LeafQueue (LeafQueue.java:removeApplicationAttempt(821)) - Application removed - appId: application_1405323437551_0001 user: hdfs queue: default #user-pending-applications: 0 #user-active-applications: 0 #queue-pending-applications: 0 #queue-active-applications: 0
+amlauncher.AMLauncher (AMLauncher.java:run(262)) - Cleaning master appattempt_1405323437551_0001_000001
+</code></p>
+
+<h3>NODE_UPDATE</h3>
+
+<p>Normally <code>NodeUpdateSchedulerEvents</code> arrive every second from every node. By setting the earlier mentioned <code>schedule-asynchronously</code> to true
+the behavior of this event handling can be altered in a way that container allocations happen asynchronously from these events. Meaning
+the CapacityScheduler tries to allocate new containers in every 100ms on a different <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/CapacityScheduler.java#L361">thread</a>.
+Before going into details let&rsquo;s discuss another important aspect.</p>
+
+<h4>Allocate</h4>
+
+<p>The <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/CapacityScheduler.java#L675">allocate</a>
+method is used as a heartbeat. This is the most important call between the <code>ApplicationMaster</code> and the scheduler. Instead of using a simple empty message, the heartbeat can contain resource requests of the application. The reason it is important here is that the scheduler, more precisely the queue &ndash; when tries to allocate resources &ndash; it will check the active applications in FIFO order and see their resource requests.
+<code>
+{Priority: 20, Capability: &lt;memory:1024, vCores:1&gt;, # Containers: 2, Location: *, Relax Locality: true}
+{Priority: 20, Capability: &lt;memory:1024, vCores:1&gt;, # Containers: 2, Location: /default-rack, Relax Locality: true}
+{Priority: 20, Capability: &lt;memory:1024, vCores:1&gt;, # Containers: 2, Location: amb1.mycorp.kom, Relax Locality: true}
+</code>
+Let&rsquo;s examine these requests:</p>
+
+<ul>
+<li>Priority: requests with higher priority gets served first (mappers got 20, reducer 10, AM 0)</li>
+<li>Capability: denotes the required container&rsquo;s size</li>
+<li>Location: where the AM would like to get the containers. There are 3 types of locations: node-local, rack-local, off-switch.
+The location is based on the location of the blocks of the data. It is the <code>ApplicationMaster</code>&rsquo;s duty to locate them. Off-switch means
+that any node in the cluster is good enough. Typically the <code>ApplicationMaster</code>&rsquo;s container request is an off-switch request.</li>
+<li>Relax locality: in case it is set to false, only node-local container can be allocated. By default it is set to true.</li>
+</ul>
+
+
+<h4>NODE_UPDATE</h4>
+
+<p>Let&rsquo;s get back to <code>NODE_UPDATE</code>. What happens at every node update and why it happens so frequently? First of all, nodes are running the containers. Containers start and stop all the time thus the scheduler needs an update about the state of the nodes. Also it updates their resource capabilities as well. After the updates are noted, the scheduler tries to allocate containers on the nodes. The same applies to every node in the cluster. At every <code>NODE_UPDATE</code> the scheduler checks if an application reserved a container on this node. If there is reservation then tries to fulfill it. Every node can have only one reserved container. After the reservation it tries to allocate more containers by going through all the queues starting from <code>root</code>. The node can have one more container if it has at least the minimum allocation&rsquo;s resource capability. Going through the child queues of <code>root</code> it checks the queue&rsquo;s active applications and its resource requests by priority order. If the application has request for this node it tries to allocate it. If the relax locality is set to true it could also allocate container even though there is no explicit request for this node, but that&rsquo;s not what&rsquo;s going to happen first. There is another term called delay scheduling. The scheduler tries to delay any non-data-local
+request, but cannot delay it for so long. The <code>localityWaitFactor</code> will determine how long to wait until fall back to rack-local then the end to off-switch requests. If everything works out it allocates a container and tracks its resource usage. If there is not enough resource capability one application can reserve a container on this node, and at the next update may can use this reservation. After the allocation is made the <code>ApplicationMaster</code> will submit a request to the node to launch this container and assign a task to it to run.
+The scheduler does not need to know what task the AM will run in the container.</p>
+
+<h3>CONTAINER_EXPIRED</h3>
+
+<p>The <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/rmcontainer/ContainerAllocationExpirer.java">ContainerAllocationExpirer&rsquo;s</a>
+responsibility to check if a container expires and when it does it sends an <code>ContainerExpiredSchedulerEvent</code> and the scheduler will notify the application to remove the container. The value of how long to wait until a container is considered dead can be configured.</p>
+
+<h2>Animation</h2>
+
+<p>The animation on top shows a basic event flow starting from adding 2 nodes and submitting 2 applications with attempts. Eventually the node updates tries to allocate resources to those applications. After reading this post I hope it makes sense now.</p>
+
+<h2>What&rsquo;s next?</h2>
+
+<p>In the next part of this series I&rsquo;ll compare it with FairScheduler, to see the differences.</p>
+
+<p>For updates and further blog posts follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+
+<p>Enjoy.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Cloudbreak - the Hadoop as a Service API]]></title>
@@ -386,179 +679,6 @@ cd $HADOOP_PREFIX</p>
 <h2>Hadoop native libraries, build, Bintray, etc</h2>
 
 <p>The Hadoop build process is no easy task &ndash; requires lots of libraries and their right version, protobuf, etc and takes some time &ndash; we have simplified all these, made the build and released a 64b version of Hadoop nativelibs on our <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.4.1/view/files">Bintray repo</a>. Enjoy.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Pearson correlation with Scalding]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/06/23/scalding-correlation-example/"/>
-    <updated>2014-06-23T18:07:18+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/06/23/scalding-correlation-example</id>
-    <content type="html"><![CDATA[<h2>Introduction</h2>
-
-<p>At SequenceIQ we are processing data in batch and streaming &ndash; for both we use Scala as our prefered language; for batch processing in particular we use Scalding to build our job and data pipelines. Actually there is <code>Babylon</code> at SequenceIQ as we use Java, Scala, Go, R, Groovy, Ansible, shell, JavaScript and what not &ndash; follow up with us for a post talking about the language heterogeneity.</p>
-
-<p>Scalding is a powerful tool and great choice to simplify the writing and abstracting MapReduce jobs &ndash; an open source project originally developed by Twitter and recently the community.
-In the following detailed example we&rsquo;d like show you an example of how to write and test Scalding jobs, running on Hadoop.</p>
-
-<h2>Writing a Pearson correlation job</h2>
-
-<p>In this example, we&rsquo;d like to calculate a Pearson&rsquo;s product-moment coefficient on 2 columns of a given <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/scalding-correlation/data">input</a>.
-This is a simple computation and the easiest way to find any dependency between two datasets.
-First of all we need all the parameters for the given <a href="http://www.statisticshowto.com/what-is-the-correlation-coefficient-formula/">formula</a>.
-In Scala the code would look like this:</p>
-
-<p>``` scala
-trait CorrelationOp {
-  def calculateCorrelation(size: Long, su1: Double, su2: Double, sq1: Double, sq2: Double, dotProd: Double) : Double = {</p>
-
-<pre><code>val dividend = (size * dotProd) - (su1 * su2)
-val divisor = scala.math.sqrt(size * sq1 - su1 * su1) * scala.math.sqrt(size * sq2 - su2 * su2)
-dividend / divisor
-</code></pre>
-
-<p>  }
-}
-```</p>
-
-<!-- more -->
-
-
-<p>In this example we compute all the required parameters for the correlation formula using the <a href="https://github.com/twitter/scalding/wiki/Fields-based-API-Reference">Field API</a> of Scala.
-First we obtain the input/output and the two comparable column arguments which comes from command line parameters (usage : &mdash;key value) and provide the schema for the CSV input.
-After the input is read we map the two selected fields (product and squares); with the underlined informations, we are able to produce the required parameters (grouping part).
-At the end we just need to use the formula on the given fields (second map) and write the results into a TSV file.
-``` scala
-  val comparableColumn1 = args(&ldquo;column1&rdquo;)
-  val comparableColumn2 = args(&ldquo;column2&rdquo;)
-  val samplePercent = args.getOrElse(&ldquo;samplePercent&rdquo;,&ldquo;1.00&rdquo;).toDouble</p>
-
-<p>  val scheme = new Fields(&ldquo;id&rdquo;, &ldquo;num1&rdquo;, &ldquo;num2&rdquo;, &ldquo;num3&rdquo;, &ldquo;num4&rdquo;, &ldquo;num5&rdquo;)</p>
-
-<p>  Csv(args(&ldquo;input&rdquo;), fields = scheme, skipHeader = true).read
-  .sample(samplePercent)
-  .map((comparableColumn1,comparableColumn2) &ndash;> (&lsquo;prod, 'compSq1, 'compSq2)){</p>
-
-<pre><code>values : (Double, Double) =&gt;
-  (values._1 * values._2, math.pow(values._1, 2), math.pow(values._2, 2))
-</code></pre>
-
-<p>  }
-  .groupAll{</p>
-
-<pre><code>_.size
-  .sum[Double](comparableColumn1 -&gt; 'compSum1)
-  .sum[Double](comparableColumn2 -&gt; 'compSum2)
-  .sum[Double]('compSq1 -&gt; 'normSq1)
-  .sum[Double]('compSq2 -&gt; 'normSq2)
-  .sum[Double]('prod -&gt; 'dotProduct)
-</code></pre>
-
-<p>  }
-  .limit(1)
-  .project(&lsquo;size,'compSum1, 'compSum2, 'normSq1, 'normSq2, 'dotProduct)
-  .map(('size, 'compSum1, 'compSum2,'normSq1, 'normSq2, 'dotProduct)</p>
-
-<pre><code>-&gt; ('key, 'correlation)){
-fields : (Long, Double, Double, Double, Double, Double) =&gt;
-  val (size, sum1, sum2, normSq1, normSq2, dotProduct) = fields
-  val corr = calculateCorrelation(size, sum1, sum2, normSq1, normSq2, dotProduct)
-  (comparableColumn1 + "-" + comparableColumn2, corr)
-</code></pre>
-
-<p>  }
-  .project(&lsquo;key, 'correlation)
-  .write(Tsv(args(&ldquo;output&rdquo;)))</p>
-
-<p>```</p>
-
-<p>For running the example you will have to run the following command: (<em>you can use &mdash;hdfs instead of &mdash;local</em>)</p>
-
-<p><code>bash
-yarn jar scalding-correalation-1.0.jar com.sequenceiq.scalding.correlation.SimpleCorrelationJob --local --input data/data.csv --output data/corr-out.tsv --column1 num1 --column2 num2 --samplePercent 0.1
-</code></p>
-
-<h2>Testing Scalding jobs</h2>
-
-<p>In order to test that your data transformations are correct, you can use the
-<a href="http://twitter.github.io/scalding/com/twitter/scalding/JobTest.html">JobTest</a> class for unit testing.
-``` scala
-@RunWith(classOf[JUnitRunner])
-class SimpleCorrelationJobTest  extends Specification {
-  &ldquo;A SimpleCorrelation Job&rdquo; should {</p>
-
-<pre><code>val input = List((1,2,3,3,4,5),(2,1,2,3,4,5),(3,4,5,3,4,5))
-val correctOutputLimit = 0.8
-
-JobTest("com.sequenceiq.scalding.correlation.SimpleCorrelationJob")
-  .arg("input", "fakeInput")
-  .arg("output", "fakeOutput")
-  .arg("column1", "num1")
-  .arg("column2", "num2")
-  .arg("correlationThreshold", "0.8")
-  .source(Csv("fakeInput", ",", new Fields("id","num1","num2","num3","num4","num5"),skipHeader = true), input)
-  .sink[(String, Double)](Tsv("fakeOutput", fields = Fields.ALL)) {
-  outputBuf =&gt;
-    val actualOutput = outputBuf.toList.head._2
-    "return greater correlation result than 0.8" in {
-      correctOutputLimit must be_&lt; (actualOutput)
-    }
-}
-  .run
-  .finish
-</code></pre>
-
-<p>  }
-}
-```</p>
-
-<h2>Writing results to HBase</h2>
-
-<p>In case we&rsquo;d like to store our data in a database (at SequenceIQ we use HBase) we can use a special Cascading Tap for it.
-In this example we used <a href="https://github.com/ParallelAI/SpyGlass">Spyglass</a> to store the correlation results in HBase.
-``` scala
-  val tableName = args(&ldquo;tableName&rdquo;)
-  val quorum_name = args(&ldquo;quorum&rdquo;)
-  val quorum_port = args(&ldquo;quorumPort&rdquo;).toInt</p>
-
-<p>  val scheme = List(&lsquo;key, 'correlation)
-  val familyNames = List(&ldquo;corrCf&rdquo;)</p>
-
-<p>  Tsv(args(&ldquo;input&rdquo;)).read</p>
-
-<pre><code>.toBytesWritable(scheme)
-.write(
-  new HBaseSource(
-    tableName,
-    quorum_name + ":" + quorum_port,
-    scheme.head,
-    familyNames,
-    scheme.tail.map((x: Symbol) =&gt; new Fields(x.name)).toList,
-    timestamp = Platform.currentTime
-  ))
-</code></pre>
-
-<p>```</p>
-
-<h2>Build the application</h2>
-
-<p><code>bash
-./gradlew clean jar
-</code>
-or
-<code>bash
-export GRADLE_OPTS="-XX:MaxPermSize=2048m" # for tests
-./gradlew clean build
-</code></p>
-
-<h2>Running the example and persisting to HBase</h2>
-
-<p>In order to run the example you&rsquo;ll have to run the following command: (you can use &mdash;hdfs instead of &mdash;local)
-<code>bash
-yarn jar scalding-correalation-1.0.jar com.sequenceiq.scalding.hbase.HBaseWriterJob --local --input data/corr-out.tsv --tableName corrTable --quorum localhost --quorumPort 2181
-</code></p>
-
-<p>Hope this correlation example and introduction into Scalding was useful &ndash; you can get the example project from our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/scalding-correlation">GitHub</a> repository.</p>
 ]]></content>
   </entry>
   
