@@ -1,22 +1,21 @@
 ---
 layout: post
 title: "YARN Schedulers demystified - Part 1: Capacity"
-date: 2014-07-23 13:13:39 +0200
+date: 2014-07-22 13:13:39 +0200
 comments: true
 categories: [Hadoop, YARN, Schedulers]
 author: Krisztian Horvath
 published: false
 ---
 
-After our first [post](http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues/) about re-prioritizing already submitted and running jobs on different queues we have received many questions and feedbacks about the Capacity Scheduler internals. While there is `some` documentation available, there is no extensive and deep documentation about how it actually works internally. Since it's all event based it's pretty hard to understand the flow - let alone debugging it. At [SequenceIQ](http://sequenceiq.com/) we are working on a heuristic cluster scheduler - and understanding how YARN schedulers work was essential. This is part of a larger piece of work - which will lead to a fully dynamic Hadoop clusters - orchestrating [Cloudbreak](http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/) - the first open source and Docker based **Hadoop as a Service API**. As usual for us, this work and what we have already done around Capacity and Fair schedulers will be open sourced (or already contributed back to Apache YARN project).
+After our first [post](http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues/) about re-prioritizing already submitted and running jobs on different queues we have received many questions and feedbacks about the Capacity Scheduler internals. While there is `some` documentation available, there is no extensive and deep documentation about how it actually works internally. Since it's all event based it's pretty hard to understand the flow - let alone debugging it. At [SequenceIQ](http://sequenceiq.com/) we are working on a heuristic cluster scheduler - and understanding how YARN schedulers work was essential. This is part of a larger piece of work - which will lead to a fully dynamic Hadoop cluster - orchestrating [Cloudbreak](http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/) - the first open source and Docker based **Hadoop as a Service API**. As usual for us, this work and what we have already done around Capacity and Fair schedulers will be open sourced (or already contributed back to Apache YARN project).
 
 ##The Capacity Scheduler internals
 
 The CapacityScheduler is the default scheduler used with Hadoop 2.x. Its purpose is to allow multi-tenancy and share resources between multiple organizations and applications on the same cluster. You can read about the high level abstraction
 [here](http://hadoop.apache.org/docs/r2.3.0/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html). In this blog entry we'll examine it
 from a deep technical point of view (the implementation can be found [here](https://github.com/apache/hadoop-common/tree/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity)
-as part of the ResourceManager). I'll try to keep it short and deal with the most important aspects, preventing to write a book about it
-(but still would be better than twilight).
+as part of the ResourceManager). I'll try to keep it short and deal with the most important aspects, preventing to write a book about it (would be still better than twilight).
 
 {% img https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-queue-tests/src/main/resources/event-flow.gif %}
 
