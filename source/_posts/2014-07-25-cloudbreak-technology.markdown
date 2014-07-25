@@ -90,3 +90,4 @@ Serf uses an efficient gossip protocol to solve three major problems:
   * Custom event propagation: Serf can broadcast custom events and queries to the cluster. These can be used to trigger deploys, propagate configuration, etc. Events are simple fire-and-forget broadcast, and Serf makes a best effort to deliver messages in the face of offline nodes or network partitions. Queries provide a simple realtime request/response mechanism.
     ![](https://raw.githubusercontent.com/sequenceiq/cloudbreak/master/docs/images/serf-event.png)
 
+For updates follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
