@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-07-25T13:57:11+00:00</updated>
+  <updated>2014-07-25T18:56:02+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -20,6 +20,10 @@
     <id>http://blog.sequenceiq.com/blog/2014/07/25/cloudbreak-technology</id>
     <content type="html"><![CDATA[<p>A week ago we have <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">announced</a> and open sourced <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a>, the first Docker based Hadoop as a Service API. In this post we&rsquo;d like to introduce you into the technical details and the building blocks of the architecture.
 Cloudbreak is built on the foundation of cloud providers APIs, Apache Ambari, Docker containers, Serf and dnsmasq. It is a cloud agnostic solution &ndash; as all the Hadoop services and components are running inside Docker containers &ndash; and these containers are shipped across different cloud providers.</p>
+
+<p>Cloudbreak product documentation: <a href="http://sequenceiq.com/cloudbreak">http://sequenceiq.com/cloudbreak</a></p>
+
+<p>Cloudbreak API documentation: <a href="http://docs.cloudbreak.apiary.io/">http://docs.cloudbreak.apiary.io/</a></p>
 
 <h2>How it works</h2>
 
