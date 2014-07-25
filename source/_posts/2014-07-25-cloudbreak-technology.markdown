@@ -11,6 +11,9 @@ published: true
 A week ago we have [announced](http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/) and open sourced [Cloudbreak](https://cloudbreak.sequenceiq.com/), the first Docker based Hadoop as a Service API. In this post we'd like to introduce you into the technical details and the building blocks of the architecture.
 Cloudbreak is built on the foundation of cloud providers APIs, Apache Ambari, Docker containers, Serf and dnsmasq. It is a cloud agnostic solution - as all the Hadoop services and components are running inside Docker containers - and these containers are shipped across different cloud providers.
 
+Cloudbreak product documentation: http://sequenceiq.com/cloudbreak
+Cloudbreak API documentation: http://docs.cloudbreak.apiary.io/
+
 ##How it works
 
 From Docker containers point of view we have two kind of containers - based on their Ambari role - server and agent. There is one Docker container running the Ambari server, and there are many Docker containers running the Ambari agents. The used Docker image is always the same: `sequenceiq/ambari` and 
