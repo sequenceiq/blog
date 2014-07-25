@@ -1,5 +1,3 @@
-
-
 ---
 layout: post
 title: "Docker ships Hadoop to the cloud"
