@@ -12,6 +12,7 @@ A week ago we have [announced](http://blog.sequenceiq.com/blog/2014/07/18/announ
 Cloudbreak is built on the foundation of cloud providers APIs, Apache Ambari, Docker containers, Serf and dnsmasq. It is a cloud agnostic solution - as all the Hadoop services and components are running inside Docker containers - and these containers are shipped across different cloud providers.
 
 Cloudbreak product documentation: http://sequenceiq.com/cloudbreak
+
 Cloudbreak API documentation: http://docs.cloudbreak.apiary.io/
 
 ##How it works
