@@ -5,10 +5,10 @@ date: 2014-07-25 14:56:39 +0200
 comments: true
 categories: [Cloudbreak, Docker, Hadoop, Cloud]
 author: Janos Matyas
-published: false
+published: true
 ---
 
-A week ago we have open sourced [Cloudbreak](https://cloudbreak.sequenceiq.com/) the first Docker based Hadoop as a Service API. In this post we'd like to introduce you into the technical details and the building blocks of the architecture.
+A week ago we have [announced](http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/) and open sourced [Cloudbreak](https://cloudbreak.sequenceiq.com/), the first Docker based Hadoop as a Service API. In this post we'd like to introduce you into the technical details and the building blocks of the architecture.
 Cloudbreak is built on the foundation of cloud providers APIs, Apache Ambari, Docker containers, Serf and dnsmasq. It is a cloud agnostic solution - as all the Hadoop services and components are running inside Docker containers - and these containers are shipped across different cloud providers.
 
 ##How it works
@@ -25,10 +25,12 @@ docker run -d -p <LIST of ports> -e SERF_JOIN_IP=$SERF_JOIN_IP --dns 127.0.0.1 -
 As we are starting up the instances and the Docker containers on the host, we'd like them to join each other and be able to communicate - though we don't know the IP addresses beforehand. This can be challanging on cloud environments - where your IP address and DNS name is dynamically allocated - however you don't want to collect these imformations beforehand launching the Docker containers.
 For that we use Serf - and pass along the IP address `SERF_JOIN_IP=$SERF_JOIN_IP` of the first container. Using a gossip protocol Serf will automatically discover each other, set the DNS names, and configure the routing between the nodes.
 Serf reconfigures the DNS server `dnsmasq` running inside the container, and keeps it up to date with the joining or leaving nodes information.
-As you can see at startup we always pass a `--dns 127.0.0.1` dns server for the container to use.
+As you can see at startup we always pass a `--dns 127.0.0.1` dns server for the container to use. 
 
 As you see there is no cloud specific code at the Docker containers level, the same technology can be used on bare metal as well. 
 Check our previous blog posts about a [multi node Hadoop cluster on any host](http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/).
+
+Obliviously there is some configuration on the host as well - for that and to handle early initialization of a cloud instance we use [CloudInit](https://help.ubuntu.com/community/CloudInit). We will write a blog post about these for every cloud provider we support. 
 
 For additional information you can check our slides from the [Hadoop Summit 2014](http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning).
 
