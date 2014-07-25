@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Cloud | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/cloud/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-07-25T13:52:06+00:00</updated>
+  <updated>2014-07-25T13:57:11+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -85,8 +85,9 @@ Ambari Blueprints are a declarative definition of a cluster. With a Blueprint, y
 <li>Build once, run anywhere</li>
 <li>VM &ndash; without the overhead of a VM</li>
 <li>Each virtualized application includes not only the application and the necessary binaries and libraries, but also an entire guest operating system</li>
-<li><p>The Docker Engine container comprises just the application and its dependencies. It runs as an isolated process in userspace on the host operating system, sharing the kernel with other containers.
-<img src="https://raw.githubusercontent.com/sequenceiq/cloudbreak/master/docs/images/vm.png" alt="" /></p></li>
+<li><p>The Docker Engine container comprises just the application and its dependencies. It runs as an isolated process in userspace on the host operating system, sharing the kernel with other containers.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/cloudbreak/master/docs/images/vm.png" alt="" /></p></li>
 <li><p>Containers are isolated</p></li>
 <li>It can be automated and scripted</li>
 </ol>
@@ -99,10 +100,12 @@ Serf uses an efficient gossip protocol to solve three major problems:</p>
 
 <ul>
 <li><p>Membership: Serf maintains cluster membership lists and is able to execute custom handler scripts when that membership changes. For example, Serf can maintain the list of Hadoop servers of a cluster and notify the members when nodes come online or go offline.</p></li>
-<li><p>Failure detection and recovery: Serf automatically detects failed nodes within seconds, notifies the rest of the cluster, and executes handler scripts allowing you to handle these events. Serf will attempt to recover failed nodes by reconnecting to them periodically.
-<img src="https://raw.githubusercontent.com/sequenceiq/cloudbreak/master/docs/images/serf-gossip.png" alt="" /></p></li>
-<li><p>Custom event propagation: Serf can broadcast custom events and queries to the cluster. These can be used to trigger deploys, propagate configuration, etc. Events are simple fire-and-forget broadcast, and Serf makes a best effort to deliver messages in the face of offline nodes or network partitions. Queries provide a simple realtime request/response mechanism.
-<img src="https://raw.githubusercontent.com/sequenceiq/cloudbreak/master/docs/images/serf-event.png" alt="" /></p></li>
+<li><p>Failure detection and recovery: Serf automatically detects failed nodes within seconds, notifies the rest of the cluster, and executes handler scripts allowing you to handle these events. Serf will attempt to recover failed nodes by reconnecting to them periodically.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/cloudbreak/master/docs/images/serf-gossip.png" alt="" /></p></li>
+<li><p>Custom event propagation: Serf can broadcast custom events and queries to the cluster. These can be used to trigger deploys, propagate configuration, etc. Events are simple fire-and-forget broadcast, and Serf makes a best effort to deliver messages in the face of offline nodes or network partitions. Queries provide a simple realtime request/response mechanism.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/cloudbreak/master/docs/images/serf-event.png" alt="" /></p></li>
 </ul>
 
 
