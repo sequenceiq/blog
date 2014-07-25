@@ -1,3 +1,5 @@
+
+
 ---
 layout: post
 title: "Docker ships Hadoop to the cloud"
@@ -8,12 +10,12 @@ author: Janos Matyas
 published: false
 ---
 
-A week ago we have opensourced [Cloudbreak](https://cloudbreak.sequenceiq.com/) the first Docker based Hadoop as a Service API. In this post we'd like to introduce you into the technical details and the building blocks of the architecture.
-Cloudbreak is built on the foundation of cloud providers APIs, Apache Ambari, Docker containers, Serf and dnsmasq. It is a cloud agnostic solution - as all the Hadoop services and components are running inside Docker containers - and these containers are shipped accross different cloud providers.
+A week ago we have open sourced [Cloudbreak](https://cloudbreak.sequenceiq.com/) the first Docker based Hadoop as a Service API. In this post we'd like to introduce you into the technical details and the building blocks of the architecture.
+Cloudbreak is built on the foundation of cloud providers APIs, Apache Ambari, Docker containers, Serf and dnsmasq. It is a cloud agnostic solution - as all the Hadoop services and components are running inside Docker containers - and these containers are shipped across different cloud providers.
 
 ##How it works
 
-From Docker containers point of view we have two kind of containers - based on their Ambari role - server and agent. There is one Docker contaier running the Ambari server, and there are many Docker containers running the Ambari agents. The used Docker image is always the same: `sequenceiq/ambari` and 
+From Docker containers point of view we have two kind of containers - based on their Ambari role - server and agent. There is one Docker container running the Ambari server, and there are many Docker containers running the Ambari agents. The used Docker image is always the same: `sequenceiq/ambari` and 
 the Ambari role is decided based on the `$AMBARI_ROLE` variable.
 
 For example on Amazon EC2 this is how we start the containers:
@@ -22,19 +24,19 @@ For example on Amazon EC2 this is how we start the containers:
 docker run -d -p <LIST of ports> -e SERF_JOIN_IP=$SERF_JOIN_IP --dns 127.0.0.1 --name ${NODE_PREFIX}${INSTANCE_IDX} -h ${NODE_PREFIX}${INSTANCE_IDX}.${MYDOMAIN} --entrypoint /usr/local/serf/bin/start-serf-agent.sh  $IMAGE $AMBARI_ROLE
 ```
 
-As we are starting up the instances, and the Docker containers on the host we'd like them to join each other and be able to communicate - though we don't know the IP addresses beforehand.
+As we are starting up the instances and the Docker containers on the host, we'd like them to join each other and be able to communicate - though we don't know the IP addresses beforehand. This can be challanging on cloud environments - where your IP address and DNS name is dynamically allocated - however you don't want to collect these imformations beforehand launching the Docker containers.
 For that we use Serf - and pass along the IP address `SERF_JOIN_IP=$SERF_JOIN_IP` of the first container. Using a gossip protocol Serf will automatically discover each other, set the DNS names, and configure the routing between the nodes.
 Serf reconfigures the DNS server `dnsmasq` running inside the container, and keeps it up to date with the joining or leaving nodes information.
 As you can see at startup we always pass a `--dns 127.0.0.1` dns server for the container to use.
 
-As you see there is no cloud specific code at the Docker containers level - as we have bloged about this beforehand, the same technology can be (and we are using it) on bare metal as well. 
+As you see there is no cloud specific code at the Docker containers level, the same technology can be used on bare metal as well. 
 Check our previous blog posts about a [multi node Hadoop cluster on any host](http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/).
 
 For additional information you can check our slides from the [Hadoop Summit 2014](http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning).
 
 Once Ambari is started it will install the selected components based on the passed Hadoop blueprint - and start the desired services. 
 
-##Technology
+##Used Technologies
 
 ###Apache Ambari
 
@@ -57,7 +59,7 @@ Ambari enables System Administrators to:
   * Ambari leverages Nagios for system alerting and will send emails when your attention is needed (e.g. a node goes down, remaining disk space is low, etc).
 
 Ambari enables to integrate Hadoop provisioning, management and monitoring capabilities into applications with the Ambari REST APIs.
-Ambari Blueprints are a declarative definition of a cluster. With a Blueprint, you can specify a Stack, the Component layout and the Configurations to materialise a Hadoop cluster instance (via a REST API) without having to use the Ambari Cluster Install Wizard.
+Ambari Blueprints are a declarative definition of a cluster. With a Blueprint, you can specify a Stack, the Component layout and the Configurations to materialize a Hadoop cluster instance (via a REST API) without having to use the Ambari Cluster Install Wizard.
 
 ![](https://raw.githubusercontent.com/sequenceiq/cloudbreak/master/docs/images/ambari-create-cluster.png)
 
@@ -70,7 +72,7 @@ The main features of Docker are:
 1. Lightweight, portable
 2. Build once, run anywhere
 3. VM - without the overhead of a VM
-  * Each virtualised application includes not only the application and the necessary binaries and libraries, but also an entire guest operating system
+  * Each virtualized application includes not only the application and the necessary binaries and libraries, but also an entire guest operating system
   * The Docker Engine container comprises just the application and its dependencies. It runs as an isolated process in userspace on the host operating system, sharing the kernel with other containers.
     ![](https://raw.githubusercontent.com/sequenceiq/cloudbreak/master/docs/images/vm.png)
 
@@ -79,7 +81,7 @@ The main features of Docker are:
 
 ###Serf
 
-Serf is a tool for cluster membership, failure detection, and orchestration that is decentralised, fault-tolerant and highly available. Serf runs on every major platform: Linux, Mac OS X, and Windows. It is extremely lightweight.
+Serf is a tool for cluster membership, failure detection, and orchestration that is decentralized, fault-tolerant and highly available. Serf runs on every major platform: Linux, Mac OS X, and Windows. It is extremely lightweight.
 Serf uses an efficient gossip protocol to solve three major problems:
 
   * Membership: Serf maintains cluster membership lists and is able to execute custom handler scripts when that membership changes. For example, Serf can maintain the list of Hadoop servers of a cluster and notify the members when nodes come online or go offline.
