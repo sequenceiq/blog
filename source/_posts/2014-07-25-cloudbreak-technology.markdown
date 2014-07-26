@@ -17,7 +17,7 @@ Cloudbreak API documentation: http://docs.cloudbreak.apiary.io/
 
 ##How it works
 
-From Docker containers point of view we have two kind of containers - based on their Ambari role - server and agent. There is one Docker container running the Ambari server, and there are many Docker containers running the Ambari agents. The used Docker image is always the same: `sequenceiq/ambari` and 
+From Docker containers point of view we have two kind of containers - based on their Ambari role - server and agent. There is one Docker container running the Ambari server, and there are many Docker containers running the Ambari agents. The used Docker image is always the same: `sequenceiq/ambari` and
 the Ambari role is decided based on the `$AMBARI_ROLE` variable.
 
 For example on Amazon EC2 this is how we start the containers:
@@ -29,16 +29,18 @@ docker run -d -p <LIST of ports> -e SERF_JOIN_IP=$SERF_JOIN_IP --dns 127.0.0.1 -
 As we are starting up the instances and the Docker containers on the host, we'd like them to join each other and be able to communicate - though we don't know the IP addresses beforehand. This can be challanging on cloud environments - where your IP address and DNS name is dynamically allocated - however you don't want to collect these imformations beforehand launching the Docker containers.
 For that we use Serf - and pass along the IP address `SERF_JOIN_IP=$SERF_JOIN_IP` of the first container. Using a gossip protocol Serf will automatically discover each other, set the DNS names, and configure the routing between the nodes.
 Serf reconfigures the DNS server `dnsmasq` running inside the container, and keeps it up to date with the joining or leaving nodes information.
-As you can see at startup we always pass a `--dns 127.0.0.1` dns server for the container to use. 
+As you can see at startup we always pass a `--dns 127.0.0.1` dns server for the container to use.
 
-As you see there is no cloud specific code at the Docker containers level, the same technology can be used on bare metal as well. 
+As you see there is no cloud specific code at the Docker containers level, the same technology can be used on bare metal as well.
 Check our previous blog posts about a [multi node Hadoop cluster on any host](http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/).
 
-Obliviously there is some configuration on the host as well - for that and to handle early initialization of a cloud instance we use [CloudInit](https://help.ubuntu.com/community/CloudInit). We will write a blog post about these for every cloud provider we support. 
+Obliviously there is some configuration on the host as well - for that and to handle early initialization of a cloud instance we use [CloudInit](https://help.ubuntu.com/community/CloudInit). We will write a blog post about these for every cloud provider we support.
 
 For additional information you can check our slides from the [Hadoop Summit 2014](http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning).
 
-Once Ambari is started it will install the selected components based on the passed Hadoop blueprint - and start the desired services. 
+Once Ambari is started it will install the selected components based on the passed Hadoop blueprint - and start the desired services.
+
+<!-- more -->
 
 ##Used Technologies
 
@@ -81,7 +83,7 @@ The main features of Docker are:
 3. VM - without the overhead of a VM
   * Each virtualized application includes not only the application and the necessary binaries and libraries, but also an entire guest operating system
   * The Docker Engine container comprises just the application and its dependencies. It runs as an isolated process in userspace on the host operating system, sharing the kernel with other containers.
-  
+
     ![](https://raw.githubusercontent.com/sequenceiq/cloudbreak/master/docs/images/vm.png)
 
 4. Containers are isolated
@@ -95,11 +97,11 @@ Serf uses an efficient gossip protocol to solve three major problems:
   * Membership: Serf maintains cluster membership lists and is able to execute custom handler scripts when that membership changes. For example, Serf can maintain the list of Hadoop servers of a cluster and notify the members when nodes come online or go offline.
 
   * Failure detection and recovery: Serf automatically detects failed nodes within seconds, notifies the rest of the cluster, and executes handler scripts allowing you to handle these events. Serf will attempt to recover failed nodes by reconnecting to them periodically.
-  
+
     ![](https://raw.githubusercontent.com/sequenceiq/cloudbreak/master/docs/images/serf-gossip.png)
 
   * Custom event propagation: Serf can broadcast custom events and queries to the cluster. These can be used to trigger deploys, propagate configuration, etc. Events are simple fire-and-forget broadcast, and Serf makes a best effort to deliver messages in the face of offline nodes or network partitions. Queries provide a simple realtime request/response mechanism.
-   
+
     ![](https://raw.githubusercontent.com/sequenceiq/cloudbreak/master/docs/images/serf-event.png)
 
 For updates follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
