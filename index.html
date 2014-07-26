@@ -188,73 +188,9 @@ Check our previous blog posts about a <a href="http://blog.sequenceiq.com/blog/2
 
 <p>Once Ambari is started it will install the selected components based on the passed Hadoop blueprint &ndash; and start the desired services.</p>
 
-<h2>Used Technologies</h2>
-
-<h3>Apache Ambari</h3>
-
-<p>The Apache Ambari project is aimed at making Hadoop management simpler by developing software for provisioning, managing, and monitoring Apache Hadoop clusters. Ambari provides an intuitive, easy-to-use Hadoop management web UI backed by its RESTful APIs.</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/cloudbreak/master/docs/images/ambari-overview.png" alt="" /></p>
-
-<p>Ambari enables System Administrators to:</p>
-
-<ol>
-<li>Provision a Hadoop Cluster</li>
-<li>provides a step-by-step wizard for installing Hadoop services across any number of hosts.</li>
-<li><p>handles configuration of Hadoop services for the cluster.</p></li>
-<li><p>Manage a Hadoop Cluster</p></li>
-<li><p>provides central management for starting, stopping, and reconfiguring Hadoop services across the entire cluster.</p></li>
-<li><p>Monitor a Hadoop Cluster</p></li>
-<li>provides a dashboard for monitoring health and status of the Hadoop cluster.</li>
-<li>leverages Ganglia for metrics collection.</li>
-<li>leverages Nagios for system alerting and will send emails when your attention is needed (e.g. a node goes down, remaining disk space is low, etc).</li>
-</ol>
-
-
-<p>Ambari enables to integrate Hadoop provisioning, management and monitoring capabilities into applications with the Ambari REST APIs.
-Ambari Blueprints are a declarative definition of a cluster. With a Blueprint, you can specify a Stack, the Component layout and the Configurations to materialize a Hadoop cluster instance (via a REST API) without having to use the Ambari Cluster Install Wizard.</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/cloudbreak/master/docs/images/ambari-create-cluster.png" alt="" /></p>
-
-<h3>Docker</h3>
-
-<p>Docker is an open platform for developers and sysadmins to build, ship, and run distributed applications. Consisting of Docker Engine, a portable, lightweight runtime and packaging tool, and Docker Hub, a cloud service for sharing applications and automating workflows, Docker enables apps to be quickly assembled from components and eliminates the friction between development, QA, and production environments. As a result, IT can ship faster and run the same app, unchanged, on laptops, data center VMs, and any cloud.</p>
-
-<p>The main features of Docker are:</p>
-
-<ol>
-<li>Lightweight, portable</li>
-<li>Build once, run anywhere</li>
-<li>VM &ndash; without the overhead of a VM</li>
-<li>Each virtualized application includes not only the application and the necessary binaries and libraries, but also an entire guest operating system</li>
-<li><p>The Docker Engine container comprises just the application and its dependencies. It runs as an isolated process in userspace on the host operating system, sharing the kernel with other containers.</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/cloudbreak/master/docs/images/vm.png" alt="" /></p></li>
-<li><p>Containers are isolated</p></li>
-<li>It can be automated and scripted</li>
-</ol>
-
-
-<h3>Serf</h3>
-
-<p>Serf is a tool for cluster membership, failure detection, and orchestration that is decentralized, fault-tolerant and highly available. Serf runs on every major platform: Linux, Mac OS X, and Windows. It is extremely lightweight.
-Serf uses an efficient gossip protocol to solve three major problems:</p>
-
-<ul>
-<li><p>Membership: Serf maintains cluster membership lists and is able to execute custom handler scripts when that membership changes. For example, Serf can maintain the list of Hadoop servers of a cluster and notify the members when nodes come online or go offline.</p></li>
-<li><p>Failure detection and recovery: Serf automatically detects failed nodes within seconds, notifies the rest of the cluster, and executes handler scripts allowing you to handle these events. Serf will attempt to recover failed nodes by reconnecting to them periodically.</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/cloudbreak/master/docs/images/serf-gossip.png" alt="" /></p></li>
-<li><p>Custom event propagation: Serf can broadcast custom events and queries to the cluster. These can be used to trigger deploys, propagate configuration, etc. Events are simple fire-and-forget broadcast, and Serf makes a best effort to deliver messages in the face of offline nodes or network partitions. Queries provide a simple realtime request/response mechanism.</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/cloudbreak/master/docs/images/serf-event.png" alt="" /></p></li>
-</ul>
-
-
-<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 
       
-      
+       <a href="/blog/2014/07/25/cloudbreak-technology/">Read on &rarr;</a> 
     </div>
   </div>
 

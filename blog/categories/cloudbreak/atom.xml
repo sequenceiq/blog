@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Cloudbreak | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/cloudbreak/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-07-25T18:56:02+00:00</updated>
+  <updated>2014-07-26T09:51:54+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -49,6 +49,9 @@ Check our previous blog posts about a <a href="http://blog.sequenceiq.com/blog/2
 <p>For additional information you can check our slides from the <a href="http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning">Hadoop Summit 2014</a>.</p>
 
 <p>Once Ambari is started it will install the selected components based on the passed Hadoop blueprint &ndash; and start the desired services.</p>
+
+<!-- more -->
+
 
 <h2>Used Technologies</h2>
 
