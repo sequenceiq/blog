@@ -24,6 +24,8 @@ K-Means (Lloyd's algorithm) is a simple NP-hard unsupervised learning algorithms
       line => Vectors.dense(line.split(',').map(_.toDouble))
     }.cache()
 ```
+<!-- more -->
+
 The second step is to choose K center points (centroids). The third one is to assign each vector to the group that has the closest centroid. After all this is done, next thing you will need to do is to recalculate the positions of the centroids. You have to repeat the third and fourth steps until the centroids are not moving (`the iterative stuff`). The [KMeans](https://github.com/apache/spark/blob/master/mllib/src/main/scala/org/apache/spark/mllib/clustering/KMeans.scala) MLlib model is doing that for you (2-3-4 steps centroid delta checks).
 
 ```scala
