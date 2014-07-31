@@ -10,7 +10,7 @@ published: false
 
 ## Introduction
 
-In one of our earlier posts we have mentioned that we use Scalding (among others) for writing MR jobs. Scala/Scalding simplifies the implementation of many M patterns and makes it easy to implement quite complex jobs like machine learning algorithms. Map Reduce is a mature and widely used framework and it is good choice for processing large amounts of data - but not as great if you’d like to use it for iterative algorithms/processing. This is a use case where [Apache Spark](https://spark.apache.org/) can be quite handy. Spark is fit for these kind of algorithms, because it tries to keep everything in memory (in case of you run out of memory, you can switch to another [storage levels](http://spark.apache.org/docs/latest/programming-guide.html#rdd-persistence))
+In one of our earlier posts we have mentioned that we use Scalding (among others) for writing MR jobs. Scala/Scalding simplifies the implementation of many MR patterns and makes it easy to implement quite complex jobs like machine learning algorithms. Map Reduce is a mature and widely used framework and it is a good choice for processing large amounts of data - but not as great if you’d like to use it for fast iterative algorithms/processing. This is a use case where [Apache Spark](https://spark.apache.org/) can be quite handy. Spark is fit for these kind of algorithms, because it tries to keep everything in memory (in case of you run out of memory, you can switch to another [storage levels](http://spark.apache.org/docs/latest/programming-guide.html#rdd-persistence)).
 
 ## Apache Spark - MLlib library
 
