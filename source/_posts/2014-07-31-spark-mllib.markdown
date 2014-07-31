@@ -42,7 +42,7 @@ After you have your model result, you can utilize it in your RDD object.
 ### Running Spark job on YARN
 In order to run this Spark application on YARN first of all you will need a Hadoop YARN cluster. For that you could use our Hadoop as a Service API called [Cloudbreak](http://sequenceiq.com/cloudbreak) - using a `multi-node-hdfs-yarn` blueprint will set you up a Spark ready Hadoop cluster in less than 2 minutes on your favorite cloud provider. Give it a try at our hosted [Cloudbreak](https://cloudbreak.sequenceiq.com) instance.
 
-Once you’re cluster it’s up and ready you can run the following command:
+Once your cluster it’s up and ready you can run the following command:
  
 ```bash
 ./bin/spark-submit --class com.sequenceiq.spark.Main --master \
