@@ -66,7 +66,7 @@ Note that Apache Tez has already showed **awesome** result. Being the key buildi
 
 ### Other promising machine learning frameworks
 
-If you are interested in machine learning frameworks, you have to check  [Conjecture](https://github.com/etsy/Conjecture) or [ganitha](https://github.com/tresata/ganitha) - they both show great fueatures and promising results.
+If you are interested in machine learning frameworks, you have to check  [Conjecture](https://github.com/etsy/Conjecture) or [ganitha](https://github.com/tresata/ganitha) - they both show great fueatures and have promising results.
 
 
 
