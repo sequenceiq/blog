@@ -17,7 +17,7 @@ In one of our earlier posts we have mentioned that we use Scalding (among others
 [MLlib](https://spark.apache.org/docs/latest/mllib-guide.html) is a machine learning library which ships with Apache Spark, and can run on any Hadoop2/YARN cluster without any pre-installation. At SequenceIQ we use MLlib in Scala - but you could use it from Java and Python as well. Let us quickly show you an MLlib clustering algorithm with code examples.
 
 ### KMeans example
-K-Means (Lloyd's algorithm) is a simple NP-hard unsupervised learning algorithms that solve the well known clustering problems. The essence of the algorithm is to separate your data into K cluster. In simple terms it needs 4 steps. First of all you have to vectorize your data. (you can do that with text values too). The code it looks like this:
+K-Means (Lloyd's algorithm) is a simple NP-hard unsupervised learning algorithm that solve well known clustering problems. The essence of the algorithm is to separate your data into K cluster. In simple terms it needs 4 steps. First of all you have to vectorize your data. (you can do that with text values too). The code looks like this:
 
 ```scala
     val data = context.textFile(input).map {
