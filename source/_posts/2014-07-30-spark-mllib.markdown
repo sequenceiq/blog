@@ -59,10 +59,10 @@ While there is a loud buzz about what’s faster than the other and there are hu
 
 In one of our next post we will show you metrics for a much larger dataset and other ML algorithms - follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook) for updates.
 
-## Apache Tez - the new (promising) kid in the block
-We can’t finish this blog post before not talking about [Apache Tez](http://tez.apache.org/) - the project is aimed at building an application framework which allows for a complex directed-acyclic-graph of tasks for processing data. We (and many others) believe that this can be a good alternative for Spark - especially for machine learning. The number of frameworks which are adding or moving the MR runtime to Tez is increasing - among the few to mention are Cascading, Summingbird, Conjecture - and of course us :) at SequenceIQ.
+## Apache Tez - the new kid in the block
+We can’t finish this blog post before not talking about [Apache Tez](http://tez.apache.org/) - the project is aimed at building an application framework which allows for a complex directed-acyclic-graph of tasks for processing data - fast. We (and many others) believe that this can be a good alternative for Spark - especially for machine learning. The number of frameworks which are adding or moving the MR runtime to Tez is increasing - among the few to mention are Cascading, Summingbird, Conjecture - including us as well.
 
-Note that Apache Tez has already showed *great* result. Being the key building block of the [Stinger inititive](http://hortonworks.com/labs/stinger/) led by Hortonworks it managed to speed up Hive with 100X. 
+Note that Apache Tez has already showed **awesome** result. Being the key building block of the [Stinger inititive](http://hortonworks.com/labs/stinger/) - led by Hortonworks - managed to bring near real time queries and speed up Hive with 100x.
 
 ## Other promising machine learning frameworks
 
