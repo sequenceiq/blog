@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-07-31T12:53:35+00:00</updated>
+  <updated>2014-07-31T12:55:20+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -28,7 +28,7 @@
 
 <h3>KMeans example</h3>
 
-<p>K-Means (Lloyd&rsquo;s algorithm) is a simple NP-hard unsupervised learning algorithms that solve the well known clustering problems. The essence of the algorithm is to separate your data into K cluster. In simple terms it needs 4 steps. First of all you have to vectorize your data. (you can do that with text values too). The code it looks like this:</p>
+<p>K-Means (Lloyd&rsquo;s algorithm) is a simple NP-hard unsupervised learning algorithm that solve well known clustering problems. The essence of the algorithm is to separate your data into K cluster. In simple terms it needs 4 steps. First of all you have to vectorize your data. (you can do that with text values too). The code looks like this:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
