@@ -8,15 +8,15 @@ author: Oliver Szabo
 published: false
 ---
 
-## Introduction
+### Introduction
 
 In one of our earlier posts we have mentioned that we use Scalding (among others) for writing MR jobs. Scala/Scalding simplifies the implementation of many MR patterns and makes it easy to implement quite complex jobs like machine learning algorithms. Map Reduce is a mature and widely used framework and it is a good choice for processing large amounts of data - but not as great if you’d like to use it for fast iterative algorithms/processing. This is a use case where [Apache Spark](https://spark.apache.org/) can be quite handy. Spark is fit for these kind of algorithms, because it tries to keep everything in memory (in case of you run out of memory, you can switch to another [storage levels](http://spark.apache.org/docs/latest/programming-guide.html#rdd-persistence)).
 
-## Apache Spark - MLlib library
+### Apache Spark - MLlib library
 
 [MLlib](https://spark.apache.org/docs/latest/mllib-guide.html) is a machine learning library which ships with Apache Spark, and can run on any Hadoop2/YARN cluster without any pre-installation. At SequenceIQ we use MLlib in Scala - but you could use it from Java and Python as well. Let us quickly show you an MLlib clustering algorithm with code examples.
 
-## KMeans example
+### KMeans example
 K-Means (Lloyd's algorithm) is a simple NP-hard unsupervised learning algorithms that solve the well known clustering problems. The essence of the algorithm is to separate your data into K cluster. In simple terms it needs 4 steps. First of all you have to vectorize your data. (you can do that with text values too). The code it looks like this:
 
 ```scala
@@ -37,7 +37,7 @@ The second step is to choose K center points (centroids). The third one is to as
 ```
 After you have your model result, you can utilize it in your RDD object. 
 
-## Running Spark job on YARN
+### Running Spark job on YARN
 In order to run this Spark application on YARN first of all you will need a Hadoop YARN cluster. For that you could use our Hadoop as a Service API called [Cloudbreak](http://sequenceiq.com/cloudbreak) - using a `multi-node-hdfs-yarn` blueprint will set you up a Spark ready Hadoop cluster in less than 2 minutes on your favorite cloud provider. Give it a try at our hosted [Cloudbreak](https://cloudbreak.sequenceiq.com) instance.
 
 Once you’re cluster it’s up and ready you can run the following command:
@@ -59,12 +59,12 @@ While there is a loud buzz about what’s faster than the other and there are hu
 
 In one of our next post we will show you metrics for a much larger dataset and other ML algorithms - follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook) for updates.
 
-## Apache Tez - the new kid in the block
+### Apache Tez
 We can’t finish this blog post before not talking about [Apache Tez](http://tez.apache.org/) - the project is aimed at building an application framework which allows for a complex directed-acyclic-graph of tasks for processing data - fast. We (and many others) believe that this can be a good alternative for Spark - especially for machine learning. The number of frameworks which are adding or moving the MR runtime to Tez is increasing - among the few to mention are Cascading, Summingbird, Conjecture - including us as well.
 
 Note that Apache Tez has already showed **awesome** result. Being the key building block of the [Stinger inititive](http://hortonworks.com/labs/stinger/) - led by Hortonworks - managed to bring near real time queries and speed up Hive with 100x.
 
-## Other promising machine learning frameworks
+### Other promising machine learning frameworks
 
 If you are interested in machine learning frameworks, you have to check  [Conjecture](https://github.com/etsy/Conjecture) or [ganitha](https://github.com/tresata/ganitha) which are under heavy development. 
 
