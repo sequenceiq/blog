@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Apache Spark - MLlib Introduction"
-date: 2014-07-30 09:47:32 +0200
+date: 2014-07-31 09:47:32 +0200
 comments: true
 categories: [Spark, MLlib, Clustering, KMeans]
 author: Oliver Szabo
