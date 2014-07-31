@@ -7,23 +7,24 @@ categories: [Spark, MLlib, Clustering, KMeans]
 author: Oliver Szabo
 published: false
 ---
+
 ## Introduction
 
-Earlier, we mention that we use Scalding (among others) for writing MR jobs. Scala/Scalding simplifies the implementation of many MR patterns and makes it easy to implement much more complex jobs e.g.: machine learning algorithms. Map Reduce is a really I/O heavy framework and it is great choice for text processing. But not as great if you want to use it for iterative algorithms. And here [Apache Spark](https://spark.apache.org/) enters the frame. Spark is fit for these kind of algorithms, because it keeps everything in memory. (in case of you run out of memory, you can switch to another [storage level](http://spark.apache.org/docs/latest/programming-guide.html#rdd-persistence))
+In one of our earlier posts we have mentioned that we use Scalding (among others) for writing MR jobs. Scala/Scalding simplifies the implementation of many M patterns and makes it easy to implement quite complex jobs like machine learning algorithms. Map Reduce is a mature and widely used framework and it is good choice for processing large amounts of data - but not as great if you’d like to use it for iterative algorithms/processing. This is a use case where [Apache Spark](https://spark.apache.org/) can be quite handy. Spark is fit for these kind of algorithms, because it tries to keep everything in memory (in case of you run out of memory, you can switch to another [storage levels](http://spark.apache.org/docs/latest/programming-guide.html#rdd-persistence))
 
-## Apache Spark - MLlib libary
+## Apache Spark - MLlib library
 
-[MLlib](https://spark.apache.org/docs/latest/mllib-guide.html) is a machine learning libary for Apache Spark. Below we show how easy to use it for clustering.
+[MLlib](https://spark.apache.org/docs/latest/mllib-guide.html) is a machine learning library which ships with Apache Spark, and can run on any Hadoop2/YARN cluster without any pre-installation. At SequenceIQ we use MLlib in Scala - but you could use it from Java and Python as well. Let us quickly show you an MLlib clustering algorithm with code examples.
 
 ## KMeans example
-K-Means (Lloyd's algorithm) is a simple NP-hard unsupervised learning algorithms that solve the well known clustering problems. The essence of the algorithm is to separate your data into K cluster. In simple terms it needs 4 steps. First of all you have to vectorize our data. (you can do that with text values too). In the code it looks like this:
+K-Means (Lloyd's algorithm) is a simple NP-hard unsupervised learning algorithms that solve the well known clustering problems. The essence of the algorithm is to separate your data into K cluster. In simple terms it needs 4 steps. First of all you have to vectorize your data. (you can do that with text values too). The code it looks like this:
 
 ```scala
     val data = context.textFile(input).map {
       line => Vectors.dense(line.split(',').map(_.toDouble))
     }.cache()
 ```
-The second step is to choose K center points. (centroids) The third one is assign each vector to the group that has the closest centroid. After all is done, recalculate the positions of the centroids. You have to repeat the third and fourth steps until the centroids not moving. [KMeans](https://github.com/apache/spark/blob/master/mllib/src/main/scala/org/apache/spark/mllib/clustering/KMeans.scala) MLlib model can do that for you (2-3-4 steps without centroid delta checking)
+The second step is to choose K center points (centroids). The third one is to assign each vector to the group that has the closest centroid. After all is done, next thing you will need to do is to recalculate the positions of the centroids. You have to repeat the third and fourth steps until the centroids are not moving (`the iterative stuff`). The [KMeans](https://github.com/apache/spark/blob/master/mllib/src/main/scala/org/apache/spark/mllib/clustering/KMeans.scala) MLlib model can do that for you (2-3-4 steps without centroid delta checking)
 
 ```scala
     val clusters: KMeansModel = KMeans.train(data, K, maxIteration, runs)
@@ -34,17 +35,30 @@ The second step is to choose K center points. (centroids) The third one is assig
     }
 
 ```
-After you have your model result, you can utilize it in your RDD object. If we would have implement this as MR jobs, it would have also required more jobs.
+After you have your model result, you can utilize it in your RDD object. 
 
 ## Running Spark job on YARN
-In order to run this Spark application on YARN you need the following command:
+In order to run this Spark application on YARN first of all you will need a Hadoop YARN cluster. For that you could use our Hadoop as a Service API called [Cloudbreak](http://sequenceiq.com/cloudbreak) - using a `multi-node-hdfs-yarn` blueprint will set you up a Spark ready Hadoop cluster in less than 2 minutes on your favorite cloud provider. Give it a try at our hosted [Cloudbreak](https://cloudbreak.sequenceiq.com) instance.
 
+Once you’re cluster it’s up and ready you can run the following command:
+ 
 ```bash
 ./bin/spark-submit --class com.sequenceiq.spark.Main --master \
 yarn-client --driver-memory 1g --executor-memory 1g --executor-cores 1 \
 /root/spark-clustering-1.0.jar hdfs://sandbox:9000/input/input.txt /output 10 10 1
 ```
-You can run this in our [Spark based docker container](https://github.com/sequenceiq/docker-spark). Source code can be downloaded from [here](https://github.com/sequenceiq/sequenceiq-samples/tree/master/spark-clustering). You can find 2 simple input data for testing purposes. Both example performs better than Mahout KMeans (2-3x faster with 20 iterations), but these are really small data. In one of our next post we will show you metrics for much larger data.
+Alternatively you can run this in our free Docker based Apache Spark container as well. You can get the container from the official [Docker registry](https://registry.hub.docker.com/u/sequenceiq/spark/) or from our [GitHub](https://github.com/sequenceiq/docker-spark) repository.
+As always we are making the source code available at [SequenceIQ's GitHub repository](https://github.com/sequenceiq/sequenceiq-samples/tree/master/spark-clustering) (check the other interesting examples as well).  You can find 2 simple input datasets for testing purposes. 
+While there is a loud buzz about what’s faster than the other and there are huge numbers thrown in as the *X* multiplier factor we don’t really want to enter that game - as a fact we’d like to mention that both example performs better than Mahout KMeans (2-3x faster with 20 iterations), but these are really small datasets. We have seen larger datasets in production where the performances are quite the same, or can go the other way (especially that Spark is new and people don’t always get the configuration right). 
+In one of our next post we will show you metrics for much larger data - follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook) for updates.
+## Apache Tez
+We can’t finish this blog post before not talking about [Apache Tez](http://tez.apache.org/) - the project is aimed at building an application framework which allows for a complex directed-acyclic-graph of tasks for processing data. We (and many others) believe that this can be a good alternative for Spark - especially for machine learning. The number of frameworks which are adding or moving the MR runtime to Tez is increasing - among the few to mention are Cascading, Summingbird, Conjecture - and of course us :) at SequenceIQ.
 ## Other promising machine learning frameworks
 
-If you are interested in machine learning frameworks, you have to check  [Conjecture](https://github.com/etsy/Conjecture) or [ganitha](https://github.com/tresata/ganitha) which are under development. If [Cascading 3.0](http://www.infoq.com/news/2014/05/driven) will support Spark, these frameworks can be much more usable (not only for MR jobs).
+If you are interested in machine learning frameworks, you have to check  [Conjecture](https://github.com/etsy/Conjecture) or [ganitha](https://github.com/tresata/ganitha) which are under heavy development. 
+
+
+
+
+
+
