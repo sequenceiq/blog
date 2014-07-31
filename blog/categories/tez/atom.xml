@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Tez | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/tez/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-07-31T12:11:14+00:00</updated>
+  <updated>2014-07-31T12:53:35+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -37,8 +37,12 @@
 }.cache()
 </code></pre>
 
-<p><code>``
-The second step is to choose K center points (centroids). The third one is to assign each vector to the group that has the closest centroid. After all this is done, next thing you will need to do is to recalculate the positions of the centroids. You have to repeat the third and fourth steps until the centroids are not moving (</code>the iterative stuff`). The <a href="https://github.com/apache/spark/blob/master/mllib/src/main/scala/org/apache/spark/mllib/clustering/KMeans.scala">KMeans</a> MLlib model is doing that for you (2-3-4 steps centroid delta checks).</p>
+<p>```</p>
+
+<!-- more -->
+
+
+<p>The second step is to choose K center points (centroids). The third one is to assign each vector to the group that has the closest centroid. After all this is done, next thing you will need to do is to recalculate the positions of the centroids. You have to repeat the third and fourth steps until the centroids are not moving (<code>the iterative stuff</code>). The <a href="https://github.com/apache/spark/blob/master/mllib/src/main/scala/org/apache/spark/mllib/clustering/KMeans.scala">KMeans</a> MLlib model is doing that for you (2-3-4 steps centroid delta checks).</p>
 
 <p>```scala</p>
 
