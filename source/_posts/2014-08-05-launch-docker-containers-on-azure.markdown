@@ -77,7 +77,7 @@ private Set<CoreInstanceMetaData> collectMetaData(Stack stack, AzureClient azure
 ```
 This service is used in a few cases - for example to learn different network setups as the hosts are using different network options than the Docker containers.
 
-As usual for - being committed to 100% open source and transparency - we are always open sourcing everything thus you can get the details on our [GitHub](https://github.com/sequenceiq/cloudbreak) repository. 
+As usual for us - being committed to 100% open source - we are always open sourcing everything thus you can get the details on our [GitHub](https://github.com/sequenceiq/cloudbreak) repository. 
 Should you have any questions feel free to engage with us on our [blog](http://blog.sequenceiq.com/) or follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook).
 
 
