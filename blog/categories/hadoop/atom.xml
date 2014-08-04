@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-08-04T16:08:13+00:00</updated>
+  <updated>2014-08-04T17:10:53+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,89 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Launch Docker containers on Azure]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/08/04/launch-docker-containers-on-azure/"/>
+    <updated>2014-08-04T19:43:01+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/08/04/launch-docker-containers-on-azure</id>
+    <content type="html"><![CDATA[<p>Two weeks ago we have open sourced our cloud agnostic and Docker based Hadoop as a Service API &ndash; called <a href="http://sequenceiq.com/cloudbreak">Cloudbreak</a>.
+The first public beta version supports Amazon’s AWS and Microsoft’s Azure, while we are already wrapping up a few new cloud provider integrations.</p>
+
+<p>While there is some documentation about running Docker containers on Amazon, there is no detailed description about running Docker on the Azure cloud.
+With this blog post we would like to shed some light on it &ndash; recently there have been lots of announcements from Microsoft about Docker support (Azure CLI, Kubernetes, libswarm) but they are either not finished yet or are not ready to build a robust platform on top.
+We are eagerly waiting for the <a href="http://azure.microsoft.com/blog/2014/07/10/azure-collaboration-with-google-and-docker/">Kubernetes integration</a>.</p>
+
+<p>In the meantime, if you are interested in running a <code>cluster</code> of Docker container, or do some more complex stuff then read on.</p>
+
+<p>Just to briefly recap &ndash; with Cloudbreak we are launching on demand Hadoop clusters (check our <a href="http://blog.sequenceiq.com/blog/2014/07/25/cloudbreak-technology/">blog</a> for further technical details) in Docker containers. These containers are <code>shipped</code> to different cloud VMsm and dynamically find and join each other &ndash; they form a fully functional Hadoop cluster without the need to do anything manually on the host, or apply any manual pre-configuration.
+So how are we doing this?</p>
+
+<!--more-->
+
+
+<h3>Docker ready base VM image</h3>
+
+<p>First of all you need a base image with Docker installed &ndash; thus for that we have built and made available an Ubuntu 14.04 image with Docker installed. Apart from Docker, to build a fully dynamic and <code>service discovery</code> aware Docker cluster we needed <a href="http://stedolan.github.io/jq/">jq</a> and <a href="http://www.linuxfromscratch.org/blfs/view/svn/basicnet/bridge-utils.html"> bridge-utils</a>.</p>
+
+<p>Once this base image is created you will need to make it public and re-usable. In order to do that the image has to be published in <a href="http://vmdepot.msopentech.com/List/Index">VMdepot</a>. When you are about to use an image from VM depot, and create a VM based on that you will need to copy it in your own storage account &ndash; note that doing it at first time this can be a slow process (20-25 minutes, copying the 30 GB image).</p>
+
+<h3>Dynamic networking</h3>
+
+<p>Now you have an image based on that you can launch your own VMs, and the Docker container inside your VM. While there are a few options to do that, we needed to find a unified way to do so &ndash; note that  <a href="http://sequenceiq.com/cloudbreak">Cloudbreak</a> is a cloud agnostic solution &ndash; and we do not want to create init scripts for each and every cloud environment we use. Amazon’s AWS has a feature so called <code>userdata</code> &ndash; an option of passing data to the instance that can be used to perform common automated configuration tasks and even run scripts after the instance starts. You can pass two types of user data to Amazon AWS: shell scripts and cloud-init directives. In order to keep the launch process unified everywhere we are using [cloud-init] (<a href="https://help.ubuntu.com/community/CloudInit">https://help.ubuntu.com/community/CloudInit</a>) on Azure as well.</p>
+
+<p>You can use/start Docker on with different networking &ndash; using a bridged network or using a host network. You can check the init scripts in our <a href="https://github.com/sequenceiq/cloudbreak/blob/master/src/main/resources/azure-init.sh">GitHub</a> repository.</p>
+
+<p><strong>Bridged network</strong></p>
+
+<p>```bash</p>
+
+<h1>set bridge0 in docker opts</h1>
+
+<p>sh -c &ldquo;cat > /etc/default/docker&rdquo; &lt;&lt;&ldquo;EOF&rdquo;
+DOCKER_OPTS=&ldquo;-b bridge0 -H unix:// -H tcp://0.0.0.0:2375&rdquo;
+EOF</p>
+
+<p>CMD=&ldquo;docker run -d -p SOURCE_PORT:DESTINATION_PORT 0 -e SERF_JOIN_IP=$SERF_JOIN_IP -e SERF_ADVERTISE_IP=$MY_IP &mdash;dns 127.0.0.1 &mdash;name ${NODE_PREFIX}${INSTANCE_IDX} -h ${NODE_PREFIX}${INSTANCE_IDX}.${MYDOMAIN} &mdash;entrypoint /usr/local/serf/bin/start-serf-agent.sh  $IMAGE $AMBARI_ROLE&rdquo;</p>
+
+<p>```
+<strong>Host network</strong></p>
+
+<p><code>bash
+CMD="docker run -d -e SERF_JOIN_IP=$AMBARI_SERVER_IP --net=host --name ${NODE_PREFIX}${INSTANCE_IDX} --entrypoint /usr/local/serf/bin/start-serf-agent.sh  $IMAGE $AMBARI_ROLE"
+</code></p>
+
+<p><em>Note: for cloud based clusters we are giving up on the bridged based network &ndash; mostly due to Azure&rsquo;s networking limitations &ndash; and will use the <code>net=host</code> solution in the next release. The bridged network will still be a supported solution, though we are using it mostly with bare metal or multi container/host solutions.</em></p>
+
+<p>Azure has (comparing with Amazon’s AWS or Google’s Cloud compute) an <code>uncommon</code> network setup and supports limited flexibility &ndash; in order to overcome these, and still have a dynamic Hadoop cluster different scenarios / use cases requires different Docker networking &ndash; that is quite a large <strong>undocumented</strong> topic which we will cover in our next blog posts &ndash; in particular the issues, differences and solutions to use Docker on different cloud providers. While we have briefly talked about <a href="http://sequenceiq.com/cloudbreak/#technology">Serf</a> in the <a href="https://cloudbreak.sequenceiq.com">Cloudbreak</a> documentation, we will enter in deep technical details in our next posts as well. Should you be interested in these make sure you follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a> for updates.</p>
+
+<h3>SequenceIQ’s Azure REST API &ndash; open sourced</h3>
+
+<p>At <a href="htp://sequenceiq.com">SequenceIQ</a> we always automate everything &ndash; and in order to launch VM instances, configure networks, start containers, etc we needed a REST client which we can use it from our JAVA and Scala codebase. Since the Microsoft API is XML based &ndash; <em>yo, it’s 2014</em> &ndash; we have created and open sourced a Groovy based <a href="https://github.com/sequenceiq/azure-rest-client">Azure REST API</a> &ndash; wrapping the XML calls into a nice, easy to use and clean REST API. Feel free to use it &ndash; it’s open sourced under an Apache 2 license. Note that <a href="https://cloudbreak.sequenceiq.com">Cloudbreak</a> does not store your Azure user credential &ndash; where’s for example with the CLI that would have been mandatory &ndash; the only thing we need from your side to work is your subscription id. The process is documented here: <a href="http://sequenceiq.com/cloudbreak/#accounts.">http://sequenceiq.com/cloudbreak/#accounts.</a></p>
+
+<h3>Metadata service for Azure</h3>
+
+<p>The another nice feature we have created for Azure VMs is a <code>metadata service</code>. While a service as such does exists on Amazon’s AWS it’s missing from Microsoft Azure &ndash; note that our Cloudbreak solution is a cloud agnostic one, and we always strive to use identical solution on all cloud providers. The instance metadata is data about your instance that you can use to configure or manage the running instances &ndash; and available via a REST call. We have developed a service as such for Azure &ndash; <a href="https://github.com/sequenceiq/cloudbreak/blob/master/src/main/java/com/sequenceiq/cloudbreak/service/stack/connector/azure/AzureMetadataSetup.java">AzureMetadataSetup</a>. As you can see we collect the metadata, and make it available under a <code>unique hash</code> for each cluster by calling the following resource: <code>/metadata/{hash}</code></p>
+
+<p>```java
+private Set<CoreInstanceMetaData> collectMetaData(Stack stack, AzureClient azureClient, String name) {</p>
+
+<pre><code>... try {
+            CoreInstanceMetaData instanceMetaData = new CoreInstanceMetaData(vmName,
+                    getPrivateIP((String) virtualMachine),
+                    getVirtualIP((String) virtualMachine));
+            instanceMetaDatas.add(instanceMetaData);
+        } catch (IOException e) { ...
+</code></pre>
+
+<p>}
+```
+This service is used in a few cases &ndash; for example to learn different network setups as the hosts are using different network options than the Docker containers.</p>
+
+<p>As usual for us &ndash; being committed to 100% open source &ndash; we are always open sourcing everything thus you can get the details on our <a href="https://github.com/sequenceiq/cloudbreak">GitHub</a> repository.
+Should you have any questions feel free to engage with us on our <a href="http://blog.sequenceiq.com/">blog</a> or follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Docker ships Hadoop to the cloud]]></title>
@@ -601,131 +684,6 @@ _Note: Apart from the</code>getServiceConfigMap() ``` method you&rsquo;ll find a
 <p>If you&rsquo;d like to play with a real multi-node Ambari managed cluster check out <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">this</a> older blog post &ndash; this will set you up with a Hadoop cluster in less than 2 minutes / one-click.</p>
 
 <p>Let us know how it works for you &ndash; for updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Re-prioritize running jobs with YARN schedulers]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues/"/>
-    <updated>2014-07-02T08:20:05+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues</id>
-    <content type="html"><![CDATA[<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we run different applications all within the same Hadoop YARN cluster. Often the deployed Hadoop stack is a multi-tenant and multi-application and runtime setup &ndash; and as usual for a scenario as such end users will try to use or book as much cluster capacity as possible. A great help for solving these problems are YARN schedulers &ndash; however in our case due to certain SLA and QoS requirements we needed to step further. We have invested a great effort to build custom YARN schedulers, learn about application insights (check our <a href="http://blog.sequenceiq.com/blog/2014/05/01/mapreduce-job-profiling-with-R/">blog post</a> about how we use R to profile running jobs) and we would like to share our experience with the community. Let&rsquo;s dig into technical details.</p>
-
-<p>In YARN, one of the ResourceManager&rsquo;s most important role is the scheduling (allocating available resources in the cluster) between competing applications. It doesn&rsquo;t care about per-application states nor internal flows and optimizations, but the overall resource requirements of
-each application. Currently there are 3 different scheduler implementations available: FIFO, Fair, Capacity.</p>
-
-<p>Going back a few weeks in time we blogged about how to configure the
-<a href="http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler/">CapacityScheduler</a> and use different queue
-setups. Based on the feedbacks we have received we realized that there is a lack of knowledge about how these schedulers work and many people have asked to fill that gap. Good news that we didn&rsquo;t
-forget about you. We&rsquo;re going to start a post series where we&rsquo;ll explain them a little bit detailed with fancy diagrams and code examples.</p>
-
-<p>But before doing that, let&rsquo;s visit a concrete problem we encountered while we were developing our product stack.
-We wanted to use the CapacityScheduler, but for different reasons (SLA and QoS) move the submitted applications between different queues to set a priority among them &ndash; at runtime (quick reminder: queues are either a composition of other queues or a collection of applications, forming a tree).
-Cross application priorites can&rsquo;t be configured yet, only priorities between tasks within the application. The only problem is if you check the code you&rsquo;ll find this:</p>
-
-<p>```java
-@Override
-  public String moveApplication(ApplicationId appId, String newQueue) throws YarnException {</p>
-
-<pre><code>throw new YarnException(getClass().getSimpleName()
-    + " does not support moving apps between queues");
-</code></pre>
-
-<p>  }
-```</p>
-
-<!-- more -->
-
-
-<p>Currently this operation is supported only by the FairScheduler. Why is it not implemented? Let us know in a comment and you might receive a surprise present from us :). In the meantime if we&rsquo;d like
-to implement it what would be the steps? Lets start with the following queue hierarchy and their capabilities taken from the integration tests:</p>
-
-<p><img class="<a" src="href="http://yuml.me/1fe68e90">http://yuml.me/1fe68e90</a>"></p>
-
-<p>Assume we&rsquo;ve submitted 2 applications, <strong>app1</strong> to <code>b2</code> and <strong>app2</strong> to <code>a2</code> (submitting applications is only allowed to leaf queues). What if <strong>app2</strong> is
-pending for so long because of the queue capacity and my friend&rsquo;s friend&rsquo;s dog cannot wait anymore to see his data clustering result? We could play with the queue capacities and max capacities, but then other apps might get scheduled as well and we don&rsquo;t want that.
-Then we could move the app to a queue where it can get resources with a much higher chance. To move an app to somewhere
-else in the hierarchy we have to consider and update a whole bunch of things. Let&rsquo;s move <strong>app1</strong> to queue <code>b1</code>.</p>
-
-<p>Obviously we have to check if the target queue is a leaf queue and moving the app there does not violate any constraints. But how to do that?
-The first part is easy (leaf or parent), but what about the other one? It has to do something with queue capacities, but checking only the target
-queue&rsquo;s capacity is not enough, we have to go up in the hierarchy (because the parent queues also keep track the number of applications
-and resource usages) but for how deep? The lowest common ancestor of the source and target is enough, because above that nothing changes. In our
-case it&rsquo;s the <code>b</code> (b1, b2). Finding it is not that hard since the queues are declared like this:</p>
-
-<ul>
-<li>root.a.a1</li>
-<li>root.a.a2</li>
-<li>root.b.b1</li>
-<li>root.b.b2</li>
-<li>root.b.b3</li>
-</ul>
-
-
-<p>Going back until <code>b</code> and check the capacities:
-```java</p>
-
-<pre><code>CSQueue currentQueue = targetQueue;
-while (currentQueue != lowestCommonAncestor) {
-  // maxApps
-  if (currentQueue.getNumApplications() == this.conf.getMaximumApplicationsPerQueue(currentQueue.getQueueName())) {
-    throw new YarnException("Moving app attempt " + appAttId + " to queue "
-      + queueName + " would violate queue maxApps constraints on"
-      + " queue " + currentQueue.getQueueName());
-  }
-
-  // maxCapacity
-  float potentialNewCapacity = Resources.divide(calculator, clusterResource, Resources.add(currentQueue.getUsedResources(), consumption), clusterResource);
-  if (potentialNewCapacity &gt;= currentQueue.getAbsoluteMaximumCapacity()) {
-    throw new YarnException("Moving app attempt " + appAttId + " to queue "
-      + queueName + " would violate queue maxCapacity constraints on"
-      + " queue " + currentQueue.getQueueName());
-  }
-  currentQueue = currentQueue.getParent();
-}
-</code></pre>
-
-<p>```</p>
-
-<p>If everything is fine we can execute the movement.
-```java
-private void executeMove(SchedulerApplication app, FiCaSchedulerApp attempt, LeafQueue oldQueue, LeafQueue newQueue) {</p>
-
-<pre><code>oldQueue.removeApplicationAttempt(attempt);
-attempt.move(newQueue); // This updates all the queue metrics 'til the parent
-app.setQueue(newQueue);
-newQueue.trackApplications(attempt.getApplicationId(), attempt.getUser());
-newQueue.submitApplicationAttempt(attempt, attempt.getUser());
-</code></pre>
-
-<p>}
-```</p>
-
-<p>There are so many things implemented in these method calls it wouldn&rsquo;t fit here, but it serves the purpose here as pseudo code.</p>
-
-<ul>
-<li><p>oldQueue.removeApplicationAttempt(attempt);<br/>
-Remove the application from the active and pending list. Notify the parents that an app has been removed.</p></li>
-<li><p>attempt.move(newQueue);<br/>
-Update the queue metrics upwards to root.</p></li>
-<li><p>app.setQueue(newQueue);<br/>
-Set the target queue in the app.</p></li>
-<li><p>newQueue.trackApplications(attempt.getApplicationId(), attempt.getUser());<br/>
-Notify the parents that a new application has been moved here.</p></li>
-<li><p>newQueue.submitApplicationAttempt(attempt, attempt.getUser());<br/>
-Finally submit the application attempt to the queue.</p></li>
-</ul>
-
-
-<p>As usual we always release the code as well &ndash; you can get the details from our <a href="https://github.com/sequenceiq">GitHub</a> page.</p>
-
-<ul>
-<li><p>Move applications between Capacity Scheduler queues <a href="https://github.com/sequenceiq/hadoop-common/blob/branch-2.4.1/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/a/ExtendedCapacityScheduler.java#L924">implementation</a>.</p></li>
-<li><p>Test case <a href="https://github.com/sequenceiq/hadoop-common/blob/branch-2.4.1/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/test/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/a/TestExtendedCapacitySchedulerAppMove.java">implementation</a>.</p></li>
-</ul>
-
-
-<p>In case you are interested on the YARN Scheduler series make sure to follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a> or <a href="https://twitter.com/sequenceiq">Twitter</a> for the upcoming posts.</p>
 ]]></content>
   </entry>
   

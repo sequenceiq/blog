@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-08-04T16:08:13+00:00</updated>
+  <updated>2014-08-04T17:10:53+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,104 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Launch Docker containers on Azure]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/08/04/launch-docker-containers-on-azure/"/>
+    <updated>2014-08-04T19:43:01+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/08/04/launch-docker-containers-on-azure</id>
+    <content type="html"><![CDATA[<p>Two weeks ago we have open sourced our cloud agnostic and Docker based Hadoop as a Service API &ndash; called <a href="http://sequenceiq.com/cloudbreak">Cloudbreak</a>.
+The first public beta version supports Amazon’s AWS and Microsoft’s Azure, while we are already wrapping up a few new cloud provider integrations.</p>
+
+<p>While there is some documentation about running Docker containers on Amazon, there is no detailed description about running Docker on the Azure cloud.
+With this blog post we would like to shed some light on it &ndash; recently there have been lots of announcements from Microsoft about Docker support (Azure CLI, Kubernetes, libswarm) but they are either not finished yet or are not ready to build a robust platform on top.
+We are eagerly waiting for the <a href="http://azure.microsoft.com/blog/2014/07/10/azure-collaboration-with-google-and-docker/">Kubernetes integration</a>.</p>
+
+<p>In the meantime, if you are interested in running a <code>cluster</code> of Docker container, or do some more complex stuff then read on.</p>
+
+<p>Just to briefly recap &ndash; with Cloudbreak we are launching on demand Hadoop clusters (check our <a href="http://blog.sequenceiq.com/blog/2014/07/25/cloudbreak-technology/">blog</a> for further technical details) in Docker containers. These containers are <code>shipped</code> to different cloud VMsm and dynamically find and join each other &ndash; they form a fully functional Hadoop cluster without the need to do anything manually on the host, or apply any manual pre-configuration.
+So how are we doing this?</p>
+
+<!--more-->
+
+
+<h3>Docker ready base VM image</h3>
+
+<p>First of all you need a base image with Docker installed &ndash; thus for that we have built and made available an Ubuntu 14.04 image with Docker installed. Apart from Docker, to build a fully dynamic and <code>service discovery</code> aware Docker cluster we needed <a href="http://stedolan.github.io/jq/">jq</a> and <a href="http://www.linuxfromscratch.org/blfs/view/svn/basicnet/bridge-utils.html"> bridge-utils</a>.</p>
+
+<p>Once this base image is created you will need to make it public and re-usable. In order to do that the image has to be published in <a href="http://vmdepot.msopentech.com/List/Index">VMdepot</a>. When you are about to use an image from VM depot, and create a VM based on that you will need to copy it in your own storage account &ndash; note that doing it at first time this can be a slow process (20-25 minutes, copying the 30 GB image).</p>
+
+<h3>Dynamic networking</h3>
+
+<p>Now you have an image based on that you can launch your own VMs, and the Docker container inside your VM. While there are a few options to do that, we needed to find a unified way to do so &ndash; note that  <a href="http://sequenceiq.com/cloudbreak">Cloudbreak</a> is a cloud agnostic solution &ndash; and we do not want to create init scripts for each and every cloud environment we use. Amazon’s AWS has a feature so called <code>userdata</code> &ndash; an option of passing data to the instance that can be used to perform common automated configuration tasks and even run scripts after the instance starts. You can pass two types of user data to Amazon AWS: shell scripts and cloud-init directives. In order to keep the launch process unified everywhere we are using [cloud-init] (<a href="https://help.ubuntu.com/community/CloudInit">https://help.ubuntu.com/community/CloudInit</a>) on Azure as well.</p>
+
+<p>You can use/start Docker on with different networking &ndash; using a bridged network or using a host network. You can check the init scripts in our <a href="https://github.com/sequenceiq/cloudbreak/blob/master/src/main/resources/azure-init.sh">GitHub</a> repository.</p>
+
+<p><strong>Bridged network</strong></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># set bridge0 in docker opts</span>
+</span><span class='line'>sh -c <span class="s2">&quot;cat &gt; /etc/default/docker&quot;</span> &lt;&lt;<span class="s2">&quot;EOF&quot;</span>
+</span><span class='line'><span class="nv">DOCKER_OPTS</span><span class="o">=</span><span class="s2">&quot;-b bridge0 -H unix:// -H tcp://0.0.0.0:2375&quot;</span>
+</span><span class='line'>EOF
+</span><span class='line'>
+</span><span class='line'><span class="nv">CMD</span><span class="o">=</span><span class="s2">&quot;docker run -d -p SOURCE_PORT:DESTINATION_PORT 0 -e SERF_JOIN_IP=$SERF_JOIN_IP -e SERF_ADVERTISE_IP=$MY_IP --dns 127.0.0.1 --name ${NODE_PREFIX}${INSTANCE_IDX} -h ${NODE_PREFIX}${INSTANCE_IDX}.${MYDOMAIN} --entrypoint /usr/local/serf/bin/start-serf-agent.sh  $IMAGE $AMBARI_ROLE&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>Host network</strong></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">CMD</span><span class="o">=</span><span class="s2">&quot;docker run -d -e SERF_JOIN_IP=$AMBARI_SERVER_IP --net=host --name ${NODE_PREFIX}${INSTANCE_IDX} --entrypoint /usr/local/serf/bin/start-serf-agent.sh  $IMAGE $AMBARI_ROLE&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><em>Note: for cloud based clusters we are giving up on the bridged based network &ndash; mostly due to Azure&rsquo;s networking limitations &ndash; and will use the <code>net=host</code> solution in the next release. The bridged network will still be a supported solution, though we are using it mostly with bare metal or multi container/host solutions.</em></p>
+
+<p>Azure has (comparing with Amazon’s AWS or Google’s Cloud compute) an <code>uncommon</code> network setup and supports limited flexibility &ndash; in order to overcome these, and still have a dynamic Hadoop cluster different scenarios / use cases requires different Docker networking &ndash; that is quite a large <strong>undocumented</strong> topic which we will cover in our next blog posts &ndash; in particular the issues, differences and solutions to use Docker on different cloud providers. While we have briefly talked about <a href="http://sequenceiq.com/cloudbreak/#technology">Serf</a> in the <a href="https://cloudbreak.sequenceiq.com">Cloudbreak</a> documentation, we will enter in deep technical details in our next posts as well. Should you be interested in these make sure you follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a> for updates.</p>
+
+<h3>SequenceIQ’s Azure REST API &ndash; open sourced</h3>
+
+<p>At <a href="htp://sequenceiq.com">SequenceIQ</a> we always automate everything &ndash; and in order to launch VM instances, configure networks, start containers, etc we needed a REST client which we can use it from our JAVA and Scala codebase. Since the Microsoft API is XML based &ndash; <em>yo, it’s 2014</em> &ndash; we have created and open sourced a Groovy based <a href="https://github.com/sequenceiq/azure-rest-client">Azure REST API</a> &ndash; wrapping the XML calls into a nice, easy to use and clean REST API. Feel free to use it &ndash; it’s open sourced under an Apache 2 license. Note that <a href="https://cloudbreak.sequenceiq.com">Cloudbreak</a> does not store your Azure user credential &ndash; where’s for example with the CLI that would have been mandatory &ndash; the only thing we need from your side to work is your subscription id. The process is documented here: <a href="http://sequenceiq.com/cloudbreak/#accounts.">http://sequenceiq.com/cloudbreak/#accounts.</a></p>
+
+<h3>Metadata service for Azure</h3>
+
+<p>The another nice feature we have created for Azure VMs is a <code>metadata service</code>. While a service as such does exists on Amazon’s AWS it’s missing from Microsoft Azure &ndash; note that our Cloudbreak solution is a cloud agnostic one, and we always strive to use identical solution on all cloud providers. The instance metadata is data about your instance that you can use to configure or manage the running instances &ndash; and available via a REST call. We have developed a service as such for Azure &ndash; <a href="https://github.com/sequenceiq/cloudbreak/blob/master/src/main/java/com/sequenceiq/cloudbreak/service/stack/connector/azure/AzureMetadataSetup.java">AzureMetadataSetup</a>. As you can see we collect the metadata, and make it available under a <code>unique hash</code> for each cluster by calling the following resource: <code>/metadata/{hash}</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">CoreInstanceMetaData</span><span class="o">&gt;</span> <span class="nf">collectMetaData</span><span class="o">(</span><span class="n">Stack</span> <span class="n">stack</span><span class="o">,</span> <span class="n">AzureClient</span> <span class="n">azureClient</span><span class="o">,</span> <span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">...</span> <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">CoreInstanceMetaData</span> <span class="n">instanceMetaData</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CoreInstanceMetaData</span><span class="o">(</span><span class="n">vmName</span><span class="o">,</span>
+</span><span class='line'>                        <span class="n">getPrivateIP</span><span class="o">((</span><span class="n">String</span><span class="o">)</span> <span class="n">virtualMachine</span><span class="o">),</span>
+</span><span class='line'>                        <span class="n">getVirtualIP</span><span class="o">((</span><span class="n">String</span><span class="o">)</span> <span class="n">virtualMachine</span><span class="o">));</span>
+</span><span class='line'>                <span class="n">instanceMetaDatas</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">instanceMetaData</span><span class="o">);</span>
+</span><span class='line'>            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span> <span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This service is used in a few cases &ndash; for example to learn different network setups as the hosts are using different network options than the Docker containers.</p>
+
+<p>As usual for us &ndash; being committed to 100% open source &ndash; we are always open sourcing everything thus you can get the details on our <a href="https://github.com/sequenceiq/cloudbreak">GitHub</a> repository.
+Should you have any questions feel free to engage with us on our <a href="http://blog.sequenceiq.com/">blog</a> or follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Apache Spark - MLlib Introduction]]></title>
@@ -2687,179 +2785,6 @@ In this example (as in all our other examples) we are using Hadoop 2 &ndash; wit
 <p>Should you have any Scalding or Scala questions or observations let us know.
 Enjoy,
 SequenceIQ</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Hadoop on Docker introduction]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/04/04/hadoop-docker-introduction/"/>
-    <updated>2014-04-04T18:24:17+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/04/04/hadoop-docker-introduction</id>
-    <content type="html"><![CDATA[<p>In the last few weeks we&rsquo;ve created and published several Docker images (<a href="https://github.com/sequenceiq/hadoop-docker">Hadoop</a>, <a href="https://github.com/sequenceiq/hoya-docker">Hoya</a>, <a href="https://github.com/sequenceiq/tez-docker">Tez</a>) to help you to quick-start with Hadoop and the latest innovations using YARN.
-While many people have downloaded and started to use these preconfigured images we&rsquo;ve been asked to give a short introduction of what Docker is, and how one can build Docker images. Also during the Hadoop Summit in Amsterdem we have been inquired in particular about running Hadoop on Docker, so this post is our answer for all the requests we received.</p>
-
-<p>Docker is an open-source engine that automates the deployment of any application as a lightweight, portable, self-sufficient container that will run virtually anywhere.</p>
-
-<h2>Installation</h2>
-
-<p>First install Docker with a package manager. On Ubuntu there is an easy way to start with by running a simple curl script which will do it for you:
-<code>curl -s https://get.docker.io/ubuntu/ | sudo sh</code>.
-Unfortunately Mac, Windows and some Linux distributions cannot natively run Docker (yet). At <a href="http://sequenceiq.com/">SequenceIQ</a> we develop on OSX and run a 3-6 node Hadoop mini cluster on our laptops. To overcome the limitation of running Docker natively
-you will have to install <code>boot2docker</code>. It is a Tiny Core Linux made specifically to run Docker containers and weights less than 24MB memory.
-Initialize <em>(boot2docker init)</em> and start <em>(boot2docker up)</em> and you can SSH into the VM <em>(boot2docker ssh, pass: tcuser)</em>.</p>
-
-<p>To verify the installation let&rsquo;s test it: <code>docker run ubuntu /bin/echo hello docker</code>. Docker did a bunch of things within seconds:</p>
-
-<ul>
-<li>Downloaded the base image from the docker.io index</li>
-<li>Created a new LXC container</li>
-<li>Allocated a filesystem for it</li>
-<li>Mounted a read-write layer</li>
-<li>Allocated a network interface</li>
-<li>Setup an IP for it, with network address translation</li>
-<li>Executed a process inside the container</li>
-<li>Captured the output and printed it</li>
-</ul>
-
-
-<p>You can run an interactive shell as well <code>docker run -i -t ubuntu /bin/bash</code> and use this shell as you would use any other shell.</p>
-
-<p>While there are lots of different Docker images available we would like to share how to create your own images.</p>
-
-<!-- more -->
-
-
-<h2>Dockerfile</h2>
-
-<p>The <code>Dockerfile</code> describes the build steps and it can be viewed as an image representation. They provide a simple syntax for building images and
-they are a great way to automate and script the images creation. Dockerfile instructions look like this:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>INSTRUCTION arguments</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>FROM</h3>
-
-<p>Every Dockerfile has to start with the <code>FROM image</code> instruction which sets the base image for subsequent instructions (e.g. in our <a href="https://github.com/sequenceiq/hoya-docker">Hoya</a> and <a href="https://github.com/sequenceiq/tez-docker">Tez</a> images we used our <a href="https://github.com/sequenceiq/hadoop-docker">Hadoop</a> image as a base, while the Hadoop image was built on top of the <code>tianon/centos</code> base image).
-A base image is built from a trusted build (more on this later) and in case of Hoya and Tez the base image was: <code>sequenceiq/hadoop-docker</code>. You can browse the available containers in the
-<a href="https://index.docker.io/">Docker index</a>.</p>
-
-<h3>RUN</h3>
-
-<p>The next instruction is usually the <code>RUN command</code>. This will execute any commands on the current image and commit the results. The resulting committed image
-will be used for the next step in the Dockerfile. Example: RUN yum install -y openssh-server. One important thing to keep in mind is that the
-following set of instructions will not act as we would like:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>RUN cd /usr/local  
-</span><span class='line'>RUN mkdir apple  </span></code></pre></td></tr></table></div></figure>
-
-
-<p>This will create an apple folder in the root directory. Surprised, huh? The reason of this that the RUN command is equivalent to the docker commands:
-docker run image command + docker commit container_id, where the image would be replaced automatically with the current image,
-and container_id would be the result of the previous RUN instruction. But it doesn&rsquo;t mean it can&rsquo;t be done:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>RUN cd /usr/local && mkdir apple</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>ADD</h3>
-
-<p>The <code>ADD from to</code> command will copy the specified file into the container. Example:
-ADD data.xml /usr/local/data.xml. In this case the data.xml is in the same directory as the Dockerfile. After this command you can rely on that this file
-is present in the container and you can use it as well: RUN rm /usr/local/data.xml.</p>
-
-<h3>EXPOSE</h3>
-
-<p>The <code>EXPOSE port</code> instruction sets ports to be exposed to the host when running the image. Example: EXPOSE 8080 80 22 50070</p>
-
-<h3>ENV</h3>
-
-<p>Setting an environment variable by running a RUN export KEY=value won&rsquo;t work in dockerland. Instead you can use the <code>ENV key value</code> instruction.
-Example: ENV JAVA_HOME /usr/java/default</p>
-
-<h3>ENTRYPOINT</h3>
-
-<p>The <code>ENTRYPOINT [command]</code> instruction permits you to trigger a command as soon as the container starts. Example: ENTRYPOINT [&ldquo;echo&rdquo;, &ldquo;Whale you be my container&rdquo;]</p>
-
-<p>There are more instructions, but these are enough to start with and build your own images.</p>
-
-<h2>Build &amp; Trusted build</h2>
-
-<p>Once the Dockerfile is ready you can build it. If the file is in the current directory build it with <code>docker build .</code> (-t name to TAG the image). It&rsquo;s possible
-to create trusted builds. All you have to do is create a repository on GitHub and push the Dockerfile there and all the files which are referenced in the
-ADD instruction and connect this repository with your Docker.io account. Docker.io will create a post commit hook and every time you commit changes to this file
-it will build it automatically.</p>
-
-<h2>Usage</h2>
-
-<p>Use this environment variable to make things easier: export DOCKER_HOST=tcp://localhost:4243. Few frequently used commands:</p>
-
-<ul>
-<li>List of your local images: docker images</li>
-<li>List of running containers: docker ps</li>
-<li>List of all containers: docker ps -a</li>
-</ul>
-
-
-<p>After you built your image it should show in the image list, and ready to use. Run it with <code>docker run -i -t -P image_name /bin/bash</code>. The -P variable will
-publish all exposed ports to the host interfaces.</p>
-
-<h2>Complete example</h2>
-
-<p>As a reference check out our Hadoop 2.3 based <a href="https://github.com/sequenceiq/hadoop-docker">Dockerfile</a>.</p>
-
-<h2>OSX Tweaks</h2>
-
-<h3>Passwordless ssh</h3>
-
-<p>On OSX it&rsquo;s quite tedious to always type tcuser password when you ssh into boot2docker. You can install your public key with a oneliner. You have to set the
-KEYCHAIN variable to your <a href="http://keychain.io">Keychain.io</a> registered email.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>(export KEYCHAIN=&lt;email&gt;; curl -L j.mp/chain2docker|bash)</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If you restart boot2docker, you have to run this command again, for a passwordless ssh. To install your public ssh key into keychain is as simple as:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl -s ssh.keychain.io/&lt;email&gt;/upload | bash</span></code></pre></td></tr></table></div></figure>
-
-
-<p>than you will receive a confirmation email, that&rsquo;s all.</p>
-
-<h3>Expose ports from boot2docker to host</h3>
-
-<p>Let&rsquo;s say you have a docker image starting Hadoop Name Node on port 50070. When you start 3 images you will get something like this:</p>
-
-<ul>
-<li>instance1: 50070 &ndash;> 49153</li>
-<li>instance1: 50070 &ndash;> 49154</li>
-<li>instance1: 50070 &ndash;> 49155</li>
-</ul>
-
-
-<p>But all those 4915X ports are only available when you are inside of boot2docker. Now if you forward all 49XXX ports straight to to your host,
-you can reach the namenodes in your browser running on your mac as: <a href="http://localhost:4915X">http://localhost:4915X</a></p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>boot2docker stop
-</span><span class='line'>for i in {49000..49900}; do
-</span><span class='line'> echo -n .
-</span><span class='line'> VBoxManage modifyvm "boot2docker-vm" --natpf1 "tcp-port$i,tcp,,$i,,$i";
-</span><span class='line'> VBoxManage modifyvm "boot2docker-vm" --natpf1 "udp-port$i,udp,,$i,,$i";
-</span><span class='line'>done
-</span><span class='line'>boot2docker up</span></code></pre></td></tr></table></div></figure>
-
-
-<p>That&rsquo;s it. Hope this helps you to start with building your own Docker images. Let us know how it goes, we are happy to help you quick start Hadoop on Docker.</p>
 ]]></content>
   </entry>
   
