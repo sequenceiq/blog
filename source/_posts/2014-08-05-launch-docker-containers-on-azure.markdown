@@ -5,7 +5,7 @@ date: 2014-08-05 21:43:01 +0200
 comments: true
 categories: [Hadoop as a Service, Hadoop, Docker, Cloud, Cloudbreak, Azure]
 author: Richard Doktorics
-published: false
+published: true
 ---
 
 Two weeks ago we have open sourced our cloud agnostic and Docker based Hadoop as a Service API - called [Cloudbreak](http://sequenceiq.com/cloudbreak). 
