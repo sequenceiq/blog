@@ -9,17 +9,18 @@ published: false
 ---
 
 Two weeks ago we have open sourced our cloud agnostic and Docker based Hadoop as a Service API - called [Cloudbreak](http://sequenceiq.com/cloudbreak). 
-The first public beta version supports Amazon’s AWS and Microsoft’s Azure, while we are already wrapping up a few new cloud providers integration. 
+The first public beta version supports Amazon’s AWS and Microsoft’s Azure, while we are already wrapping up a few new cloud provider integration. 
 
-While there is some documentation about running Docker containers on Amazon, there is no detailed description about running Docker on the Azure cloud. 
+While there is some documentation about running Docker containers on Amazon, there is no detailed description about running Docker on the Azure cloud.
 With this blog post we would like to shed some light on it - recently there have been lots of announcements from Microsoft about Docker support (Azure CLI, Kubernetes, libswarm) but they are either not finished yet or are not ready to build a robust platform on top.
-We are eagerly waiting for the Kubernetes integration - and if you'd like to run a simple Docker container you can use the Azure CLI. 
-If you are interested in running a `cluster` of Docker container, or do some more complex stuff than read on.
+We are eagerly waiting for the [Kubernetes integration](http://azure.microsoft.com/blog/2014/07/10/azure-collaboration-with-google-and-docker/).
+
+In the meantime, if you are interested in running a `cluster` of Docker container, or do some more complex stuff than read on.
+
+Just to briefly recap - with Cloudbreak we are launching on demand Hadoop clusters (check our [blog](http://blog.sequenceiq.com/blog/2014/07/25/cloudbreak-technology/) for further technical details) in Docker containers. These containers are `shipped` to different cloud VMsm and dynamically find and join each other - they form a fully functional Hadoop cluster without the need to do anything manually on the host, or aply any manual pre-configuration.
+So how are we doing this? 
 
 <!--more-->
-
-Just to briefly recap - with Cloudbreak we are launching on demand Hadoop clusters (check our blog for further technical details using the #Cloudbreak tag) in Docker containers. These containers are `shipped` to different cloud VMsm and dynamically find and join each other - they form a fully functional Hadoop cluster without the need to do anything manually on the host.
-So how are we doing this? 
 
 ###Docker ready base VM image
 
