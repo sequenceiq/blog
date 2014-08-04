@@ -9,7 +9,7 @@ published: false
 ---
 
 Two weeks ago we have open sourced our cloud agnostic and Docker based Hadoop as a Service API - called [Cloudbreak](http://sequenceiq.com/cloudbreak). 
-The first public beta version supports Amazon’s AWS and Microsoft’s Azure, while we are already wrapping up a few new cloud provider integration. 
+The first public beta version supports Amazon’s AWS and Microsoft’s Azure, while we are already wrapping up a few new cloud provider integrations. 
 
 While there is some documentation about running Docker containers on Amazon, there is no detailed description about running Docker on the Azure cloud.
 With this blog post we would like to shed some light on it - recently there have been lots of announcements from Microsoft about Docker support (Azure CLI, Kubernetes, libswarm) but they are either not finished yet or are not ready to build a robust platform on top.
@@ -24,9 +24,9 @@ So how are we doing this?
 
 ###Docker ready base VM image
 
-First of all you need a base image with Docker installed - thus for that we have built and made available an Ubuntu 14.04 image with Docker installed. Apart from Docker, to build a a fully dynamic and `service discovery` aware Docker cluster we needed [jq](http://stedolan.github.io/jq/) and [ bridge-utils](http://www.linuxfromscratch.org/blfs/view/svn/basicnet/bridge-utils.html).
+First of all you need a base image with Docker installed - thus for that we have built and made available an Ubuntu 14.04 image with Docker installed. Apart from Docker, to build a fully dynamic and `service discovery` aware Docker cluster we needed [jq](http://stedolan.github.io/jq/) and [ bridge-utils](http://www.linuxfromscratch.org/blfs/view/svn/basicnet/bridge-utils.html).
 
-Once this base image is created you will need to make it public and re-usable. In order to do that the image has to be published in [VMdepot](http://vmdepot.msopentech.com/List/Index). When you are about to use an image from VM depot, and create a VM based on that you will need to copy it in your own storage account - not that doing it at first time this can be a slow process (20-25 minutes, copying the 30 GB image).
+Once this base image is created you will need to make it public and re-usable. In order to do that the image has to be published in [VMdepot](http://vmdepot.msopentech.com/List/Index). When you are about to use an image from VM depot, and create a VM based on that you will need to copy it in your own storage account - note that doing it at first time this can be a slow process (20-25 minutes, copying the 30 GB image).
 
 ###Dynamic networking 
 
@@ -54,7 +54,7 @@ CMD="docker run -d -e SERF_JOIN_IP=$AMBARI_SERVER_IP --net=host --name ${NODE_PR
 
 *Note: for cloud based clusters we are giving up on the bridged based network - mostly due to Azure's networking limitations, and will use the `net=host` solution. The bridged network will still be a supported solution, though we are using it mostly with bare metal or multi container/host solutions.*
 
-Azure has (comparing with Amazon’s AWS or Google’s Cloud compute) an `uncommon` network setup and supports limited flexibility - in order to overcome these, and still have a dynamic Hadoop cluster different scenarios / use cases requires different Docker networking - that is quite a large **undocumented** topic which we will cover in our next blog posts - in particular the issues, differences and solutions to use Docker on different cloud providers. While we have briefly have talked about [Serf](http://sequenceiq.com/cloudbreak/#technology) in the [Cloudbreak](https://cloudbreak.sequenceiq.com) documentation, we will enter in deep technical details in our next posts as well. Should you be interested in these make sure you follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook) for updates.
+Azure has (comparing with Amazon’s AWS or Google’s Cloud compute) an `uncommon` network setup and supports limited flexibility - in order to overcome these, and still have a dynamic Hadoop cluster different scenarios / use cases requires different Docker networking - that is quite a large **undocumented** topic which we will cover in our next blog posts - in particular the issues, differences and solutions to use Docker on different cloud providers. While we have briefly talked about [Serf](http://sequenceiq.com/cloudbreak/#technology) in the [Cloudbreak](https://cloudbreak.sequenceiq.com) documentation, we will enter in deep technical details in our next posts as well. Should you be interested in these make sure you follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook) for updates.
 
 ###SequenceIQ’s Azure REST API - open sourced
 
