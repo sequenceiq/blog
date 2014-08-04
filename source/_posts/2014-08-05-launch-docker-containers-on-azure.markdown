@@ -64,14 +64,14 @@ At [SequenceIQ](htp://sequenceiq.com) we always automate everything - and in ord
 The another nice feature we have created for Azure VMs is a `metadata service`. While a service as such does exists on Amazon’s AWS it’s missing from Microsoft Azure - note that our Cloudbreak solution is a cloud agnostic one, and we always strive to use identical solution on all cloud providers. The instance metadata is data about your instance that you can use to configure or manage the running instances - and available via a REST call. We have developed a service as such for Azure - [AzureMetadataSetup](https://github.com/sequenceiq/cloudbreak/blob/master/src/main/java/com/sequenceiq/cloudbreak/service/stack/connector/azure/AzureMetadataSetup.java). As you can see we collect the metadata, and make it available under a `unique hash` for each cluster by calling the following resource: `/metadata/{hash}`
 
 ```java private Set<CoreInstanceMetaData> collectMetaData(Stack stack, AzureClient azureClient, String name)
-...
+
 	try {
                 CoreInstanceMetaData instanceMetaData = new CoreInstanceMetaData(vmName,
                         getPrivateIP((String) virtualMachine),
                         getVirtualIP((String) virtualMachine));
                 instanceMetaDatas.add(instanceMetaData);
             } catch (IOException e) {
-...
+
 ```
 This service is used in a few cases - for example to learn different network setups as the hosts are using different network options than the Docker containers.
 
