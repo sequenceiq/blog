@@ -31,18 +31,16 @@ Once this base image is created you will need to make it public and re-usable. I
 
 Now you have an image based on that you can launch your own VMs, and the Docker container inside your VM. While there are a few options to do that, we needed to find a unified way to do so - note that  [Cloudbreak](http://sequenceiq.com/cloudbreak) is a cloud agnostic solution - and we do not want to create init scripts for each and every cloud environment we use. Amazon’s AWS has a feature so called `userdata` - an option of passing data to the instance that can be used to perform common automated configuration tasks and even run scripts after the instance starts. You can pass two types of user data to Amazon EC2: shell scripts and cloud-init directives. In order to keep the launch process unified everywhere we are using cloud-init(https://help.ubuntu.com/community/CloudInit) on Azure as well. 
 
-You can use/start Docker on with different networking - using a bridged network or using a host network.
+You can use/start Docker on with different networking - using a bridged network or using a host network. You can check the init scripts in our [GitHub](https://github.com/sequenceiq/cloudbreak/blob/master/src/main/resources/azure-init.sh) repository.
 
 **Bridged network**
 
 ```shell
-…..
+
 # set bridge0 in docker opts
 sh -c "cat > /etc/default/docker" <<"EOF"
 DOCKER_OPTS="-b bridge0 -H unix:// -H tcp://0.0.0.0:2375"
 EOF
-
-……
 
 CMD="docker run -d -p SOURCE_PORT:DESTINATION_PORT 0 -e SERF_JOIN_IP=$SERF_JOIN_IP -e SERF_ADVERTISE_IP=$MY_IP --dns 127.0.0.1 --name ${NODE_PREFIX}${INSTANCE_IDX} -h ${NODE_PREFIX}${INSTANCE_IDX}.${MYDOMAIN} --entrypoint /usr/local/serf/bin/start-serf-agent.sh  $IMAGE $AMBARI_ROLE"
 
@@ -52,6 +50,8 @@ Host network
 ```shell
 CMD="docker run -d -e SERF_JOIN_IP=$AMBARI_SERVER_IP --net=host --name ${NODE_PREFIX}${INSTANCE_IDX} --entrypoint /usr/local/serf/bin/start-serf-agent.sh  $IMAGE $AMBARI_ROLE"
 ```
+
+*Note: for cloud based clusters we are giving up on the bridged based network - mostly due to Azure's networking limitations, and will use the `net=host` solution. The bridged network will still be a supported solution, though we are using it mostly with bare metal or multi container/host solutions.*
 
 Azure has (comparing with Amazon’s AWS or Google’s Cloud compute) an `uncommon` network setup and supports limited flexibility - in order to overcome these, and still have a dynamic Hadoop cluster different scenarios / use cases requires different Docker networking - that is quite a large **undocumented** topic which we will cover in our next blog posts - in particular the issues, differences and solutions to use Docker on different cloud providers. While we have briefly have talked about [Serf](http://sequenceiq.com/cloudbreak/#technology) in the [Cloudbreak](https://cloudbreak.sequenceiq.com) documentation, we will enter in deep technical details in our next posts as well. Should you be interested in these make sure you follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook) for updates.
 
