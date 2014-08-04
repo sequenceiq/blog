@@ -8,8 +8,6 @@ author: Richard Doktorics
 published: false
 ---
 
-Running Docker containers on Azure
-
 Two weeks ago we have open sourced our cloud agnostic and Docker based Hadoop as a Service API - called [Cloudbreak](http://sequenceiq.com/cloudbreak). 
 The first public beta version supports Amazon’s AWS and Microsoft’s Azure, while we are already wrapping up a few new cloud providers integration. 
 
