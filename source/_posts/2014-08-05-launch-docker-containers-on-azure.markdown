@@ -66,7 +66,7 @@ The another nice feature we have created for Azure VMs is a `metadata service`. 
 ```java 
 private Set<CoreInstanceMetaData> collectMetaData(Stack stack, AzureClient azureClient, String name) {
 
-	...try {
+	... try {
                 CoreInstanceMetaData instanceMetaData = new CoreInstanceMetaData(vmName,
                         getPrivateIP((String) virtualMachine),
                         getVirtualIP((String) virtualMachine));
