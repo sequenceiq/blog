@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Launch Docker containers on Azure"
-date: 2014-08-05 21:43:01 +0200
+date: 2014-08-04 21:43:01 +0200
 comments: true
 categories: [Hadoop as a Service, Hadoop, Docker, Cloud, Cloudbreak, Azure]
 author: Richard Doktorics
