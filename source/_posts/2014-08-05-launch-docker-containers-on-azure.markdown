@@ -15,7 +15,7 @@ While there is some documentation about running Docker containers on Amazon, the
 With this blog post we would like to shed some light on it - recently there have been lots of announcements from Microsoft about Docker support (Azure CLI, Kubernetes, libswarm) but they are either not finished yet or are not ready to build a robust platform on top.
 We are eagerly waiting for the [Kubernetes integration](http://azure.microsoft.com/blog/2014/07/10/azure-collaboration-with-google-and-docker/).
 
-In the meantime, if you are interested in running a `cluster` of Docker container, or do some more complex stuff than read on.
+In the meantime, if you are interested in running a `cluster` of Docker container, or do some more complex stuff then read on.
 
 Just to briefly recap - with Cloudbreak we are launching on demand Hadoop clusters (check our [blog](http://blog.sequenceiq.com/blog/2014/07/25/cloudbreak-technology/) for further technical details) in Docker containers. These containers are `shipped` to different cloud VMsm and dynamically find and join each other - they form a fully functional Hadoop cluster without the need to do anything manually on the host, or aply any manual pre-configuration.
 So how are we doing this? 
