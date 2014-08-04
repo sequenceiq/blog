@@ -46,7 +46,7 @@ EOF
 CMD="docker run -d -p SOURCE_PORT:DESTINATION_PORT 0 -e SERF_JOIN_IP=$SERF_JOIN_IP -e SERF_ADVERTISE_IP=$MY_IP --dns 127.0.0.1 --name ${NODE_PREFIX}${INSTANCE_IDX} -h ${NODE_PREFIX}${INSTANCE_IDX}.${MYDOMAIN} --entrypoint /usr/local/serf/bin/start-serf-agent.sh  $IMAGE $AMBARI_ROLE"
 
 ```
-Host network 
+**Host network**
 
 ```shell
 CMD="docker run -d -e SERF_JOIN_IP=$AMBARI_SERVER_IP --net=host --name ${NODE_PREFIX}${INSTANCE_IDX} --entrypoint /usr/local/serf/bin/start-serf-agent.sh  $IMAGE $AMBARI_ROLE"
