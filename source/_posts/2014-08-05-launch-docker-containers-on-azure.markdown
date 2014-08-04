@@ -17,7 +17,7 @@ We are eagerly waiting for the [Kubernetes integration](http://azure.microsoft.c
 
 In the meantime, if you are interested in running a `cluster` of Docker container, or do some more complex stuff then read on.
 
-Just to briefly recap - with Cloudbreak we are launching on demand Hadoop clusters (check our [blog](http://blog.sequenceiq.com/blog/2014/07/25/cloudbreak-technology/) for further technical details) in Docker containers. These containers are `shipped` to different cloud VMsm and dynamically find and join each other - they form a fully functional Hadoop cluster without the need to do anything manually on the host, or aply any manual pre-configuration.
+Just to briefly recap - with Cloudbreak we are launching on demand Hadoop clusters (check our [blog](http://blog.sequenceiq.com/blog/2014/07/25/cloudbreak-technology/) for further technical details) in Docker containers. These containers are `shipped` to different cloud VMsm and dynamically find and join each other - they form a fully functional Hadoop cluster without the need to do anything manually on the host, or apply any manual pre-configuration.
 So how are we doing this? 
 
 <!--more-->
