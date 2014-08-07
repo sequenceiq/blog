@@ -32,6 +32,7 @@ You have 3 options to give it a try:
 - use our prepared [docker image](https://registry.hub.docker.com/u/sequenceiq/cloudbreak/)
 - download the latest self-containing executable jar form our maven repo
 - build it from source
+
 We will follow up with the first two, in this post we’d like to guide you through the third option.
 
 ### Build from source
