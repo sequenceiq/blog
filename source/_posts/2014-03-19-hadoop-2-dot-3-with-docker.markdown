@@ -3,7 +3,7 @@ layout: post
 title: "Hadoop 2.3 with docker"
 date: 2014-03-19 04:54:09 +0100
 comments: true
-categories: [Hadoop, docker, devops]
+categories: [Hadoop, Docker, devops]
 author: Lajos Papp
 ---
 
