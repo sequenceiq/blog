@@ -53,7 +53,7 @@ The shell is built as a single executable jar with the help of [Spring Boot](htt
 ```
 Usage:
   java -jar cloudbreak-shell-0.1-SNAPSHOT.jar                 : Starts Cloudbreak Shell in interactive mode.
-  java -jarcloudbreak-shell-0.1-SNAPSHOT.jar --cmdfile=<FILE> : Cloudbreak executes commands read from the file.
+  java -jar cloudbreak-shell-0.1-SNAPSHOT.jar --cmdfile=<FILE> : Cloudbreak executes commands read from the file.
 
 Options:
   --cloudbreak.host=<HOSTNAME>       Hostname of the Cloudbreak REST API Server [use:cloudbreak-api.sequenceiq.com].
