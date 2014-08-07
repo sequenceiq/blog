@@ -45,7 +45,7 @@ git clone https://github.com/sequenceiq/cloudbreak-shell.git
 cd cloudbreak-shell
 mvn clean package
 ```
-<!-- more —>
+
 ## Connect to Cloudbreak
 In order to use the shell you will have to have a Cloudbreak account. You can get one by subscribing to our hosted and free [Cloudbreak](https://cloudbreak.sequenceiq.com/) instance. Alternatively you can build your own Cloudbreak and deploy it within your organization - for that just follow up with the steps in the Cloudbreak [documentation](http://sequenceiq.com/cloudbreak/#quickstart-and-installation). We suggest to try our hosted solution as in case you have any issues we can always help you with. Please feel free to create bugs, ask for enhancements or just give us feedback by either our [GitHub repository](https://github.com/sequenceiq/cloudbreak) or the other channels highlighted in the product documentation.
 The shell is built as a single executable jar with the help of [Spring Boot](http://projects.spring.io/spring-boot/).
@@ -72,7 +72,6 @@ In order to start using Cloudbreak you will need to have a cloud user, for examp
 
 ```
 credential createEC2 --description “description" --name “myCredentialName" --roleArn "arn:aws:iam::NUMBER:role/cloudbreak-ABC" --sshKeyUrl “URL towards your AWS public key"
-
 ```
 
 Alternatively you can upload your public key from a file as well, by using the `—sshKeyPath` switch. You can check whether the credential was creates successfully by using the `credential list` command. You can switch between your cloud credential - when you’d like to use one and act with that you will have to use:
@@ -99,7 +98,8 @@ template select --id #ID of the template
 
 Stacks are template `instances` - a running cloud infrastructure created based on a template. Use the following command to create a stack to be used with your Hadoop cluster:
 
-```stack create --name “myStackName" --nodeCount 20 
+```
+stack create --name “myStackName" --nodeCount 20 
 ```
 ### Select a blueprint 
 
@@ -112,6 +112,7 @@ blueprint select --id #ID of the blueprint
 ```
 ### Create a Hadoop cluster 
 You are almost done - one more command and this will create your Hadoop cluster on your favorite cloud provider. Same as the API, or UI this will use your `template`, and by using CloudFormation will launch a cloud `stack` - once the `stack` is up and running (cloud provisioning is done) it will use your selected `blueprint` and install your custom Hadoop cluster with the selected components and services. For the supported list of Hadoop components and services please check the [documentation](http://sequenceiq.com/cloudbreak/#supported-components).
+
 ```
 cluster create --description “my cluster desc"
 ```
