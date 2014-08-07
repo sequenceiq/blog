@@ -28,7 +28,9 @@ The goal with the CLI was to provide an interactive command line tool which supp
 * **hint** command to guide you on the usual path
 
 ## Install Cloudbreak Shell
+
 You have 3 options to give it a try:
+
 - use our prepared [docker image](https://registry.hub.docker.com/u/sequenceiq/cloudbreak/)
 - download the latest self-containing executable jar form our maven repo
 - build it from source
