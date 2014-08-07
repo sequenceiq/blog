@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-08-07T14:50:17+00:00</updated>
+  <updated>2014-08-07T14:52:26+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -81,7 +81,7 @@ The shell is built as a single executable jar with the help of <a href="http://p
 <span class='line-number'>12</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>Usage:
 </span><span class='line'>  java -jar cloudbreak-shell-0.1-SNAPSHOT.jar                 : Starts Cloudbreak Shell in interactive mode.
-</span><span class='line'>  java -jarcloudbreak-shell-0.1-SNAPSHOT.jar --cmdfile=&lt;FILE&gt; : Cloudbreak executes commands read from the file.
+</span><span class='line'>  java -jar cloudbreak-shell-0.1-SNAPSHOT.jar --cmdfile=&lt;FILE&gt; : Cloudbreak executes commands read from the file.
 </span><span class='line'>
 </span><span class='line'>Options:
 </span><span class='line'>  --cloudbreak.host=&lt;HOSTNAME&gt;       Hostname of the Cloudbreak REST API Server [use:cloudbreak-api.sequenceiq.com].
