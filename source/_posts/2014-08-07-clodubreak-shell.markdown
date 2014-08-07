@@ -5,7 +5,7 @@ date: 2014-08-07 21:43:01 +0200
 comments: true
 categories: [Hadoop as a Service, Hadoop, Cloud, Cloudbreak, CLI, Shell]
 author: Janos Matyas
-published: false
+published: true
 ---
 
 Few weeks back we have announced [Cloudbreak](http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/) - the open source Hadoop as a Service API. Included in the release we open sourced a REST API, REST client, UI and a CLI/shell. In this post we’d like to show you how easy is to use [Cloudbreak shell](https://github.com/sequenceiq/cloudbreak-shell) in order to create on demand Hadoop clusters on your favorite cloud provider. 
