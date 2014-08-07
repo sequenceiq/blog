@@ -59,7 +59,7 @@ Options:
   --cloudbreak.host=<HOSTNAME>       Hostname of the Cloudbreak REST API Server [use:cloudbreak-api.sequenceiq.com].
   --cloudbreak.port=<PORT>           Port of the Cloudbreak REST API Server [use:80].
   --cloudbreak.user=<USER>           Username of the Cloudbreak user [use:your user name ].
-  --cloudbreak.password=<PASSWORD>   Password of the Ambari admin [use: your password].
+  --cloudbreak.password=<PASSWORD>   Password of the Cloudbreak admin [use: your password].
 
 Note:
   All options are mandatory.
@@ -116,11 +116,17 @@ You are almost done - one more command and this will create your Hadoop cluster 
 cluster create --description “my cluster desc"
 ```
 You are done - you can check the progress through the Ambari UI. If you log back to [Cloudbreak UI](https://cloudbreak.sequenceiq.com/) you can check the progress over there as well, and learn the IP address of Ambari.
+
 ### Automate the process
 Each time you start the shell the executed commands are logged in a file line by line and later either with the `script` command or specifying an `—cmdfile` option the same commands can be executed again.
-## List of available commands
+
+## Commands
+
+For the full list of available commands please check below. Please note that all commands are context aware, and you can always use `TAB` for command completion.
+
+
     * blueprint add - Add a new blueprint with either --url or --file
-    * blueprint defaults - Adds the default blueprints to Ambari
+    * blueprint defaults - Adds the default blueprints to Cloudbreak
     * blueprint list - Shows the currently available blueprints
     * blueprint select - Select the blueprint by its id
     * blueprint show - Shows the blueprint by its id
