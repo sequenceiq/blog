@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-08-07T14:52:26+00:00</updated>
+  <updated>2014-08-07T14:59:27+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -45,8 +45,9 @@
 <p>You have 3 options to give it a try:
 &ndash; use our prepared <a href="https://registry.hub.docker.com/u/sequenceiq/cloudbreak/">docker image</a>
 &ndash; download the latest self-containing executable jar form our maven repo
-&ndash; build it from source
-We will follow up with the first two, in this post we’d like to guide you through the third option.</p>
+&ndash; build it from source</p>
+
+<p>We will follow up with the first two, in this post we’d like to guide you through the third option.</p>
 
 <h3>Build from source</h3>
 
