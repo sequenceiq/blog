@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-08-07T14:59:27+00:00</updated>
+  <updated>2014-08-07T15:30:53+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -61,6 +61,11 @@
 </pre></td><td class='code'><pre><code class=''><span class='line'>git clone https://github.com/sequenceiq/cloudbreak-shell.git
 </span><span class='line'>cd cloudbreak-shell
 </span><span class='line'>mvn clean package</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!--more-->
 
 
 <h2>Connect to Cloudbreak</h2>
