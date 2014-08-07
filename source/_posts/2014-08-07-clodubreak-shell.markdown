@@ -71,7 +71,7 @@ Once you are connected you can start to create a cluster. If you are lost and ne
 In order to start using Cloudbreak you will need to have a cloud user, for example an Amazon AWS account. Note that Cloudbreak **does not** store you cloud user details - we work around the concept of [IAM](http://aws.amazon.com/iam/) - on Amazon (or other cloud providers) you will have to create an IAM role, a policy and associate that with your Cloudbreak account - for further documentation please refer to the [documentation](http://sequenceiq.com/cloudbreak/#accounts).
 
 ```
-credential createEC2 --description “description" --name “myCredentialNa,e" --roleArn "arn:aws:iam::NUMBER:role/cloudbreak-ABC" --sshKeyUrl “URL towards your AWS public key"
+credential createEC2 --description “description" --name “myCredentialName" --roleArn "arn:aws:iam::NUMBER:role/cloudbreak-ABC" --sshKeyUrl “URL towards your AWS public key"
 
 ```
 
