@@ -52,12 +52,12 @@ mvn clean package
 <!--more-->
 
 ## Connect to Cloudbreak
-In order to use the shell you will have to have a Cloudbreak account. You can get one by subscribing to our hosted and free [Cloudbreak](https://cloudbreak.sequenceiq.com/) instance. Alternatively you can build your own Cloudbreak and deploy it within your organization - for that just follow up with the steps in the Cloudbreak [documentation](http://sequenceiq.com/cloudbreak/#quickstart-and-installation). We suggest to try our hosted solution as in case you have any issues we can always help you with. Please feel free to create bugs, ask for enhancements or just give us feedback by either our [GitHub repository](https://github.com/sequenceiq/cloudbreak) or the other channels highlighted in the product documentation.
+In order to use the shell you will have to have a Cloudbreak account. You can get one by subscribing to our hosted and free [Cloudbreak](https://cloudbreak.sequenceiq.com/) instance. Alternatively you can build your own Cloudbreak and deploy it within your organization - for that just follow up with the steps in the Cloudbreak [documentation](http://sequenceiq.com/cloudbreak/#quickstart-and-installation). We suggest to try our hosted solution as in case you have any issues we can always help you with. Please feel free to create bugs, ask for enhancements or just give us feedback by either using our [GitHub repository](https://github.com/sequenceiq/cloudbreak) or the other channels highlighted in the product documentation (Google Groups, email or social channels).
 The shell is built as a single executable jar with the help of [Spring Boot](http://projects.spring.io/spring-boot/).
 
 ```
 Usage:
-  java -jar cloudbreak-shell-0.1-SNAPSHOT.jar                 : Starts Cloudbreak Shell in interactive mode.
+  java -jar cloudbreak-shell-0.1-SNAPSHOT.jar                  : Starts Cloudbreak Shell in interactive mode.
   java -jar cloudbreak-shell-0.1-SNAPSHOT.jar --cmdfile=<FILE> : Cloudbreak executes commands read from the file.
 
 Options:
