@@ -4,7 +4,33 @@ single: true
 ---
 
 <div>
-<h1 class="article-style"> {{ page.title }} </h1>
+
+<div class="container-fluid">
+     <div class="row">
+       {% if post.date %}
+         {% assign date = post.date %}
+       {% elsif page.date %}
+         {% assign date = page.date %}
+       {% endif %}
+       {% assign date_str = (date) %}
+
+       {% if post.author %}
+         {% assign author = post.author %}
+       {% elsif page.author %}
+         {% assign author = page.author %}
+       {% else %}
+         {% assign author = site.author %}
+       {% endif %}
+       <h1 class="article-style"> {{ page.title }}
+
+       <span class="badge name-badge">{{ author }}</span>
+       <span class="badge name-badge">{{ date | date: "%d %B %Y" }}</span>
+       </h1>
+
+
+
+</div>
+</div>
 <article class="hentry" role="article">
   {% include article.html %}
   <footer>
@@ -67,4 +93,3 @@ single: true
 </aside>
 {% endunless %}
 {% endcomment %}
-
