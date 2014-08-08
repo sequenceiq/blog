@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop as a Service | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hadoop-as-a-service/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-08-08T07:43:44+00:00</updated>
+  <updated>2014-08-08T08:55:59+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -70,12 +70,12 @@ mvn clean package
 
 <h2>Connect to Cloudbreak</h2>
 
-<p>In order to use the shell you will have to have a Cloudbreak account. You can get one by subscribing to our hosted and free <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> instance. Alternatively you can build your own Cloudbreak and deploy it within your organization &ndash; for that just follow up with the steps in the Cloudbreak <a href="http://sequenceiq.com/cloudbreak/#quickstart-and-installation">documentation</a>. We suggest to try our hosted solution as in case you have any issues we can always help you with. Please feel free to create bugs, ask for enhancements or just give us feedback by either our <a href="https://github.com/sequenceiq/cloudbreak">GitHub repository</a> or the other channels highlighted in the product documentation.
+<p>In order to use the shell you will have to have a Cloudbreak account. You can get one by subscribing to our hosted and free <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> instance. Alternatively you can build your own Cloudbreak and deploy it within your organization &ndash; for that just follow up with the steps in the Cloudbreak <a href="http://sequenceiq.com/cloudbreak/#quickstart-and-installation">documentation</a>. We suggest to try our hosted solution as in case you have any issues we can always help you with. Please feel free to create bugs, ask for enhancements or just give us feedback by either using our <a href="https://github.com/sequenceiq/cloudbreak">GitHub repository</a> or the other channels highlighted in the product documentation (Google Groups, email or social channels).
 The shell is built as a single executable jar with the help of <a href="http://projects.spring.io/spring-boot/">Spring Boot</a>.</p>
 
 <p>```
 Usage:
-  java -jar cloudbreak-shell-0.1-SNAPSHOT.jar                 : Starts Cloudbreak Shell in interactive mode.
+  java -jar cloudbreak-shell-0.1-SNAPSHOT.jar                  : Starts Cloudbreak Shell in interactive mode.
   java -jar cloudbreak-shell-0.1-SNAPSHOT.jar &mdash;cmdfile=<FILE> : Cloudbreak executes commands read from the file.</p>
 
 <p>Options:
