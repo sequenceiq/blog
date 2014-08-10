@@ -50,6 +50,7 @@ Periscope introspects the job submission process, monitors the applications and 
   2. Moves running applications between priority queues
   3. *Attempts* to enforce time based SLA (execution time, finish by, finish between, recurring)
   4. *Attempts* to enforce guaranteed cluster capacity requests ( x % of the resources)
+  5. Support for distributed (but not YARN ready) applications using Apache Slider
 
 #### Dynamic clusters
 From Periscope point of view we consider a cluster dynamic when the cluster capacity can be increased horizontally.
@@ -64,6 +65,7 @@ Given the option of provisioning or decommissioning cluster nodes on the fly, Pe
   4. Smart decommissioning - avoids HDFS storms, keeps `payed` nodes alive till the last minute
   5. *Enforce* guaranteed cluster capacity requests ( x % of the resources)
   6. *Private* cluster requests - supports provisioning of short lived private clusters with the possibility to merge
+  7. Support for distributed (but not YARN ready) applications using Apache Slider
 
 ### High level technical details  
 
