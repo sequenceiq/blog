@@ -176,6 +176,9 @@ For the demonstration we are using VMs on <a href="https://www.virtualbox.org/">
 
 <p>Let&rsquo;s see how Docker containers running on these VMs can send IP packets to each other.</p>
 
+<!--more-->
+
+
 <h2>Setting up bridge0</h2>
 
 <p>The Docker attaches all containers to the virtual subnet implemented by docker0, this means that by default on both VMs the Docker containers will be launched with IP addresses from range 172.17.42.1/24. This is a problem for some of the solutions explained below, because if the containers on different hosts have the same IP addresses then we won&rsquo;t be able to properly route the IP packets between them. Therefore on each VMs a network bridge is created with the following subnets:</p>
