@@ -5,7 +5,7 @@ date: 2014-08-12 10:53:15 +0200
 comments: true
 categories: [Docker, Linux, Hadoop, Cloudbreak, Network]
 author: Attila Kanto
-published: false
+published: true
 ---
 
 The purpose of this blog entry is to cover advanced topics regarding Docker networking and explain different concepts to inter-connect Docker containers when the containers are running on different host machines.
