@@ -157,7 +157,7 @@ nc -w 1 -v 172.17.51.2 3333
 #Result: Connection to 172.17.51.2 3333 port [tcp/*] succeeded!
 ```
 
-After the tunnel is set up and activated the remaining commands are very similar to the commands executed in the "Direct Routing" section. The main difference here is that we do not rout ethe traffic directly to other vm, but we are routing it into ```dev tun1``` and ```dev tun2``` respectively.
+After the tunnel is set up and activated the remaining commands are very similar to the commands executed in the "Direct Routing" section. The main difference here is that we do not route the traffic directly to other vm, but we are routing it into ```dev tun1``` and ```dev tun2``` respectively.
 
 With GRE tunnels a point-to-point connection is set up between two hosts, which means that if you have more then two hosts in your network and want to interconnect all of them, then n-1 tunnel endpoint needs to be created on every host, which will be quite challenging to maintain if you have a large cluster.
 
@@ -191,12 +191,12 @@ nc -w 1 -v 172.17.51.2 3333
 
 The ssh is launched with -w option where the numerical ids of tun devices were specified. After executing the command the tunnel interfaces are created on both VMs. The interfaces needs to be be activated with ifconfig up and after that we need to setup the rooting to direct the traffic to  172.17.51.0/24 and 172.17.52.0/24 to tun2 and tun1.
 
-As mentioned the VPN capabilities of SSH is not recommended in production, but other solutions like  [OpenVPN](https://openvpn.net/index.php/open-source.html) would worth a try to seacure the communication between the hosts (and also between the containers).
+As mentioned the VPN capabilities of SSH is not recommended in production, but other solutions like  [OpenVPN](https://openvpn.net/index.php/open-source.html) would worth a try to secure the communication between the hosts (and also between the containers).
 
 ##Conclusion
 
 The above examples were hand written mainly for demonstration purposes, but there are great tools like [Pipework](https://github.com/jpetazzo/pipework) that can make your life simpler and will do the heavy lifting for you.
 
-If you want to check how the these methods are working in production environment you are just a few clicks from it, since under the hood these methods are responsible to solve the inter-container communication in our cloud agnostic Hadoop as a Service API called [Cloudbreak](http://sequenceiq.com/cloudbreak/).
+If you want to check how these methods are working in production environment you are just a few clicks from it, since under the hood these methods are responsible to solve the inter-container communication in our cloud agnostic Hadoop as a Service API called [Cloudbreak](http://sequenceiq.com/cloudbreak/).
 
 For updates follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
