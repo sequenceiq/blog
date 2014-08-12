@@ -31,6 +31,8 @@ The NAT (related to eth0 interface on VMs) is used only for access the external 
 
 Let's see how Docker containers running on these VMs can send IP packets to each other.
 
+<!--more-->
+
 ##Setting up bridge0
 The Docker attaches all containers to the virtual subnet implemented by docker0, this means that by default on both VMs the Docker containers will be launched with IP addresses from range 172.17.42.1/24. This is a problem for some of the solutions explained below, because if the containers on different hosts have the same IP addresses then we won't be able to properly route the IP packets between them. Therefore on each VMs a network bridge is created with the following subnets:
 
