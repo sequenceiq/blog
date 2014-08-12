@@ -130,6 +130,79 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">02 July 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+            <a href="/blog/categories/scheduler/"><span class="label label-warning">Scheduler</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/07/02/move-applications-between-queues/">Re-prioritize running jobs with YARN schedulers</a>
+          <span class="badge name-badge">Krisztian Horvath</span>
+
+      </h1>
+      <p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we run different applications all within the same Hadoop YARN cluster. Often the deployed Hadoop stack is a multi-tenant and multi-application and runtime setup &ndash; and as usual for a scenario as such end users will try to use or book as much cluster capacity as possible. A great help for solving these problems are YARN schedulers &ndash; however in our case due to certain SLA and QoS requirements we needed to step further. We have invested a great effort to build custom YARN schedulers, learn about application insights (check our <a href="http://blog.sequenceiq.com/blog/2014/05/01/mapreduce-job-profiling-with-R/">blog post</a> about how we use R to profile running jobs) and we would like to share our experience with the community. Let&rsquo;s dig into technical details.</p>
+
+<p>In YARN, one of the ResourceManager&rsquo;s most important role is the scheduling (allocating available resources in the cluster) between competing applications. It doesn&rsquo;t care about per-application states nor internal flows and optimizations, but the overall resource requirements of
+each application. Currently there are 3 different scheduler implementations available: FIFO, Fair, Capacity.</p>
+
+<p>Going back a few weeks in time we blogged about how to configure the
+<a href="http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler/">CapacityScheduler</a> and use different queue
+setups. Based on the feedbacks we have received we realized that there is a lack of knowledge about how these schedulers work and many people have asked to fill that gap. Good news that we didn&rsquo;t
+forget about you. We&rsquo;re going to start a post series where we&rsquo;ll explain them a little bit detailed with fancy diagrams and code examples.</p>
+
+<p>But before doing that, let&rsquo;s visit a concrete problem we encountered while we were developing our product stack.
+We wanted to use the CapacityScheduler, but for different reasons (SLA and QoS) move the submitted applications between different queues to set a priority among them &ndash; at runtime (quick reminder: queues are either a composition of other queues or a collection of applications, forming a tree).
+Cross application priorites can&rsquo;t be configured yet, only priorities between tasks within the application. The only problem is if you check the code you&rsquo;ll find this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">moveApplication</span><span class="o">(</span><span class="n">ApplicationId</span> <span class="n">appId</span><span class="o">,</span> <span class="n">String</span> <span class="n">newQueue</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">YarnException</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">throw</span> <span class="k">new</span> <span class="nf">YarnException</span><span class="o">(</span><span class="n">getClass</span><span class="o">().</span><span class="na">getSimpleName</span><span class="o">()</span>
+</span><span class='line'>        <span class="o">+</span> <span class="s">&quot; does not support moving apps between queues&quot;</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+
+      
+       <a href="/blog/2014/07/02/move-applications-between-queues/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/06/25/hadoop-2-4-0-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -836,52 +909,6 @@ Yes!</p>
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/04/17/apache-phoenix-sneak-peak/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">17 April 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/apache-phoenix/"><span class="label label-warning">Apache Phoenix</span></a>
-            
-            <a href="/blog/categories/hbase/"><span class="label label-warning">HBase</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/04/17/apache-phoenix-sneak-peak/">Apache Phoenix (sneak peak)</a>
-          <span class="badge name-badge">Krisztian Horvath</span>
-
-      </h1>
-      <script type="text/javascript" src="https://asciinema.org/a/8982.js" id="asciicast-8982" async></script>
-
-
-      
-      
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -903,6 +930,10 @@ Yes!</p>
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/08/12/docker-networking/">Docker intercontainer networking explained</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/08/07/clodubreak-shell/">Create Hadoop clusters in the cloud using a CLI</a>

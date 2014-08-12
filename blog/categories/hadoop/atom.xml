@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-08-12T09:40:17+00:00</updated>
+  <updated>2014-08-12T12:05:07+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,255 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Docker intercontainer networking explained]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/08/12/docker-networking/"/>
+    <updated>2014-08-12T08:53:15+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/08/12/docker-networking</id>
+    <content type="html"><![CDATA[<p>The purpose of this blog entry is to cover advanced topics regarding Docker networking and explain different concepts to inter-connect Docker containers when the containers are running on different host machines.
+For the demonstration we are using VMs on <a href="https://www.virtualbox.org/">VirtualBox</a> launched with <a href="http://www.vagrantup.com/">Vagrant</a>, but the explained networking concepts work also on Amazon EC2 (with VPC) and Azure unless stated otherwise.</p>
+
+<p>To set up the the test environment clone the <a href="https://github.com/sequenceiq/sequenceiq-samples">SequenceIQ&rsquo;s samples repository</a> and follow the instructions.</p>
+
+<p><code>
+git clone git@github.com:sequenceiq/sequenceiq-samples.git
+cd sequenceiq-samples/docker-networking
+vagrant up
+</code></p>
+
+<p>The <code>vagrant up</code> command launches the test setup, which conatins two Ubuntu 14.04 VMs with the network configuration:</p>
+
+<ul>
+<li><a href="https://www.virtualbox.org/manual/ch06.html#network_nat">NAT</a></li>
+<li><a href="https://docs.vagrantup.com/v2/networking/private_network.html">Private networking</a></li>
+</ul>
+
+
+<p>The NAT (related to eth0 interface on VMs) is used only for access the external network from VMs e.g. download files from debian repository, but it is not used for inter-container communication. The Vagrant sets up a properly configured Host Only Networking in VirtualBox therefore the VMs can communicate with each other on the defined IP addresses:</p>
+
+<ul>
+<li>vm1: 192.168.40.11</li>
+<li>vm2: 192.168.40.12</li>
+</ul>
+
+
+<p>Let&rsquo;s see how Docker containers running on these VMs can send IP packets to each other.</p>
+
+<h2>Setting up bridge0</h2>
+
+<p>The Docker attaches all containers to the virtual subnet implemented by docker0, this means that by default on both VMs the Docker containers will be launched with IP addresses from range 172.17.42.1/24. This is a problem for some of the solutions explained below, because if the containers on different hosts have the same IP addresses then we won&rsquo;t be able to properly route the IP packets between them. Therefore on each VMs a network bridge is created with the following subnets:</p>
+
+<ul>
+<li>vm1: 172.17.51.1/24</li>
+<li>vm2: 172.17.52.1/24</li>
+</ul>
+
+
+<p>This means that every container luanched on vm1 will get an IP address from range 172.17.51.2 &ndash; 172.17.51.255 and containers on vm2 will have an address from range 172.17.52.2 &ndash; 172.17.52.255.</p>
+
+<p>```bash</p>
+
+<h1>do not execute, it was already executed on vm1 as root during provision from Vagrant</h1>
+
+<p>brctl addbr bridge0
+sudo ifconfig bridge0 172.17.51.1 netmask 255.255.255.0
+sudo bash -c &lsquo;echo DOCKER_OPTS=\&ldquo;-b=bridge0\&rdquo; >> /etc/default/docker&rsquo;
+sudo service docker restart</p>
+
+<h1>do not execute, it was already executed on vm1 as root during provision from Vagrant</h1>
+
+<p>sudo brctl addbr bridge0
+sudo ifconfig bridge0 172.17.52.1 netmask 255.255.255.0
+sudo bash -c &lsquo;echo DOCKER_OPTS=\&ldquo;-b=bridge0\&rdquo; >> /etc/default/docker&rsquo;
+sudo service docker restart
+```</p>
+
+<p>As noted in the comments the above configuration is already executed during the provisioning of VMs and it was copied here just for the sake of clarity and completeness.</p>
+
+<h2>Expose container ports to host</h2>
+
+<p>Probably the simplest way to solve inter-container communication is to expose ports from container to the host. This can be done with the <code>-p</code> switch. E.g. exposing the port 3333 is as simple as:</p>
+
+<p>```bash</p>
+
+<h1>execute on vm1</h1>
+
+<p>sudo docker run -it &mdash;rm &mdash;name cont1 -p 3333:3333 ubuntu /bin/bash -c &ldquo;nc -l 3333&rdquo;</p>
+
+<h1>execute on vm2</h1>
+
+<p>sudo docker run -it &mdash;rm &mdash;name cont2 ubuntu /bin/bash -c &ldquo;nc -w 1 -v 192.168.40.11 3333&rdquo;</p>
+
+<h1>Result: Connection to 192.168.40.11 3333 port [tcp/*] succeeded!</h1>
+
+<p>```</p>
+
+<p>This might be well suited for cases when the communication ports are defined in advance (e.g. MySQL will run on port 3306), but will not work when the application uses dynamic ports for communication (like Hadoop does with IPC ports).</p>
+
+<h2>Host networking</h2>
+
+<p>If the the container is started with <code>--net=host</code> then it avoids placing the container inside of a separate network stack, but as the Docker documentation says this option &ldquo;tells Docker to not containerize the container&rsquo;s networking&rdquo;. The <code>cont1</code> container can bind directly to the network interface of host therefore the <code>nc</code> will be available directly on 192.168.40.11.</p>
+
+<p>```bash</p>
+
+<h1>execute on vm1</h1>
+
+<p>sudo docker run -it &mdash;rm &mdash;name cont1 &mdash;net=host ubuntu /bin/bash -c &ldquo;nc -l 3333&rdquo;</p>
+
+<h1>execute on vm2</h1>
+
+<p>sudo docker run -it &mdash;rm &mdash;name cont2 ubuntu /bin/bash -c &ldquo;nc -w 1 -v 192.168.40.11 3333&rdquo;</p>
+
+<h1>Result: Connection to 192.168.40.11 3333 port [tcp/*] succeeded!</h1>
+
+<p>```</p>
+
+<p>Of course if you want to access cont2 from cont1 then cont2 also needs to be started with <code>--net=host</code> option.
+The host networking is very powerful solution for inter-container communication, but it has its drawbacks, since the ports used by the container can collide with the ports used by host or other containers utilising &mdash;net=host option, because all of them are sharing the same network stack.</p>
+
+<h2>Direct Routing</h2>
+
+<p>So far we have seen methods where the containers have used the IP address of host to communicate with each other, but there are solutions to inter-connect the containers by using their own IPs. If we are using the containers own IPs for routing then it is important that we shall be able to distinguish based on IP which container is running on vm1 and which one is running on on vm2, this was the reason why the bridge0 interface was created as explained in &ldquo;Setting up bridge0&rdquo; section.
+To make the things a bit easier to understand I have created a simplified diagram of the network interfaces in our current test setup. If I would like to oversimplify the thing then I would say that, we shall setup the routing in that way that the packets from one container are following the red lines shown on the diagram.</p>
+
+<p style="text-align:center;"> <img class="<a" src="href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/docker-networking/img/routing.png">https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/docker-networking/img/routing.png</a>"></p>
+
+<p>To achive this we need to configure the routing table on hosts in that way that every packet which destination is 172.17.51.0/24 is forwarded to vm1 and every IP packet where the destination is 172.17.52.0/24 is forwarded to vm2. To repeat it shortly, the containers running on vm1 are placed to subnet 172.17.51.0/24, containers on vm2 are on subnet 172.17.52.0/24.</p>
+
+<p>```bash</p>
+
+<h1>execute on vm1</h1>
+
+<p>sudo route add -net 172.17.52.0 netmask 255.255.255.0 gw 192.168.40.12
+sudo iptables -t nat -F POSTROUTING
+sudo iptables -t nat -A POSTROUTING -s 172.17.51.0/24 ! -d 172.17.0.0/16 -j MASQUERADE
+sudo docker run -it &mdash;rm &mdash;name cont1  ubuntu /bin/bash</p>
+
+<h1>Inside the container (cont1)</h1>
+
+<p>nc -l 3333</p>
+
+<h1>execute on vm2</h1>
+
+<p>sudo route add -net 172.17.51.0  netmask 255.255.255.0  gw 192.168.40.11
+sudo iptables -t nat -F POSTROUTING
+sudo iptables -t nat -A POSTROUTING -s 172.17.52.0/24 ! -d 172.17.0.0/16 -j MASQUERADE
+sudo docker run -it &mdash;rm &mdash;name cont2  ubuntu /bin/bash</p>
+
+<h1>Inside the container (cont2)</h1>
+
+<p>nc -w 1 -v 172.17.51.2 3333</p>
+
+<h1>Result: Connection to 172.17.51.2 3333 port [tcp/*] succeeded!</h1>
+
+<p>```</p>
+
+<p>The <code>route add</code> command adds the desired routing to the route table, but you might wonder why the iptables configuration is necessary. The reason for that the Docker by default sets up a rule to the nat table to masquerade all IP packets that are leaving the machine. In our case we definitely don&rsquo;t want this, therefore we delete all MASQUERADE rules with -F option. At this point we already would be able to make the connection from one container to other and vice verse, but the containers would not be able to communicate with the outside world, therefore an iptables rule needs to be added to masquerade the packets that are going outside of 172.17.0.0/16. I need to mention the another approach would be to use the <a href="https://docs.docker.com/articles/networking/#between-containers">&mdash;iptables=false</a> option of the daemon to avoid any manipulation in the iptables and you can do all the config manually.</p>
+
+<p>Such kind of direct routing from one vm to other vm works great and easy to set up, but cannot be used if the hosts are not on the same subnet. If the host are located the on different subnet the tunneling might be an option as you will see it in the next section.</p>
+
+<p><em>Note: This solution works on Amazon EC2 instances only if the <a href="http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_NAT_Instance.html#EIP_Disable_SrcDestCheck">Source/Destionation Check</a> is disabled.</em></p>
+
+<p><em>Note: Due to the packet filtering policy of Azure this method cannot be used there.</em></p>
+
+<h2>Generic Routing Encapsulation (GRE) tunnel</h2>
+
+<p>GRE is a tunneling protocol that can encapsulate a wide variety of network layer protocols inside virtual point-to-point links.
+The main idea is to create a GRE tunnel between the VMs and send all traffic through it:</p>
+
+<p style="text-align:center;"> <img class="<a" src="href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/docker-networking/img/gre.png">https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/docker-networking/img/gre.png</a>"></p>
+
+<p>In order to create a tunnel you need to specify the name, the type (which is gre in our case) and the IP address of local and the remote end. Consequently the tun2 name used for the tunnel on on vm1 since from vm1 perspective that is the tunnel endpoint which leads to vm2 and every packet sent to tun2 to will eventually come out on vm2 end.</p>
+
+<p>```bash</p>
+
+<h1>GRE tunnel config execute on vm1</h1>
+
+<p>sudo iptunnel add tun2 mode gre local 192.168.40.11 remote 192.168.40.12
+sudo ifconfig tun2 10.0.201.1
+sudo ifconfig tun2 up
+sudo route add -net 172.17.52.0 netmask 255.255.255.0 dev tun2
+sudo iptables -t nat -F POSTROUTING
+sudo iptables -t nat -A POSTROUTING -s 172.17.51.0/24 ! -d 172.17.0.0/16 -j MASQUERADE
+sudo docker run -it &mdash;rm &mdash;name cont1  ubuntu /bin/bash</p>
+
+<h1>Inside the container (cont1)</h1>
+
+<p>nc -l 3333</p>
+
+<h1>GRE tunnel config execute on vm2</h1>
+
+<p>sudo iptunnel add tun1 mode gre local 192.168.40.12 remote 192.168.40.11
+sudo ifconfig tun1 10.0.202.1
+sudo ifconfig tun1 up
+sudo route add -net 172.17.51.0 netmask 255.255.255.0 dev tun1
+sudo iptables -t nat -F POSTROUTING
+sudo iptables -t nat -A POSTROUTING -s 172.17.52.0/24 ! -d 172.17.0.0/16 -j MASQUERADE
+sudo docker run -it &mdash;rm &mdash;name cont2  ubuntu /bin/bash</p>
+
+<h1>Inside the container (cont2)</h1>
+
+<p>nc -w 1 -v 172.17.51.2 3333</p>
+
+<h1>Result: Connection to 172.17.51.2 3333 port [tcp/*] succeeded!</h1>
+
+<p>```</p>
+
+<p>After the tunnel is set up and activated the remaining commands are very similar to the commands executed in the &ldquo;Direct Routing&rdquo; section. The main difference here is that we do not rout ethe traffic directly to other vm, but we are routing it into <code>dev tun1</code> and <code>dev tun2</code> respectively.</p>
+
+<p>With GRE tunnels a point-to-point connection is set up between two hosts, which means that if you have more then two hosts in your network and want to interconnect all of them, then n-1 tunnel endpoint needs to be created on every host, which will be quite challenging to maintain if you have a large cluster.</p>
+
+<p><em>Note: GRE packets are <a href="http://msdn.microsoft.com/en-us/library/azure/dn133803.aspx">filtered out</a> on Azure therefore this solution cannot be used there.</em></p>
+
+<h2>Virtual Private Network (VPN)</h2>
+
+<p>If more secured connections is required between containers then VPNs can be used on VMs. This addiotional security might significantly increase processing overhead. This overhead is highly depends on which VPN solution are you going to use. In this demo we use the VPN capabilities of SSH which is not really suited for production use. In order to enable the VPN capabilites of ssh the  PermitTunnel parameter needs to be switched on in sshd_config. If you are using the Vagranfile provided to this tutorial then nothing needs to be done, since this parameter was already set up for you during provisioning in the bootstrap.sh.</p>
+
+<p>```bash</p>
+
+<h1>execute on vm1</h1>
+
+<p>sudo ssh -f -N -w 2:1 <a href="&#x6d;&#97;&#x69;&#x6c;&#x74;&#x6f;&#58;&#x72;&#x6f;&#111;&#x74;&#64;&#49;&#57;&#x32;&#46;&#x31;&#x36;&#x38;&#x2e;&#52;&#x30;&#x2e;&#49;&#x32;">&#114;&#111;&#111;&#x74;&#64;&#x31;&#57;&#50;&#46;&#49;&#54;&#56;&#46;&#x34;&#x30;&#46;&#49;&#x32;</a>
+sudo ifconfig tun2 up
+sudo route add -net 172.17.52.0 netmask 255.255.255.0 dev tun2
+sudo iptables -t nat -F POSTROUTING
+sudo iptables -t nat -A POSTROUTING -s 172.17.51.0/24 ! -d 172.17.0.0/16 -j MASQUERADE
+sudo docker run -it &mdash;rm &mdash;name cont1  ubuntu /bin/bash</p>
+
+<h1>Inside the container (cont1)</h1>
+
+<p>nc -l 3333</p>
+
+<h1>execute on vm2</h1>
+
+<p>sudo ifconfig tun1 up
+sudo route add -net 172.17.51.0 netmask 255.255.255.0 dev tun1
+sudo iptables -t nat -F POSTROUTING
+sudo iptables -t nat -A POSTROUTING -s 172.17.52.0/24 ! -d 172.17.0.0/16 -j MASQUERADE
+sudo docker run -it &mdash;rm &mdash;name cont2  ubuntu /bin/bash</p>
+
+<h1>Inside the container (cont2)</h1>
+
+<p>nc -w 1 -v 172.17.51.2 3333</p>
+
+<h1>Result: Connection to 172.17.51.2 3333 port [tcp/*] succeeded!</h1>
+
+<p>```</p>
+
+<p>The ssh is launched with -w option where the numerical ids of tun devices were specified. After executing the command the tunnel interfaces are created on both VMs. The interfaces needs to be be activated with ifconfig up and after that we need to setup the rooting to direct the traffic to  172.17.51.0/24 and 172.17.52.0/24 to tun2 and tun1.</p>
+
+<p>As mentioned the VPN capabilities of SSH is not recommended in production, but other solutions like  <a href="https://openvpn.net/index.php/open-source.html">OpenVPN</a> would worth a try to seacure the communication between the hosts (and also between the containers).</p>
+
+<h2>Conclusion</h2>
+
+<p>The above examples were hand written mainly for demonstration purposes, but there are great tools like <a href="https://github.com/jpetazzo/pipework">Pipework</a> that can make your life simpler and will do the heavy lifting for you.</p>
+
+<p>If you want to check how the these methods are working in production environment you are just a few clicks from it, since under the hood these methods are responsible to solve the inter-container communication in our cloud agnostic Hadoop as a Service API called <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>.</p>
+
+<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Create Hadoop clusters in the cloud using a CLI]]></title>
@@ -670,128 +919,6 @@ responsibility to check if a container expires and when it does it sends an <cod
 <p>For updates and further blog posts follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 
 <p>Enjoy.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Cloudbreak - the Hadoop as a Service API]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/"/>
-    <updated>2014-07-18T16:37:37+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak</id>
-    <content type="html"><![CDATA[<p><em>Cloudbreak is a powerful left surf that breaks over a coral reef, a mile off southwest the island of Tavarua, Fiji.</em></p>
-
-<p><em>Cloudbreak is a cloud agnostic Hadoop as a Service API. Abstracts the provisioning and ease management and monitoring of on-demand clusters.</em></p>
-
-<p>Today is a big day for us and the Hadoop community &ndash; we are announcing the first <code>public beta</code> version of our open source and cloud agnostic <strong>Hadoop as a Service API</strong>.</p>
-
-<p>During our daily work with large Hadoop clusters in the cloud, <code>dockerized</code> environments and bare metal we were doing the same things over and over again. Although we are automating and <code>dockerizing</code> always everything, we felt that something is missing &ndash; an open source, cloud agnostic Hadoop as a Service API. Welcome <a href="https://cloudbreak.sequenceiq.com">Cloudbreak</a> &ndash; you are one POST away from your on-demand Hadoop cluster on your favorite cloud provider.</p>
-
-<p>When we have started to work on Cloudbreak &ndash; first of all to solve our internal needs at SequenceIQ &ndash; we have set the following criteria:</p>
-
-<ul>
-<li>Use open source software and be <strong>100% open source</strong> under Apache 2 license</li>
-<li>Have the ability to quickly launch arbitrary sized Hadoop clusters</li>
-<li>Be cloud provider agnostic and create an SDK which allows to quickly add new providers</li>
-<li>No more glue code, repeating the same things over and over again</li>
-<li>Have a REST API and a CLI in order to be able to automate the whole process</li>
-<li>Create an easy to use and responsive UI</li>
-<li>Support different Hadoop services and configurations in a declarative way</li>
-<li>Elastic and flexible, with the ability to resize running clusters</li>
-<li>Secure</li>
-</ul>
-
-
-<!-- more -->
-
-
-<h2>Docker in the cloud</h2>
-
-<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we are running all our core applications and processes in Docker containers &ndash; and that is true for Hadoop and all of the services as well. During the last few months we have <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">blogged</a> and open sourced all of the <a href="https://hub.docker.com/u/sequenceiq/">building blocks</a> of our <code>dockerized</code> systems and <strong>Cloudbreak</strong> is built on the foundation of these and reusing the same technologies we have released before. While Cloudbreak&rsquo;s primary role is to launch on-demand Hadoop clusters in the cloud, the underlying technology actually does more. It can launch on-demand Hadoop clusters in any environment which supports Docker &ndash; in a dynamic way. There is no predefined configuration needed as all the setup, orchestration, networking and cluster membership is done dynamically.</p>
-
-<ul>
-<li><a href="https://hub.docker.com/u/sequenceiq/">Docker containers</a> &ndash; all the Hadoop services are installed and running inside Docker containers, and these containers are <code>shipped</code>  between different cloud vendors, keeping Cloudbreak cloud agnostic</li>
-<li><a href="https://github.com/sequenceiq/ambari-rest-client">Apache Ambari</a> &ndash; to declaratively define a Hadoop cluster</li>
-<li><a href="https://github.com/sequenceiq/docker-serf">Serf</a> &ndash; for cluster membership, failure detection, and orchestration that is decentralized, fault-tolerant and highly available for dynamic clusters</li>
-<li><a href="https://github.com/sequenceiq/docker-dnsmasq">dnsmasq</a> &ndash; to provide resolvable fully qualified domain names between dynamically created Docker containers.</li>
-</ul>
-
-
-<p>The project was presented at the <strong>Hadoop Summit 2014,</strong> in San Jose &ndash; you can get the slides from <a href="http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning">here</a>.</p>
-
-<p>While there is an extensive list of articles explaining the benefits of using Docker, we would like to highlight our motivations in a few bullet points.</p>
-
-<ul>
-<li>Write once, run anywhere &ndash; our solution uses the same Docker containers on different cloud providers, <code>dockerized</code>  environments or bare metal, no difference at all</li>
-<li>Reproducible, testable environment &ndash; we are recreating complete config environments in seconds, and being able to work with the same containers on our laptop, QA and production/cloud environments</li>
-<li>Isolation &ndash; each container is separated and runs in its own isolated sandbox</li>
-<li>Versioning &ndash; we are able to easily version and modify containers, and ship only the changed bits saving bandwidth; essential for large clusters deployed in the cloud</li>
-<li>Central repository &ndash; you can build an entire cluster from a trusted and centralised container repository, the Docker Registry/Hub</li>
-<li>Smart resource allocation &ndash; containers can be <code>shipped</code> anywhere and resources can be allotted</li>
-</ul>
-
-
-<h2>Cloudbreak &ndash; the project</h2>
-
-<h3>Cloudbreak UI</h3>
-
-<p>The easiest way to start your own Hadoop cluster in your favorite cloud provider is to use our hosted solution. We host, maintain and support <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> for you. Cloudbreak UI is a secure and intuitive way to launch on-demand Hadoop clusters with a few mouse clicks. Please note that Cloudbreak is launching Hadoop clusters on the user&rsquo;s behalf &ndash; on different cloud providers. We do not store your cloud provider account details (such as username, password, keys, private SSL certificates, etc), but work around the concept that Identity and Access Management is fully controlled by you &ndash; the end user.</p>
-
-<h3>Cloudbreak API</h3>
-
-<p>Cloudbreak is a RESTful Hadoop as a Service API. The easiest way to use the API is by using our hosted <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak API</a>.</p>
-
-<p>We have also give you the option to host Cloudbreak within your organization. Once it is deployed in your favourite servlet container exposes a REST API allowing to span up Hadoop clusters of arbitrary sizes on your selected cloud provider. With Cloudbreak you are one POST away from your on-demand Hadoop cluster. You can get the code from our <a href="https://github.com/sequenceiq/cloudbreak">GitHub repository</a>. For further documentation please follow up with the <a href="http://sequenceiq.com/cloudbreak/">general</a> and <a href="http://docs.cloudbreak.apiary.io/">API</a> documentation, or subscribe to one of our social channels in order to receive notifications about further blog posts and releases.</p>
-
-<h3>Cloudbreak REST client</h3>
-
-<p>In order to ease your work with the REST API and embed in your codebase we have created (and also extensively use) a Groovy REST client. The code is available at our <a href="https://github.com/sequenceiq/cloudbreak-rest-client">GitHub</a> repository.</p>
-
-<h3>Cloudbreak CLI</h3>
-
-<p>As we automate everything and we are a very DevOps focused company we are always trying to create easy ways to interact with our systems and API’s. In case of Cloudbreak we have created and released a <a href="https://github.com/sequenceiq/cloudbreak-shell">command line shell</a>, the Cloudbreak CLI. The CLI allows you to use all the REST calls, and it has a large number of easing commands. Interactive help and completion is available.</p>
-
-<h3>Cloudbreak documentation</h3>
-
-<p>We have created two types of documentation. The <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak Product</a> documentation contains an overview, installation, architectural and technical content, whereas the <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak API</a> explains the REST API with examples and a mock server to test your integration.</p>
-
-<h2>Supported Hadoop services</h2>
-
-<p>At high level the supported list of components can be grouped into two main categories: Master and Slave &ndash; and bundling them together form a Hadoop Service. <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> supports the following Hadoop services.</p>
-
-<p><code>
-| Services    | Components                                                              |
-| ----------- | ------------------------------------------------------------------------|
-| HDFS        | DATANODE, HDFS_CLIENT, JOURNALNODE, NAMENODE, SECONDARY_NAMENODE, ZKFC  |
-| YARN        | APP_TIMELINE_SERVER, NODEMANAGER, RESOURCEMANAGER, YARN_CLIENT          |
-| MAPREDUCE2  | HISTORYSERVER, MAPREDUCE2_CLIENT                                        |
-| GANGLIA     | GANGLIA_MONITOR, GANGLIA_SERVER                                         |
-| HBASE       | HBASE_CLIENT, HBASE_MASTER, HBASE_REGIONSERVER                          |
-| HIVE        | HIVE_CLIENT, HIVE_METASTORE, HIVE_SERVER, MYSQL_SERVER                  |
-| HCATALOG    | HCAT                                                                    |
-| WEBHCAT     | WEBHCAT_SERVER                                                          |
-| NAGIOS      | NAGIOS_SERVER                                                           |
-| OOZIE       | OOZIE_CLIENT, OOZIE_SERVER                                              |
-| PIG         | PIG                                                                     |
-| SQOOP       | SQOOP                                                                   |
-| STORM       | DRPC_SERVER, NIMBUS, STORM_REST_API, STORM_UI_SERVER, SUPERVISOR        |
-| TEZ         | TEZ_CLIENT                                                              |
-| FALCON      | FALCON_CLIENT, FALCON_SERVER                                            |
-| ZOOKEEPER   | ZOOKEEPER_CLIENT, ZOOKEEPER_SERVER                                      |
-</code></p>
-
-<p>Please note that you can always build your own custom stack beyond these services, using Ambari&rsquo;s custom stack definitions.</p>
-
-<h2>What’s next?</h2>
-
-<p>We will follow up with a few posts to drive you through the technology, API and insights and make it easier for you to learn, understand and use Hadoop in the cloud.</p>
-
-<p>In the meantime we suggest you to go through the <a href="http://sequenceiq.com/cloudbreak/">documentation</a>, try <a href="http://cloudbreak.sequenceiq.com/">Cloudbreak</a> and let us know how it works for you.</p>
-
-<p>Please note that <a href="http://cloudbreak.sequenceiq.com/">Cloudbreak</a> is under development, in public beta &ndash; while we consider the codebase stable for deployments (and use it daily), please let us know if you face any problems through <a href="https://github.com/sequenceiq/cloudbreak">GitHub</a> issues. Also we  welcome your open source contribution &ndash; let it be a bug fix or a new cloud provider <a href="http://sequenceiq.com/cloudbreak/#add-new-cloud-providers">implementation</a>.</p>
-
-<p>Finally, your opinion is important to us &ndash; if you’d like to see your <strong>favourite cloud provider</strong> among the existing ones, please fill this <a href="https://docs.google.com/forms/d/129RVh6VfjRsuuHOcS3VPbFYTdM2SEjANDsGCR5Pul0I/viewform">questionnaire</a>. Make your voice heard!</p>
-
-<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   
