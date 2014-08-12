@@ -74,7 +74,7 @@ This might be well suited for cases when the communication ports are defined in 
 
 ##Host networking
 
-If the the container is started with `--net=host` then it avoids placing the container inside of a separate network stack, but as the Docker documentation says this option "tells Docker to not containerize the container's networking". The ```cont1``` container can bind directly to the network interface of host therefore the ```nc``` will be available directly on 192.168.40.11.
+If the container is started with `--net=host` then it avoids placing the container inside of a separate network stack, but as the Docker documentation says this option "tells Docker to not containerize the container's networking". The ```cont1``` container can bind directly to the network interface of host therefore the ```nc``` will be available directly on 192.168.40.11.
 
 ```bash
 # execute on vm1
