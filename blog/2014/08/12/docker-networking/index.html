@@ -241,7 +241,7 @@ For the demonstration we are using VMs on <a href="https://www.virtualbox.org/">
 
 <h2>Host networking</h2>
 
-<p>If the the container is started with <code>--net=host</code> then it avoids placing the container inside of a separate network stack, but as the Docker documentation says this option &ldquo;tells Docker to not containerize the container&rsquo;s networking&rdquo;. The <code>cont1</code> container can bind directly to the network interface of host therefore the <code>nc</code> will be available directly on 192.168.40.11.</p>
+<p>If the container is started with <code>--net=host</code> then it avoids placing the container inside of a separate network stack, but as the Docker documentation says this option &ldquo;tells Docker to not containerize the container&rsquo;s networking&rdquo;. The <code>cont1</code> container can bind directly to the network interface of host therefore the <code>nc</code> will be available directly on 192.168.40.11.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
