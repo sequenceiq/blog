@@ -7,16 +7,13 @@ categories: [QoS, Hadoop, SLA, Cloud, Schedulers, Periscope]
 author: Janos Matyas
 published: false
 ---
+*Periscope is a powerful, fast, thick and top-to-bottom right-hander, eastward from Sumbawa's famous west-coast. Timing is critical, as needs a number of elements to align before it shows its true colors.*
 
-*Periscope is a powerful, fast, thick and top-to-bottom right-hander, eastward from Sumbawa's famous west-coast.
-Timing is critical, as needs a number of elements to align before it shows its true colors.*
+*Periscope is a heuristic Hadoop scheduler you associate with a QoS profile. Built on YARN schedulers, cloud and VM resource management API's it allows you to associate SLAs to applications and customers.*
 
-*Periscope is a heuristic Hadoop scheduler you associate with a QoS profile.
-Built on YARN schedulers, cloud and VM resource management API's it allows you to associate SLA's to applications and customers.*
+##Overview
 
-### Overview
-
-The purpose of Periscope is to bring QoS to a multi-tenant Hadoop cluster, while allowing to apply SLA's to individual applications and customers.
+The purpose of Periscope is to bring QoS to a multi-tenant Hadoop cluster, while allowing to apply SLAs to individual applications and customers.
 At [SequenceIQ](http://sequenceiq.com) working with multi-tenant Hadoop clusters for quite a while we have always seen the same frustration and fight for resource between users.
 The **FairScheduler** was partially solving this problem - bringing in fairness based on the notion of [Dominant Resource Fairness](http://static.usenix.org/event/nsdi11/tech/full_papers/Ghodsi.pdf).
 With the emergence of Hadoop 2 YARN and the **CapacityScheduler** we had the option to maximize throughput and the utilization of the cluster for a multi-tenant cluster in an operator-friendly manner.
@@ -26,12 +23,12 @@ The queue hierarchy and resource allocation needs to be changed when new tenants
 
 Periscope was designed around the idea of `dynamic` clusters - without any need to preconfigure queues, cluster nodes or apply capacity planning ahead.
 
-### How it works
+##How it works
 
 Periscope monitors the application progress, the number of YARN containers/resources and their allocation on nodes, queue depths, and the number of nodes and their health.
 Since we have switched to YARN a while ago (been among the first adopters) we have run an open source [monitoring project](https://github.com/sequenceiq/yarn-monitoring), based on R.
 We have been collecting metrics from the YARN Timeline server, Hadoop Metrics2 and Ambari's Nagios/Ganglia - and profiling applications and correlating with these metrics.
-One of the key findings we have found - and have applied to Periscope - was that while low level metrics are good to understand the cluster health - they might not necessarily help on making decisions when applying different SLA's on a multi-tenant cluster.
+One of the key findings we have found - and have applied to Periscope - was that while low level metrics are good to understand the cluster health - they might not necessarily help on making decisions when applying different SLAs on a multi-tenant cluster.
 Focusing on higher level building blocks as queue depth, YARN containers, etc actually brings in the same quality of service, while not being lost in low level details.
 We will follow up with examples and metrics on coming blog posts - make sure you follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook).
 
@@ -41,10 +38,12 @@ When YARN allocates containers it associates `resources` - it's actually more pr
 
 Periscope works with two types of Hadoop clusters: `static` and `dynamic`.
 
-#### Static clusters
+##Clusters
+
+### Static clusters
 From Periscope point of view we consider a cluster static when the cluster capacity can't be increased horizontally.
 This means that the hardware resources are already given - and the throughput can't be increased by adding new nodes.
-Periscope introspects the job submission process, monitors the applications and applies the following SLA's:
+Periscope introspects the job submission process, monitors the applications and applies the following SLAs:
 
   1. Application ordering - can guaranty that a higher priority application finishes before another one (supporting parallel or sequential execution)
   2. Moves running applications between priority queues
@@ -52,12 +51,12 @@ Periscope introspects the job submission process, monitors the applications and 
   4. *Attempts* to enforce guaranteed cluster capacity requests ( x % of the resources)
   5. Support for distributed (but not YARN ready) applications using Apache Slider
 
-#### Dynamic clusters
+### Dynamic clusters
 From Periscope point of view we consider a cluster dynamic when the cluster capacity can be increased horizontally.
 This means that nodes can be added dynamically - thus the throughput can be increased or decreased based on the cluster load, and scheduled applications.
-In order to do that Periscope instructs [Cloudbreak](http://sequenceiq.com/cloudbreak/) to add or remove nodes from the cluster based on the SLA's, load and thus continuously provide a high *quality of service* for the multi-tenand Hadoop cluster.
+In order to do that Periscope instructs [Cloudbreak](http://sequenceiq.com/cloudbreak/) to add or remove nodes from the cluster based on the SLAs and thus continuously provide a high *quality of service* for the multi-tenand Hadoop cluster.
 Just to refresh memories - [Cloudbreak](http://sequenceiq.com/products.html) is [SequenceIQ's](http://sequenceiq.com) open source, cloud agnostic Hadoop as a Service API.
-Given the option of provisioning or decommissioning cluster nodes on the fly, Periscope allows you to use the following set of SLA's:
+Given the option of provisioning or decommissioning cluster nodes on the fly, Periscope allows you to use the following set of SLAs:
 
   1. Application ordering - can guaranty that a higher priority application finishes before another one (supporting parallel or sequential execution)
   2. Moves running applications between priority queues
