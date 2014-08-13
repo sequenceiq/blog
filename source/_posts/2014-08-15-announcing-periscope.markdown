@@ -50,6 +50,8 @@ Periscope introspects the job submission process, monitors the applications and 
   3. *Attempts* to enforce time based SLA (execution time, finish by, finish between, recurring)
   4. *Attempts* to enforce guaranteed cluster capacity requests ( x % of the resources)
   5. Support for distributed (but not YARN ready) applications using Apache Slider
+  
+_Note: not all of the features above are supported in the first `public beta` version. There are dependencies we contributed to Ambari and YARN but will be included in the next release (1.7 and 2.6)_
 
 ### Dynamic clusters
 From Periscope point of view we consider a cluster dynamic when the cluster capacity can be increased horizontally.
@@ -66,25 +68,33 @@ Given the option of provisioning or decommissioning cluster nodes on the fly, Pe
   6. *Private* cluster requests - supports provisioning of short lived private clusters with the possibility to merge
   7. Support for distributed (but not YARN ready) applications using Apache Slider
 
+_Note: not all of the features above are supported in the first `public beta` version. There are dependencies we contributed to Ambari and YARN but will be included in the next release (1.7 and 2.6)_
+
+
 ### High level technical details  
 
-When we have started to work on Periscope we checked different solutions - and we quickly realized that there are no such product available.
+When we have started to work on Periscope we checked different solutions - and we quickly realized that there are no such products available.
 Apache YARN in general, and the scheduler API's in particular have solved few of the issues we had - and they have certainly bring some level of SLA to Hadoop.
 At [SequenceIQ](https://sequenceiq.com) we run all our different applications in YARN - and when we decided to create a heuristic scheduler we new from beginning that it has to be built on the functionality given by YARN.
 In order to create the scheduler we had to contribute code to YARN, Hadoop and Ambari - and were trying to add all the low level features directly into the YARN codebase.
-Periscope has a REST API, supports pluggable SLA matrices and understand rules - described in YAML format.
+Periscope has a [REST API](http://docs.periscope.apiary.io/) and supports pluggable SLA rules described in YAML format.
 We will follow up with technical details in coming blog posts, so make sure you subscribe to on of our channels.
+
+### Resources
+
+Periscope code : https://github.com/sequenceiq/periscope
+Periscope documentation: http://sequenceiq.com/periscope
+Periscope API: http://docs.periscope.apiary.io/ 
 
 ### What's next, kudos, etc
 
 This is the first `public beta` release of Periscope made available on our [GitHub](https://github.com/sequenceiq/periscope) page.
-While we are already using this internally we would like you to battle test it, let us know if you find issues or raise feature requests. We are happy to help.
+While we are already using this internally we would like the community to help us battle test it, let us know if you find issues or raise feature requests. We are happy to help. 
 
-Further releases will bring tighter integration with Ambari (especially around cluster resources), an enhanced (or potentially new) CapacityScheduler and a Machine learning based job classification.
-Also we are here to listen to your requests.
+Further releases will bring tighter integration with Ambari (especially around cluster resources), an enhanced (or potentially new) YARN scheduler and a Machine learning based job classification model.
 
-We would like to say a big *thank you* for the YARN team - this effort would have not been possible without their contribution, and their support while we were working on our contributions around the scheduler.
-At SequenceIQ we are 100% committed to open source - and releasing periscope under an [Apache 2 licence](http://www.apache.org/licenses/LICENSE-2.0) was never a question.
+We would like to say a big *thank you* for the YARN team - this effort would have not been possible without their contribution, and their support with our contributions.
+At SequenceIQ we are 100% committed to open source - and releasing Periscope under an [Apache 2 licence](http://www.apache.org/licenses/LICENSE-2.0) was never a question.
 
 Stay tuned and make sure you follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook).
 
