@@ -83,7 +83,9 @@ We will follow up with technical details in coming blog posts, so make sure you 
 ### Resources
 
 Periscope code : https://github.com/sequenceiq/periscope
+
 Periscope documentation: http://sequenceiq.com/periscope
+
 Periscope API: http://docs.periscope.apiary.io/ 
 
 ### What's next, kudos, etc
