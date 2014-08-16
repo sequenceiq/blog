@@ -5,7 +5,7 @@ date: 2014-08-16 16:45:15 +0200
 comments: true
 categories: [Fair scheduler, YARN, Hadoop, Cloudbreak, R]
 author: Janos Matys
-published: false
+published: true
 ---
 
 
@@ -40,7 +40,7 @@ See the `timeboxed` result of the two runs.
 
 While the `timeboxed` version will not really help to decide the resource usage and the elapsed time (which should be pretty much equal) it’s good to show the time spent on different nodes. Many times generating these charts helped us to identify hardware or other software/configuration issues on different nodes (for example when a run execution is outside of the standard deviation). You can use our R project and file to generate charts as such with the help of [TimeBoxes.R](https://github.com/sequenceiq/yarn-monitoring/blob/master/RProjects/TimeBoxes.R) file.
 
-Now of we compare the two execution files and place it on the same chart we will actually see that the FairScheduler is **fairly Fair**.
+Now if we compare the two execution files and place it on the same chart we will actually see that the FairScheduler is **fairly Fair**.
 
 ![](https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/test8_active_mapppers_num.png)
 
