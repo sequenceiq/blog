@@ -1,0 +1,58 @@
+---
+layout: post
+title: "Fair play"
+date: 2014-08-15 16:45:15 +0200
+comments: true
+categories: [Fair scheduler, YARN, Hadoop, Cloudbreak, R]
+author: Janos Matys
+published: false
+---
+
+Recently we’ve been asked an interesting question - how fair is the YARN [FairScheduler](http://hadoop.apache.org/docs/r2.4.1/hadoop-yarn/hadoop-yarn-site/FairScheduler.html) - while we never use internally the fair scheduler after a quick test the short answer is - very fair.
+
+At [SequenceIQ](http://sequenceiq.com/) we always use the [CapacityScheduler](http://hadoop.apache.org/docs/r2.4.1/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html) - actually an enhanced version of it. Since the emergence of YARN and the new schedulers we were working on a solution to bring SLA to Hadoop - and part of this work was our contribution to [Apache YARN schedulers](https://issues.apache.org/jira/browse/YARN-1495). Anyway, we decided to take the application in question, configure a FairScheduler in one of our 20 node test cluster and run a quick test.
+
+###Fair scheduler
+
+Remember than before YARN only on resource represented a resource on a cluster - the `slot`. Every node had slots, and your MR job was taking up slots , regardless of their actual resource usage (CPU, memory). It worked but for sure it wasn’t a fair game - and caused lots of frustration between administrators of applications competing for `slots`. We have seen many over and undersubscribed nodes in terms of CPU and memory. YARN introduced the concept of containers and the ability to request/attach resources to them (vCores and memory).
+
+While this seams already a big step forward comparing with slots, it brought up other problems - with multiple resources as `vCores` and `memory` and `disk` and `network i/o` in the future it’s pretty challenging to share them fairly. With a single resource it would we pretty straightforward - nevertheless the community based on a [research paper](http://static.usenix.org/event/nsdi11/tech/full_papers/Ghodsi.pdf) coming out from UC Berkeley (Ghodsi et al) managed to get this working through (again a community effort) this [YARN ticket](https://issues.apache.org/jira/browse/YARN-326).
+
+Now let’s battle test how fair is the scheduler when running two MR application with changing resource usage - how well the dominant resource fairness works.
+
+###The test
+
+We decided to take a pretty easy MR job with 64 input files. In order to bring in some 	variables, the input files are a multiple of 4MB, distributed as the smallest has 4MB and the largest is 256MB. The used `block size` is 256MB, and the number of nodes in the cluster is **20**. We are using and open sourced an **R based** [YARN monitoring](https://github.com/sequenceiq/yarn-monitoring) project - feel free to use it and let us know if you have any feedback. 
+
+We were running two jobs - and the tasks input was descending e.g. *task_1398345200850_0079_m_000001* has a 252MB input file and *task_1398345200850_0079_m_000063* has a 4MB input. Obliviously the tasks were not necessarily executed in this order, because the order depends on when the nodemanager asks for task.
+
+See the `timeboxed` result of the two runs.
+
+**Run 61**
+
+![](https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/run61.png)
+
+**Run 62**
+
+![](https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/run62.png)
+
+While the `timeboxed` version will not really help to decide the resource usage and the elapsed time (which should be pretty much equal) it’s good to show the time spent on different nodes. Many times generating these charts helped us to identify hardware or other software/configuration issues on different nodes (for example when a run execution is outside of the standard deviation). You can use our R project and file to generate charts as such with the help of [TimeBoxes.R](https://github.com/sequenceiq/yarn-monitoring/blob/master/RProjects/TimeBoxes.R) file.
+
+Now of we compare the two execution files and place it on the same chart we will actually see that the FairScheduler is **fairly Fair**.
+
+![](https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/test8_active_mapppers_num.png)
+
+###Random ideas
+While the purpose of these tests was to show that the fair scheduler distributes resources in a fair way - sorry I can’t help - we can see that the executions of the map tasks are not optimal, but at least stable. Also we can notice that the execution order depends also on the blocks locations; if you should know/consider the blocks location ahead the execution could be more optimal. 
+
+Measured a few other things as well - will discuss this on a different post - and from those charts you can see that the elapsed time of a task grow even as there are free slots.  Also as the number of mappers come closer to the available free slots of the cluster the average elapsed times of the tasks grow - due to different reasons (which we will share on a forthcoming post). 
+
+Since we are not really using the **FairScheduler** and we had one now configured we decided to run a few of our performance tests as well, and while submitting jobs like `crazy` using the fair scheduler we managed to `logjam` the cluster. 
+We have never seen this before whele using the **CapacityScheduler** - and digging into details we figured that the FairScheduler is missing the ` yarn.scheduler.capacity.maximum-am-resource-percent` property. This [issue](https://issues.apache.org/jira/browse/YARN-1913) appears to be a bug in the FairScheduler - which will be fixed in the next 2.5 release.
+
+While we don’t want to make any comparison between the two schedulers I think that the FairScheduler is a very viable and good option for those having a cluster and doesn’t want to bother with **capacity planning ahead**. Also I was impressed by the fine grain rules which you can use with the FairScheduler while deciding on the resource allocations.
+
+Note that we are working and open sourcing a project which brings SLA to Hadoop and allows auto-scaling using [Cloudbreak](http://sequenceiq.com/cloudbreak/) - our open source, cloud agnostic Hadoop as a Service API. The project is called **Periscope** and will be open sourced very soon. 
+
+For updates follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
+
