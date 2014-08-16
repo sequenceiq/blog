@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Fair play"
-date: 2014-08-15 16:45:15 +0200
+date: 2014-08-16 16:45:15 +0200
 comments: true
 categories: [Fair scheduler, YARN, Hadoop, Cloudbreak, R]
 author: Janos Matys
