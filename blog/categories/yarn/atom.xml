@@ -4,7 +4,7 @@
   <title><![CDATA[Category: YARN | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/yarn/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-08-16T14:47:07+00:00</updated>
+  <updated>2014-08-16T14:55:16+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,62 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Fair play]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/08/16/fairplay/"/>
+    <updated>2014-08-16T14:45:15+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/08/16/fairplay</id>
+    <content type="html"><![CDATA[<p>Recently we’ve been asked an interesting question &ndash; how fair is the YARN <a href="http://hadoop.apache.org/docs/r2.4.1/hadoop-yarn/hadoop-yarn-site/FairScheduler.html">FairScheduler</a> &ndash; while we never use internally the fair scheduler after a quick test the short answer is &ndash; <strong>very fair</strong>.</p>
+
+<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we always use the <a href="http://hadoop.apache.org/docs/r2.4.1/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html">CapacityScheduler</a> &ndash; actually an enhanced version of it (coming with the 2.6.0 release of Hadoop). Since the emergence of YARN and the new schedulers we were working on a solution to bring SLA to Hadoop &ndash; and part of this work was our contribution to <a href="https://issues.apache.org/jira/browse/YARN-1495">Apache YARN schedulers</a> and <a href="http://ambari.apache.org/">Apache Ambari</a>. Anyway, we decided to configure a FairScheduler in one of our 20 node test cluster and run a quick test.</p>
+
+<h3>Fair scheduler</h3>
+
+<p>Remember than before YARN only on resource represented a resource on a cluster &ndash; the <code>slot</code>. Every node had slots, and your MR job was taking up slots , regardless of their actual resource usage (CPU, memory). It worked but for sure it wasn’t a fair game &ndash; and caused lots of frustration between administrators of applications competing for <code>slots</code>. We have seen many over and undersubscribed nodes in terms of CPU and memory. YARN introduced the concept of containers and the ability to request/attach resources to them (vCores and memory).</p>
+
+<p>While this seams already a big step forward comparing with slots, it brought up other problems &ndash; with multiple resources as <code>vCores</code> and <code>memory</code> and <code>disk</code> and <code>network i/o</code> in the future it’s pretty challenging to share them fairly. With a single resource it would we pretty straightforward &ndash; nevertheless the community based on a <a href="http://static.usenix.org/event/nsdi11/tech/full_papers/Ghodsi.pdf">research paper</a> coming out from UC Berkeley (Ghodsi et al) managed to get this working through (again a community effort) this <a href="https://issues.apache.org/jira/browse/YARN-326">YARN ticket</a>.</p>
+
+<p>Now let’s battle test how fair is the scheduler when running two MR application with changing resource usage &ndash; how well the dominant resource fairness works.</p>
+
+<h3>The test</h3>
+
+<p>We decided to take a pretty easy MR job with 64 input files. In order to bring in some  variables, the input files are a multiple of 4MB, distributed as the smallest has 4MB and the largest is 256MB. The used <code>block size</code> is 256MB, and the number of nodes in the cluster is <strong>20</strong>. We are using and open sourced an <strong>R based</strong> <a href="https://github.com/sequenceiq/yarn-monitoring">YARN monitoring</a> project &ndash; feel free to use it and let us know if you have any feedback.</p>
+
+<p>We were running two jobs &ndash; and the tasks input was descending e.g. <em>task_1398345200850_0079_m_000001</em> has a 252MB input file and <em>task_1398345200850_0079_m_000063</em> has a 4MB input. Obliviously the tasks were not necessarily executed in this order, because the order depends on when the nodemanager asks for task.</p>
+
+<p>See the <code>timeboxed</code> result of the two runs.</p>
+
+<p><strong>Run 61</strong></p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/run61.png" alt="" /></p>
+
+<p><strong>Run 62</strong></p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/run62.png" alt="" /></p>
+
+<p>While the <code>timeboxed</code> version will not really help to decide the resource usage and the elapsed time (which should be pretty much equal) it’s good to show the time spent on different nodes. Many times generating these charts helped us to identify hardware or other software/configuration issues on different nodes (for example when a run execution is outside of the standard deviation). You can use our R project and file to generate charts as such with the help of <a href="https://github.com/sequenceiq/yarn-monitoring/blob/master/RProjects/TimeBoxes.R">TimeBoxes.R</a> file.</p>
+
+<p>Now if we compare the two execution files and place it on the same chart we will actually see that the FairScheduler is <strong>fairly Fair</strong>.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/test8_active_mapppers_num.png" alt="" /></p>
+
+<h3>Random ideas</h3>
+
+<p>While the purpose of these tests was to show that the fair scheduler distributes resources in a fair way &ndash; sorry I can’t help &ndash; we can see that the executions of the map tasks are not optimal, but at least stable. Also we can notice that the execution order depends also on the blocks locations; if you should know/consider the blocks location ahead the execution could be more optimal.</p>
+
+<p>Measured a few other things as well &ndash; will discuss this on a different post &ndash; and from those charts you can see that the elapsed time of a task grow even as there are free slots.  Also as the number of mappers come closer to the available free slots of the cluster the average elapsed times of the tasks grow &ndash; due to different reasons (which we will share on a forthcoming post).</p>
+
+<p>Since we are not really using the <strong>FairScheduler</strong> and we had one now configured we decided to run a few of our performance tests as well, and while submitting jobs like <code>crazy</code> using the fair scheduler we managed to <code>logjam</code> the cluster.
+We have never seen this before while using the <strong>CapacityScheduler</strong> &ndash; and digging into details we figured that the FairScheduler is missing the <code>yarn.scheduler.capacity.maximum-am-resource-percent</code> property. This <a href="https://issues.apache.org/jira/browse/YARN-1913">issue</a> appears to be a bug in the FairScheduler &ndash; which will be fixed in the next 2.5 release.</p>
+
+<p>While we don’t want to make any comparison between the two schedulers I think that the FairScheduler is a very viable and good option for those having a cluster and doesn’t want to bother with <strong>capacity planning ahead</strong>. Also I was impressed by the fine grain rules which you can use with the FairScheduler while deciding on the resource allocations.</p>
+
+<p>Note that we are working and open sourcing a project which brings SLA to Hadoop and allows auto-scaling using <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> &ndash; our open source, cloud agnostic Hadoop as a Service API. The project is called <strong>Periscope</strong> and will be open sourced very soon.</p>
+
+<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[YARN Schedulers demystified - Part 1: Capacity]]></title>
@@ -582,95 +638,6 @@ Tez and <a href="http://hortonworks.com/labs/stinger/">Hortonworks' Stinger init
 <p>We are in the middle of rewriting &ndash; and sharing with the Hadoop community all the Mahout drivers we use &ndash; to Apache Tez. Also we are in the middle of proof-of-concepting our Scala/Scalding based map-reduce jobs to use Tez as a runtime.</p>
 
 <p>Follow up with this <a href="http://blog.sequenceiq.com/">blog</a> and visit our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/tez-dag-jobs">GitHub</a> page for further details.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Using Hortonworks Hoya at SequenceIQ]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/03/24/hoya-at-sequenceiq/"/>
-    <updated>2014-03-24T03:54:09+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/03/24/hoya-at-sequenceiq</id>
-    <content type="html"><![CDATA[<p>With this blog post we are starting a series of articles where we&rsquo;d like to describe how we use YARN, why it is central to our product stack and why we believe that Hortonworks Hoya will be a determining building block in the Hadoop ecosystem.</p>
-
-<p>While we don&rsquo;t want to get in details about <a href="http://hortonworks.com/hadoop/yarn/">YARN</a>, we&rsquo;d like to briefly explain the advantages of running an application on YARN, and introduce you to <a href="https://github.com/hortonworks/hoya">Hortonworks Hoya</a>.</p>
-
-<p>At SequenceIQ we are building a multi-tenant, scale on demand data platform, with unpredictable batch and streaming workloads.
-Before YARN we have tried different cluster management frameworks with Hadoop and managed to have pretty good results with <a href="http://aws.amazon.com/autoscaling/">Amazon EC2 Autoscaling groups</a>. Being true believers in open source and the need to diversify of provisioning Hadoop on different environments we needed to find an open source and &lsquo;standardised&rsquo; solution &ndash; welcome YARN.
-(for example we provision Hadoop on <a href="http://blog.sequenceiq.com/blog/2014/03/19/hadoop-2-dot-3-with-docker/">Docker</a>).</p>
-
-<p>YARN separates the processing engine from the resource management &ndash; and acting effectively as an OS for Hadoop.
-With YARN, you can now run multiple applications in Hadoop, all sharing a common resource management and improving cluster utilisation (we will release some metrics soon).
-YARN also provides the following features out of the box:</p>
-
-<ul>
-<li>Multi-tenancy</li>
-<li>Management and monitoring</li>
-<li>High availability</li>
-<li>Security</li>
-<li>Failover and recovery</li>
-</ul>
-
-
-<p>All of the above and the effort of the Hadoop community and the wide adoption convinced us to start implementing our platform to run on top of YARN.
-During our proof of concepts we went as far as starting all our non Hadoop (and not YARN compatible) applications on YARN &ndash; using <a href="https://github.com/hortonworks/hoya">Hoya</a>.</p>
-
-<p>Hoya was introduced by Hortonworks mid last year &ndash; with the purpose to create Apache HBase clusters on YARN (since than it supports Apache Accumulo as well).
-The code evolved pretty fast and now Hoya is a framework/application which allows you to deploy existing distributed applications on YARN &ndash; and benefit all the nice features of YARN.</p>
-
-<p>In order to support different applications Hoya has a plugin provider architecture (supported plugins are in the <em>org.apache.hoya.providers</em> package).
-Once a plugin is implemented (pretty straightforward, took us a few days only to understand and build a Flume and Tomcat plugin), the application is started in a YARN container and is monitored and controlled by YARN/Hoya.
-The clusters can be started, stopped, frozen and re-sized dynamically &ndash; and in case of container failures Hoya deploys a replacement.</p>
-
-<p>For a better architectural understanding of Hoya please read the following blog <a href="http://hortonworks.com/blog/hoya-hbase-on-yarn-application-architecture/">post</a>.</p>
-
-<p>In this first post we would like to help you to get familiar with the benefits offered by Hoya and start an HBase cluster, re-scale it dynamically, freeze and stop.
-First and foremost you will need an installation of Hadoop (2.3), the latest Hoya release (0.13.1) and HBase (0.98).
-For your convenience we have put together an automated install script which lets you start with Hoya in a few minutes.</p>
-
-<p>The script is available from our <a href="https://github.com/sequenceiq/hoya-docker/blob/master/hoya-centos-install.sh">GitHub page</a>. Also an official docker.io image is available at <a href="https://index.docker.io/u/sequenceiq/hoya-docker/">hoya-docker</a>, and the Dockerfile can be downloaded from our <a href="https://github.com/sequenceiq/hoya-docker">GitHub</a> page.</p>
-
-<p>Once Hadoop, HBase and Hoya are installed you can create an HBase cluster.
-``` bash
-create-hoya-cluster() {
-  hoya create hbase &mdash;role master 1 &mdash;role worker 1</p>
-
-<pre><code>--manager localhost:8032
---filesystem hdfs://localhost:9000 --image hdfs://localhost:9000/hbase.tar.gz
---appconf file:///tmp/hoya-master/hoya-core/src/main/resources/org/apache/hoya/providers/hbase/conf
---zkhosts localhost
-</code></pre>
-
-<p>}
-```
-This will launch a 2 node HBase cluster (1 Master and 1 RegionServer). Now lets increase the number of RegionServers.</p>
-
-<p><code>bash
-flex-hoya-cluster() {
-  num_of_workers=$1
-  hoya flex hbase --role worker $num_of_workers --manager localhost:8032 --filesystem hdfs://localhost:9000
-}
-</code></p>
-
-<!-- more -->
-
-
-<p>This will start as many RegionServers as specified &ndash; in new YARN containers. Also the size of the cluster can be decreased if the load on the system does not demand for a larger number of RegionServers. The cluster can also be freezed (Hoya takes care about persisting the state).</p>
-
-<p><code>bash
-freeze-hoya-cluster() {
-  hoya freeze hbase --manager localhost:8032 --filesystem hdfs://localhost:9000
-}
-</code></p>
-
-<p>Finally when you&rsquo;d like to destroy the cluster and the state associated with the application you can use:</p>
-
-<p><code>bash
-destroy-hoya-cluster() {
-  hoya destroy hbase --manager localhost:8032 --filesystem hdfs://localhost:9000
-}
-</code>
-As you see installing Hoya and starting different applications (HBase in this case) is very simple &ndash; and all the nice features of YARN are instantly available for any clustered applications.
-In our next post we will drive you through the steps of creating your own Hoya provider, deploy it and run on a YARN cluster.</p>
 ]]></content>
   </entry>
   

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Cloudbreak | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/cloudbreak/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-08-16T14:47:07+00:00</updated>
+  <updated>2014-08-16T14:55:16+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,62 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Fair play]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/08/16/fairplay/"/>
+    <updated>2014-08-16T14:45:15+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/08/16/fairplay</id>
+    <content type="html"><![CDATA[<p>Recently we’ve been asked an interesting question &ndash; how fair is the YARN <a href="http://hadoop.apache.org/docs/r2.4.1/hadoop-yarn/hadoop-yarn-site/FairScheduler.html">FairScheduler</a> &ndash; while we never use internally the fair scheduler after a quick test the short answer is &ndash; <strong>very fair</strong>.</p>
+
+<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we always use the <a href="http://hadoop.apache.org/docs/r2.4.1/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html">CapacityScheduler</a> &ndash; actually an enhanced version of it (coming with the 2.6.0 release of Hadoop). Since the emergence of YARN and the new schedulers we were working on a solution to bring SLA to Hadoop &ndash; and part of this work was our contribution to <a href="https://issues.apache.org/jira/browse/YARN-1495">Apache YARN schedulers</a> and <a href="http://ambari.apache.org/">Apache Ambari</a>. Anyway, we decided to configure a FairScheduler in one of our 20 node test cluster and run a quick test.</p>
+
+<h3>Fair scheduler</h3>
+
+<p>Remember than before YARN only on resource represented a resource on a cluster &ndash; the <code>slot</code>. Every node had slots, and your MR job was taking up slots , regardless of their actual resource usage (CPU, memory). It worked but for sure it wasn’t a fair game &ndash; and caused lots of frustration between administrators of applications competing for <code>slots</code>. We have seen many over and undersubscribed nodes in terms of CPU and memory. YARN introduced the concept of containers and the ability to request/attach resources to them (vCores and memory).</p>
+
+<p>While this seams already a big step forward comparing with slots, it brought up other problems &ndash; with multiple resources as <code>vCores</code> and <code>memory</code> and <code>disk</code> and <code>network i/o</code> in the future it’s pretty challenging to share them fairly. With a single resource it would we pretty straightforward &ndash; nevertheless the community based on a <a href="http://static.usenix.org/event/nsdi11/tech/full_papers/Ghodsi.pdf">research paper</a> coming out from UC Berkeley (Ghodsi et al) managed to get this working through (again a community effort) this <a href="https://issues.apache.org/jira/browse/YARN-326">YARN ticket</a>.</p>
+
+<p>Now let’s battle test how fair is the scheduler when running two MR application with changing resource usage &ndash; how well the dominant resource fairness works.</p>
+
+<h3>The test</h3>
+
+<p>We decided to take a pretty easy MR job with 64 input files. In order to bring in some  variables, the input files are a multiple of 4MB, distributed as the smallest has 4MB and the largest is 256MB. The used <code>block size</code> is 256MB, and the number of nodes in the cluster is <strong>20</strong>. We are using and open sourced an <strong>R based</strong> <a href="https://github.com/sequenceiq/yarn-monitoring">YARN monitoring</a> project &ndash; feel free to use it and let us know if you have any feedback.</p>
+
+<p>We were running two jobs &ndash; and the tasks input was descending e.g. <em>task_1398345200850_0079_m_000001</em> has a 252MB input file and <em>task_1398345200850_0079_m_000063</em> has a 4MB input. Obliviously the tasks were not necessarily executed in this order, because the order depends on when the nodemanager asks for task.</p>
+
+<p>See the <code>timeboxed</code> result of the two runs.</p>
+
+<p><strong>Run 61</strong></p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/run61.png" alt="" /></p>
+
+<p><strong>Run 62</strong></p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/run62.png" alt="" /></p>
+
+<p>While the <code>timeboxed</code> version will not really help to decide the resource usage and the elapsed time (which should be pretty much equal) it’s good to show the time spent on different nodes. Many times generating these charts helped us to identify hardware or other software/configuration issues on different nodes (for example when a run execution is outside of the standard deviation). You can use our R project and file to generate charts as such with the help of <a href="https://github.com/sequenceiq/yarn-monitoring/blob/master/RProjects/TimeBoxes.R">TimeBoxes.R</a> file.</p>
+
+<p>Now if we compare the two execution files and place it on the same chart we will actually see that the FairScheduler is <strong>fairly Fair</strong>.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/test8_active_mapppers_num.png" alt="" /></p>
+
+<h3>Random ideas</h3>
+
+<p>While the purpose of these tests was to show that the fair scheduler distributes resources in a fair way &ndash; sorry I can’t help &ndash; we can see that the executions of the map tasks are not optimal, but at least stable. Also we can notice that the execution order depends also on the blocks locations; if you should know/consider the blocks location ahead the execution could be more optimal.</p>
+
+<p>Measured a few other things as well &ndash; will discuss this on a different post &ndash; and from those charts you can see that the elapsed time of a task grow even as there are free slots.  Also as the number of mappers come closer to the available free slots of the cluster the average elapsed times of the tasks grow &ndash; due to different reasons (which we will share on a forthcoming post).</p>
+
+<p>Since we are not really using the <strong>FairScheduler</strong> and we had one now configured we decided to run a few of our performance tests as well, and while submitting jobs like <code>crazy</code> using the fair scheduler we managed to <code>logjam</code> the cluster.
+We have never seen this before while using the <strong>CapacityScheduler</strong> &ndash; and digging into details we figured that the FairScheduler is missing the <code>yarn.scheduler.capacity.maximum-am-resource-percent</code> property. This <a href="https://issues.apache.org/jira/browse/YARN-1913">issue</a> appears to be a bug in the FairScheduler &ndash; which will be fixed in the next 2.5 release.</p>
+
+<p>While we don’t want to make any comparison between the two schedulers I think that the FairScheduler is a very viable and good option for those having a cluster and doesn’t want to bother with <strong>capacity planning ahead</strong>. Also I was impressed by the fine grain rules which you can use with the FairScheduler while deciding on the resource allocations.</p>
+
+<p>Note that we are working and open sourcing a project which brings SLA to Hadoop and allows auto-scaling using <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> &ndash; our open source, cloud agnostic Hadoop as a Service API. The project is called <strong>Periscope</strong> and will be open sourced very soon.</p>
+
+<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Docker intercontainer networking explained]]></title>
@@ -224,7 +280,7 @@ sudo docker run -it &mdash;rm &mdash;name cont2  ubuntu /bin/bash</p>
 
 <h1>execute on vm1</h1>
 
-<p>sudo ssh -f -N -w 2:1 <a href="&#109;&#x61;&#105;&#108;&#116;&#x6f;&#x3a;&#114;&#111;&#111;&#x74;&#x40;&#49;&#57;&#50;&#46;&#49;&#x36;&#x38;&#46;&#52;&#48;&#x2e;&#49;&#x32;">&#114;&#x6f;&#111;&#116;&#64;&#49;&#57;&#x32;&#46;&#49;&#54;&#x38;&#46;&#52;&#x30;&#46;&#x31;&#50;</a>
+<p>sudo ssh -f -N -w 2:1 <a href="&#109;&#x61;&#x69;&#x6c;&#x74;&#x6f;&#x3a;&#114;&#111;&#111;&#x74;&#64;&#x31;&#57;&#x32;&#46;&#49;&#x36;&#56;&#x2e;&#x34;&#x30;&#46;&#49;&#x32;">&#x72;&#x6f;&#111;&#x74;&#64;&#x31;&#57;&#x32;&#x2e;&#x31;&#54;&#56;&#46;&#52;&#x30;&#x2e;&#x31;&#x32;</a>
 sudo ifconfig tun2 up
 sudo route add -net 172.17.52.0 netmask 255.255.255.0 dev tun2
 sudo iptables -t nat -F POSTROUTING
@@ -627,128 +683,6 @@ Serf uses an efficient gossip protocol to solve three major problems:</p>
 <p><img src="https://raw.githubusercontent.com/sequenceiq/cloudbreak/master/docs/images/serf-event.png" alt="" /></p></li>
 </ul>
 
-
-<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Cloudbreak - the Hadoop as a Service API]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/"/>
-    <updated>2014-07-18T16:37:37+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak</id>
-    <content type="html"><![CDATA[<p><em>Cloudbreak is a powerful left surf that breaks over a coral reef, a mile off southwest the island of Tavarua, Fiji.</em></p>
-
-<p><em>Cloudbreak is a cloud agnostic Hadoop as a Service API. Abstracts the provisioning and ease management and monitoring of on-demand clusters.</em></p>
-
-<p>Today is a big day for us and the Hadoop community &ndash; we are announcing the first <code>public beta</code> version of our open source and cloud agnostic <strong>Hadoop as a Service API</strong>.</p>
-
-<p>During our daily work with large Hadoop clusters in the cloud, <code>dockerized</code> environments and bare metal we were doing the same things over and over again. Although we are automating and <code>dockerizing</code> always everything, we felt that something is missing &ndash; an open source, cloud agnostic Hadoop as a Service API. Welcome <a href="https://cloudbreak.sequenceiq.com">Cloudbreak</a> &ndash; you are one POST away from your on-demand Hadoop cluster on your favorite cloud provider.</p>
-
-<p>When we have started to work on Cloudbreak &ndash; first of all to solve our internal needs at SequenceIQ &ndash; we have set the following criteria:</p>
-
-<ul>
-<li>Use open source software and be <strong>100% open source</strong> under Apache 2 license</li>
-<li>Have the ability to quickly launch arbitrary sized Hadoop clusters</li>
-<li>Be cloud provider agnostic and create an SDK which allows to quickly add new providers</li>
-<li>No more glue code, repeating the same things over and over again</li>
-<li>Have a REST API and a CLI in order to be able to automate the whole process</li>
-<li>Create an easy to use and responsive UI</li>
-<li>Support different Hadoop services and configurations in a declarative way</li>
-<li>Elastic and flexible, with the ability to resize running clusters</li>
-<li>Secure</li>
-</ul>
-
-
-<!-- more -->
-
-
-<h2>Docker in the cloud</h2>
-
-<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we are running all our core applications and processes in Docker containers &ndash; and that is true for Hadoop and all of the services as well. During the last few months we have <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">blogged</a> and open sourced all of the <a href="https://hub.docker.com/u/sequenceiq/">building blocks</a> of our <code>dockerized</code> systems and <strong>Cloudbreak</strong> is built on the foundation of these and reusing the same technologies we have released before. While Cloudbreak&rsquo;s primary role is to launch on-demand Hadoop clusters in the cloud, the underlying technology actually does more. It can launch on-demand Hadoop clusters in any environment which supports Docker &ndash; in a dynamic way. There is no predefined configuration needed as all the setup, orchestration, networking and cluster membership is done dynamically.</p>
-
-<ul>
-<li><a href="https://hub.docker.com/u/sequenceiq/">Docker containers</a> &ndash; all the Hadoop services are installed and running inside Docker containers, and these containers are <code>shipped</code>  between different cloud vendors, keeping Cloudbreak cloud agnostic</li>
-<li><a href="https://github.com/sequenceiq/ambari-rest-client">Apache Ambari</a> &ndash; to declaratively define a Hadoop cluster</li>
-<li><a href="https://github.com/sequenceiq/docker-serf">Serf</a> &ndash; for cluster membership, failure detection, and orchestration that is decentralized, fault-tolerant and highly available for dynamic clusters</li>
-<li><a href="https://github.com/sequenceiq/docker-dnsmasq">dnsmasq</a> &ndash; to provide resolvable fully qualified domain names between dynamically created Docker containers.</li>
-</ul>
-
-
-<p>The project was presented at the <strong>Hadoop Summit 2014,</strong> in San Jose &ndash; you can get the slides from <a href="http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning">here</a>.</p>
-
-<p>While there is an extensive list of articles explaining the benefits of using Docker, we would like to highlight our motivations in a few bullet points.</p>
-
-<ul>
-<li>Write once, run anywhere &ndash; our solution uses the same Docker containers on different cloud providers, <code>dockerized</code>  environments or bare metal, no difference at all</li>
-<li>Reproducible, testable environment &ndash; we are recreating complete config environments in seconds, and being able to work with the same containers on our laptop, QA and production/cloud environments</li>
-<li>Isolation &ndash; each container is separated and runs in its own isolated sandbox</li>
-<li>Versioning &ndash; we are able to easily version and modify containers, and ship only the changed bits saving bandwidth; essential for large clusters deployed in the cloud</li>
-<li>Central repository &ndash; you can build an entire cluster from a trusted and centralised container repository, the Docker Registry/Hub</li>
-<li>Smart resource allocation &ndash; containers can be <code>shipped</code> anywhere and resources can be allotted</li>
-</ul>
-
-
-<h2>Cloudbreak &ndash; the project</h2>
-
-<h3>Cloudbreak UI</h3>
-
-<p>The easiest way to start your own Hadoop cluster in your favorite cloud provider is to use our hosted solution. We host, maintain and support <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> for you. Cloudbreak UI is a secure and intuitive way to launch on-demand Hadoop clusters with a few mouse clicks. Please note that Cloudbreak is launching Hadoop clusters on the user&rsquo;s behalf &ndash; on different cloud providers. We do not store your cloud provider account details (such as username, password, keys, private SSL certificates, etc), but work around the concept that Identity and Access Management is fully controlled by you &ndash; the end user.</p>
-
-<h3>Cloudbreak API</h3>
-
-<p>Cloudbreak is a RESTful Hadoop as a Service API. The easiest way to use the API is by using our hosted <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak API</a>.</p>
-
-<p>We have also give you the option to host Cloudbreak within your organization. Once it is deployed in your favourite servlet container exposes a REST API allowing to span up Hadoop clusters of arbitrary sizes on your selected cloud provider. With Cloudbreak you are one POST away from your on-demand Hadoop cluster. You can get the code from our <a href="https://github.com/sequenceiq/cloudbreak">GitHub repository</a>. For further documentation please follow up with the <a href="http://sequenceiq.com/cloudbreak/">general</a> and <a href="http://docs.cloudbreak.apiary.io/">API</a> documentation, or subscribe to one of our social channels in order to receive notifications about further blog posts and releases.</p>
-
-<h3>Cloudbreak REST client</h3>
-
-<p>In order to ease your work with the REST API and embed in your codebase we have created (and also extensively use) a Groovy REST client. The code is available at our <a href="https://github.com/sequenceiq/cloudbreak-rest-client">GitHub</a> repository.</p>
-
-<h3>Cloudbreak CLI</h3>
-
-<p>As we automate everything and we are a very DevOps focused company we are always trying to create easy ways to interact with our systems and API’s. In case of Cloudbreak we have created and released a <a href="https://github.com/sequenceiq/cloudbreak-shell">command line shell</a>, the Cloudbreak CLI. The CLI allows you to use all the REST calls, and it has a large number of easing commands. Interactive help and completion is available.</p>
-
-<h3>Cloudbreak documentation</h3>
-
-<p>We have created two types of documentation. The <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak Product</a> documentation contains an overview, installation, architectural and technical content, whereas the <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak API</a> explains the REST API with examples and a mock server to test your integration.</p>
-
-<h2>Supported Hadoop services</h2>
-
-<p>At high level the supported list of components can be grouped into two main categories: Master and Slave &ndash; and bundling them together form a Hadoop Service. <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> supports the following Hadoop services.</p>
-
-<p><code>
-| Services    | Components                                                              |
-| ----------- | ------------------------------------------------------------------------|
-| HDFS        | DATANODE, HDFS_CLIENT, JOURNALNODE, NAMENODE, SECONDARY_NAMENODE, ZKFC  |
-| YARN        | APP_TIMELINE_SERVER, NODEMANAGER, RESOURCEMANAGER, YARN_CLIENT          |
-| MAPREDUCE2  | HISTORYSERVER, MAPREDUCE2_CLIENT                                        |
-| GANGLIA     | GANGLIA_MONITOR, GANGLIA_SERVER                                         |
-| HBASE       | HBASE_CLIENT, HBASE_MASTER, HBASE_REGIONSERVER                          |
-| HIVE        | HIVE_CLIENT, HIVE_METASTORE, HIVE_SERVER, MYSQL_SERVER                  |
-| HCATALOG    | HCAT                                                                    |
-| WEBHCAT     | WEBHCAT_SERVER                                                          |
-| NAGIOS      | NAGIOS_SERVER                                                           |
-| OOZIE       | OOZIE_CLIENT, OOZIE_SERVER                                              |
-| PIG         | PIG                                                                     |
-| SQOOP       | SQOOP                                                                   |
-| STORM       | DRPC_SERVER, NIMBUS, STORM_REST_API, STORM_UI_SERVER, SUPERVISOR        |
-| TEZ         | TEZ_CLIENT                                                              |
-| FALCON      | FALCON_CLIENT, FALCON_SERVER                                            |
-| ZOOKEEPER   | ZOOKEEPER_CLIENT, ZOOKEEPER_SERVER                                      |
-</code></p>
-
-<p>Please note that you can always build your own custom stack beyond these services, using Ambari&rsquo;s custom stack definitions.</p>
-
-<h2>What’s next?</h2>
-
-<p>We will follow up with a few posts to drive you through the technology, API and insights and make it easier for you to learn, understand and use Hadoop in the cloud.</p>
-
-<p>In the meantime we suggest you to go through the <a href="http://sequenceiq.com/cloudbreak/">documentation</a>, try <a href="http://cloudbreak.sequenceiq.com/">Cloudbreak</a> and let us know how it works for you.</p>
-
-<p>Please note that <a href="http://cloudbreak.sequenceiq.com/">Cloudbreak</a> is under development, in public beta &ndash; while we consider the codebase stable for deployments (and use it daily), please let us know if you face any problems through <a href="https://github.com/sequenceiq/cloudbreak">GitHub</a> issues. Also we  welcome your open source contribution &ndash; let it be a bug fix or a new cloud provider <a href="http://sequenceiq.com/cloudbreak/#add-new-cloud-providers">implementation</a>.</p>
-
-<p>Finally, your opinion is important to us &ndash; if you’d like to see your <strong>favourite cloud provider</strong> among the existing ones, please fill this <a href="https://docs.google.com/forms/d/129RVh6VfjRsuuHOcS3VPbFYTdM2SEjANDsGCR5Pul0I/viewform">questionnaire</a>. Make your voice heard!</p>
 
 <p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
