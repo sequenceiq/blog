@@ -8,6 +8,8 @@ author: Janos Matys
 published: false
 ---
 
+
+
 Recently we’ve been asked an interesting question - how fair is the YARN [FairScheduler](http://hadoop.apache.org/docs/r2.4.1/hadoop-yarn/hadoop-yarn-site/FairScheduler.html) - while we never use internally the fair scheduler after a quick test the short answer is - very fair.
 
 At [SequenceIQ](http://sequenceiq.com/) we always use the [CapacityScheduler](http://hadoop.apache.org/docs/r2.4.1/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html) - actually an enhanced version of it. Since the emergence of YARN and the new schedulers we were working on a solution to bring SLA to Hadoop - and part of this work was our contribution to [Apache YARN schedulers](https://issues.apache.org/jira/browse/YARN-1495). Anyway, we decided to take the application in question, configure a FairScheduler in one of our 20 node test cluster and run a quick test.
@@ -48,11 +50,10 @@ While the purpose of these tests was to show that the fair scheduler distributes
 Measured a few other things as well - will discuss this on a different post - and from those charts you can see that the elapsed time of a task grow even as there are free slots.  Also as the number of mappers come closer to the available free slots of the cluster the average elapsed times of the tasks grow - due to different reasons (which we will share on a forthcoming post). 
 
 Since we are not really using the **FairScheduler** and we had one now configured we decided to run a few of our performance tests as well, and while submitting jobs like `crazy` using the fair scheduler we managed to `logjam` the cluster. 
-We have never seen this before whele using the **CapacityScheduler** - and digging into details we figured that the FairScheduler is missing the ` yarn.scheduler.capacity.maximum-am-resource-percent` property. This [issue](https://issues.apache.org/jira/browse/YARN-1913) appears to be a bug in the FairScheduler - which will be fixed in the next 2.5 release.
+We have never seen this before while using the **CapacityScheduler** - and digging into details we figured that the FairScheduler is missing the ` yarn.scheduler.capacity.maximum-am-resource-percent` property. This [issue](https://issues.apache.org/jira/browse/YARN-1913) appears to be a bug in the FairScheduler - which will be fixed in the next 2.5 release.
 
 While we don’t want to make any comparison between the two schedulers I think that the FairScheduler is a very viable and good option for those having a cluster and doesn’t want to bother with **capacity planning ahead**. Also I was impressed by the fine grain rules which you can use with the FairScheduler while deciding on the resource allocations.
 
 Note that we are working and open sourcing a project which brings SLA to Hadoop and allows auto-scaling using [Cloudbreak](http://sequenceiq.com/cloudbreak/) - our open source, cloud agnostic Hadoop as a Service API. The project is called **Periscope** and will be open sourced very soon. 
 
 For updates follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
-
