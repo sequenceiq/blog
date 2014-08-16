@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-08-16T14:59:46+00:00</updated>
+  <updated>2014-08-16T19:00:11+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -62,7 +62,7 @@
 <p>Measured a few other things as well &ndash; will discuss this on a different post &ndash; and from those charts you can see that the elapsed time of a task grow even as there are free slots.  Also as the number of mappers come closer to the available free slots of the cluster the average elapsed times of the tasks grow &ndash; due to different reasons (which we will share on a forthcoming post).</p>
 
 <p>Since we are not really using the <strong>FairScheduler</strong> and we had one now configured we decided to run a few of our performance tests as well, and while submitting jobs like <code>crazy</code> using the fair scheduler we managed to <code>logjam</code> the cluster.
-We have never seen this before while using the <strong>CapacityScheduler</strong> &ndash; and digging into details we figured that the FairScheduler is missing the <code>yarn.scheduler.capacity.maximum-am-resource-percent</code> property. This <a href="https://issues.apache.org/jira/browse/YARN-1913">issue</a> appears to be a bug in the FairScheduler &ndash; which will be fixed in the next 2.5 release.</p>
+We have never seen this before while using the <strong>CapacityScheduler</strong> &ndash; and digging into details we figured that the FairScheduler is missing the <code>yarn.scheduler.capacity.maximum-am-resource-percent</code> property. This <a href="https://issues.apache.org/jira/browse/YARN-1913">issue</a> appears to be a bug in the FairScheduler &ndash; fixed in the 2.5 release.</p>
 
 <p>While we don’t want to make any comparison between the two schedulers I think that the FairScheduler is a very viable and good option for those having a cluster and doesn’t want to bother with <strong>capacity planning ahead</strong>. Also I was impressed by the fine grain rules which you can use with the FairScheduler while deciding on the resource allocations.</p>
 
