@@ -10,9 +10,9 @@ published: false
 
 
 
-Recently we’ve been asked an interesting question - how fair is the YARN [FairScheduler](http://hadoop.apache.org/docs/r2.4.1/hadoop-yarn/hadoop-yarn-site/FairScheduler.html) - while we never use internally the fair scheduler after a quick test the short answer is - very fair.
+Recently we’ve been asked an interesting question - how fair is the YARN [FairScheduler](http://hadoop.apache.org/docs/r2.4.1/hadoop-yarn/hadoop-yarn-site/FairScheduler.html) - while we never use internally the fair scheduler after a quick test the short answer is - **very fair**.
 
-At [SequenceIQ](http://sequenceiq.com/) we always use the [CapacityScheduler](http://hadoop.apache.org/docs/r2.4.1/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html) - actually an enhanced version of it. Since the emergence of YARN and the new schedulers we were working on a solution to bring SLA to Hadoop - and part of this work was our contribution to [Apache YARN schedulers](https://issues.apache.org/jira/browse/YARN-1495). Anyway, we decided to take the application in question, configure a FairScheduler in one of our 20 node test cluster and run a quick test.
+At [SequenceIQ](http://sequenceiq.com/) we always use the [CapacityScheduler](http://hadoop.apache.org/docs/r2.4.1/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html) - actually an enhanced version of it (coming with the 2.6.0 release of Hadoop). Since the emergence of YARN and the new schedulers we were working on a solution to bring SLA to Hadoop - and part of this work was our contribution to [Apache YARN schedulers](https://issues.apache.org/jira/browse/YARN-1495) and [Apache Ambari](http://ambari.apache.org/). Anyway, we decided to configure a FairScheduler in one of our 20 node test cluster and run a quick test.
 
 ###Fair scheduler
 
