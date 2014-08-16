@@ -22,6 +22,8 @@ While this seams already a big step forward comparing with slots, it brought up 
 
 Now let’s battle test how fair is the scheduler when running two MR application with changing resource usage - how well the dominant resource fairness works.
 
+<!--more-->
+
 ###The test
 
 We decided to take a pretty easy MR job with 64 input files. In order to bring in some 	variables, the input files are a multiple of 4MB, distributed as the smallest has 4MB and the largest is 256MB. The used `block size` is 256MB, and the number of nodes in the cluster is **20**. We are using and open sourced an **R based** [YARN monitoring](https://github.com/sequenceiq/yarn-monitoring) project - feel free to use it and let us know if you have any feedback. 
