@@ -151,7 +151,7 @@
 
 <h3>Fair scheduler</h3>
 
-<p>Remember than before YARN only on resource represented a resource on a cluster &ndash; the <code>slot</code>. Every node had slots, and your MR job was taking up slots , regardless of their actual resource usage (CPU, memory). It worked but for sure it wasn’t a fair game &ndash; and caused lots of frustration between administrators of applications competing for <code>slots</code>. We have seen many over and undersubscribed nodes in terms of CPU and memory. YARN introduced the concept of containers and the ability to request/attach resources to them (vCores and memory).</p>
+<p>Remember than before YARN only one resource represented a resource on a cluster &ndash; the <code>slot</code>. Every node had slots, and your MR job was taking up slots , regardless of their actual resource usage (CPU, memory). It worked but for sure it wasn’t a fair game &ndash; and caused lots of frustration between administrators of applications competing for <code>slots</code>. We have seen many over and undersubscribed nodes in terms of CPU and memory. YARN introduced the concept of containers and the ability to request/attach resources to them (vCores and memory).</p>
 
 <p>While this seams already a big step forward comparing with slots, it brought up other problems &ndash; with multiple resources as <code>vCores</code> and <code>memory</code> and <code>disk</code> and <code>network i/o</code> in the future it’s pretty challenging to share them fairly. With a single resource it would we pretty straightforward &ndash; nevertheless the community based on a <a href="http://static.usenix.org/event/nsdi11/tech/full_papers/Ghodsi.pdf">research paper</a> coming out from UC Berkeley (Ghodsi et al) managed to get this working through (again a community effort) this <a href="https://issues.apache.org/jira/browse/YARN-326">YARN ticket</a>.</p>
 
@@ -162,9 +162,9 @@
 
 <h3>The test</h3>
 
-<p>We decided to take a pretty easy MR job with 64 input files. In order to bring in some  variables, the input files are a multiple of 4MB, distributed as the smallest has 4MB and the largest is 256MB. The used <code>block size</code> is 256MB, and the number of nodes in the cluster is <strong>20</strong>. We are using and open sourced an <strong>R based</strong> <a href="https://github.com/sequenceiq/yarn-monitoring">YARN monitoring</a> project &ndash; feel free to use it and let us know if you have any feedback.</p>
+<p>We decided to take a pretty easy MR job with 64 input files. In order to bring in some  variables, the input files are a multiple of 4MB, distributed as the smallest is 4MB and the largest is 256MB. The used <code>block size</code> is 256MB, and the number of nodes in the cluster is <strong>20</strong>. We are using and open sourced an <strong>R based</strong> <a href="https://github.com/sequenceiq/yarn-monitoring">YARN monitoring</a> project &ndash; feel free to use it and let us know if you have any feedback.</p>
 
-<p>We were running two jobs &ndash; and the tasks input was descending e.g. <em>task_1398345200850_0079_m_000001</em> has a 252MB input file and <em>task_1398345200850_0079_m_000063</em> has a 4MB input. Obliviously the tasks were not necessarily executed in this order, because the order depends on when the nodemanager asks for task.</p>
+<p>We were running two jobs &ndash; and the task&rsquo;s input was descending e.g. <em>task_1398345200850_0079_m_000001</em> has a 252MB input file and <em>task_1398345200850_0079_m_000063</em> has a 4MB input. Obliviously the tasks were not necessarily executed in this order, because the order depends on when the nodemanager asks for task.</p>
 
 <p>See the <code>timeboxed</code> result of the two runs.</p>
 

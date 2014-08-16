@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-08-16T19:00:11+00:00</updated>
+  <updated>2014-08-16T20:26:42+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -24,7 +24,7 @@
 
 <h3>Fair scheduler</h3>
 
-<p>Remember than before YARN only on resource represented a resource on a cluster &ndash; the <code>slot</code>. Every node had slots, and your MR job was taking up slots , regardless of their actual resource usage (CPU, memory). It worked but for sure it wasn’t a fair game &ndash; and caused lots of frustration between administrators of applications competing for <code>slots</code>. We have seen many over and undersubscribed nodes in terms of CPU and memory. YARN introduced the concept of containers and the ability to request/attach resources to them (vCores and memory).</p>
+<p>Remember than before YARN only one resource represented a resource on a cluster &ndash; the <code>slot</code>. Every node had slots, and your MR job was taking up slots , regardless of their actual resource usage (CPU, memory). It worked but for sure it wasn’t a fair game &ndash; and caused lots of frustration between administrators of applications competing for <code>slots</code>. We have seen many over and undersubscribed nodes in terms of CPU and memory. YARN introduced the concept of containers and the ability to request/attach resources to them (vCores and memory).</p>
 
 <p>While this seams already a big step forward comparing with slots, it brought up other problems &ndash; with multiple resources as <code>vCores</code> and <code>memory</code> and <code>disk</code> and <code>network i/o</code> in the future it’s pretty challenging to share them fairly. With a single resource it would we pretty straightforward &ndash; nevertheless the community based on a <a href="http://static.usenix.org/event/nsdi11/tech/full_papers/Ghodsi.pdf">research paper</a> coming out from UC Berkeley (Ghodsi et al) managed to get this working through (again a community effort) this <a href="https://issues.apache.org/jira/browse/YARN-326">YARN ticket</a>.</p>
 
@@ -35,9 +35,9 @@
 
 <h3>The test</h3>
 
-<p>We decided to take a pretty easy MR job with 64 input files. In order to bring in some  variables, the input files are a multiple of 4MB, distributed as the smallest has 4MB and the largest is 256MB. The used <code>block size</code> is 256MB, and the number of nodes in the cluster is <strong>20</strong>. We are using and open sourced an <strong>R based</strong> <a href="https://github.com/sequenceiq/yarn-monitoring">YARN monitoring</a> project &ndash; feel free to use it and let us know if you have any feedback.</p>
+<p>We decided to take a pretty easy MR job with 64 input files. In order to bring in some  variables, the input files are a multiple of 4MB, distributed as the smallest is 4MB and the largest is 256MB. The used <code>block size</code> is 256MB, and the number of nodes in the cluster is <strong>20</strong>. We are using and open sourced an <strong>R based</strong> <a href="https://github.com/sequenceiq/yarn-monitoring">YARN monitoring</a> project &ndash; feel free to use it and let us know if you have any feedback.</p>
 
-<p>We were running two jobs &ndash; and the tasks input was descending e.g. <em>task_1398345200850_0079_m_000001</em> has a 252MB input file and <em>task_1398345200850_0079_m_000063</em> has a 4MB input. Obliviously the tasks were not necessarily executed in this order, because the order depends on when the nodemanager asks for task.</p>
+<p>We were running two jobs &ndash; and the task&rsquo;s input was descending e.g. <em>task_1398345200850_0079_m_000001</em> has a 252MB input file and <em>task_1398345200850_0079_m_000063</em> has a 4MB input. Obliviously the tasks were not necessarily executed in this order, because the order depends on when the nodemanager asks for task.</p>
 
 <p>See the <code>timeboxed</code> result of the two runs.</p>
 
@@ -283,7 +283,7 @@ sudo docker run -it &mdash;rm &mdash;name cont2  ubuntu /bin/bash</p>
 
 <h1>execute on vm1</h1>
 
-<p>sudo ssh -f -N -w 2:1 <a href="&#x6d;&#97;&#x69;&#x6c;&#x74;&#x6f;&#x3a;&#114;&#111;&#111;&#x74;&#64;&#x31;&#57;&#x32;&#46;&#49;&#54;&#x38;&#46;&#52;&#x30;&#46;&#49;&#50;">&#x72;&#111;&#x6f;&#116;&#x40;&#49;&#x39;&#x32;&#x2e;&#49;&#54;&#56;&#x2e;&#52;&#x30;&#x2e;&#49;&#x32;</a>
+<p>sudo ssh -f -N -w 2:1 <a href="&#x6d;&#97;&#105;&#x6c;&#116;&#111;&#x3a;&#x72;&#111;&#x6f;&#x74;&#64;&#49;&#57;&#x32;&#46;&#49;&#54;&#x38;&#46;&#52;&#x30;&#x2e;&#49;&#50;">&#x72;&#111;&#111;&#x74;&#x40;&#49;&#57;&#50;&#x2e;&#x31;&#54;&#x38;&#x2e;&#x34;&#x30;&#46;&#x31;&#50;</a>
 sudo ifconfig tun2 up
 sudo route add -net 172.17.52.0 netmask 255.255.255.0 dev tun2
 sudo iptables -t nat -F POSTROUTING
