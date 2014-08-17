@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Periscope - brings QoS to multi-tenant Hadoop YARN clusters"
-date: 2014-07-18 18:37:37 +0200
+date: 2014-07-21 18:37:37 +0200
 comments: true
 categories: [QoS, Hadoop, SLA, Cloud, Schedulers, Periscope]
 author: Janos Matyas
