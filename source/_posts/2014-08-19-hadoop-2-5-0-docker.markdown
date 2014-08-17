@@ -4,7 +4,7 @@ title: "Apache Hadoop 2.5.0 on Docker"
 date: 2014-08-19 20:07:18 +0200
 comments: true
 categories: [Apache, Hadoop, Docker, Registry]
-published: true
+published: false
 author: Janos Matyas
 ---
 A few weeks ago we have released an Apache Hadoop 2.3 Docker image - in a very short time this become the most [popular](https://registry.hub.docker.com/search?q=hadoop&s=downloads) Hadoop image in the Docker [registry](https://registry.hub.docker.com/).
