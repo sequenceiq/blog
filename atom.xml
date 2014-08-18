@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-08-18T14:17:22+00:00</updated>
+  <updated>2014-08-18T14:55:59+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,74 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Hadoop 2.5.0 on Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/"/>
+    <updated>2014-08-18T18:07:18+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker</id>
+    <content type="html"><![CDATA[<p>A few weeks ago we have released an Apache Hadoop 2.3 Docker image &ndash; in a very short time this become the most <a href="https://registry.hub.docker.com/search?q=hadoop">popular</a> Hadoop image in the Docker <a href="https://registry.hub.docker.com/">registry</a>.</p>
+
+<p>Following on the success of our Hadoop 2.3.0, 2.4.0 and 2.4.1 Docker <a href="https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/">image</a>, the feedbacks and requests we have received and aligning with the Hadoop release cycle, we have released an Apache Hadoop 2.5.0 Docker image &ndash; same as the previous version this is available as a trusted and automated build on the official Docker <a href="https://registry.hub.docker.com/">registry</a>.</p>
+
+<p>Please note that beside this Hadoop image, we have released and maintain a <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/">pseudo-distributed</a> and <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">fully distributed</a> Hadoop Docker image provisioned with Apache Ambari. As they are provisioned with Ambari you have the option to change, add and remove Hadoop components using cluster blueprints.</p>
+
+<p>Also we are happy to let you know that this release of Apache Hadoop contains a few of SequenceIQ&rsquo;s open source <strong>contributions</strong> and <a href="https://issues.apache.org/jira/browse/YARN-2250">fixes</a> around YARN schedulers.
+We are working on an SLA enforcer for Hadoop &ndash; very soon to be open sourced &ndash; and part of that work we are contributing back to the community. Also there is a major contribution of ours coming in the next release of Hadoop &ndash; 2.6.0.
+Stay tuned and follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+
+<h2>Build the image</h2>
+
+<p>In case you&rsquo;d like to try directly from the <a href="https://github.com/sequenceiq/hadoop-docker">Dockerfile</a> you can build the image as:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker build  -t sequenceiq/hadoop-docker .</span></code></pre></td></tr></table></div></figure>
+
+
+<!-- more -->
+
+
+<h2>Pull the image</h2>
+
+<p>As it is also released as an official Docker image from Docker&rsquo;s automated build repository &ndash; you can always pull or refer the image when launching containers.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/hadoop-docker:2.5.0</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Start a container</h2>
+
+<p>In order to use the Docker image you have just build or pulled use:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -i -t sequenceiq/hadoop-docker:2.5.0 /etc/bootstrap.sh -bash</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Testing</h2>
+
+<p>You can run one of the stock examples:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cd $HADOOP_PREFIX
+</span><span class='line'># run the mapreduce
+</span><span class='line'>bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.5.0.jar grep input output 'dfs[a-z.]+'
+</span><span class='line'>
+</span><span class='line'># check the output
+</span><span class='line'>bin/hdfs dfs -cat output/*</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Hadoop native libraries, build, Bintray, etc</h2>
+
+<p>The Hadoop build process is no easy task &ndash; requires lots of libraries and their right version, protobuf, etc and takes some time &ndash; we have simplified all these, made the build and released a 64b version of Hadoop nativelibs on our <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.4.1/view/files">Bintray repo</a>. Enjoy.</p>
+
+<p>Should you have any questions let us know through our social channels as <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Fair play]]></title>
@@ -2924,138 +2992,6 @@ With the help of Docker we don&rsquo;t need to worry about the tools needed for 
 <p>And not only our builds run in Docker, some other tools we use on the build environment also run in containers. For instance our code quality management tool, SonarQube and the MySQL database it uses also runs in separate containers. This way we don&rsquo;t need to install them on the EC2 instance directly, we only need to link them where needed &ndash; see the example above!</p>
 
 <p>In our next blog post about continuous integration we&rsquo;ll explain the process we use at SequenceIQ to continuously deliver the new features to production using the Github flow with Jenkins and Docker.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Job profiling with R]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/05/01/mapreduce-job-profiling-with-R/"/>
-    <updated>2014-05-01T21:08:04+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/05/01/mapreduce-job-profiling-with-R</id>
-    <content type="html"><![CDATA[<p>Management of a large Hadoop cluster is not an easy task &ndash; however thanks to projects like <a href="http://ambari.apache.org/">Apache Ambari</a> these tasks are getting easier. Ambari provides an intuitive, easy-to-use Hadoop management web UI backed by its REST API to provision, manage and monitor a Hadoop cluster. While Ambari helps us a lot to monitor a cluster (leverages <a href="http://ganglia.sourceforge.net/">Ganglia</a> and <a href="http://www.nagios.org/">Nagios</a>), many times we have to profile our MapReduce jobs as well.</p>
-
-<p>At SequenceIQ in order to profile MapReduce jobs, understand (job)internal statistics and create usefull graphs many times we rely on <a href="http://www.r-project.org/">R</a>. The metrics are collected from Ambari and the <a href="http://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-site/HistoryServerRest.html">YARN History Server</a>.</p>
-
-<p>In this blog post we would like to explain and guide you through a simple process of collecting MapReduce job metrics, calculate different statistics and generate easy to understand charts.</p>
-
-<p>The MapReduce application is the following:</p>
-
-<ul>
-<li>The input set of data is 12 pieces of 1 GB size files. Each file containes the same line of 16 bytes (012345678998765 plus the new line character)</li>
-<li>The number of mappers running is 48, because the block size on HDFS is 256 MB and there are 12 files.</li>
-<li>We use TextInputFormat (line num, line content) pairs. The output of the mapper function is the same as the input <code>IdentityMapper</code></li>
-<li>The number of reducers is 20.</li>
-<li>For simplicity we use <code>IdentityReducer</code> as the reducer function.</li>
-<li>We use a special partitioner called <code>LinePartitoner</code>. The partitioning is based on line numbers (the key) and it makes sure that each reducer gets the same amount of data (line number <em>modulo</em> reducer number).</li>
-</ul>
-
-
-<h2>How to get the job results with R</h2>
-
-<p>The job id that we are analysing with R is job_1395530889914_0005 (<em>replace this with your job is</em>)</p>
-
-<p>First we load the R functions:</p>
-
-<p><code>source("JobHistory.r")</code></p>
-
-<p>Then we extract/read the job from the HistoryServer. It is actually using the Rest API of HistoryServer, parsing the JSON output.</p>
-
-<p><code>job&lt;-getJob("job_1395530889914_0005","node02:19888")</code></p>
-
-<p>The structure of the job follows the structure that is returned from the HistoryServer except that for example the parameters of all the tasks are converted into vectors so that can be easily handled in R.</p>
-
-<!-- more -->
-
-
-<p>A job is a list of <code>things</code>:</p>
-
-<p><code>&gt; names(job)</code></p>
-
-<p><code>[1] "job"      "counters" "tasks"    "attempts"</code></p>
-
-<p>The job$job contains some basic data</p>
-
-<p><code>&gt; names(job$job)</code></p>
-
-<p><code>[1] "startTime"                "finishTime"               "id"                       "name"                     "queue"</code></p>
-
-<p><code>[6] "user"                     "state"                    "mapsTotal"                "mapsCompleted"            "reducesTotal"</code></p>
-
-<p><code>[11] "reducesCompleted"         "uberized"                 "diagnostics"              "avgMapTime"               "avgReduceTime"</code></p>
-
-<p><code>[16] "avgShuffleTime"           "avgMergeTime"             "failedReduceAttempts"     "killedReduceAttempts"     "successfulReduceAttempts"</code></p>
-
-<p><code>[21] "failedMapAttempts"        "killedMapAttempts"        "successfulMapAttempts"</code></p>
-
-<p>The items below job$tasks are all vectors (if there are numeric) or non-named lists:</p>
-
-<p><code>&gt; names(job$tasks)</code></p>
-
-<p><code>[1] "startTime"         "finishTime"        "elapsedTime"       "progress"          "id"          "state"             "type"</code></p>
-
-<p><code>[8] "successfulAttempt"</code></p>
-
-<p>This way we can easily calculate the mean of the <code>running</code> times of all the tasks like this:</p>
-
-<p><code>mean(job$tasks$finishTime-job$tasks$startTime)</code></p>
-
-<p><code>[1] 147307</code></p>
-
-<p>The <code>attempts</code> list also contains vectors or lists of parameters. Only the successful attempts are in the attempt list.</p>
-
-<p><code>&gt; names(job$attempts)</code></p>
-
-<p><code>[1] "startTime"           "finishTime"          "elapsedTime"         "progress"            "id"                  "rack"</code></p>
-
-<p><code>[7] "state"               "nodeHttpAddress"     "diagnostics"         "type"                "assignedContainerId" "shuffleFinishTime"</code></p>
-
-<p><code>[13] "mergeFinishTime"     "elapsedShuffleTime"  "elapsedMergeTime"    "elapsedReduceTime"</code></p>
-
-<p>This way we can easily calculate the average <code>merge</code> times:</p>
-
-<p><code>&gt; mean(job$attempts$mergeFinishTime-job$attempts$shuffleFinishTime)</code></p>
-
-<p><code>[1] 4875.15</code></p>
-
-<p>Which is the same as:</p>
-
-<p><code>&gt; mean(job$attempts$elapsedMergeTime)</code></p>
-
-<p><code>[1] 4875.15</code></p>
-
-<h2>The R generated graphs</h2>
-
-<p>The are two types of graphs for the beginning</p>
-
-<p><code>plotTasksTimes(job)</code></p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/48_mappers_20_reducers_mr_task_times.png" alt="" /></p>
-
-<p>This graph shows start and finish times for each tasks (mappers and reducers as well). The tasks are sorted by their start times, so the reducers are on the top. There are 48 mappers and 20 reducers. The times are relative to the startTime of the first mapper in milliseconds(could show absolute values as well).</p>
-
-<p><code>plotActiveMRTasksNum(job)</code></p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/48_mappers_20_reducers_mr.png" alt="" /></p>
-
-<p>The graph above contains the number of active tasks at each time. It shows the mappers with green and also show the reduce phases as well. The shuffle part is orange, the merge part is magenta and the reduce part (reducer function is running) is blue. The times are relative to the startTime of the first mapper in milliseconds (could show absolute values as well).</p>
-
-<p><code>plotActiveReduceTasksNumDetailed(job, FALSE)</code></p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/48_mappers_20_reducers_reduce_phases.png" alt="" /></p>
-
-<p>This graph shows only the reduce part with the three phases: shuffle, merge, reduce. The times are absolute times (could show absolute values as well).</p>
-
-<p><code>plotTimeBoxes&lt;-function(data, nodeNum=21, slotsPerNode=4)</code></p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/48_mappers_20_reducers_mr_by_nodes.png" alt="" /></p>
-
-<p>As you can see monitoring a MapReduce job through the HistoryServer it is extremely easy, and R is very usefull to apply different statistics and plot graphs. Also as you start playing with different setups the results can quickly be retrived, the graphs regenerated to analyze how different configuratins are affecting the execution time/behaviour of the jobs.</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/96_mappers_20_reducers_mr_by_nodes.png" alt="" /></p>
-
-<p>As always, the example project is available at our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/yarn-monitoring-R">GitHub</a> page. We are working on a <code>heuristic</code> queue scheduler for a better utilization of our cluster, and also to provide QoS on Hadoop &ndash; profiling and understanding the running MapReduce jobs and the job queues are essential for that. Also based on the charts broken down by nodes we can quickly identify servers with potential issues (slow I/O, memory, etc).</p>
-
-<p>Follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a> to read about how we progress with the sceduler and get early access, or feel free to contribute to our YARN monitoring project.</p>
 ]]></content>
   </entry>
   
