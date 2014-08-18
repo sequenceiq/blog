@@ -26,7 +26,7 @@ K-Means (Lloyd's algorithm) is a simple NP-hard unsupervised learning algorithm 
 ```
 <!-- more -->
 
-The second step is to choose K center points (centroids). The third one is to assign each vector to the group that has the closest centroid. After all this is done, next thing you will need to do is to recalculate the positions of the centroids. You have to repeat the third and fourth steps until the centroids are not moving (`the iterative stuff`). The [KMeans](https://github.com/apache/spark/blob/master/mllib/src/main/scala/org/apache/spark/mllib/clustering/KMeans.scala) MLlib model is doing that for you (2-3-4 steps centroid delta checks).
+The second step is to choose K center points (centroids). The third one is to assign each vector to the group that has the closest centroid. After all this is done, next thing you will need to do is to recalculate the positions of the centroids. You have to repeat the third and fourth steps until the centroids are not moving (`the iterative stuff`). The [KMeans](https://github.com/apache/spark/blob/master/mllib/src/main/scala/org/apache/spark/mllib/clustering/KMeans.scala) MLlib model is doing that for you.
 
 ```scala
     val clusters: KMeansModel = KMeans.train(data, K, maxIteration, runs)
@@ -37,26 +37,26 @@ The second step is to choose K center points (centroids). The third one is to as
     }
 
 ```
-After you have your model result, you can utilize it in your RDD object. 
+After you have your model result, you can utilize it in your RDD object.
 
 ### Running Spark job on YARN
 In order to run this Spark application on YARN first of all you will need a Hadoop YARN cluster. For that you could use our Hadoop as a Service API called [Cloudbreak](http://sequenceiq.com/cloudbreak) - using a `multi-node-hdfs-yarn` blueprint will set you up a Spark ready Hadoop cluster in less than 2 minutes on your favorite cloud provider. Give it a try at our hosted [Cloudbreak](https://cloudbreak.sequenceiq.com) instance.
 
 Once your cluster it’s up and ready you can run the following command:
- 
+
 ```bash
 ./bin/spark-submit --class com.sequenceiq.spark.Main --master \
 yarn-client --driver-memory 1g --executor-memory 1g --executor-cores 1 \
 /root/spark-clustering-1.0.jar hdfs://sandbox:9000/input/input.txt /output 10 10 1
 ```
 Alternatively you can run this in our free Docker based Apache Spark container as well. You can get a Spark container from the official [Docker registry](https://registry.hub.docker.com/u/sequenceiq/spark/) or from our [GitHub](https://github.com/sequenceiq/docker-spark) repository.
-As always we are making the source code available at [SequenceIQ's GitHub repository](https://github.com/sequenceiq/sequenceiq-samples/tree/master/spark-clustering) (check the other interesting examples as well).  You can find 2 simple input datasets for testing purposes. 
+As always we are making the source code available at [SequenceIQ's GitHub repository](https://github.com/sequenceiq/sequenceiq-samples/tree/master/spark-clustering) (check the other interesting examples as well).  You can find 2 simple input datasets for testing purposes.
 
 The result of the clustering looks like this (generated with R):
 
 ![](https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/spark-clustering/data/spark-clustering_1.jpeg)
 
-While there is a loud buzz about what’s faster than the other and there are huge numbers thrown in as the *X* multiplier factor we don’t really want to enter that game - as a fact we’d like to mention that both example performs better than Mahout KMeans (2-3x faster with 20 iterations), but these are really small datasets. We have seen larger datasets in production where the performances are quite the same, or can go the other way (especially that Spark is new and people don’t always get the configuration right). 
+While there is a loud buzz about what’s faster than the other and there are huge numbers thrown in as the *X* multiplier factor we don’t really want to enter that game - as a fact we’d like to mention that both example performs better than Mahout KMeans (2-3x faster with 20 iterations), but these are really small datasets. We have seen larger datasets in production where the performances are quite the same, or can go the other way (especially that Spark is new and people don’t always get the configuration right).
 
 
 In one of our next post we will show you metrics for a much larger dataset and other ML algorithms - follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook) for updates.
@@ -69,9 +69,3 @@ Note that Apache Tez has already showed **awesome** result. Being the key buildi
 ### Other promising machine learning frameworks
 
 If you are interested in machine learning frameworks, you have to check  [Conjecture](https://github.com/etsy/Conjecture) or [ganitha](https://github.com/tresata/ganitha) - they both show great fueatures and have promising results.
-
-
-
-
-
-
