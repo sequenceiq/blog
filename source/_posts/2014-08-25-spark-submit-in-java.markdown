@@ -40,7 +40,8 @@ As you can see in [SparkSubmit.scala](https://github.com/apache/spark/blob/maste
     }
 ```
 It’s a pretty straightforward way to submit a Spark job to a YARN cluster, though you will need to change manually the parameters which as passed as arguments.
-<!-- more —>
+
+<!--more-->
 
 ##Submitting the job from Java code
 In case if you would like to submit a job to YARN from Java code, you can just simply use this Client class directly in your application.
