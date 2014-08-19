@@ -12,7 +12,7 @@ At SequenceIQ we use Apache Ambari for provisioning, managing, and monitoring Ap
 
 Configuration of applications that use dynamically built YARN clusters can be challenging. This is due to the huge amount of configuration properties, some of which needs to be kept in sync on YARN client application side. Think of _yarn.resourcemanager.address_, _fs.defaultFS_, _yarn.resourcemanager.scheduler.address_ to name a few. Each time these cluster specific entries change, client applications needs to be reconfigured. Those who ever played with clusters where the default properties are overridden know what this means...
 
-At Sequenceiq we use Ambari for building on-demand YARN clusters (see the related [ blog post](http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/)). In our case Ambari not only maintains the configuration of the cluster it manages but also provides access to them through a set of REST resources.
+At SequenceIQ we use Ambari for building on-demand YARN clusters (see the related [ blog post](http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/)). In our case Ambari not only maintains the configuration of the cluster it manages but also provides access to them through a set of REST resources.
 
 To overcome the configuration maintenance problem in YARN client applications, we implemented an Ambari REST client application that embedded in client applications can dynamically retrieve configuration from an Ambari instance. Thus the only thing needed for an application to have the proper configuration is the access to the Ambari instance.
 
