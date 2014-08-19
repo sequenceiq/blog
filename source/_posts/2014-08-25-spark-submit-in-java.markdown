@@ -3,7 +3,7 @@ layout: post
 title: "Submit a Spark job to YARN from code"
 date: 2014-08-25 10:09:28 +0200
 comments: true
-categories: [YARN, Spark]
+categories: [YARN, Spark, Ambari]
 author: Oliver Szabo
 published: false
 ---
@@ -41,6 +41,7 @@ As you can see in [SparkSubmit.scala](https://github.com/apache/spark/blob/maste
 ```
 It’s a pretty straightforward way to submit a Spark job to a YARN cluster, though you will need to change manually the parameters which as passed as arguments.
 <!-- more —>
+
 ##Submitting the job from Java code
 In case if you would like to submit a job to YARN from Java code, you can just simply use this Client class directly in your application.
 (but you have to make sure that every environment variable what you will need is set properly).
