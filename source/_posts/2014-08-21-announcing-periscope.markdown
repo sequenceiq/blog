@@ -32,6 +32,8 @@ One of the key findings we have found - and have applied to Periscope - was that
 Focusing on higher level building blocks as queue depth, YARN containers, etc actually brings in the same quality of service, while not being lost in low level details.
 We will follow up with examples and metrics on coming blog posts - make sure you follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook).
 
+<!--more-->
+
 Periscope works with two types of Hadoop clusters: `static` and `dynamic`.
 
 ##Clusters
