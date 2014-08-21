@@ -127,6 +127,6 @@ If you get "Permission denied" exception on submit, you should set the **HADOOP_
 
 As usual for us we ship the code - you can get it from our [GitHub](https://github.com/sequenceiq/sequenceiq-samples/tree/master/spark-submit) samples repository; the sample input is available [here](https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/spark-clustering/data/input.txt).
 
-You can use our [Spark Docker container](https://registry.hub.docker.com/u/sequenceiq/spark/) available as a trusted build on Docker.io container.
+You can use our [Spark Docker container](https://registry.hub.docker.com/u/sequenceiq/spark/) available as a trusted build on Docker.io repository.
 
 For updates follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
