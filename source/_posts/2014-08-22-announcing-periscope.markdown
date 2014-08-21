@@ -1,9 +1,9 @@
 ---
 layout: post
 title: "Periscope - brings QoS to multi-tenant Hadoop YARN clusters"
-date: 2014-07-21 18:37:37 +0200
+date: 2014-07-22 18:37:37 +0200
 comments: true
-categories: [QoS, Hadoop, SLA, Cloud, Schedulers, Periscope]
+categories: [QoS, Autoscaling, SLA, Cloud, Schedulers, Periscope]
 author: Janos Matyas
 published: false
 ---
@@ -12,11 +12,11 @@ Periscope
 
 *Periscope is a powerful, fast, thick and top-to-bottom right-hander, eastward from Sumbawa's famous west-coast. Timing is critical, as needs a number of elements to align before it shows its true colors.*
 
-*Periscope is a heuristic Hadoop scheduler you associate with a QoS profile. Built on YARN schedulers, cloud and VM resource management API's it allows you to associate SLAs to applications and customers.*
+*Periscope brings QoS to Hadoop. Built on YARN schedulers, cloud and VM resource management APIs, allows to associate SLA policies to clusters and applications.*
 
 ##Overview
 
-The purpose of Periscope is to bring QoS to a multi-tenant Hadoop cluster, while allowing to apply SLA policies to individual applications.
+The purpose of Periscope is to bring QoS and autoscaling to a multi-tenant Hadoop YARN cluster, while allowing to apply SLA policies to individual applications.
 At [SequenceIQ](http://sequenceiq.com) working with multi-tenant Hadoop clusters for quite a while we have always seen the same frustration and fight for resource between users.
 The **FairScheduler** was partially solving this problem - bringing in fairness based on the notion of [Dominant Resource Fairness](http://static.usenix.org/event/nsdi11/tech/full_papers/Ghodsi.pdf).
 With the emergence of Hadoop 2 YARN and the **CapacityScheduler** we had the option to maximize throughput and utilization for a multi-tenant cluster in an operator-friendly manner.
@@ -28,7 +28,7 @@ Periscope was designed around the idea of `autoscaling` clusters - without any n
 
 ##How it works
 
-Periscope monitors the application progress, the number of YARN containers/resources and their allocation, queue depths, and the number of available cluster nodes and their health. 
+Periscope monitors the application progress, the number of YARN containers/resources and their allocation, queue depths, the number of available cluster nodes and their health. 
 Since we have switched to YARN a while ago (been among the first adopters) we have run an open source [monitoring project](https://github.com/sequenceiq/yarn-monitoring), based on R.
 We have been collecting metrics from the YARN Timeline server, Hadoop Metrics2 and Ambari's Nagios/Ganglia - and profiling the applications and correlating with these metrics.
 One of the key findings was that while low level metrics are good to understand the cluster health - they might not necessarily help on making decisions when applying different SLA policies on a multi-tenant cluster. 
@@ -74,12 +74,12 @@ _Note: not all of the features above are supported in the first `public beta` ve
 
 ### High level technical details  
 
-When we have started to work on Periscope we checked different solutions - and we quickly realized that there are no such products available.
+When we have started to work on Periscope we checked different solutions - and we quickly realized that there are no open source solutions available.
 Apache YARN in general, and the scheduler API's in particular have solved few of the issues we had - and they have certainly bring some level of SLA to Hadoop.
-At [SequenceIQ](https://sequenceiq.com) we run all our different applications in YARN - and when we decided to create a heuristic scheduler we new from beginning that it has to be built on the functionality given by YARN.
-In order to create the scheduler we had to contribute code to YARN, Hadoop and Ambari - and were trying to add all the low level features directly into the YARN codebase.
-Periscope has a [REST API](http://docs.periscope.apiary.io/) and supports pluggable SLA rules described in YAML format.
-We will follow up with technical details in coming blog posts, so make sure you subscribe to on of our channels.
+At [SequenceIQ](https://sequenceiq.com) we run all our different applications on YARN - and when we decided to create a heuristic scheduler we new from very beginning that it has to be built on the functionality given by YARN.
+In order to create Periscope we had to contribute code to YARN, Hadoop and Ambari - and were trying to add all the low level features directly into the YARN codebase.
+Periscope has a [REST API](http://docs.periscope.apiary.io/) and supports pluggable SLA policies.
+We will follow up with technical details in coming blog posts, so make sure you subscribe to on of our social channels.
 
 ### Resources
 
@@ -89,14 +89,14 @@ Periscope documentation: http://sequenceiq.com/periscope
 
 Periscope API: http://docs.periscope.apiary.io/ 
 
-### What's next, kudos, etc
+### What's next, etc
 
 This is the first `public beta` release of Periscope made available on our [GitHub](https://github.com/sequenceiq/periscope) page.
-While we are already using this internally we would like the community to help us battle test it, let us know if you find issues or raise feature requests. We are happy to help. 
+While we are already using this internally we would like the community to help us battle test it, let us know if you find issues or raise feature requests. We are always happy to help.
 
 Further releases will bring tighter integration with Ambari (especially around cluster resources), an enhanced (or potentially new) YARN scheduler and a Machine learning based job classification model.
 
-We would like to say a big *thank you* for the YARN team - this effort would have not been possible without their contribution, and their support with our contributions.
+We would like to say a big *thank you* for the YARN team - this effort would have not been possible without their contribution. Also we would like to thank them by supporting us whit our contributions as well.
 At SequenceIQ we are 100% committed to open source - and releasing Periscope under an [Apache 2 licence](http://www.apache.org/licenses/LICENSE-2.0) was never a question.
 
 Stay tuned and make sure you follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook).
