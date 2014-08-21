@@ -83,11 +83,13 @@ We will follow up with technical details in coming blog posts, so make sure you 
 
 ### Resources
 
-Periscope code : https://github.com/sequenceiq/periscope
+Deployed at: https://periscope-api.sequenceiq.com
 
-Periscope documentation: http://sequenceiq.com/periscope
+Get the code : https://github.com/sequenceiq/periscope
 
-Periscope API: http://docs.periscope.apiary.io/ 
+Documentation: http://sequenceiq.com/periscope
+
+API documentation: http://docs.periscope.apiary.io/ 
 
 ### What's next, etc
 
