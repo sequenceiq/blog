@@ -1,18 +1,17 @@
 ---
 layout: post
-title: "Periscope - brings QoS to multi-tenant Hadoop YARN clusters"
+title: "Periscope - autoscaling for Hadoop YARN clusters"
 date: 2014-07-22 18:37:37 +0200
 comments: true
 categories: [QoS, Autoscaling, SLA, Cloud, Schedulers, Periscope]
 author: Janos Matyas
 published: false
 ---
-Periscope
-=========
+
 
 *Periscope is a powerful, fast, thick and top-to-bottom right-hander, eastward from Sumbawa's famous west-coast. Timing is critical, as needs a number of elements to align before it shows its true colors.*
 
-*Periscope brings QoS to Hadoop. Built on YARN schedulers, cloud and VM resource management APIs, allows to associate SLA policies to clusters and applications.*
+*Periscope brings QoS and autoscaling to Hadoop YARN. Built on cloud resource management and YARN schedulers, allows to associate SLA policies to applications.*
 
 ##Overview
 
