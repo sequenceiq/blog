@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Spark | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/spark/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-08-21T18:22:36+00:00</updated>
+  <updated>2014-08-22T13:25:30+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,148 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Submit a Spark job to YARN from code]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/08/22/spark-submit-in-java/"/>
+    <updated>2014-08-22T08:09:28+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/08/22/spark-submit-in-java</id>
+    <content type="html"><![CDATA[<p>In our previous Apache Spark related post we showed you how to write a simple machine learning job. In this post we’d like to show you how to submit a Spark job from code. At SequenceIQ we submit jobs to different clusters &ndash; based on load, customer profile, associated SLAs, etc. Doing this the <code>documented</code> way was cumbersome so we needed a way to submit Spark jobs (and in general all of our jobs running in a YARN cluster) from code. Also due to the <code>dynamic</code> clusters, and changing job configurations we can’t use hardcoded parameters &ndash; in a previous <a href="http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service/">blog post</a> we highlighted how are we doing all these.</p>
+
+<h2>Business as usual</h2>
+
+<p>Basically as you from the <a href="https://spark.apache.org/docs/1.0.1/submitting-applications.html">Spark documentation</a>, you have to use the <a href="https://github.com/apache/spark/blob/master/bin/spark-submit">spark-submit</a> script to submit a job. In nutshell SparkSubmit is called
+by the <a href="https://github.com/apache/spark/blob/master/bin/spark-class">spark-class</a> script with a lots of decorated arguments. In our example we examine only the YARN part of the submissions.
+As you can see in <a href="https://github.com/apache/spark/blob/master/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala">SparkSubmit.scala</a> the YARN <a href="https://github.com/apache/spark/blob/master/yarn/stable/src/main/scala/org/apache/spark/deploy/yarn/Client.scala">Client</a> is loaded and its main method invoked (based on the arguments of the script).</p>
+
+<p>```scala</p>
+
+<pre><code>// If we're deploying into YARN, use yarn.Client as a wrapper around the user class
+if (!deployOnCluster) {
+  childMainClass = args.mainClass
+  if (isUserJar(args.primaryResource)) {
+    childClasspath += args.primaryResource
+  }
+} else if (clusterManager == YARN) {
+  childMainClass = "org.apache.spark.deploy.yarn.Client"
+  childArgs += ("--jar", args.primaryResource)
+  childArgs += ("--class", args.mainClass)
+}
+
+...
+// Here we invoke the main method of the Client
+val mainClass = Class.forName(childMainClass, true, loader)
+val mainMethod = mainClass.getMethod("main", new Array[String](0).getClass)
+try {
+  mainMethod.invoke(null, childArgs.toArray)
+} catch {
+  case e: InvocationTargetException =&gt; e.getCause match {
+    case cause: Throwable =&gt; throw cause
+    case null =&gt; throw e
+}
+</code></pre>
+
+<p>```
+It’s a pretty straightforward way to submit a Spark job to a YARN cluster, though you will need to change manually the parameters which as passed as arguments.</p>
+
+<!--more-->
+
+
+<h2>Submitting the job from Java code</h2>
+
+<p>In case if you would like to submit a job to YARN from Java code, you can just simply use this Client class directly in your application.
+(but you have to make sure that every environment variable what you will need is set properly).</p>
+
+<h3>Passing Configuration object</h3>
+
+<p>In the main method the org.apache.hadoop.conf.Configuration object is not passed to the Client class. A <code>Configuration</code> is created explicitly in the constructor, which is actually okay (then client configurations are loaded from $HADOOP_CONF_DIR/core-site.xml and $HADOOP_CONF_DIR/yarn-site.xml).
+But what if you want to use (for example) an <a href="http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service/">Ambari Configuration Service</a> for retrieve your configuration, instead of using hardcoded ones?</p>
+
+<p>```scala</p>
+
+<pre><code>... // Client class - constructor
+  def this(clientArgs: ClientArguments, spConf: SparkConf) =
+    this(clientArgs, new Configuration(), spConf)
+
+... // Client object - main method
+System.setProperty("SPARK_YARN_MODE", "true")
+val sparkConf = new SparkConf()
+
+try {
+  val args = new ClientArguments(argStrings, sparkConf)
+  new Client(args, sparkConf).run()
+} catch {
+  case e: Exception =&gt; {
+    Console.err.println(e.getMessage)
+    System.exit(1)
+  }
+}
+
+System.exit(0)
+</code></pre>
+
+<p>```</p>
+
+<p>Fortunately, the configuration can be passed here (there is a <code>Configuration</code> field in the Client), but you have to write your own main method.</p>
+
+<h3>Code example</h3>
+
+<p>In our example we also use the 2 client XMLs as configuration (for demonstration purposes only), the main difference here is that we read the properties from the XMLs and filling them in the Configuration. Then we pass the Configuration object to the Client (which is directly invoked here).</p>
+
+<p>```scala
+ def main(args: Array[String]) {</p>
+
+<pre><code>val config = new Configuration()
+fillProperties(config, getPropXmlAsMap("config/core-site.xml"))
+fillProperties(config, getPropXmlAsMap("config/yarn-site.xml"))
+
+System.setProperty("SPARK_YARN_MODE", "true")
+
+val sparkConf = new SparkConf()
+val cArgs = new ClientArguments(args, sparkConf)
+
+new Client(cArgs, config, sparkConf).run()
+</code></pre>
+
+<p>  }
+```</p>
+
+<p>To build the project use this command from the spark-submit directory:</p>
+
+<p><code>bash
+./gradlew clean build
+</code></p>
+
+<p>After building it you find the required jars in spark-submit-runner/build/libs (<code>uberjar</code> with all required dependencies) and spark-submit-app/build/libs. Put them in the same directory (do this also with this <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/spark-submit/spark-submit-runner/src/main/resources">config folder</a> too). After that run this command:</p>
+
+<p><code>bash
+java -cp spark-submit-runner-1.0.jar com.sequenceuq.spark.SparkRunner \
+  --jar spark-submit-app-1.0.jar \
+  --class com.sequenceiq.spark.Main \
+  --driver-memory 1g \
+  --executor-memory 1g \
+  --executor-cores 1 \
+  --arg hdfs://sandbox:9000/input/sample.txt \
+  --arg /output \
+  --arg 10 \
+  --arg 10
+</code></p>
+
+<p>During the submission note that: not just the app jar, but the spark-submit-runner jar is also uploaded (which is an <code>uberjar</code>) to the HDFS. To avoid this, you have to upload it to the HDFS manually and set the <strong>SPARK_JAR</strong> environment variable.</p>
+
+<p><code>bash
+export SPARK_JAR="hdfs:///spark/spark-submit-runner-1.0.jar"
+</code></p>
+
+<p>If you get &ldquo;Permission denied&rdquo; exception on submit, you should set the <strong>HADOOP_USER_NAME</strong> environment variable to root (or something with proper rights).</p>
+
+<p>As usual for us we ship the code &ndash; you can get it from our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/spark-submit">GitHub</a> samples repository; the sample input is available <a href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/spark-clustering/data/input.txt">here</a>.</p>
+
+<p>If you would like to play with Spark, you can use our <a href="https://registry.hub.docker.com/u/sequenceiq/spark/">Spark Docker container</a> available as a trusted build on Docker.io repository.</p>
+
+<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Apache Spark - MLlib Introduction]]></title>

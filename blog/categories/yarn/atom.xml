@@ -4,7 +4,7 @@
   <title><![CDATA[Category: YARN | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/yarn/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-08-21T18:22:36+00:00</updated>
+  <updated>2014-08-22T13:25:30+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,148 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Submit a Spark job to YARN from code]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/08/22/spark-submit-in-java/"/>
+    <updated>2014-08-22T08:09:28+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/08/22/spark-submit-in-java</id>
+    <content type="html"><![CDATA[<p>In our previous Apache Spark related post we showed you how to write a simple machine learning job. In this post we’d like to show you how to submit a Spark job from code. At SequenceIQ we submit jobs to different clusters &ndash; based on load, customer profile, associated SLAs, etc. Doing this the <code>documented</code> way was cumbersome so we needed a way to submit Spark jobs (and in general all of our jobs running in a YARN cluster) from code. Also due to the <code>dynamic</code> clusters, and changing job configurations we can’t use hardcoded parameters &ndash; in a previous <a href="http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service/">blog post</a> we highlighted how are we doing all these.</p>
+
+<h2>Business as usual</h2>
+
+<p>Basically as you from the <a href="https://spark.apache.org/docs/1.0.1/submitting-applications.html">Spark documentation</a>, you have to use the <a href="https://github.com/apache/spark/blob/master/bin/spark-submit">spark-submit</a> script to submit a job. In nutshell SparkSubmit is called
+by the <a href="https://github.com/apache/spark/blob/master/bin/spark-class">spark-class</a> script with a lots of decorated arguments. In our example we examine only the YARN part of the submissions.
+As you can see in <a href="https://github.com/apache/spark/blob/master/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala">SparkSubmit.scala</a> the YARN <a href="https://github.com/apache/spark/blob/master/yarn/stable/src/main/scala/org/apache/spark/deploy/yarn/Client.scala">Client</a> is loaded and its main method invoked (based on the arguments of the script).</p>
+
+<p>```scala</p>
+
+<pre><code>// If we're deploying into YARN, use yarn.Client as a wrapper around the user class
+if (!deployOnCluster) {
+  childMainClass = args.mainClass
+  if (isUserJar(args.primaryResource)) {
+    childClasspath += args.primaryResource
+  }
+} else if (clusterManager == YARN) {
+  childMainClass = "org.apache.spark.deploy.yarn.Client"
+  childArgs += ("--jar", args.primaryResource)
+  childArgs += ("--class", args.mainClass)
+}
+
+...
+// Here we invoke the main method of the Client
+val mainClass = Class.forName(childMainClass, true, loader)
+val mainMethod = mainClass.getMethod("main", new Array[String](0).getClass)
+try {
+  mainMethod.invoke(null, childArgs.toArray)
+} catch {
+  case e: InvocationTargetException =&gt; e.getCause match {
+    case cause: Throwable =&gt; throw cause
+    case null =&gt; throw e
+}
+</code></pre>
+
+<p>```
+It’s a pretty straightforward way to submit a Spark job to a YARN cluster, though you will need to change manually the parameters which as passed as arguments.</p>
+
+<!--more-->
+
+
+<h2>Submitting the job from Java code</h2>
+
+<p>In case if you would like to submit a job to YARN from Java code, you can just simply use this Client class directly in your application.
+(but you have to make sure that every environment variable what you will need is set properly).</p>
+
+<h3>Passing Configuration object</h3>
+
+<p>In the main method the org.apache.hadoop.conf.Configuration object is not passed to the Client class. A <code>Configuration</code> is created explicitly in the constructor, which is actually okay (then client configurations are loaded from $HADOOP_CONF_DIR/core-site.xml and $HADOOP_CONF_DIR/yarn-site.xml).
+But what if you want to use (for example) an <a href="http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service/">Ambari Configuration Service</a> for retrieve your configuration, instead of using hardcoded ones?</p>
+
+<p>```scala</p>
+
+<pre><code>... // Client class - constructor
+  def this(clientArgs: ClientArguments, spConf: SparkConf) =
+    this(clientArgs, new Configuration(), spConf)
+
+... // Client object - main method
+System.setProperty("SPARK_YARN_MODE", "true")
+val sparkConf = new SparkConf()
+
+try {
+  val args = new ClientArguments(argStrings, sparkConf)
+  new Client(args, sparkConf).run()
+} catch {
+  case e: Exception =&gt; {
+    Console.err.println(e.getMessage)
+    System.exit(1)
+  }
+}
+
+System.exit(0)
+</code></pre>
+
+<p>```</p>
+
+<p>Fortunately, the configuration can be passed here (there is a <code>Configuration</code> field in the Client), but you have to write your own main method.</p>
+
+<h3>Code example</h3>
+
+<p>In our example we also use the 2 client XMLs as configuration (for demonstration purposes only), the main difference here is that we read the properties from the XMLs and filling them in the Configuration. Then we pass the Configuration object to the Client (which is directly invoked here).</p>
+
+<p>```scala
+ def main(args: Array[String]) {</p>
+
+<pre><code>val config = new Configuration()
+fillProperties(config, getPropXmlAsMap("config/core-site.xml"))
+fillProperties(config, getPropXmlAsMap("config/yarn-site.xml"))
+
+System.setProperty("SPARK_YARN_MODE", "true")
+
+val sparkConf = new SparkConf()
+val cArgs = new ClientArguments(args, sparkConf)
+
+new Client(cArgs, config, sparkConf).run()
+</code></pre>
+
+<p>  }
+```</p>
+
+<p>To build the project use this command from the spark-submit directory:</p>
+
+<p><code>bash
+./gradlew clean build
+</code></p>
+
+<p>After building it you find the required jars in spark-submit-runner/build/libs (<code>uberjar</code> with all required dependencies) and spark-submit-app/build/libs. Put them in the same directory (do this also with this <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/spark-submit/spark-submit-runner/src/main/resources">config folder</a> too). After that run this command:</p>
+
+<p><code>bash
+java -cp spark-submit-runner-1.0.jar com.sequenceuq.spark.SparkRunner \
+  --jar spark-submit-app-1.0.jar \
+  --class com.sequenceiq.spark.Main \
+  --driver-memory 1g \
+  --executor-memory 1g \
+  --executor-cores 1 \
+  --arg hdfs://sandbox:9000/input/sample.txt \
+  --arg /output \
+  --arg 10 \
+  --arg 10
+</code></p>
+
+<p>During the submission note that: not just the app jar, but the spark-submit-runner jar is also uploaded (which is an <code>uberjar</code>) to the HDFS. To avoid this, you have to upload it to the HDFS manually and set the <strong>SPARK_JAR</strong> environment variable.</p>
+
+<p><code>bash
+export SPARK_JAR="hdfs:///spark/spark-submit-runner-1.0.jar"
+</code></p>
+
+<p>If you get &ldquo;Permission denied&rdquo; exception on submit, you should set the <strong>HADOOP_USER_NAME</strong> environment variable to root (or something with proper rights).</p>
+
+<p>As usual for us we ship the code &ndash; you can get it from our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/spark-submit">GitHub</a> samples repository; the sample input is available <a href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/spark-clustering/data/input.txt">here</a>.</p>
+
+<p>If you would like to play with Spark, you can use our <a href="https://registry.hub.docker.com/u/sequenceiq/spark/">Spark Docker container</a> available as a trusted build on Docker.io repository.</p>
+
+<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Fair play]]></title>
@@ -563,84 +705,6 @@ _Note: Apart from the</code>getServiceConfigMap() ``` method you&rsquo;ll find a
 <p>As always, the example project is available at our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/yarn-monitoring-R">GitHub</a> page. We are working on a <code>heuristic</code> queue scheduler for a better utilization of our cluster, and also to provide QoS on Hadoop &ndash; profiling and understanding the running MapReduce jobs and the job queues are essential for that. Also based on the charts broken down by nodes we can quickly identify servers with potential issues (slow I/O, memory, etc).</p>
 
 <p>Follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a> to read about how we progress with the sceduler and get early access, or feel free to contribute to our YARN monitoring project.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Using Mahout with Tez]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/03/31/mahout-on-tez/"/>
-    <updated>2014-03-31T10:22:09+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/03/31/mahout-on-tez</id>
-    <content type="html"><![CDATA[<p>At SequenceIQ we are always open to the latest innovations in Hadoop, and trying to find a way to offer a better performance and cluster utilization to our customers. We came in close touch with the <a href="http://hortonworks.com/labs/stinger/">Stinger initiative</a> last year at the Hadoop Summit in Amsterdam &ndash; and ever since we have followed up with the project progress (latest <a href="http://hortonworks.com/blog/apache-tez-0-3-released/">release</a> is 0.3). The project was initiated by Hortonworks with the goal of a 100x performance improvement of Hive.
-Although Hive is not part of our product stack (we use other ways for SQL on Hadoop), there is one particular key component of the Stinger initiative which was very interesting to us: <a href="https://github.com/apache/incubator-tez">Apache Tez</a>.</p>
-
-<p><a href="http://incubator.apache.org/projects/tez.html">Apache Tez</a> is a new application framework built on top of Hadoop Yarn that can execute complex directed acyclic graphs (DAGs) of general data processing tasks. In many ways it can be thought of as a more flexible and powerful successor of the map-reduce framework. This was exactly what draw our attention and made us start thinking about using Tez as our runtime for map-reduce jobs.</p>
-
-<h2>Tez and MapReduce</h2>
-
-<p>At SequenceIQ we have chains of map-reduce jobs which are scheduled individually and read the output of previous jobs from HBase or HDFS. Many times our map-reduce job flow can be represented as a map-reduce-reduce pattern, however building complex job chains with the current map-reduce framework is not that easy (nor saves on performance) &ndash; we combined the ChainMapper/ChainReducer and IdentityMapper trying to build MRR like DAG job flows.</p>
-
-<p>In Tez data coming from reducers' output can be pipelined together and eliminates IO/sync barriers, as no temporary HDFS write is required. Jobs can also be chained and represented as MRR steps with no restriction.
-In MapReduce disregarding the data size, the shuffle (internal step between the map and reducer) phase writes the sorted partitions to disk, merge-sorts them and feed into the reducers. All these steps are done <em>in memory</em> with Tez and saves on this I/O heavy step, avoiding unnecessary temporary writes and reads.</p>
-
-<h2>Tez and Mahout</h2>
-
-<p>Part of our system is running machine learning algorithms in batch, using Mahout (we do ML on streaming data using Scala, MLlib and Apache Spark as well). To improve the runtime performance of these Mahout algorithms, and decrease the cluster execution time we started to experiment with combining Tez and Mahout, and rewrite a few Mahout drivers in order to build DAGs of MR jobs (MRR in particular where applicable) and submit the jobs in a Tez runtime on a YARN cluster.</p>
-
-<!--more-->
-
-
-<p>In this blog post we would like to introduce you to Tez &ndash; for your convenience we have put together a Hadoop 2.3/YARN/Tez  <a href="https://github.com/sequenceiq/tez-docker">Tez-Docker</a> image &ndash; where the Tez runtime is already pre-configured. We have submitted a Mahout classification job into a YARN cluster as a regular MR job and then resubmitted the same job into Tez on a YARN cluster. Finally we made some metrics to highlight the differences: both in elapsed time and resource utilization.</p>
-
-<p>If you don&rsquo;t want to use this docker image, you should configure Tez on your Hadoop cluster first.</p>
-
-<h3>Building Tez</h3>
-
-<p>Get the Tez code from <a href="https://github.com/apache/incubator-tez">GitHub</a>, and run <code>mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true</code>. Alternatively you can get the jars from <a href="https://s3-eu-west-1.amazonaws.com/seq-tez/tez-0.3.0-incubating.tar.gz">SequenceIQ S3</a> and copy into HDFS under the &lsquo;/usr/lib/tez&rsquo; folder.</p>
-
-<h3>Add *-site.xml</h3>
-
-<p>Add <a href="https://raw.githubusercontent.com/sequenceiq/tez-docker/master/tez-site.xml">tez-site.xml</a> and <a href="https://github.com/sequenceiq/tez-docker/blob/master/mapred-site.xml">mapred-site.xml</a> to Hadoop (in case of the docker image it&rsquo;s $HADOOP_PREFIX/etc/hadoop/).</p>
-
-<h3>Add Tez jars and config to HADOOP_CLASSPATH</h3>
-
-<p>Edit your hadoop-env.sh file by executing this script:</p>
-
-<p><code>bash
-echo 'TEZ_JARS=/usr/local/tez/*' &gt;&gt; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
-echo 'TEZ_LIB=/usr/local/tez/lib/*' &gt;&gt; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
-echo 'TEZ_CONF=/usr/local/hadoop/etc/hadoop' &gt;&gt; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
-echo 'export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$TEZ_CONF:$TEZ_JARS:$TEZ_LIB' &gt;&gt; $HADOOP_PREFIX/etc/hadoop/hadoop-env.sh
-</code></p>
-
-<p>Make sure you set your HADOOP_PREFIX env variable, or use <a href="http://ambari.apache.org/">Apache Ambari</a> to configure Tez (change the mapreduce.framework.name property to yarn-tez).</p>
-
-<h3>Submit a classification job &ndash; get the code and instructions from the SequenceIQ samples <em><a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/tez-dag-jobs">GitHub</a></em> page.</h3>
-
-<p>After running the job and collecting the metrics we will see that the differences between using MapReduce and Tez are quite significant (~10x faster with Tez).</p>
-
-<p>Below you can see the sample Mahout classification job submitted in YARN using MapReduce.</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/tez-dag-jobs/resources/Classification_Mahout_MR.png" alt="" /></p>
-
-<p>Below you can see the sample Mahout classification job submitted in YARN using Tez.</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/tez-dag-jobs/resources/Classification_Mahout_TEZ.png" alt="" /></p>
-
-<p>If we dig into deeper metrics we can see the huge differences between the file operations and HDFS I/O. The Tez framework does way less file operations as the MapReduce one.</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/tez-dag-jobs/resources/fileops_tez_vs_mr.png" alt="" /></p>
-
-<p>Also if we check the HDFS I/O operations we see the same results &ndash; less and more efficient HDFS operations in case of Tez.</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/tez-dag-jobs/resources/hdfsio_tez_vs_mr.png" alt="" /></p>
-
-<p>All these are because the Tez runtime is using in-memory operations whenever is possible instead of temporarily persisting the sorted partitions to HDFS.
-Tez and <a href="http://hortonworks.com/labs/stinger/">Hortonworks' Stinger initiative</a> is opening up new possibilities to write faster and more performant Hadoop jobs, and closes the gap between stream and batch processing.</p>
-
-<p>We are in the middle of rewriting &ndash; and sharing with the Hadoop community all the Mahout drivers we use &ndash; to Apache Tez. Also we are in the middle of proof-of-concepting our Scala/Scalding based map-reduce jobs to use Tez as a runtime.</p>
-
-<p>Follow up with this <a href="http://blog.sequenceiq.com/">blog</a> and visit our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/tez-dag-jobs">GitHub</a> page for further details.</p>
 ]]></content>
   </entry>
   
