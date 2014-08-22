@@ -1,11 +1,11 @@
 ---
 layout: post
 title: "Submit a Spark job to YARN from code"
-date: 2014-08-25 10:09:28 +0200
+date: 2014-08-22 10:09:28 +0200
 comments: true
 categories: [YARN, Spark, Ambari]
 author: Oliver Szabo
-published: false
+published: true
 ---
 
 In our previous Apache Spark related post we showed you how to write a simple machine learning job. In this post we’d like to show you how to submit a Spark job from code. At SequenceIQ we submit jobs to different clusters - based on load, customer profile, associated SLAs, etc. Doing this the `documented` way was cumbersome so we needed a way to submit Spark jobs (and in general all of our jobs running in a YARN cluster) from code. Also due to the `dynamic` clusters, and changing job configurations we can’t use hardcoded parameters - in a previous [blog post](http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service/) we highlighted how are we doing all these.
@@ -127,6 +127,6 @@ If you get "Permission denied" exception on submit, you should set the **HADOOP_
 
 As usual for us we ship the code - you can get it from our [GitHub](https://github.com/sequenceiq/sequenceiq-samples/tree/master/spark-submit) samples repository; the sample input is available [here](https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/spark-clustering/data/input.txt).
 
-You can use our [Spark Docker container](https://registry.hub.docker.com/u/sequenceiq/spark/) available as a trusted build on Docker.io repository.
+If you would like to play with Spark, you can use our [Spark Docker container](https://registry.hub.docker.com/u/sequenceiq/spark/) available as a trusted build on Docker.io repository.
 
 For updates follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
