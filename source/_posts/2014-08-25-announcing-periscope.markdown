@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Periscope - autoscaling for Hadoop YARN clusters"
-date: 2014-07-22 18:37:37 +0200
+date: 2014-07-26 18:37:37 +0200
 comments: true
 categories: [QoS, Autoscaling, SLA, Cloud, Schedulers, Periscope]
 author: Janos Matyas
