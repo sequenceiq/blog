@@ -11,12 +11,12 @@ published: false
 
 *Periscope is a powerful, fast, thick and top-to-bottom right-hander, eastward from Sumbawa's famous west-coast. Timing is critical, as needs a number of elements to align before it shows its true colors.*
 
-*Periscope brings QoS and autoscaling to Hadoop YARN. Built on cloud resource management and YARN schedulers, allows to associate SLA policies to applications.*
+*Periscope brings QoS and autoscaling to Hadoop YARN. Built on cloud resource management and YARN schedulers,it allows to associate SLA policies to applications.*
 
 ##Overview
 
 The purpose of Periscope is to bring QoS and autoscaling to a multi-tenant Hadoop YARN cluster, while allowing to apply SLA policies to individual applications.
-At [SequenceIQ](http://sequenceiq.com) working with multi-tenant Hadoop clusters for quite a while we have always seen the same frustration and fight for resource between users.
+At [SequenceIQ](http://sequenceiq.com) working with multi-tenant Hadoop clusters for quite a while, we have always seen the same frustration and fight for resource between users.
 The **FairScheduler** was partially solving this problem - bringing in fairness based on the notion of [Dominant Resource Fairness](http://static.usenix.org/event/nsdi11/tech/full_papers/Ghodsi.pdf).
 With the emergence of Hadoop 2 YARN and the **CapacityScheduler** we had the option to maximize throughput and utilization for a multi-tenant cluster in an operator-friendly manner.
 The scheduler works around the concept of queues. These queues are typically setup by administrators to reflect the economics of the shared cluster.
@@ -42,7 +42,7 @@ From Periscope point of view we consider a cluster `static` when the cluster cap
 This means that the hardware resources are already given - and the throughput can't be increased by adding new nodes.
 Periscope introspects the job submission process, monitors the applications and applies the following SLAs:
 
-  1. Application ordering - can guaranty that a higher priority application finishes before another one (supporting parallel or sequential execution)
+  1. Application ordering - can guaranteeguaranty that a higher priority application finishes before another one (supporting parallel or sequential execution)
   2. Moves running applications between priority queues
   3. *Attempts* to enforce time based SLA (execution time, finish by, finish between, recurring)
   4. *Attempts* to enforce guaranteed cluster capacity requests ( x % of the resources)
@@ -62,9 +62,9 @@ Given the option of provisioning or decommissioning cluster nodes on the fly, Pe
   1. Application ordering - can guaranty that a higher priority application finishes before another one (supporting parallel or sequential execution)
   2. Moves running applications between priority queues
   3. *Enforce* time based SLA (execution time, finish by, finish between, recurring) by increasing cluster capacity and throughput
-  4. Smart decommissioning - avoids HDFS storms, keeps `payed` nodes alive till the last minute
+  4. Smart decommissioning - avoids HDFS storms, keeps `paidpayed` nodes alive till the last minute
   5. *Enforce* guaranteed cluster capacity requests ( x % of the resources)
-  6. *Private* cluster requests - supports provisioning of short lived private clusters with the possibility to merge
+  6. *Private* cluster requests - supports provisioning of short lived private clusters with the possibility to merge them.
   7. Support for distributed (but not YARN ready) applications using Apache Slider
   8. Attach priorities to SLAs
 
