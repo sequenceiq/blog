@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Periscope - autoscaling for Hadoop YARN clusters"
-date: 2014-07-26 18:37:37 +0200
+date: 2014-07-27 18:37:37 +0200
 comments: true
 categories: [QoS, Autoscaling, SLA, Cloud, Schedulers, Periscope]
 author: Janos Matyas
@@ -81,8 +81,6 @@ Periscope has a [REST API](http://docs.periscope.apiary.io/) and supports plugga
 We will follow up with technical details in coming blog posts, so make sure you subscribe to on of our social channels.
 
 ### Resources
-
-Deployed at: https://periscope-api.sequenceiq.com
 
 Get the code : https://github.com/sequenceiq/periscope
 
