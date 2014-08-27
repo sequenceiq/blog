@@ -13,7 +13,7 @@ published: false
 
 *Periscope brings QoS and autoscaling to Hadoop YARN. Built on cloud resource management and YARN schedulers, allows to associate SLA policies to applications.*
 
-After the very positive reception of [Cloudbreak](https://cloudbreak.sequenceiq.com/) - the first open sourced and cloud agnostic Hadoop as a Service API - today we are releasing the first `public beta` version of our open source *SLA policy based autoscaling API* for Hadoop YARN.
+After the very positive reception of [Cloudbreak](https://cloudbreak.sequenceiq.com/) - the first open sourced and cloud agnostic Hadoop as a Service API - today we are releasing the first `public beta` version of our open source **SLA policy based autoscaling API** for Hadoop YARN.
 
 ##Overview
 
