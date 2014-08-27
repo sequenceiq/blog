@@ -77,9 +77,9 @@ _Note: not all of the features above are supported in the first `public beta` ve
 
 ### High level technical details  
 
-When we have started to work on Periscope we checked different solutions - and we quickly realized that there are no open source solutions available.
+When we have started to work on Periscope we checked different solutions - and we quickly realized that there are no any open source solutions available.
 Apache YARN in general, and the scheduler API's in particular have solved few of the issues we had - and they have certainly bring some level of SLA to Hadoop.
-At [SequenceIQ](https://sequenceiq.com) we run all our different applications on YARN - and when we decided to create a heuristic scheduler we new from very beginning that it has to be built on the functionality given by YARN.
+At [SequenceIQ](https://sequenceiq.com) we run all our different applications on YARN - and when we decided to create a heuristic scheduler we knew from very beginning that it has to be built on the functionality given by YARN.
 In order to create Periscope we had to contribute code to YARN, Hadoop and Ambari - and were trying to add all the low level features directly into the YARN codebase.
 Periscope has a [REST API](http://docs.periscope.apiary.io/) and supports pluggable SLA policies.
 We will follow up with technical details in coming blog posts, so make sure you subscribe to on of our social channels.
