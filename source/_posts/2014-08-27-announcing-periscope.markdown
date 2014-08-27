@@ -11,7 +11,7 @@ published: false
 
 *Periscope is a powerful, fast, thick and top-to-bottom right-hander, eastward from Sumbawa's famous west-coast. Timing is critical, as needs a number of elements to align before it shows its true colors.*
 
-*Periscope brings QoS and autoscaling to Hadoop YARN. Built on cloud resource management and YARN schedulers,it allows to associate SLA policies to applications.*
+*Periscope brings QoS and autoscaling to Hadoop YARN. Built on cloud resource management and YARN schedulers, allows to associate SLA policies to applications.*
 
 ##Overview
 
