@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-08-27T17:49:17+00:00</updated>
+  <updated>2014-08-27T19:47:06+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -1016,6 +1016,114 @@ As always we are making the source code available at <a href="https://github.com
 <h3>Other promising machine learning frameworks</h3>
 
 <p>If you are interested in machine learning frameworks, you have to check  <a href="https://github.com/etsy/Conjecture">Conjecture</a> or <a href="https://github.com/tresata/ganitha">ganitha</a> &ndash; they both show great fueatures and have promising results.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Periscope - autoscaling for Hadoop YARN]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/07/27/announcing-periscope/"/>
+    <updated>2014-07-27T16:37:37+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/07/27/announcing-periscope</id>
+    <content type="html"><![CDATA[<p><em>Periscope is a powerful, fast, thick and top-to-bottom right-hander, eastward from Sumbawa&rsquo;s famous west-coast. Timing is critical, as needs a number of elements to align before it shows its true colors.</em></p>
+
+<p><em>Periscope brings QoS and autoscaling to Hadoop YARN. Built on cloud resource management and YARN schedulers, allows to associate SLA policies to applications.</em></p>
+
+<p>After the very positive reception of <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> &ndash; the first open sourced and cloud agnostic Hadoop as a Service API &ndash; today we are releasing the first <code>public beta</code> version of our open source <strong>SLA policy based autoscaling API</strong> for Hadoop YARN clusters.</p>
+
+<h2>Overview</h2>
+
+<p>The purpose of Periscope is to bring QoS and autoscaling to a multi-tenant Hadoop YARN cluster, while allowing to apply SLA policies to individual applications.
+At <a href="http://sequenceiq.com">SequenceIQ</a> working with multi-tenant Hadoop clusters for quite a while, we have always seen the same frustration and fight for resource between users.
+The <strong>FairScheduler</strong> was partially solving this problem &ndash; bringing in fairness based on the notion of <a href="http://static.usenix.org/event/nsdi11/tech/full_papers/Ghodsi.pdf">Dominant Resource Fairness</a>.
+With the emergence of Hadoop 2 YARN and the <strong>CapacityScheduler</strong> we had the option to maximize throughput and utilization for a multi-tenant cluster in an operator-friendly manner.
+The scheduler works around the concept of queues. These queues are typically setup by administrators to reflect the economics of the shared cluster.
+While this is a pretty good abstraction and brings some level of SLA for predictable workloads, it often needs proper design ahead.
+The queue hierarchy and resource allocation needs to be changed when new tenants and workloads are moved to the cluster.</p>
+
+<p>Periscope was designed around the idea of <code>autoscaling</code> clusters &ndash; without any need to preconfigure queues, cluster nodes or apply capacity planning ahead.</p>
+
+<h2>How it works</h2>
+
+<p>Periscope monitors the application progress, the number of YARN containers/resources and their allocation, queue depths, the number of available cluster nodes and their health.
+Since we have switched to YARN a while ago (been among the first adopters) we have run an open source <a href="https://github.com/sequenceiq/yarn-monitoring">monitoring project</a>, based on R.
+We have been collecting metrics from the YARN Timeline server, Hadoop Metrics2 and Ambari&rsquo;s Nagios/Ganglia &ndash; and profiling the applications and correlating with these metrics.
+One of the key findings was that while low level metrics are good to understand the cluster health &ndash; they might not necessarily help on making decisions when applying different SLA policies on a multi-tenant cluster.
+Focusing on higher level building blocks as queue depth, YARN containers, etc actually brings in the same quality of service, while not being lost in low level details.</p>
+
+<p>Periscope works with two types of Hadoop clusters: <code>static</code> and <code>dynamic</code>. Periscope does not require any pre-installation &ndash; the only thing it requires is to be <code>attached</code> to an Ambari server&rsquo;s REST API.</p>
+
+<h2>Clusters</h2>
+
+<h3>Static clusters</h3>
+
+<p>From Periscope point of view we consider a cluster <code>static</code> when the cluster capacity can&rsquo;t be increased horizontally.
+This means that the hardware resources are already given &ndash; and the throughput can&rsquo;t be increased by adding new nodes.
+Periscope introspects the job submission process, monitors the applications and applies the following SLAs:</p>
+
+<ol>
+<li> Application ordering &ndash; can guarantee that a higher priority application finishes before another one (supporting parallel or sequential execution)</li>
+<li> Moves running applications between priority queues</li>
+<li> <em>Attempts</em> to enforce time based SLA (execution time, finish by, finish between, recurring)</li>
+<li> <em>Attempts</em> to enforce guaranteed cluster capacity requests ( x % of the resources)</li>
+<li> Support for distributed (but not YARN ready) applications using Apache Slider</li>
+<li> Attach priorities to SLAs</li>
+</ol>
+
+
+<p><em>Note: not all of the features above are supported in the first <code>public beta</code> version. There are dependencies we contributed to Hadoop, YARN and Ambari and they will be included in the next releases (2.6 and 1.7)</em></p>
+
+<h3>Autoscaling clusters</h3>
+
+<p>From Periscope point of view we consider a cluster <code>dynamic</code> when the cluster capacity can be increased horizontally.
+This means that nodes can be added or removed on the fly &ndash; thus the cluster’s throughput can be increased or decreased based on the cluster load and scheduled applications.
+Periscope works with <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> to add or remove nodes from the cluster based on the SLA policies and thus continuously provide a high <em>quality of service</em> for the multi-tenand Hadoop cluster.
+Just to refresh memories &ndash; <a href="http://sequenceiq.com/products.html">Cloudbreak</a> is <a href="http://sequenceiq.com">SequenceIQ&rsquo;s</a> open source, cloud agnostic Hadoop as a Service API.
+Given the option of provisioning or decommissioning cluster nodes on the fly, Periscope allows you to use the following set of SLAs:</p>
+
+<ol>
+<li> Application ordering &ndash; can guarantee that a higher priority application finishes before another one (supporting parallel or sequential execution)</li>
+<li> Moves running applications between priority queues</li>
+<li> <em>Enforce</em> time based SLA (execution time, finish by, finish between, recurring) by increasing cluster capacity and throughput</li>
+<li> Smart decommissioning &ndash; avoids HDFS storms, keeps <code>paid</code> nodes alive till the last minute</li>
+<li> <em>Enforce</em> guaranteed cluster capacity requests ( x % of the resources)</li>
+<li> <em>Private</em> cluster requests &ndash; supports provisioning of short lived private clusters with the possibility to merge them.</li>
+<li> Support for distributed (but not YARN ready) applications using Apache Slider</li>
+<li> Attach priorities to SLAs</li>
+</ol>
+
+
+<p><em>Note: not all of the features above are supported in the first <code>public beta</code> version. There are dependencies we contributed to Hadoop, YARN and Ambari and they will be included in the next releases (2.6 and 1.7)</em></p>
+
+<h3>High level technical details</h3>
+
+<p>When we have started to work on Periscope we checked different solutions &ndash; and we quickly realized that there are no open source solutions available.
+Apache YARN in general, and the scheduler API&rsquo;s in particular have solved few of the issues we had &ndash; and they have certainly bring some level of SLA to Hadoop.
+At <a href="https://sequenceiq.com">SequenceIQ</a> we run all our different applications on YARN &ndash; and when we decided to create a heuristic scheduler we new from very beginning that it has to be built on the functionality given by YARN.
+In order to create Periscope we had to contribute code to YARN, Hadoop and Ambari &ndash; and were trying to add all the low level features directly into the YARN codebase.
+Periscope has a <a href="http://docs.periscope.apiary.io/">REST API</a> and supports pluggable SLA policies.
+We will follow up with technical details in coming blog posts, so make sure you subscribe to on of our social channels.</p>
+
+<h3>Resources</h3>
+
+<p>Get the code : <a href="https://github.com/sequenceiq/periscope">https://github.com/sequenceiq/periscope</a></p>
+
+<p>Documentation: <a href="http://sequenceiq.com/periscope">http://sequenceiq.com/periscope</a></p>
+
+<p>API documentation: <a href="http://docs.periscope.apiary.io/">http://docs.periscope.apiary.io/</a></p>
+
+<h3>What&rsquo;s next, etc</h3>
+
+<p>This is the first <code>public beta</code> release of Periscope made available on our <a href="https://github.com/sequenceiq/periscope">GitHub</a> page.
+While we are already using this internally we would like the community to help us battle test it, let us know if you find issues or raise feature requests. We are always happy to help.</p>
+
+<p>Further releases will bring tighter integration with Ambari (especially around cluster resources), an enhanced (or potentially new) YARN scheduler and a Machine learning based job classification model.</p>
+
+<p>We would like to say a big <em>thank you</em> for the YARN team &ndash; this effort would have not been possible without their contribution. Also we would like to thank them by supporting us whit our contributions as well.
+At SequenceIQ we are 100% committed to open source &ndash; and releasing Periscope under an <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2 licence</a> was never a question.</p>
+
+<p>Stay tuned and make sure you follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
+
+<p>Enjoy.</p>
 ]]></content>
   </entry>
   
@@ -2675,282 +2783,6 @@ To find out the IP of the Ambari server run:</p>
 
 
 <p> <div style="margin-bottom:5px"> <strong> <a href="https://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning" title="Docker based Hadoop provisioning - Hadoop Summit 2014 " target="_blank">Docker based Hadoop provisioning &ndash; Hadoop Summit 2014 </a> </strong> from <strong><a href="http://www.slideshare.net/JanosMatyas" target="_blank">Janos Matyas</a></strong> </div></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Apache Ambari + Spring Shell = Ambari Shell]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell/"/>
-    <updated>2014-05-26T13:42:11+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell</id>
-    <content type="html"><![CDATA[<h2>Introduction</h2>
-
-<p><a href="http://ambari.apache.org/">Apache Ambari&rsquo;s</a> goal is to make Hadoop cluster management
-as simple as possible. It provides an intuitive easy-to-use web UI backed by its RESTful API.
-With only a few clicks you&rsquo;re able to install Hadoop services across any number of hosts
-and Ambari will take care of the configurations as well. After the installation is complete
-you can monitor your cluster taking leverage of <a href="http://ganglia.sourceforge.net/">Ganglia</a>
-and <a href="http://www.nagios.org/">Nagios</a>.</p>
-
-<p>At SequenceIQ we prefer to use command line tools whenever it&rsquo;s possible,
-because it&rsquo;s much faster than interacting with a web UI and it&rsquo;s a better candidate for automation.
-Here comes <a href="https://github.com/spring-projects/spring-shell#readme">Spring Shell</a> to our rescue.</p>
-
-<p>It&rsquo;s an interactive shell that can be easily extended using a Spring based programming model and battle
-tested in various projects like <a href="http://projects.spring.io/spring-roo/">Spring Roo</a>,
-<a href="http://docs.spring.io/spring-xd/docs/1.0.0.BUILD-SNAPSHOT/reference/html/">Spring XD</a>, and
-<a href="https://github.com/spring-projects/rest-shell">Spring REST Shell</a> Combine these two projects
-and a really powerful tool will come to light.</p>
-
-<h2>Ambari Shell</h2>
-
-<p>The goal is to provide an interactive command line tool which supports:</p>
-
-<ul>
-<li>all functionality available through the REST API or Ambari web UI</li>
-<li>makes possible complete automation of management task via <strong>scripts</strong></li>
-<li>context aware command availability</li>
-<li>tab completion</li>
-<li>required/optional parameter support</li>
-<li><strong>hint</strong> command to guide you on the usual path</li>
-</ul>
-
-
-<p>Since we&rsquo;re open sourcing the project, it should be available and part of the official Ambari repository
-<a href="https://issues.apache.org/jira/browse/AMBARI-5482">soon</a>.</p>
-
-<h2>Install Ambari Shell</h2>
-
-<p>For now you have 3 options to give it a try:</p>
-
-<ul>
-<li>use our prepared <a href="https://index.docker.io/u/sequenceiq/ambari-shell/">docker image</a></li>
-<li>download the latest self-containing executable jar form our maven repo</li>
-<li>build it from source</li>
-</ul>
-
-
-<h3>Run via docker</h3>
-
-<p>As we love to dockerize everything, we prepared a <a href="https://index.docker.io/u/sequenceiq/ambari-shell/">docker image</a>
-with jdk1.7 on latest ubuntu, ambari-shell preinstalled. Detailed description is available on <a href="https://github.com/sequenceiq/ambari-shell-docker">github</a>.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -it --rm sequenceiq/ambari-shell --ambari.host=&lt;HOSTNAME&gt; --ambari.port=&lt;PORT&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<!-- more -->
-
-
-<h3>Run latest snapshot</h3>
-
-<p>You need only jdk 1.7. The script below will download the latest ambari-shell.jar into a
-temporary folder, and give you instruction on how to use.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl -Ls https://raw.githubusercontent.com/sequenceiq/ambari-shell/master/latest-snap.sh | bash</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Build from source</h3>
-
-<p>If want to check the code, or extend it with new commands, Follow the steps below. You will need:
-&ndash; jdk 1.7
-&ndash; maven 3.x.x</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>git clone https://github.com/sequenceiq/ambari-shell.git
-</span><span class='line'>cd ambari-shell
-</span><span class='line'>mvn package</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The shell is built as a single executable jar with the help of <a href="http://projects.spring.io/spring-boot/">Spring Boot</a>.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>java -jar target/ambari-shell-1.0-SNAPSHOT.jar --ambari.host=&lt;HOSTNAME&gt; --ambari.port=&lt;PORT&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Start a &ldquo;sandbox&rdquo; Ambari Server</h2>
-
-<p>The image is available at the Docker repository, which means you only need to run the following to get a running Ambari server:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -d -P -h server.ambari.com --name ambari-singlenode sequenceiq/ambari</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Connect Ambari Shell to the server</h2>
-
-<p>Once the server is up and running (10-20 sec) you can connect to it with the shell:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Usage:
-</span><span class='line'>  java -jar ambari-shell.jar                  : Starts Ambari Shell in interactive mode.
-</span><span class='line'>  java -jar ambari-shell.jar --cmdfile=&lt;FILE&gt; : Ambari Shell executes commands read from the file.
-</span><span class='line'>
-</span><span class='line'>Options:
-</span><span class='line'>  --ambari.host=&lt;HOSTNAME&gt;       Hostname of the Ambari Server [default: localhost].
-</span><span class='line'>  --ambari.port=&lt;PORT&gt;           Port of the Ambari Server [default: 8080].
-</span><span class='line'>  --ambari.user=&lt;USER&gt;           Username of the Ambari admin [default: admin].
-</span><span class='line'>  --ambari.password=&lt;PASSWORD&gt;   Password of the Ambari admin [default: admin].
-</span><span class='line'>
-</span><span class='line'>Note:
-</span><span class='line'>  At least one option is mandatory.</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Create a cluster</h2>
-
-<p>All commands are context aware and are available only when it makes sense. For example the <code>cluster create</code> command is not available
-until a blueprint hasn&rsquo;t been added or selected. A good approach is to use the <code>hint</code> command &ndash; as the Ambari UI, this will give
-you hints about the available commands and the flow of creating or configuring a cluster. You can always use TAB for completion
-or available parameters.</p>
-
-<p>Initially there are no blueprints available &ndash; you can add blueprints from file or URL. For your convenience we&rsquo;ve added two
-blueprints as defaults. You can get these blueprints by using the <code>blueprint defaults</code> command. The result is the following:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ambari-shell&gt; blueprint defaults
-</span><span class='line'>ambari-shell&gt; blueprint list</span></code></pre></td></tr></table></div></figure>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>  BLUEPRINT              STACK
-</span><span class='line'>  ---------------------  -------
-</span><span class='line'>  multi-node-hdfs-yarn   HDP:2.0
-</span><span class='line'>  single-node-hdfs-yarn  HDP:2.0</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Once the blueprints are added you can use them to create a cluster by typing <code>cluster build --blueprint single-node-hdfs-yarn</code>.
-Now that the blueprint is selected you have to assign the hosts to the available host groups. Use</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ambari-shell&gt; cluster build --blueprint single-node-hdfs-yarn
-</span><span class='line'>CLUSTER_BUILD:single-node-hdfs-yarn&gt; cluster assign --hostGroup host_group_1 --host server.ambari.com
-</span><span class='line'>
-</span><span class='line'>  HOSTGROUP     HOST
-</span><span class='line'>  ------------  -----------------
-</span><span class='line'>  host_group_1  server.ambari.com</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Once you are happy with the host &ndash; host group associations you can choose <code>cluster create</code> to start building the cluster.
-Progress can be checked either at the Amabri UI or using the <code>tasks</code> command.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>CLUSTER_BUILD:single-node-hdfs-yarn&gt; cluster create
-</span><span class='line'>Successfully created the cluster
-</span><span class='line'>CLUSTER:single-node-hdfs-yarn&gt; tasks
-</span><span class='line'>
-</span><span class='line'>  TASK                        STATUS
-</span><span class='line'>  --------------------------  -------
-</span><span class='line'>  HISTORYSERVER INSTALL       QUEUED
-</span><span class='line'>  ZOOKEEPER_SERVER START      PENDING
-</span><span class='line'>  ZOOKEEPER_CLIENT INSTALL    PENDING
-</span><span class='line'>  HDFS_CLIENT INSTALL         PENDING
-</span><span class='line'>  HISTORYSERVER START         PENDING
-</span><span class='line'>  NODEMANAGER INSTALL         QUEUED
-</span><span class='line'>  NODEMANAGER START           PENDING
-</span><span class='line'>  ZOOKEEPER_SERVER INSTALL    QUEUED
-</span><span class='line'>  YARN_CLIENT INSTALL         PENDING
-</span><span class='line'>  NAMENODE INSTALL            QUEUED
-</span><span class='line'>  RESOURCEMANAGER INSTALL     QUEUED
-</span><span class='line'>  NAMENODE START              PENDING
-</span><span class='line'>  RESOURCEMANAGER START       PENDING
-</span><span class='line'>  DATANODE START              PENDING
-</span><span class='line'>  SECONDARY_NAMENODE START    PENDING
-</span><span class='line'>  DATANODE INSTALL            QUEUED
-</span><span class='line'>  MAPREDUCE2_CLIENT INSTALL   PENDING
-</span><span class='line'>  SECONDARY_NAMENODE INSTALL  QUEUED</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Each time you start the shell the executed commands are logged in a file line by line and later either with the <code>script</code> command
-or specifying an <code>--cmdfile</code> option the same commands can be executed.</p>
-
-<h2>Commands</h2>
-
-<p>The currently supported commands are:</p>
-
-<ul>
-<li><code>blueprint add</code> &ndash; Add a new blueprint with either &mdash;url or &mdash;file</li>
-<li><code>blueprint defaults</code> &ndash; Adds the default blueprints to Ambari</li>
-<li><code>blueprint list</code> &ndash; Lists all known blueprints</li>
-<li><code>blueprint show</code> &ndash; Shows the blueprint by its id</li>
-<li><code>cluster assign</code> &ndash; Assign host to host group</li>
-<li><code>cluster build</code> &ndash; Starts to build a cluster</li>
-<li><code>cluster create</code> &ndash; Create a cluster based on current blueprint and assigned hosts</li>
-<li><code>cluster delete</code> &ndash; Delete the cluster</li>
-<li><code>cluster preview</code> &ndash; Shows the currently assigned hosts</li>
-<li><code>cluster reset</code> &ndash; Clears the host &ndash; host group assignments</li>
-<li><code>debug off</code> &ndash; Stops showing the URL of the API calls</li>
-<li><code>debug on</code> &ndash; Shows the URL of the API calls</li>
-<li><code>exit</code> &ndash; Exits the shell</li>
-<li><code>hello</code> &ndash; Prints a simple elephant to the console</li>
-<li><code>help</code> &ndash; List all commands usage</li>
-<li><code>hint</code> &ndash; Shows some hints</li>
-<li><code>host components</code> &ndash; Lists the components assigned to the selected host</li>
-<li><code>host focus</code> &ndash; Sets the useHost to the specified host</li>
-<li><code>host list</code> &ndash; Lists the available hosts</li>
-<li><code>quit</code> &ndash; Exits the shell</li>
-<li><code>script</code> &ndash; Parses the specified resource file and executes its commands</li>
-<li><code>service components</code> &ndash; Lists all services with their components</li>
-<li><code>service list</code> &ndash; Lists the available services</li>
-<li><code>tasks</code> &ndash; Lists the Ambari tasks</li>
-<li><code>version</code> &ndash; Displays shell version</li>
-</ul>
-
-
-<h2>Summary</h2>
-
-<p>To sum it up in less than two minutes watch this video:</p>
-
-<script type="text/javascript" src="https://asciinema.org/a/9783.js" id="asciicast-9783" async></script>
-
 ]]></content>
   </entry>
   
