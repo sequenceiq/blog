@@ -5,7 +5,7 @@ date: 2014-07-27 18:37:37 +0200
 comments: true
 categories: [QoS, Autoscaling, SLA, Cloud, Schedulers, Periscope]
 author: Janos Matyas
-published: false
+published: true
 ---
 
 
