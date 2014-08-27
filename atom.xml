@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-08-27T19:49:17+00:00</updated>
+  <updated>2014-08-27T19:54:23+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -35,6 +35,9 @@ While this is a pretty good abstraction and brings some level of SLA for predict
 The queue hierarchy and resource allocation needs to be changed when new tenants and workloads are moved to the cluster.</p>
 
 <p>Periscope was designed around the idea of <code>autoscaling</code> clusters &ndash; without any need to preconfigure queues, cluster nodes or apply capacity planning ahead.</p>
+
+<!--more-->
+
 
 <h2>How it works</h2>
 
