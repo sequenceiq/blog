@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-08-27T21:24:23+00:00</updated>
+  <updated>2014-08-27T21:27:33+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -93,9 +93,9 @@ Given the option of provisioning or decommissioning cluster nodes on the fly, Pe
 
 <h3>High level technical details</h3>
 
-<p>When we have started to work on Periscope we checked different solutions &ndash; and we quickly realized that there are no open source solutions available.
+<p>When we have started to work on Periscope we checked different solutions &ndash; and we quickly realized that there are no any open source solutions available.
 Apache YARN in general, and the scheduler API&rsquo;s in particular have solved few of the issues we had &ndash; and they have certainly bring some level of SLA to Hadoop.
-At <a href="https://sequenceiq.com">SequenceIQ</a> we run all our different applications on YARN &ndash; and when we decided to create a heuristic scheduler we new from very beginning that it has to be built on the functionality given by YARN.
+At <a href="https://sequenceiq.com">SequenceIQ</a> we run all our different applications on YARN &ndash; and when we decided to create a heuristic scheduler we knew from very beginning that it has to be built on the functionality given by YARN.
 In order to create Periscope we had to contribute code to YARN, Hadoop and Ambari &ndash; and were trying to add all the low level features directly into the YARN codebase.
 Periscope has a <a href="http://docs.periscope.apiary.io/">REST API</a> and supports pluggable SLA policies.
 We will follow up with technical details in coming blog posts, so make sure you subscribe to on of our social channels.</p>
