@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-08-27T21:33:48+00:00</updated>
+  <updated>2014-08-27T22:22:33+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -22,7 +22,7 @@
 
 <p><em>Periscope brings QoS and autoscaling to Hadoop YARN. Built on cloud resource management and YARN schedulers, allows to associate SLA policies to applications.</em></p>
 
-<p>After the very positive reception of <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> &ndash; the first open sourced and cloud agnostic Hadoop as a Service API &ndash; today we are releasing the <code>public beta</code> version of our open source <strong>SLA policy based autoscaling API</strong> for Hadoop YARN clusters.</p>
+<p>After the very positive reception of <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> &ndash; the first open source and cloud agnostic Hadoop as a Service API &ndash; today we are releasing the <code>public beta</code> version of our open source <strong>SLA policy based autoscaling API</strong> for Hadoop YARN clusters.</p>
 
 <h2>Overview</h2>
 
