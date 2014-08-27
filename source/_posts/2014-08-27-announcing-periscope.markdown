@@ -102,6 +102,6 @@ Further releases will bring tighter integration with Ambari (especially around c
 We would like to say a big *thank you* for the YARN team - this effort would have not been possible without their contribution. Also we would like to thank them by supporting us with our contributions as well.
 At SequenceIQ we are 100% committed to open source - and releasing Periscope under an [Apache 2 licence](http://www.apache.org/licenses/LICENSE-2.0) was never a question.
 
-Stay tuned and make sure you follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook).
+Stay tuned and make sure you follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
 
 Enjoy.
