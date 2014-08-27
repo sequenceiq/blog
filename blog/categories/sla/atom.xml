@@ -4,7 +4,7 @@
   <title><![CDATA[Category: SLA | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/sla/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-08-27T19:47:06+00:00</updated>
+  <updated>2014-08-27T19:49:17+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Periscope - autoscaling for Hadoop YARN]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/07/27/announcing-periscope/"/>
-    <updated>2014-07-27T16:37:37+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/07/27/announcing-periscope</id>
+    <link href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/"/>
+    <updated>2014-08-27T16:37:37+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope</id>
     <content type="html"><![CDATA[<p><em>Periscope is a powerful, fast, thick and top-to-bottom right-hander, eastward from Sumbawa&rsquo;s famous west-coast. Timing is critical, as needs a number of elements to align before it shows its true colors.</em></p>
 
 <p><em>Periscope brings QoS and autoscaling to Hadoop YARN. Built on cloud resource management and YARN schedulers, allows to associate SLA policies to applications.</em></p>
