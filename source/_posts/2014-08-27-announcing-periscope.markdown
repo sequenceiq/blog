@@ -27,6 +27,8 @@ The queue hierarchy and resource allocation needs to be changed when new tenants
 
 Periscope was designed around the idea of `autoscaling` clusters - without any need to preconfigure queues, cluster nodes or apply capacity planning ahead.
 
+<!--more-->
+
 ##How it works
 
 Periscope monitors the application progress, the number of YARN containers/resources and their allocation, queue depths, the number of available cluster nodes and their health. 
