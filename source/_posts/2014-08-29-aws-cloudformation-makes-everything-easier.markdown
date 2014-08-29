@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "How AWS CloudFormation makes infrastructure management easier"
+title: "Infrastructure management with CloudFormation"
 date: 2014-08-29 16:13:06 +0200
 comments: true
 categories: [Cloud, Cloudbreak, AWS, CloudFormation, infrastructure]
