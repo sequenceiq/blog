@@ -157,3 +157,5 @@ The template we used in Cloudbreak is available [here](https://github.com/sequen
 
 ###Terraform
 The [company](http://www.hashicorp.com/products) that brought us [Vagrant](http://www.vagrantup.com/), [Packer](http://www.packer.io/) and a few more useful things has recently announced a new project named [Terraform](http://www.terraform.io/intro/index.html). Terraform is inspired by tools like CloudFormation or [OpenStack’s Heat](https://wiki.openstack.org/wiki/Heat), but goes further as it supports multiple cloud platforms and their services can also be combined. If you’re interested in managing infrastructure from code and configuration you should check out that project too, we’ll keep an eye on it for sure.
+
+Stay tuned and make sure you follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
