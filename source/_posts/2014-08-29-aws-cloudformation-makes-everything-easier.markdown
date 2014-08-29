@@ -5,7 +5,7 @@ date: 2014-08-29 16:13:06 +0200
 comments: true
 categories: [Cloud, Cloudbreak, AWS, CloudFormation, infrastructure]
 author: Marton Sereg
-published: false
+published: true
 ---
 
 
