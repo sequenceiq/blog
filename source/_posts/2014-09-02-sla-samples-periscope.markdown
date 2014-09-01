@@ -19,7 +19,9 @@ SLAs policies are configured based on `alarms`, whereas an alarm is created base
 An alarm watches a `metric` over a specified time period, and used by one or more action or scaling policy based on the value of the metric relative to a given threshold over the time period. A few of the supported `metrics` are listed below:
 
 *`PENDING_CONTAINERS`- pending YARN containers
+
 *`PENDING_APPLICATIONS` - pending/queued YARN applications
+
 *`LOST_NODES` - cluster nodes lost
 
 *`UNHEALTHY_NODES` - unhealthy cluster nodes
