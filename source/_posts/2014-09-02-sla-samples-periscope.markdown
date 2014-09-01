@@ -19,9 +19,7 @@ SLAs policies are configured based on `alarms`, whereas an alarm is created base
 An alarm watches a `metric` over a specified time period, and used by one or more action or scaling policy based on the value of the metric relative to a given threshold over the time period. A few of the supported `metrics` are listed below:
 
 *`PENDING_CONTAINERS`- pending YARN containers
-
 *`PENDING_APPLICATIONS` - pending/queued YARN applications
-
 *`LOST_NODES` - cluster nodes lost
 
 *`UNHEALTHY_NODES` - unhealthy cluster nodes
@@ -39,8 +37,6 @@ For the `alarm` related REST operations you can check the [API](http://docs.peri
 # set metric alarms
 curl -X POST -H "Content-Type: application/json" -d '{"alarms":[{"alarmName":"pendingContainerHigh","description":"Number of pending containers is high","metric":"PENDING_CONTAINERS","threshold":10,"comparisonOperator":"GREATER_THAN","period":1},{"alarmName":"freeGlobalResourcesRateLow","description":"Low free global resource rate","metric":"GLOBAL_RESOURCES","threshold":1,"comparisonOperator":"EQUALS","period":1,"notifications":[{"target":[“mick.fanning@aspworldtour.com"],"notificationType":"EMAIL"}]}]}' localhost:8081/clusters/1/alarms | jq .
 curl -X PUT -H "Content-Type: application/json" -d '{"alarmName":"unhealthyNodesHigh","description":"Number of unhealthy nodes is high","metric":"UNHEALTHY_NODES","threshold":5,"comparisonOperator":"GREATER_OR_EQUAL_THAN","period":5}' localhost:8081/clusters/1/alarms | jq .
-curl -X GET localhost:8081/clusters/1/alarms | jq .
-curl -X DELETE localhost:8081/clusters/1/alarms/100 | jq .
 ```
 
 ##SLA scaling policies
