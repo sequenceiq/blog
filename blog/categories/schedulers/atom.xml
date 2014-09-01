@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Schedulers | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/schedulers/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-01T13:45:13+00:00</updated>
+  <updated>2014-09-01T16:31:35+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,71 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[SLA policies for autoscaling Hadoop clusters]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/01/sla-samples-periscope/"/>
+    <updated>2014-09-01T16:37:37+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/01/sla-samples-periscope</id>
+    <content type="html"><![CDATA[<p>Last week we have <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">announced</a> and open sourced <a href="http://sequenceiq.com/periscope/">Periscope</a> &ndash; the industry’s first SLA policy based autoscaling API for Hadoop YARN clusters. In this post we’d like to come up with some examples, setting up alarms and attach scaling policies to your Hadoop cluster.</p>
+
+<p>Periscope is built on existing (and coming/contributed by us) features provided by Apache Hadoop, YARN, Ambari, Docker containers and SequenceIQ’s <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>. Just FYI, <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> is our open source and cloud agnostic Hadoop as a Service API, built on Docker containers. While Periscope can attach scaling policies to <code>static</code> and <code>dynamic</code> clusters &ndash; in this post we’d like to emphasize Periscope’s capabilities while working with &mdash; `dynamic &ndash; cloud based Hadoop deployments  &ndash; such as Hadoop clusters deployed with <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>.</p>
+
+<p>SLAs policies are configured based on <code>alarms</code>, whereas an alarm is created based on <code>metrics</code> &ndash; these entities are explained below.</p>
+
+<h2>Alarms</h2>
+
+<p>An alarm watches a <code>metric</code> over a specified time period, and used by one or more action or scaling policy based on the value of the metric relative to a given threshold over the time period. A few of the supported <code>metrics</code> are listed below:</p>
+
+<p>*<code>PENDING_CONTAINERS</code>&ndash; pending YARN containers</p>
+
+<p>*<code>PENDING_APPLICATIONS</code> &ndash; pending/queued YARN applications</p>
+
+<p>*<code>LOST_NODES</code> &ndash; cluster nodes lost</p>
+
+<p>*<code>UNHEALTHY_NODES</code> &ndash; unhealthy cluster nodes</p>
+
+<p>*<code>GLOBAL_RESOURCES</code> &ndash; global resources</p>
+
+<!--more-->
+
+
+<p>Measured <code>metrics</code> are compared with pre-configured values using operators. The <code>comparison operators</code> are: <code>LESS_THAN</code>, <code>GREATER_THAN</code>, <code>LESS_OR_EQUAL_THAN</code>, <code>GREATER_OR_EQUAL_THAN</code>, <code>EQUALS</code>.
+In order to avoid reacting for sudden spikes in the system and apply policies only in case of a sustained system stress, <code>alarms</code> have to be sustained over a <code>period</code> of time.  The <code>period</code> specifies the time period in minutes during the alarm has to be sustained. Also a <code>threshold</code> can be configured, which specifies the variance applied by the operator for the selected <code>metric</code>.</p>
+
+<p>For the <code>alarm</code> related REST operations you can check the <a href="http://docs.periscope.apiary.io/reference/alarms">API</a> documentation. Alarms can issue <code>notifications</code> as well &ndash; for example if a metric is reached for the configured time and threshold a notification event is raised &ndash; in the given example below this notification is an email.</p>
+
+<p>```</p>
+
+<h1>set metric alarms</h1>
+
+<p>curl -X POST -H &ldquo;Content-Type: application/json&rdquo; -d &lsquo;{&ldquo;alarms&rdquo;:[{&ldquo;alarmName&rdquo;:&ldquo;pendingContainerHigh&rdquo;,&ldquo;description&rdquo;:&ldquo;Number of pending containers is high&rdquo;,&ldquo;metric&rdquo;:&ldquo;PENDING_CONTAINERS&rdquo;,&ldquo;threshold&rdquo;:10,&ldquo;comparisonOperator&rdquo;:&ldquo;GREATER_THAN&rdquo;,&ldquo;period&rdquo;:1},{&ldquo;alarmName&rdquo;:&ldquo;freeGlobalResourcesRateLow&rdquo;,&ldquo;description&rdquo;:&ldquo;Low free global resource rate&rdquo;,&ldquo;metric&rdquo;:&ldquo;GLOBAL_RESOURCES&rdquo;,&ldquo;threshold&rdquo;:1,&ldquo;comparisonOperator&rdquo;:&ldquo;EQUALS&rdquo;,&ldquo;period&rdquo;:1,&ldquo;notifications&rdquo;:[{&ldquo;target&rdquo;:[“<a href="&#109;&#x61;&#105;&#108;&#116;&#111;&#x3a;&#109;&#105;&#x63;&#x6b;&#x2e;&#x66;&#97;&#110;&#110;&#x69;&#x6e;&#x67;&#x40;&#97;&#x73;&#112;&#119;&#x6f;&#114;&#108;&#x64;&#x74;&#x6f;&#117;&#x72;&#46;&#x63;&#x6f;&#x6d;">&#x6d;&#x69;&#x63;&#x6b;&#46;&#102;&#97;&#110;&#110;&#x69;&#110;&#103;&#64;&#x61;&#x73;&#112;&#119;&#111;&#x72;&#108;&#100;&#x74;&#x6f;&#x75;&#114;&#x2e;&#99;&#111;&#109;</a>"],&ldquo;notificationType&rdquo;:&ldquo;EMAIL&rdquo;}]}]}&rsquo; localhost:8081/clusters/1/alarms | jq .
+curl -X PUT -H &ldquo;Content-Type: application/json&rdquo; -d &lsquo;{&ldquo;alarmName&rdquo;:&ldquo;unhealthyNodesHigh&rdquo;,&ldquo;description&rdquo;:&ldquo;Number of unhealthy nodes is high&rdquo;,&ldquo;metric&rdquo;:&ldquo;UNHEALTHY_NODES&rdquo;,&ldquo;threshold&rdquo;:5,&ldquo;comparisonOperator&rdquo;:&ldquo;GREATER_OR_EQUAL_THAN&rdquo;,&ldquo;period&rdquo;:5}&rsquo; localhost:8081/clusters/1/alarms | jq .
+```</p>
+
+<h2>SLA scaling policies</h2>
+
+<p>Scaling is the ability to increase or decrease the capacity of the Hadoop cluster or application.  When scaling policies are used, the capacity is automatically increased or decreased according to the conditions defined.
+Periscope will do the heavy lifting and based on the alarms and the scaling policy linked to them it executes the associated policy. By default a fully configured and running <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> cluster contains no SLA policies.  An SLA scaling policy can contain multiple <code>alarms</code>.</p>
+
+<p>As an alarm is triggered a <code>scalingAdjustment</code> is applied, however to keep the cluster size within boundaries a <code>minSize</code> and <code>maxSize</code> is attached to the cluster &ndash; thus a scaling policy can never over or undersize a cluster. Also in order to avoid stressing the cluster we have introduced a <code>cooldown</code> period (minutes) &ndash; though an alarm is raised and there is an associated scaling policy, the system will not apply the policy within the configured timeframe. In an SLA scaling policy the triggered policies are applied in order.</p>
+
+<p>Hosts can be added or removed from specific <code>hostgroups</code>. Periscope and Cloudbreak uses Apache Ambari to provision a Hadoop cluster. Ambari host groups are a set of machines with the same Hadoop “components” installed. You can set up a cluster having different hostgroups &ndash; and run different services, thus having a heterogenous cluster.</p>
+
+<p>In the following example we downscale a cluster when the unused resources are high.</p>
+
+<p>```</p>
+
+<h1>set scaling policy</h1>
+
+<p>curl -X POST -H &ldquo;Content-Type: application/json&rdquo; -d &lsquo;{&ldquo;minSize&rdquo;:2,&ldquo;maxSize&rdquo;:10,&ldquo;cooldown&rdquo;:30,&ldquo;scalingPolicies&rdquo;:[{&ldquo;name&rdquo;:&ldquo;downScaleWhenHighResource&rdquo;,&ldquo;adjustmentType&rdquo;:&ldquo;NODE_COUNT&rdquo;,&ldquo;scalingAdjustment&rdquo;:2,&ldquo;hostGroup&rdquo;:&ldquo;slave_1&rdquo;,&ldquo;alarmId&rdquo;:&ldquo;101&rdquo;},{&ldquo;name&rdquo;:&ldquo;upScaleWhenHighPendingContainers&rdquo;,&ldquo;adjustmentType&rdquo;:&ldquo;PERCENTAGE&rdquo;,&ldquo;scalingAdjustment&rdquo;:40,&ldquo;hostGroup&rdquo;:&ldquo;slave_1&rdquo;,&ldquo;alarmId&rdquo;:&ldquo;100&rdquo;}]}&rsquo; localhost:8081/clusters/1/policies | jq .
+```</p>
+
+<p>For the <code>policy</code> related REST operations you can check the <a href="http://docs.periscope.apiary.io/reference/scaling-policy">API</a> documentation.</p>
+
+<p>Let us know how Periscope works for you &ndash; and for updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Periscope - autoscaling for Hadoop YARN]]></title>

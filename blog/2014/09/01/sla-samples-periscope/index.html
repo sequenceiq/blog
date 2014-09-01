@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: SLA - SequenceIQ Blog</title>
+  <title>SLA policies for autoscaling Hadoop clusters - SequenceIQ Blog</title>
   <meta name="author" content="SequenceIQ">
 
    
-  <meta name="description" content="Category: SLA">
+  <meta name="description" content="">
   
   <meta name="keywords" content="">
 
@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.sequenceiq.comblog/categories/sla">
+  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2014/09/01/sla-samples-periscope">
   <link href="/favicon.png" rel="icon">
   <link href='http://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
@@ -117,95 +117,171 @@
               <div class="col-md-9" id="">
                   <div class="">
                    <!-- <div id="content">-->
-                      <article role="article">
+                      <div>
+
+<div class="container-fluid">
+     <div class="row">
+       
+         
+       
+       
+
+       
+         
+       
+       <h1 class="article-style"> SLA policies for autoscaling Hadoop clusters
+
+       <span class="badge name-badge">Janos Matyas</span>
+       <span class="badge name-badge">01 September 2014</span>
+       </h1>
+
+
+
+</div>
+</div>
+<article class="hentry" role="article">
   
- <!-- <header>
+
+
+  <div class="row-fluid">
+    <div class="span12">
+      <p>Last week we have <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">announced</a> and open sourced <a href="http://sequenceiq.com/periscope/">Periscope</a> &ndash; the industry’s first SLA policy based autoscaling API for Hadoop YARN clusters. In this post we’d like to come up with some examples, setting up alarms and attach scaling policies to your Hadoop cluster.</p>
+
+<p>Periscope is built on existing (and coming/contributed by us) features provided by Apache Hadoop, YARN, Ambari, Docker containers and SequenceIQ’s <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>. Just FYI, <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> is our open source and cloud agnostic Hadoop as a Service API, built on Docker containers. While Periscope can attach scaling policies to <code>static</code> and <code>dynamic</code> clusters &ndash; in this post we’d like to emphasize Periscope’s capabilities while working with &mdash; `dynamic &ndash; cloud based Hadoop deployments  &ndash; such as Hadoop clusters deployed with <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>.</p>
+
+<p>SLAs policies are configured based on <code>alarms</code>, whereas an alarm is created based on <code>metrics</code> &ndash; these entities are explained below.</p>
+
+<h2>Alarms</h2>
+
+<p>An alarm watches a <code>metric</code> over a specified time period, and used by one or more action or scaling policy based on the value of the metric relative to a given threshold over the time period. A few of the supported <code>metrics</code> are listed below:</p>
+
+<p>*<code>PENDING_CONTAINERS</code>&ndash; pending YARN containers</p>
+
+<p>*<code>PENDING_APPLICATIONS</code> &ndash; pending/queued YARN applications</p>
+
+<p>*<code>LOST_NODES</code> &ndash; cluster nodes lost</p>
+
+<p>*<code>UNHEALTHY_NODES</code> &ndash; unhealthy cluster nodes</p>
+
+<p>*<code>GLOBAL_RESOURCES</code> &ndash; global resources</p>
+
+<!--more-->
+
+
+<p>Measured <code>metrics</code> are compared with pre-configured values using operators. The <code>comparison operators</code> are: <code>LESS_THAN</code>, <code>GREATER_THAN</code>, <code>LESS_OR_EQUAL_THAN</code>, <code>GREATER_OR_EQUAL_THAN</code>, <code>EQUALS</code>.
+In order to avoid reacting for sudden spikes in the system and apply policies only in case of a sustained system stress, <code>alarms</code> have to be sustained over a <code>period</code> of time.  The <code>period</code> specifies the time period in minutes during the alarm has to be sustained. Also a <code>threshold</code> can be configured, which specifies the variance applied by the operator for the selected <code>metric</code>.</p>
+
+<p>For the <code>alarm</code> related REST operations you can check the <a href="http://docs.periscope.apiary.io/reference/alarms">API</a> documentation. Alarms can issue <code>notifications</code> as well &ndash; for example if a metric is reached for the configured time and threshold a notification event is raised &ndash; in the given example below this notification is an email.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># set metric alarms
+</span><span class='line'>curl -X POST -H "Content-Type: application/json" -d '{"alarms":[{"alarmName":"pendingContainerHigh","description":"Number of pending containers is high","metric":"PENDING_CONTAINERS","threshold":10,"comparisonOperator":"GREATER_THAN","period":1},{"alarmName":"freeGlobalResourcesRateLow","description":"Low free global resource rate","metric":"GLOBAL_RESOURCES","threshold":1,"comparisonOperator":"EQUALS","period":1,"notifications":[{"target":[“mick.fanning@aspworldtour.com"],"notificationType":"EMAIL"}]}]}' localhost:8081/clusters/1/alarms | jq .
+</span><span class='line'>curl -X PUT -H "Content-Type: application/json" -d '{"alarmName":"unhealthyNodesHigh","description":"Number of unhealthy nodes is high","metric":"UNHEALTHY_NODES","threshold":5,"comparisonOperator":"GREATER_OR_EQUAL_THAN","period":5}' localhost:8081/clusters/1/alarms | jq .</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>SLA scaling policies</h2>
+
+<p>Scaling is the ability to increase or decrease the capacity of the Hadoop cluster or application.  When scaling policies are used, the capacity is automatically increased or decreased according to the conditions defined.
+Periscope will do the heavy lifting and based on the alarms and the scaling policy linked to them it executes the associated policy. By default a fully configured and running <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> cluster contains no SLA policies.  An SLA scaling policy can contain multiple <code>alarms</code>.</p>
+
+<p>As an alarm is triggered a <code>scalingAdjustment</code> is applied, however to keep the cluster size within boundaries a <code>minSize</code> and <code>maxSize</code> is attached to the cluster &ndash; thus a scaling policy can never over or undersize a cluster. Also in order to avoid stressing the cluster we have introduced a <code>cooldown</code> period (minutes) &ndash; though an alarm is raised and there is an associated scaling policy, the system will not apply the policy within the configured timeframe. In an SLA scaling policy the triggered policies are applied in order.</p>
+
+<p>Hosts can be added or removed from specific <code>hostgroups</code>. Periscope and Cloudbreak uses Apache Ambari to provision a Hadoop cluster. Ambari host groups are a set of machines with the same Hadoop “components” installed. You can set up a cluster having different hostgroups &ndash; and run different services, thus having a heterogenous cluster.</p>
+
+<p>In the following example we downscale a cluster when the unused resources are high.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># set scaling policy
+</span><span class='line'>curl -X POST -H "Content-Type: application/json" -d '{"minSize":2,"maxSize":10,"cooldown":30,"scalingPolicies":[{"name":"downScaleWhenHighResource","adjustmentType":"NODE_COUNT","scalingAdjustment":2,"hostGroup":"slave_1","alarmId":"101"},{"name":"upScaleWhenHighPendingContainers","adjustmentType":"PERCENTAGE","scalingAdjustment":40,"hostGroup":"slave_1","alarmId":"100"}]}' localhost:8081/clusters/1/policies | jq .</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For the <code>policy</code> related REST operations you can check the <a href="http://docs.periscope.apiary.io/reference/scaling-policy">API</a> documentation.</p>
+
+<p>Let us know how Periscope works for you &ndash; and for updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+
+    </div>
+  </div>
+
+
+
+  <footer>
+    <hr>
+    
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Janos Matyas</span></span>
 
     
-  </header>-->
+    <div class="row">
+      
+      <div class="col-md-6 span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/autoscaling/"><span class="label label-warning">Autoscaling</span></a>
+
+  <a href="/blog/categories/cloud/"><span class="label label-warning">Cloud</span></a>
+
+  <a href="/blog/categories/periscope/"><span class="label label-warning">Periscope</span></a>
+
+  <a href="/blog/categories/qos/"><span class="label label-warning">QoS</span></a>
+
+  <a href="/blog/categories/sla/"><span class="label label-warning">SLA</span></a>
+
+  <a href="/blog/categories/schedulers/"><span class="label label-warning">Schedulers</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="col-md-5 social-sharing pull-right">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
   
-  <div id="blog-archives" class="category">
-
+  <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
   
-  <div class="row">
-    <div class="col-md-1">
-  	
-  	
-  	  
-  	    <h2>2014</h2>
-  	
-    </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-09-01T16:37:37+00:00" pubdate><span class='month'>Sep</span> <span class='day'>01</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/09/01/sla-samples-periscope/">SLA policies for autoscaling Hadoop clusters</a></h1>
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
-
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/autoscaling/'>Autoscaling</a>, <a class='category' href='/blog/categories/cloud/'>Cloud</a>, <a class='category' href='/blog/categories/periscope/'>Periscope</a>, <a class='category' href='/blog/categories/qos/'>QoS</a>, <a class='category' href='/blog/categories/sla/'>SLA</a>, <a class='category' href='/blog/categories/schedulers/'>Schedulers</a></span>
-		</footer>
-		
-	</div>
-</div>
-
-
-  	</article>
-    </div>
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
   </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
 
-  
-  <div class="row">
-    <div class="col-md-1">
-  	
-  	
+      </div>
+      
+      
     </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-08-27T16:37:37+00:00" pubdate><span class='month'>Aug</span> <span class='day'>27</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/08/27/announcing-periscope/">Periscope - autoscaling for Hadoop YARN</a></h1>
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
-
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/autoscaling/'>Autoscaling</a>, <a class='category' href='/blog/categories/cloud/'>Cloud</a>, <a class='category' href='/blog/categories/periscope/'>Periscope</a>, <a class='category' href='/blog/categories/qos/'>QoS</a>, <a class='category' href='/blog/categories/sla/'>SLA</a>, <a class='category' href='/blog/categories/schedulers/'>Schedulers</a></span>
-		</footer>
-		
-	</div>
-</div>
-
-
-  	</article>
+    
+    <div class="row">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2014/08/29/aws-cloudformation-makes-everything-easier/" title="Previous Post: Infrastructure management with CloudFormation">&laquo; Infrastructure management with CloudFormation</a>
+          
+          
+        </p>
+      </div>
     </div>
-  </div>
-
-</div>
-
+  </footer>
 </article>
 
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
+</div>
 
 
                     <!--</div>-->
@@ -433,7 +509,10 @@
       var disqus_shortname = 'sequenceiqblog';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2014/09/01/sla-samples-periscope/';
+        var disqus_url = 'http://blog.sequenceiq.com/blog/2014/09/01/sla-samples-periscope/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
