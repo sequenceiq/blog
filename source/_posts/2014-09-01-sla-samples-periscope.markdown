@@ -1,11 +1,11 @@
 ---
 layout: post
 title: "SLA policies for autoscaling Hadoop clusters"
-date: 2014-09-02 18:37:37 +0200
+date: 2014-09-01 18:37:37 +0200
 comments: true
 categories: [QoS, Autoscaling, SLA, Cloud, Schedulers, Periscope]
 author: Janos Matyas
-published: false
+published: true
 ---
 
 Last week we have [announced](http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/) and open sourced [Periscope](http://sequenceiq.com/periscope/) - the industry’s first SLA policy based autoscaling API for Hadoop YARN clusters. In this post we’d like to come up with some examples, setting up alarms and attach scaling policies to your Hadoop cluster.
