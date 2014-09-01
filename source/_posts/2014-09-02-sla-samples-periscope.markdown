@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "SLA policies for autoscaling Hadoop clusters"
-date: 2014-08-27 18:37:37 +0200
+date: 2014-09-02 18:37:37 +0200
 comments: true
 categories: [QoS, Autoscaling, SLA, Cloud, Schedulers, Periscope]
 author: Janos Matyas
