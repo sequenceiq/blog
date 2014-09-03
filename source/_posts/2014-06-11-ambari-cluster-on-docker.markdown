@@ -65,7 +65,7 @@ Meanwhile you have started and running the download let's explain all those para
 
 Let's break down the parameters of the first container:
 ```
-docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/ambari --tag ambari-server=true
+docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/ambari:1.6.0 --tag ambari-server=true
 ```
 
 - **-d** : Detached mode, container runs in the background
@@ -105,7 +105,7 @@ You might noted that only the **ambari-server** tag is defined. The reason is th
 ## Second container: ambari-shell
 
 ```
-docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -t --rm --entrypoint /bin/sh sequenceiq/ambari -c /tmp/install-cluster.sh
+docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -t --rm --entrypoint /bin/sh sequenceiq/ambari:1.6.0 -c /tmp/install-cluster.sh
 ```
 
 - **-e BLUEPRINT=single-node-hdfs-yarn** : the template to use for the cluster (single-node-hdfs-yarn/multi-node-hdfs-yarn/lambda-architecture) [see the blueprint JSON on GitHub](https://github.com/sequenceiq/ambari-rest-client/tree/master/src/main/resources/blueprints)
