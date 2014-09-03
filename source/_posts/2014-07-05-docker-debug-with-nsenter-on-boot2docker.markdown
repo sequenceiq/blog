@@ -95,3 +95,6 @@ If you want it permanently either copy-paste it into your `~/.profile` or
 ```
 curl -Lo /usr/local/bin/docker-enter j.mp/docker-enter && . /usr/local/bin/docker-enter
 ```
+
+Let us know how `nsenter` works for you - and for updates follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
+
