@@ -221,7 +221,7 @@ Meanwhile you have started and running the download let&rsquo;s explain all thos
 <p>Let&rsquo;s break down the parameters of the first container:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/ambari --tag ambari-server=true</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/ambari:1.6.0 --tag ambari-server=true</span></code></pre></td></tr></table></div></figure>
 
 
 <ul>
@@ -268,7 +268,7 @@ and will start:
 <h2>Second container: ambari-shell</h2>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -t --rm --entrypoint /bin/sh sequenceiq/ambari -c /tmp/install-cluster.sh</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -t --rm --entrypoint /bin/sh sequenceiq/ambari:1.6.0 -c /tmp/install-cluster.sh</span></code></pre></td></tr></table></div></figure>
 
 
 <ul>
