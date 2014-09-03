@@ -15,7 +15,7 @@ Now lets raise the bar and create a multinode Hadoop cluster on Docker. Before w
 start, make sure you have the latest Ambari image:
 
 ```
-docker pull sequenceiq/ambari:latest
+docker pull sequenceiq/ambari:1.6.0
 ```
 
 ## One-liner
