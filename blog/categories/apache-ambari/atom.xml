@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Apache Ambari | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/apache-ambari/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-03T16:54:44+00:00</updated>
+  <updated>2014-09-03T16:55:25+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -201,7 +201,7 @@ docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/amb
 <li><strong>-p 8080</strong> : Publish ambari web and REST API port</li>
 <li><strong>-h amb0.mycorp.kom</strong> : hostname</li>
 <li><strong>&mdash;name ambari-singlenode</strong> : assign a name to the container</li>
-<li><strong>sequenceiq/ambari</strong> : the name of the image</li>
+<li><strong>sequenceiq/ambari:1.6.0</strong> : the name of the image</li>
 <li><strong>&mdash;tag ambari-server=true</strong> : the <em>command</em> but please note that this is appended to the <em>entrypoint</em>.</li>
 </ul>
 
