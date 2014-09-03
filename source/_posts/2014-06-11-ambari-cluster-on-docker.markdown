@@ -72,7 +72,7 @@ docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/amb
 - **-p 8080** : Publish ambari web and REST API port
 - **-h amb0.mycorp.kom** : hostname
 - **--name ambari-singlenode** : assign a name to the container
-- **sequenceiq/ambari** : the name of the image
+- **sequenceiq/ambari:1.6.0** : the name of the image
 - **--tag ambari-server=true** : the *command* but please note that this is appended to the *entrypoint*.
 
 The default *entrypoint* of the image is `start-serf-agent.sh`
