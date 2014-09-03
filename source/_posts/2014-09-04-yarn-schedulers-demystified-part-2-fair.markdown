@@ -6,11 +6,10 @@ comments: true
 categories: [Hadoop, YARN, Schedulers]
 author: Krisztian Horvath
 published: false
----
 
-Since it's Part 2 I suggest you to read the [Part 1](http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1/) as I'll rely on it
-and I'm going to compare the 2 schedulers as well in some aspects. You can also find out how fair is fair in real life
-[here](http://blog.sequenceiq.com/blog/2014/08/16/fairplay/).
+
+---
+In our previous blog post we have been demystifying the [Capacity scheduler internals](http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1/) - as promised in this post is the Fair scheduler’s time. You can check also our previous post to find out how fair is the Fair scheduler in real life [here](http://blog.sequenceiq.com/blog/2014/08/16/fairplay/).
 
 ## The Fair Scheduler internals
 
@@ -224,5 +223,5 @@ and after a delay on a rack local node and in the end falling back to an off swi
 Cleans up the expired containers just like it would be a finished container.
 
 ## What's next?
-What isn't next for sure is a Part 3 about the FIFOScheduler as it's really straightforward what it does and how it does it. Hopefully soon
-we can announce what we've done with the schedulers on a static cluster. It's gonna be exciting.
+What isn't next for sure is a Part 3 about the FIFOScheduler as it's really straightforward what it does and how it does it. As we have already mentioned, last week we released [Periscope](http://sequenceiq.com/periscope/) - the industry’s first SLA policy based autoscaling API for Hadoop YARN - all these features we have blogged about are based on our contribution in Hadoop, YARN and Ambari -so stay tuned and follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq) for updates.
+
