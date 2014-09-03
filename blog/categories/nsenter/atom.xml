@@ -4,7 +4,7 @@
   <title><![CDATA[Category: nsenter | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/nsenter/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-03T16:56:06+00:00</updated>
+  <updated>2014-09-03T19:34:12+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -109,6 +109,8 @@ docker-enter() { boot2docker ssh -t "[ -f /var/lib/boot2docker/nsenter ] || dock
 <p><code>
 curl -Lo /usr/local/bin/docker-enter j.mp/docker-enter &amp;&amp; . /usr/local/bin/docker-enter
 </code></p>
+
+<p>Let us know how <code>nsenter</code> works for you &ndash; and for updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   
