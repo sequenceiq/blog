@@ -46,8 +46,8 @@ the glue-code is different. Let's start with the most simple setup:
      - create a Hadoop cluster by posting a JSON to `<AMBARI_URL>/api/v1/clusters` using the blueprint created in the previous step
 
 ```
-docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/ambari --tag ambari-server=true
-docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -t --rm --entrypoint /bin/sh sequenceiq/ambari -c /tmp/install-cluster.sh
+docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/ambari:1.6.0 --tag ambari-server=true
+docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -t --rm --entrypoint /bin/sh sequenceiq/ambari:1.6.0 -c /tmp/install-cluster.sh
 ```
 
 or if you want a **twitter-sized** one-liner to start with Hadoop in less than a minute:
