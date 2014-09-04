@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Apache Phoenix | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/apache-phoenix/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-04T09:29:36+00:00</updated>
+  <updated>2014-09-04T09:30:20+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[SQL on HBase with Apache Phoenix]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/04/22/sql-on-hbase-with-apache-phoenix/"/>
-    <updated>2014-04-22T12:24:11+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/04/22/sql-on-hbase-with-apache-phoenix</id>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/04/sql-on-hbase-with-apache-phoenix/"/>
+    <updated>2014-09-04T12:24:11+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/04/sql-on-hbase-with-apache-phoenix</id>
     <content type="html"><![CDATA[<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we use HBase to store large amounts of high velocity data and interact with them &ndash; many times we use native HBase interfaces but recently there was a need (internal and external) to access the data through an SQL interface.</p>
 
 <h2>Introduction</h2>
