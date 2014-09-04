@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "YARN Schedulers demystified - Part 2: Fair"
-date: 2014-09-04 18:00:00 +0200
+date: 2014-09-05 18:00:00 +0200
 comments: true
 categories: [Hadoop, YARN, Schedulers]
 author: Krisztian Horvath
