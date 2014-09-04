@@ -34,8 +34,15 @@ HBASE_HOME/lib). If you have multiple nodes it has to be there on every node. Re
 Yes!
 
 ## Sample
-We've pre-cooked a [Docker](https://github.com/sequenceiq/phoenix-docker) image for you so you can follow this sample and play with it:
-(the image is based on Hadoop 2.5, HBase 0.98.5, Phoenix 4.1.0-SNAPSHOT) `docker run -i -t sequenceiq/phoenix:v4.1onHbase-0.98.5`.
+We've pre-cooked a [Docker](https://github.com/sequenceiq/phoenix-docker) image for you so you can follow this sample and play with it (the image is based on Hadoop 2.5, HBase 0.98.5, Phoenix 4.1.0-SNAPSHOT):
+
+###Normal launch
+
+`docker run -it sequenceiq/phoenix:v4.1onHbase-0.98.5` 
+
+###Alternative launch with sqlline
+`docker run -it sequenceiq/phoenix:v4.1onHbase-0.98.5 /etc/bootstrap-phoenix.sh -sqlline`
+
 
 <!-- more -->
 
