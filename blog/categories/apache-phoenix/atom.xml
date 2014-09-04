@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Apache Phoenix | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/apache-phoenix/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-03T19:34:12+00:00</updated>
+  <updated>2014-09-04T09:29:36+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -50,7 +50,7 @@ Yes!</p>
 <h2>Sample</h2>
 
 <p>We&rsquo;ve pre-cooked a <a href="https://github.com/sequenceiq/phoenix-docker">Docker</a> image for you so you can follow this sample and play with it:
-(the image is based on Hadoop 2.4, HBase 0.98.1, Phoenix 4.1.0-SNAPSHOT) <code>docker run -i -t sequenceiq/phoenix</code>.</p>
+(the image is based on Hadoop 2.5, HBase 0.98.5, Phoenix 4.1.0-SNAPSHOT) <code>docker run -i -t sequenceiq/phoenix:v4.1onHbase-0.98.5</code>.</p>
 
 <!-- more -->
 
