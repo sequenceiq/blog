@@ -10,18 +10,18 @@ published: false
 
 At [SequenceIQ] (http://sequenceiq.com/) we use [Apache Ambari] (http://ambari.apache.org/) every day - it’s our tool to provision Hadoop clusters. 
 
-Beside that we are contributors to Ambari, we are so excited about the coming Apache Ambari 1.7.0 new [features](https://cwiki.apache.org/confluence/pages/viewpage.action?pageId=30755705) that we could not help and put together an **early access** [Ambari 1.7.0 Docker container](https://registry.hub.docker.com/u/sequenceiq/ambari/). 
+Beside that we are contributors to Ambari, we are so excited about the coming Apache Ambari 1.7.0 new [features](https://cwiki.apache.org/confluence/pages/viewpage.action?pageId=30755705) that we could not help and put together an **early access** [Ambari 1.7.0 Docker container](https://github.com/sequenceiq/docker-ambari/tree/1.7.0-ea). 
 
-Give it a try, and provision an arbitrary number of Hadoop cluster on your laptop (or production environment), using our container and Ambari shell. Let us know how it works for you and fill Apache Ambari JIRA issues in case you find problems. Enjoy.
+Give it a try, and provision an arbitrary number of Hadoop cluster on your laptop (or production environment), using our container and Ambari shell. Let us know how it works for you. Enjoy.
 
 ###Get the Docker container
-In case you don’t have Docker browse among our previous posts - we have a few posts about howto’s, examples and best practices in general for Docker and in particular how to use the full Hadoop ecosystem on Docker.
+In case you don’t have Docker browse among our previous posts - we have a few posts about howto’s, examples and best practices in general for Docker and in particular about how to run the full Hadoop stack on Docker.
 
 ```
 docker pull sequenceiq/ambari:1.7.0
 ```
 
-Once you have to container you are almost ready to go - however we’d like to ease your work and **oversimplify** Hadoop provisioning. 
+Once you have the container you are almost ready to go - however we’d like to ease your work even more and **oversimplify** Hadoop provisioning. 
 
 ###Get ambari functions
 Get the following `ambari-functions` [file](https://github.com/sequenceiq/docker-ambari/blob/1.7.0-ea/ambari-functions) from our GitHub.
