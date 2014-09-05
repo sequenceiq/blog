@@ -29,7 +29,7 @@ Once you have the container you are almost ready to go - however we’d like to 
 ###Get ambari-functions
 Get the following `ambari-functions` [file](https://github.com/sequenceiq/docker-ambari/blob/1.7.0-ea/ambari-functions) from our GitHub. 
 ```
-curl -Lo .amb j.mp/docker-ambari-1-7-ea && . .amb
+curl -Lo .amb j.mp/docker-ambari-170ea && . .amb
 ```
 
 ###Create your cluster 
