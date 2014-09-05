@@ -21,12 +21,16 @@ In case you don’t have Docker browse among our previous posts - we have a few 
 docker pull sequenceiq/ambari:1.7.0
 ```
 
+<!--more-->
+
+
 Once you have the container you are almost ready to go - however we’d like to ease your work even more and **oversimplify** Hadoop provisioning. 
 
-###Get ambari functions
-Get the following `ambari-functions` [file](https://github.com/sequenceiq/docker-ambari/blob/1.7.0-ea/ambari-functions) from our GitHub.
-
-Pay attention and read the usage on top - and make sure you change the IMAGE:="sequenceiq/ambari:1.7.0” variable to **1.7.0**. You are ready to go. 
+###Get ambari-functions
+Get the following `ambari-functions` [file](https://github.com/sequenceiq/docker-ambari/blob/1.7.0-ea/ambari-functions) from our GitHub. 
+```
+curl -Lo .amb j.mp/docker-ambari-1-7-ea && . .amb
+```
 
 ###Create your cluster 
 
