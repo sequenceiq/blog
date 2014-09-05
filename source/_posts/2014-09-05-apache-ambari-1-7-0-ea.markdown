@@ -45,6 +45,6 @@ If you’d lie to play and understand how this works check our previous blog pos
 You have just seen how easy is to provision a Hadoop cluster on your laptop, if you’d like to see how we provision a Hadoop cluster using the very same Docker image you can check our open source, cloud agnostic Hadoop as a Service API - [Cloudbreak](http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/) - with [autoscaling](http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/).
 
 	
-for updates follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
+For updates follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
 
 
