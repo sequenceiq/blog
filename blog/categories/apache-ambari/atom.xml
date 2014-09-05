@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Apache Ambari | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/apache-ambari/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-05T16:15:32+00:00</updated>
+  <updated>2014-09-05T16:16:22+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -39,8 +39,9 @@ docker pull sequenceiq/ambari:1.7.0-ea
 
 <h3>Get ambari-functions</h3>
 
-<p>Get the following <code>ambari-functions</code> <a href="https://github.com/sequenceiq/docker-ambari/blob/1.7.0-ea/ambari-functions">file</a> from our GitHub.
-<code>
+<p>Get the following <code>ambari-functions</code> <a href="https://github.com/sequenceiq/docker-ambari/blob/1.7.0-ea/ambari-functions">file</a> from our GitHub.</p>
+
+<p><code>
 curl -Lo .amb j.mp/docker-ambari-170ea &amp;&amp; . .amb
 </code></p>
 
