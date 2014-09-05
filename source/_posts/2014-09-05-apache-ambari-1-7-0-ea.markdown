@@ -38,7 +38,7 @@ curl -Lo .amb j.mp/docker-ambari-170ea && . .amb
 amb-deploy-cluster 4
 ```
 
-**Whaaat?** No really, that’s it - we have just provisioned you a 4 node Hadoop cluster in less than 2 minutes. Docker, Apache Ambari and Ambri Shell combined is quite powerful, isn't it? You can always start playing with your desired services by changing the [blueprints](https://github.com/sequenceiq/ambari-rest-client/tree/master/src/main/resources/blueprints) - the full Hadoop stack is supported.
+**Whaaat?** No really, that’s it - we have just provisioned you a 4 node Hadoop cluster in less than 2 minutes. Docker, Apache Ambari and Ambari Shell combined is quite powerful, isn't it? You can always start playing with your desired services by changing the [blueprints](https://github.com/sequenceiq/ambari-rest-client/tree/master/src/main/resources/blueprints) - the full Hadoop stack is supported.
 
 If you’d like to play around and understand how this works check our previous blog posts - a good start is this first post about one of our contribution, the [Ambari Shell](http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell/).
 
