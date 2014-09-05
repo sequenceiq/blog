@@ -8,7 +8,7 @@ published: true
 ---
 
 
-At [SequenceIQ] (http://sequenceiq.com/) we use [Apache Ambari] (http://ambari.apache.org/) every day - it’s our tool to provision Hadoop clusters. 
+At [SequenceIQ](http://sequenceiq.com/) we use [Apache Ambari] (http://ambari.apache.org/) every day - it’s our tool to provision Hadoop clusters. 
 
 Beside that we are contributors to Ambari, we are so excited about the coming Apache Ambari 1.7.0 new [features](https://cwiki.apache.org/confluence/pages/viewpage.action?pageId=30755705) that we could not help and put together an **early access** [Ambari 1.7.0 Docker container](https://github.com/sequenceiq/docker-ambari/tree/1.7.0-ea). 
 
