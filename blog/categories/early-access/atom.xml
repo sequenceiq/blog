@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Early access | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/early-access/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-05T16:16:22+00:00</updated>
+  <updated>2014-09-05T16:21:08+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -14,11 +14,11 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Apache Ambari 1 7 0 Ea]]></title>
+    <title type="html"><![CDATA[Apache Ambari 1.7.0 early access]]></title>
     <link href="http://blog.sequenceiq.com/blog/2014/09/05/apache-ambari-1-7-0-ea/"/>
     <updated>2014-09-05T16:37:37+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/09/05/apache-ambari-1-7-0-ea</id>
-    <content type="html"><![CDATA[<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we use [Apache Ambari] (<a href="http://ambari.apache.org/">http://ambari.apache.org/</a>) every day &ndash; it’s our tool to provision Hadoop clusters.</p>
+    <content type="html"><![CDATA[<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we use <a href="http://ambari.apache.org/">Apache Ambari</a> every day &ndash; it’s our tool to provision Hadoop clusters.</p>
 
 <p>Beside that we are contributors to Ambari, we are so excited about the coming Apache Ambari 1.7.0 new <a href="https://cwiki.apache.org/confluence/pages/viewpage.action?pageId=30755705">features</a> that we could not help and put together an <strong>early access</strong> <a href="https://github.com/sequenceiq/docker-ambari/tree/1.7.0-ea">Ambari 1.7.0 Docker container</a>.</p>
 
