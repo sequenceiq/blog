@@ -24,7 +24,7 @@ docker pull sequenceiq/ambari:1.7.0
 <!--more-->
 
 
-Once you have the container you are almost ready to go - however we’d like to ease your work even more and **oversimplify** Hadoop provisioning. 
+Once you have the container you are almost ready to go - we always automate everything and **over simplify** Hadoop provisioning. 
 
 ###Get ambari-functions
 Get the following `ambari-functions` [file](https://github.com/sequenceiq/docker-ambari/blob/1.7.0-ea/ambari-functions) from our GitHub. 
