@@ -15,26 +15,25 @@ At [SequenceIQ](http://sequenceiq.com/) we use HBase to store large amounts of h
 HBase is an open-source, distributed, versioned, non-relational database modeled after Google's Bigtable. It's designed to handle
 billions of rows and millions of columns. However, using it as a relational database where you would store your data normalized,
 split into multiple tables is not easy and most likely you will struggle with it as you would do in any other non-relational database.
-Here comes [Apache Phoenix](http://phoenix.incubator.apache.org/) in the picture. It's an SQL skin over HBase delivered as a
+Here comes [Apache Phoenix](http://phoenix.apache.org/) in the picture. It's an SQL skin over HBase delivered as a
 client-embedded JDBC driver targeting low latency queries. The project is in incubating state and under heavy development, but you
 can already start embracing it.
 
 ## Installation
-Download the appropriate distribution from [here](http://xenia.sote.hu/ftp/mirrors/www.apache.org/incubator/phoenix/):
+Download the appropriate distribution from [here](http://xenia.sote.hu/ftp/mirrors/www.apache.org/phoenix/):
 
- * Phoenix 2.x - HBase 0.94.x
  * Phoenix 3.x - HBase 0.94.x
  * Phoenix 4.x - HBase 0.98.1+
 
 _Note the compatibilities between the HBase and Phoenix versions_
 
-Alternatively you can clone the [repository](https://github.com/apache/incubator-phoenix/tree/4.0) and build it yourself (mvn clean install -DskipTests).
-It should produce a jar file like this: phoenix-`version`-incubating-client.jar. Copy it to HBase's classpath (easiest way is to copy into
+Alternatively you can clone the [repository]https://github.com/apache/phoenix/tree/4.0) and build it yourself (mvn clean install -DskipTests).
+It should produce a jar file like this: phoenix-`version`-client.jar. Copy it to HBase's classpath (easiest way is to copy into
 HBASE_HOME/lib). If you have multiple nodes it has to be there on every node. Restart the RegionServers and you are good to go. That's it?
 Yes!
 
 ## Sample
-We've pre-cooked a [Docker](https://github.com/sequenceiq/phoenix-docker) image for you so you can follow this sample and play with it (the image is based on Hadoop 2.5, HBase 0.98.5, Phoenix 4.1.0-SNAPSHOT):
+We've pre-cooked a [Docker](https://github.com/sequenceiq/phoenix-docker) image for you so you can follow this sample and play with it (the image is based on Hadoop 2.5, HBase 0.98.5, Phoenix 4.1.0):
 
 ###Normal launch
 
@@ -55,8 +54,8 @@ used then type *sqlline.py localhost* (to quit type: !quit). Let's create two di
 CREATE TABLE CUSTOMERS (ID INTEGER NOT NULL PRIMARY KEY, NAME VARCHAR(40) NOT NULL, AGE INTEGER NOT NULL, CITY CHAR(25));
 CREATE TABLE ORDERS (ID INTEGER NOT NULL PRIMARY KEY, DATE DATE, CUSTOMER_ID INTEGER, AMOUNT DOUBLE);
 ```
-It's worth checking which [datatypes](http://phoenix.incubator.apache.org/language/datatypes.html) and
-[functions](http://phoenix.incubator.apache.org/language/index.html) are currently supported. These tables will be translated into
+It's worth checking which [datatypes](http://phoenix.apache.org/language/datatypes.html) and
+[functions](http://phoenix.apache.org/language/functions.html) are currently supported. These tables will be translated into
 HBase tables and the metadata is stored along with it and versioned, such that snapshot queries over prior versions will automatically
 use the correct schema. You can check with HBase shell as `describe 'CUSTOMERS'`
 ```
@@ -81,9 +80,7 @@ representation of the row key and key values must match one of the Phoenix data 
 After the tables are created fill them with data. For this purpose we'll use the [Jooq](http://www.jooq.org/) library's fluent API.
 The related sample project (Spring based) can be found in our
 [GitHub](https://github.com/sequenceiq/sequenceiq-samples/tree/master/phoenix-jooq) repository. To connect you'll need Phoenix's
-JDBC driver on your classpath (org.apache.phoenix.jdbc.PhoenixDriver). At the moment it is not available anywhere, but temporary we
-deployed into our [maven](https://github.com/sequenceiq/sequenceiq-maven-repo) repository, so use it if you'd like, but don't rely on that
-it will be always there in this form. The url to connect to should be familiar as it uses the same Zookeeper QuorumPeer's address:
+JDBC driver on your classpath (org.apache.phoenix.jdbc.PhoenixDriver). The url to connect to should be familiar as it uses the same Zookeeper QuorumPeer's address:
 `jdbc:phoenix:localhost:2181`. Unfortunately Jooq's insert statement is not suitable for us since the JDBC driver only supports the
 upsert statement so we cannot make use of the fluent API here.
 ```java
