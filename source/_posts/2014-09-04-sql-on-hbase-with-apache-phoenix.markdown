@@ -8,7 +8,7 @@ author: Krisztian Horvath
 published: true
 ---
 
-At [SequenceIQ](http://sequenceiq.com/) we use HBase to store large amounts of high velocity data and interact with them - many times we use native HBase interfaces but recently there was a need (internal and external) to access the data through an SQL interface. 
+At [SequenceIQ](http://sequenceiq.com/) we use HBase to store large amounts of high velocity data and interact with them - many times we use native HBase interfaces but recently there was a need (internal and external) to access the data through an SQL interface.
 
 ## Introduction
 
@@ -27,7 +27,7 @@ Download the appropriate distribution from [here](http://xenia.sote.hu/ftp/mirro
 
 _Note the compatibilities between the HBase and Phoenix versions_
 
-Alternatively you can clone the [repository]https://github.com/apache/phoenix/tree/4.0) and build it yourself (mvn clean install -DskipTests).
+Alternatively you can clone the [repository](https://github.com/apache/phoenix/tree/4.0) and build it yourself (mvn clean install -DskipTests).
 It should produce a jar file like this: phoenix-`version`-client.jar. Copy it to HBase's classpath (easiest way is to copy into
 HBASE_HOME/lib). If you have multiple nodes it has to be there on every node. Restart the RegionServers and you are good to go. That's it?
 Yes!
@@ -37,7 +37,7 @@ We've pre-cooked a [Docker](https://github.com/sequenceiq/phoenix-docker) image 
 
 ###Normal launch
 
-`docker run -it sequenceiq/phoenix:v4.1onHbase-0.98.5` 
+`docker run -it sequenceiq/phoenix:v4.1onHbase-0.98.5`
 
 ###Alternative launch with sqlline
 `docker run -it sequenceiq/phoenix:v4.1onHbase-0.98.5 /etc/bootstrap-phoenix.sh -sqlline`
