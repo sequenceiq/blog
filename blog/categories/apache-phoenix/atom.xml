@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Apache Phoenix | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/apache-phoenix/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-06T21:00:48+00:00</updated>
+  <updated>2014-09-07T07:57:18+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -41,7 +41,7 @@ can already start embracing it.</p>
 
 <p><em>Note the compatibilities between the HBase and Phoenix versions</em></p>
 
-<p>Alternatively you can clone the [repository]<a href="https://github.com/apache/phoenix/tree/4.0">https://github.com/apache/phoenix/tree/4.0</a>) and build it yourself (mvn clean install -DskipTests).
+<p>Alternatively you can clone the <a href="https://github.com/apache/phoenix/tree/4.0">repository</a> and build it yourself (mvn clean install -DskipTests).
 It should produce a jar file like this: phoenix-<code>version</code>-client.jar. Copy it to HBase&rsquo;s classpath (easiest way is to copy into
 HBASE_HOME/lib). If you have multiple nodes it has to be there on every node. Restart the RegionServers and you are good to go. That&rsquo;s it?
 Yes!</p>
