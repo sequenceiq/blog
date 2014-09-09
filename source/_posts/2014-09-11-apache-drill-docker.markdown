@@ -38,7 +38,7 @@ Now as you have a good overview about the capabilities of Drill, we’d like to 
 
 The Drill container is available as a trusted build on Docker.io. You can get and start using it - the only prerequisite is to have Docker installed.
 
-`docker build -t sequenceiq/drill .`
+`docker pull sequenceiq/drill`
 
 ### Use the container
 
