@@ -8,11 +8,11 @@ author: Krisztian Horvath
 published: false
 ---
 
-In our previous blog post we have been demystifying the [Capacity scheduler internals](http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1/) - as promised in this post is the Fair scheduler’s time. You can check also our previous post to find out how fair is the Fair scheduler in real life [here](http://blog.sequenceiq.com/blog/2014/08/16/fairplay/).
+In our previous blog post we have been demystifying the [Capacity scheduler internals](http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1/) - as promised in this post is the Fair scheduler’s turn. You can check also our previous post to find out how fair is the Fair scheduler in real life [here](http://blog.sequenceiq.com/blog/2014/08/16/fairplay/).
 
 ## The Fair Scheduler internals
 
-The FairScheduler's purpose is to assign resources to applications such that all apps get, on average, an equal share of resources over time.
+The FairScheduler's purpose is to assign resources to applications such that all apps get - on average - an equal share of resources over time.
 By default the scheduler bases fairness decisions only on memory, but it can be configured otherwise. When only a single app is running
 in the cluster it can take all the resources. When new apps are submitted resources that free up are assigned to the new apps,
 so that each app eventually on gets roughly the same amount of resources. Queues can be weighted to determine the fraction of total
@@ -60,7 +60,7 @@ for a more detailed reference.
 
 ## Messaging
 
-The event mechanism is the same as with CapacityScheduler - thus I'm not going to take account the events - and if you check the handler methods
+The event mechanism is the same as with CapacityScheduler - thus I'm not going to take account on the events - and if you check the handler methods
 ([here](https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/CapacityScheduler.java#L956)
 and [here](https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/FairScheduler.java#L1134))
 you can notice that they look fairly the same.
