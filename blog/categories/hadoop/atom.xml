@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-09T12:55:48+00:00</updated>
+  <updated>2014-09-09T13:14:13+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -19,6 +19,8 @@
     <updated>2014-09-09T16:00:00+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/09/09/yarn-schedulers-demystified-part-2-fair</id>
     <content type="html"><![CDATA[<p>In our previous blog post we have been demystifying the <a href="http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1/">Capacity scheduler internals</a> &ndash; as promised in this post is the Fair scheduler’s turn. You can check also our previous post to find out how fair is the Fair scheduler in real life <a href="http://blog.sequenceiq.com/blog/2014/08/16/fairplay/">here</a>.</p>
+
+<p>You might ask why YARN schedulers are so important for us? Recently we have released and open sourced the industry&rsquo;s first SLA policy based autoscaling API for Hadoop clusters, called <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> &ndash; and part of the project is based on schedulers, <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> and our contribution to Apache YARN.</p>
 
 <h2>The Fair Scheduler internals</h2>
 
@@ -647,7 +649,7 @@ sudo docker run -it &mdash;rm &mdash;name cont2  ubuntu /bin/bash</p>
 
 <h1>execute on vm1</h1>
 
-<p>sudo ssh -f -N -w 2:1 <a href="&#109;&#97;&#105;&#x6c;&#116;&#x6f;&#58;&#x72;&#x6f;&#x6f;&#116;&#64;&#x31;&#x39;&#50;&#46;&#49;&#x36;&#x38;&#46;&#52;&#48;&#46;&#49;&#x32;">&#x72;&#111;&#x6f;&#x74;&#64;&#x31;&#x39;&#50;&#x2e;&#x31;&#54;&#56;&#x2e;&#x34;&#48;&#46;&#x31;&#50;</a>
+<p>sudo ssh -f -N -w 2:1 <a href="&#109;&#97;&#105;&#108;&#x74;&#111;&#x3a;&#x72;&#x6f;&#111;&#116;&#64;&#x31;&#x39;&#x32;&#x2e;&#x31;&#54;&#56;&#46;&#52;&#48;&#46;&#x31;&#x32;">&#114;&#x6f;&#x6f;&#x74;&#x40;&#x31;&#x39;&#x32;&#x2e;&#x31;&#54;&#56;&#46;&#x34;&#x30;&#46;&#x31;&#x32;</a>
 sudo ifconfig tun2 up
 sudo route add -net 172.17.52.0 netmask 255.255.255.0 dev tun2
 sudo iptables -t nat -F POSTROUTING
