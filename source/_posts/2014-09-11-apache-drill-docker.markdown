@@ -23,6 +23,8 @@ As you might be already familiar, we have `dockerized` most of the Hadoop ecosys
 
 As you see there are many storage systems use - and Drill helps us with aggregating these under one common `ANSI SQL syntax`. You can query data from HDFS, HBase, Hive, local or remote distributed file system - or write your own custom storage plugin.
 
+<!-- more -->
+
 ### Lifecycle of a Drill query 
 
 Let’s take a simple example (from the Drill samples), where we query a file, with a `WHERE` clause. Your statement is submitted in `Sqlline` - a very popular (used with our Phoenix container as well) Java interface which can talk to a JDBC driver. The `SELECT` statement is passed into [Optiq](http://optiq.incubator.apache.org/). Optiq is a library for query parsing and planning, and allows pluggable transformation rules. Optiq also has a cost-based query optimizer. At high level, based on the above the statements are converted into Drill `logical operators`, and form a Drill logical plan. This plan is then submitted into one `DrillBit service` - usually running on each datanode, to benefit on the data locality, during query execution. This logical plan is then transformed into a physical plan - a simple DAG  of physical operators - using a Drill’s `optimizer`. This physical plan is broken into a multi-level execution tree (hello MPP) that is executed by multiple DrillBits. The story goes on as there are statistics collected, endpoint affinities are checked (metadata based preferred endpoint selection) and the plan is broken in fragments, but at a high level this is the execution flow. 
