@@ -10,6 +10,8 @@ published: true
 
 In our previous blog post we have been demystifying the [Capacity scheduler internals](http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1/) - as promised in this post is the Fair scheduler’s turn. You can check also our previous post to find out how fair is the Fair scheduler in real life [here](http://blog.sequenceiq.com/blog/2014/08/16/fairplay/).
 
+You might ask why YARN schedulers are so important for us? Recently we have released and open sourced the industry's first SLA policy based autoscaling API for Hadoop clusters, called [Periscope](http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/) - and part of the project is based on schedulers, [Cloudbreak](http://sequenceiq.com/cloudbreak/) and our contribution to Apache YARN. 
+
 ## The Fair Scheduler internals
 
 The FairScheduler's purpose is to assign resources to applications such that all apps get - on average - an equal share of resources over time.
