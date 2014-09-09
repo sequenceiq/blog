@@ -52,6 +52,12 @@ In case you don't have any data, but would still like to explore Drill, start th
 
 The sample data installed by default with Drill is available inside the container, thus you'd be able to run all the Drill examples/tutorials.
 
+###Drill Rest API
+
+Get Drillbit status: `http://localhost:8047/status`       
+Get all submitted queries: `http://localhost:8047/queries`       
+Get status of a given query:`http://localhost:8047/query/{QUERY_ID}`
+
 The next version of the container will be a fully distributed (based on our Hadoop container and Hazelcast) Apache Drill container. Until then feel free to let us know how you `drill` and follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
 
 
