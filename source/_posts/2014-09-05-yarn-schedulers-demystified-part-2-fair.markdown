@@ -6,9 +6,8 @@ comments: true
 categories: [Hadoop, YARN, Schedulers]
 author: Krisztian Horvath
 published: false
-
-
 ---
+
 In our previous blog post we have been demystifying the [Capacity scheduler internals](http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1/) - as promised in this post is the Fair scheduler’s time. You can check also our previous post to find out how fair is the Fair scheduler in real life [here](http://blog.sequenceiq.com/blog/2014/08/16/fairplay/).
 
 ## The Fair Scheduler internals
