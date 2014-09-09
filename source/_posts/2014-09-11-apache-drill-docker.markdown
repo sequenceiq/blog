@@ -3,7 +3,7 @@ layout: post
 title: "Apache Drill on Docker - query as a service "
 date: 2014-09-11 18:00:00 +0200
 comments: true
-categories: [Drill, SQL, Docker]
+categories: [Apache Drill, SQL, Docker]
 author: Janos Matyas
 published: false
 ---
