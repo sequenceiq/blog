@@ -11,7 +11,7 @@ published: false
 As you might be already familiar, we have `dockerized` most of the Hadoop ecosystem - we are running MR2, Spark, Storm, Hive, HBase, Pig, Oozie, etc in Docker containers - on bare metal and in the cloud as well. We have started to use (and contribute) to Docker quite a while ago, and beside the `mainstream` benefits of containers one feature was extremely appealing to us - **the SOA way of DevOps**. Before I go on and explore what we mean under this allow me to collect a few links for your reference (all open sourced under an **Apache 2 license**), in case you plan to use Hadoop in Docker containers.
 
 | Name                  | Description | Documentation | GitHub |
-|-----------------------| | --- |--------| ---------- | 
+|-----------------------|----|--------| ---------- | 
 | Apache Hadoop  | Pseudo dist. container | http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/ | https://github.com/sequenceiq/hadoop-docker |
 | Apache Ambari   | Multi node - full Hadoop stack, blueprint based | http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/ | https://github.com/sequenceiq/docker-ambari |
 | Cloudbreak 	     | Cloud agnostic Hadoop as a Service | http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/ | https://github.com/sequenceiq/cloudbreak |
@@ -41,10 +41,18 @@ The Drill container is available as a trusted build on Docker.io. You can get an
 ### Use the container
 
 Once the container is pulled you are ready to query your data by running:
+
 `docker run -it -v /data:/data sequenceiq/drill /etc/bootstrap.sh`
+
 Note that the `-v /data:/data` flag specifies that you are mounting your `/data` directory on the host into a `/data` directory inside the container. The files inside the directory will be available for Drill to query, by either using the default `dfs` storage plugin, or by a custom one. To check, or create a storage plugin or to access the Drill UI you should to to `http://CONTAINER_IP:8047`. You can find your container IP by using `docker inspect ID`.
 
-The next version of the container will be a fully distributed (based on Hadoop, Hazelcast, Zookeeper) Apache Drill container. Until then feel free to let us know how you `drill` and follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
+In case you don't have any data, but would still like to explore Drill, start the contaier as: 
+
+`docker run -it sequenceiq/drill /etc/bootstrap.sh`
+
+The sample data installed by default with Drill is available inside the container, thus you'd be able to run all the Drill examples/tutorials.
+
+The next version of the container will be a fully distributed (based on our Hadoop container and Hazelcast) Apache Drill container. Until then feel free to let us know how you `drill` and follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
 
 
 
