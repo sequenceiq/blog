@@ -46,7 +46,7 @@ Once the container is pulled you are ready to query your data by running:
 
 `docker run -it -v /data:/data sequenceiq/drill /etc/bootstrap.sh`
 
-Note that the `-v /data:/data` flag specifies that you are mounting your `/data` directory on the host into a `/data` directory inside the container. The files inside the directory will be available for Drill to query, by either using the default `dfs` storage plugin, or by a custom one. To check, or create a storage plugin or to access the Drill UI you should to to `http://CONTAINER_IP:8047`. You can find your container IP by using `docker inspect ID`.
+Note that the `-v /data:/data` flag specifies that you are mounting your `/data` directory on the host into a `/data` directory inside the container. The files inside the directory will be available for Drill to query, by either using the default `dfs` storage plugin, or by a custom one. To check, or create a storage plugin or to access the Drill UI you should go to `http://CONTAINER_IP:8047`. You can find your container IP by using `docker inspect ID`.
 
 In case you don't have any data, but would still like to explore Drill, start the contaier as: 
 
