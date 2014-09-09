@@ -1,11 +1,11 @@
 ---
 layout: post
 title: "YARN Schedulers demystified - Part 2: Fair"
-date: 2014-09-05 18:00:00 +0200
+date: 2014-09-09 18:00:00 +0200
 comments: true
-categories: [Hadoop, YARN, Schedulers]
+categories: [Hadoop, YARN, Schedulers, Fair]
 author: Krisztian Horvath
-published: false
+published: true
 ---
 
 In our previous blog post we have been demystifying the [Capacity scheduler internals](http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1/) - as promised in this post is the Fair scheduler’s turn. You can check also our previous post to find out how fair is the Fair scheduler in real life [here](http://blog.sequenceiq.com/blog/2014/08/16/fairplay/).
