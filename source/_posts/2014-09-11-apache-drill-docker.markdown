@@ -5,7 +5,7 @@ date: 2014-09-11 18:00:00 +0200
 comments: true
 categories: [Apache Drill, SQL, Docker]
 author: Janos Matyas
-published: false
+published: true
 ---
 
 As you might be already familiar, we have `dockerized` most of the Hadoop ecosystem - we are running MR2, Spark, Storm, Hive, HBase, Pig, Oozie, etc in Docker containers - on bare metal and in the cloud as well. We have started to use (and contribute) to Docker quite a while ago, and beside the `mainstream` benefits of containers one feature was extremely appealing to us - **the SOA way of DevOps**. Before I go on and explore what we mean under this allow me to collect a few links for your reference (all open sourced under an **Apache 2 license**), in case you plan to use Hadoop in Docker containers.
