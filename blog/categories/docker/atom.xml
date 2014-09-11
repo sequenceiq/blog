@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Docker | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/docker/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-11T13:53:04+00:00</updated>
+  <updated>2014-09-11T13:56:14+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,104 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Drill on Docker - query as a service ]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/11/apache-drill-docker/"/>
+    <updated>2014-09-11T16:00:00+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/11/apache-drill-docker</id>
+    <content type="html"><![CDATA[<p>As you might be already familiar, we have <code>dockerized</code> most of the Hadoop ecosystem &ndash; we are running MR2, Spark, Storm, Hive, HBase, Pig, Oozie, etc in Docker containers &ndash; on bare metal and in the cloud as well. We have started to use (and contribute) to Docker quite a while ago, and beside the <code>mainstream</code> benefits of containers one feature was extremely appealing to us &ndash; <strong>the SOA way of DevOps</strong>. Before I go on and explore what we mean under this allow me to collect a few links for your reference (all open sourced under an <strong>Apache 2 license</strong>), in case you plan to use Hadoop in Docker containers.</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th> Name                  </th>
+<th> Description </th>
+<th> Documentation </th>
+<th> GitHub</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td> Apache Hadoop  </td>
+<td> Pseudo dist. container </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/">http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/</a> </td>
+<td> <a href="https://github.com/sequenceiq/hadoop-docker">https://github.com/sequenceiq/hadoop-docker</a></td>
+</tr>
+<tr>
+<td></td>
+<td> Apache Ambari   </td>
+<td> Multi node &ndash; full Hadoop stack, blueprint based </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/</a> </td>
+<td> <a href="https://github.com/sequenceiq/docker-ambari">https://github.com/sequenceiq/docker-ambari</a></td>
+</tr>
+<tr>
+<td></td>
+<td> Cloudbreak         </td>
+<td> Cloud agnostic Hadoop as a Service </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/</a> </td>
+<td> <a href="https://github.com/sequenceiq/cloudbreak">https://github.com/sequenceiq/cloudbreak</a></td>
+</tr>
+<tr>
+<td></td>
+<td> Periscope          </td>
+<td> SLA policy based autoscaling for Hadoop clusters </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/</a> </td>
+<td> <a href="https://github.com/sequenceiq/periscope">https://github.com/sequenceiq/periscope</a> </td>
+</tr>
+</tbody>
+</table>
+
+
+<h2>Apache Drill at SequenceIQ</h2>
+
+<p><a href="http://incubator.apache.org/drill/">Apache Drill</a> is an open source, low latency SQL query engine for Hadoop and NoSQL. It has many nice and interesting features, but one of the most interesting one (at least for us) is the <a href="https://cwiki.apache.org/confluence/display/DRILL/Storage+Plugin+Registration">storage plugin</a> and the tolerance/support for dynamic schemas. At <a href="http://sequenceiq.com/">SequenceIQ</a> the pre and post processed data ends up in different storage systems/layers. Obliviously we use HDFS, for low latency queries we use HBase and recently (with the emergence of Tez &ndash; which we consider the next big thing) we started to use Hive as well. Quite often there is a need to access the data from <code>legacy</code> systems &ndash; and more often we see <code>SQL</code> coming back in the picture. Just FYI, for SQL on HBase we are using <a href="http://phoenix.apache.org/">Apache Phoenix</a>, and of course we have released and open sourced a <a href="http://blog.sequenceiq.com/blog/2014/09/04/sql-on-hbase-with-apache-phoenix/">Docker container</a>.</p>
+
+<p>As you see there are many storage systems use &ndash; and Drill helps us with aggregating these under one common <code>ANSI SQL syntax</code>. You can query data from HDFS, HBase, Hive, local or remote distributed file system &ndash; or write your own custom storage plugin.</p>
+
+<!-- more -->
+
+
+<h3>Lifecycle of a Drill query</h3>
+
+<p>Let’s take a simple example (from the Drill samples), where we query a file, with a <code>WHERE</code> clause. Your statement is submitted in <code>Sqlline</code> &ndash; a very popular (used with our Phoenix container as well) Java interface which can talk to a JDBC driver. The <code>SELECT</code> statement is passed into <a href="http://optiq.incubator.apache.org/">Optiq</a>. Optiq is a library for query parsing and planning, and allows pluggable transformation rules. Optiq also has a cost-based query optimizer. At high level, based on the above the statements are converted into Drill <code>logical operators</code>, and form a Drill logical plan. This plan is then submitted into one <code>DrillBit service</code> &ndash; usually running on each datanode, to benefit on the data locality, during query execution. This logical plan is then transformed into a physical plan &ndash; a simple DAG  of physical operators &ndash; using a Drill’s <code>optimizer</code>. This physical plan is broken into a multi-level execution tree (hello MPP) that is executed by multiple DrillBits. The story goes on as there are statistics collected, endpoint affinities are checked (metadata based preferred endpoint selection) and the plan is broken in fragments, but at a high level this is the execution flow.
+There are some interesting things going on under the hood which we can cover it one of the following posts &ndash; about writing our custom storage plugin.</p>
+
+<h2>Apache Drill on Docker</h2>
+
+<p>Now as you have a good overview about the capabilities of Drill, we’d like to expand on what we mean under <strong>SOA way of DevOps</strong>. Though Drill is a complex piece of software, essentially the provided service is extremely simple: <em>queries data</em>. We have created a <a href="https://registry.hub.docker.com/u/sequenceiq/drill/">Drill Docker</a> container and wrapped the <code>query</code> service inside. If you’d like to use Drill, the only thing you will have to do is to launch our Drill container &ndash; the <code>query service</code> is available <em>as a Service</em>. We have built the container in such a way that the data layer is separated from the <code>query service</code> &ndash; you can launch the container when and where you’d like to do, and attach the data using volumes. Once the data layer is attached, the only remaining thing is to let Drill know where to query &ndash; by either using one of the existing, or creating a new storage configuration.</p>
+
+<h3>Pull the container</h3>
+
+<p>The Drill container is available as a trusted build on Docker.io. You can get and start using it &ndash; the only prerequisite is to have Docker installed.</p>
+
+<p><code>docker pull sequenceiq/drill</code></p>
+
+<h3>Use the container</h3>
+
+<p>Once the container is pulled you are ready to query your data by running:</p>
+
+<p><code>docker run -it -v /data:/data sequenceiq/drill /etc/bootstrap.sh</code></p>
+
+<p>Note that the <code>-v /data:/data</code> flag specifies that you are mounting your <code>/data</code> directory on the host into a <code>/data</code> directory inside the container. The files inside the directory will be available for Drill to query, by either using the default <code>dfs</code> storage plugin, or by a custom one. To check, or create a storage plugin or to access the Drill UI you should go to <code>http://CONTAINER_IP:8047</code>. You can find your container IP by using <code>docker inspect ID</code>.</p>
+
+<p>In case you don&rsquo;t have any data, but would still like to explore Drill, start the contaier as:</p>
+
+<p><code>docker run -it sequenceiq/drill /etc/bootstrap.sh</code></p>
+
+<p>The sample data installed by default with Drill is available inside the container, thus you&rsquo;d be able to run all the Drill examples/tutorials.</p>
+
+<h3>Drill Rest API</h3>
+
+<p>Get Drillbit status: <code>http://localhost:8047/status</code>
+Get all submitted queries: <code>http://localhost:8047/queries</code>
+Get status of a given query:<code>http://localhost:8047/query/{QUERY_ID}</code></p>
+
+<p>The next version of the container will be a fully distributed (based on our Hadoop container and Hazelcast) Apache Drill Docker container. Until then feel free to let us know how you <code>drill</code> and follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Apache Hadoop 2.5.0 on Docker]]></title>
@@ -290,7 +388,7 @@ sudo docker run -it &mdash;rm &mdash;name cont2  ubuntu /bin/bash</p>
 
 <h1>execute on vm1</h1>
 
-<p>sudo ssh -f -N -w 2:1 <a href="&#x6d;&#97;&#x69;&#108;&#x74;&#x6f;&#x3a;&#x72;&#111;&#111;&#116;&#64;&#49;&#57;&#x32;&#x2e;&#49;&#54;&#56;&#x2e;&#52;&#x30;&#46;&#x31;&#50;">&#x72;&#x6f;&#x6f;&#x74;&#x40;&#49;&#57;&#x32;&#x2e;&#49;&#x36;&#56;&#46;&#52;&#48;&#46;&#49;&#50;</a>
+<p>sudo ssh -f -N -w 2:1 <a href="&#x6d;&#x61;&#x69;&#108;&#x74;&#x6f;&#x3a;&#114;&#x6f;&#111;&#116;&#64;&#49;&#x39;&#50;&#46;&#x31;&#x36;&#x38;&#x2e;&#52;&#48;&#x2e;&#x31;&#x32;">&#114;&#111;&#x6f;&#x74;&#x40;&#x31;&#x39;&#50;&#46;&#x31;&#x36;&#x38;&#46;&#x34;&#48;&#46;&#49;&#x32;</a>
 sudo ifconfig tun2 up
 sudo route add -net 172.17.52.0 netmask 255.255.255.0 dev tun2
 sudo iptables -t nat -F POSTROUTING
@@ -516,128 +614,6 @@ Serf uses an efficient gossip protocol to solve three major problems:</p>
 <p><img src="https://raw.githubusercontent.com/sequenceiq/cloudbreak/master/docs/images/serf-event.png" alt="" /></p></li>
 </ul>
 
-
-<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Cloudbreak - the Hadoop as a Service API]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/"/>
-    <updated>2014-07-18T16:37:37+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak</id>
-    <content type="html"><![CDATA[<p><em>Cloudbreak is a powerful left surf that breaks over a coral reef, a mile off southwest the island of Tavarua, Fiji.</em></p>
-
-<p><em>Cloudbreak is a cloud agnostic Hadoop as a Service API. Abstracts the provisioning and ease management and monitoring of on-demand clusters.</em></p>
-
-<p>Today is a big day for us and the Hadoop community &ndash; we are announcing the first <code>public beta</code> version of our open source and cloud agnostic <strong>Hadoop as a Service API</strong>.</p>
-
-<p>During our daily work with large Hadoop clusters in the cloud, <code>dockerized</code> environments and bare metal we were doing the same things over and over again. Although we are automating and <code>dockerizing</code> always everything, we felt that something is missing &ndash; an open source, cloud agnostic Hadoop as a Service API. Welcome <a href="https://cloudbreak.sequenceiq.com">Cloudbreak</a> &ndash; you are one POST away from your on-demand Hadoop cluster on your favorite cloud provider.</p>
-
-<p>When we have started to work on Cloudbreak &ndash; first of all to solve our internal needs at SequenceIQ &ndash; we have set the following criteria:</p>
-
-<ul>
-<li>Use open source software and be <strong>100% open source</strong> under Apache 2 license</li>
-<li>Have the ability to quickly launch arbitrary sized Hadoop clusters</li>
-<li>Be cloud provider agnostic and create an SDK which allows to quickly add new providers</li>
-<li>No more glue code, repeating the same things over and over again</li>
-<li>Have a REST API and a CLI in order to be able to automate the whole process</li>
-<li>Create an easy to use and responsive UI</li>
-<li>Support different Hadoop services and configurations in a declarative way</li>
-<li>Elastic and flexible, with the ability to resize running clusters</li>
-<li>Secure</li>
-</ul>
-
-
-<!-- more -->
-
-
-<h2>Docker in the cloud</h2>
-
-<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we are running all our core applications and processes in Docker containers &ndash; and that is true for Hadoop and all of the services as well. During the last few months we have <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">blogged</a> and open sourced all of the <a href="https://hub.docker.com/u/sequenceiq/">building blocks</a> of our <code>dockerized</code> systems and <strong>Cloudbreak</strong> is built on the foundation of these and reusing the same technologies we have released before. While Cloudbreak&rsquo;s primary role is to launch on-demand Hadoop clusters in the cloud, the underlying technology actually does more. It can launch on-demand Hadoop clusters in any environment which supports Docker &ndash; in a dynamic way. There is no predefined configuration needed as all the setup, orchestration, networking and cluster membership is done dynamically.</p>
-
-<ul>
-<li><a href="https://hub.docker.com/u/sequenceiq/">Docker containers</a> &ndash; all the Hadoop services are installed and running inside Docker containers, and these containers are <code>shipped</code>  between different cloud vendors, keeping Cloudbreak cloud agnostic</li>
-<li><a href="https://github.com/sequenceiq/ambari-rest-client">Apache Ambari</a> &ndash; to declaratively define a Hadoop cluster</li>
-<li><a href="https://github.com/sequenceiq/docker-serf">Serf</a> &ndash; for cluster membership, failure detection, and orchestration that is decentralized, fault-tolerant and highly available for dynamic clusters</li>
-<li><a href="https://github.com/sequenceiq/docker-dnsmasq">dnsmasq</a> &ndash; to provide resolvable fully qualified domain names between dynamically created Docker containers.</li>
-</ul>
-
-
-<p>The project was presented at the <strong>Hadoop Summit 2014,</strong> in San Jose &ndash; you can get the slides from <a href="http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning">here</a>.</p>
-
-<p>While there is an extensive list of articles explaining the benefits of using Docker, we would like to highlight our motivations in a few bullet points.</p>
-
-<ul>
-<li>Write once, run anywhere &ndash; our solution uses the same Docker containers on different cloud providers, <code>dockerized</code>  environments or bare metal, no difference at all</li>
-<li>Reproducible, testable environment &ndash; we are recreating complete config environments in seconds, and being able to work with the same containers on our laptop, QA and production/cloud environments</li>
-<li>Isolation &ndash; each container is separated and runs in its own isolated sandbox</li>
-<li>Versioning &ndash; we are able to easily version and modify containers, and ship only the changed bits saving bandwidth; essential for large clusters deployed in the cloud</li>
-<li>Central repository &ndash; you can build an entire cluster from a trusted and centralised container repository, the Docker Registry/Hub</li>
-<li>Smart resource allocation &ndash; containers can be <code>shipped</code> anywhere and resources can be allotted</li>
-</ul>
-
-
-<h2>Cloudbreak &ndash; the project</h2>
-
-<h3>Cloudbreak UI</h3>
-
-<p>The easiest way to start your own Hadoop cluster in your favorite cloud provider is to use our hosted solution. We host, maintain and support <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> for you. Cloudbreak UI is a secure and intuitive way to launch on-demand Hadoop clusters with a few mouse clicks. Please note that Cloudbreak is launching Hadoop clusters on the user&rsquo;s behalf &ndash; on different cloud providers. We do not store your cloud provider account details (such as username, password, keys, private SSL certificates, etc), but work around the concept that Identity and Access Management is fully controlled by you &ndash; the end user.</p>
-
-<h3>Cloudbreak API</h3>
-
-<p>Cloudbreak is a RESTful Hadoop as a Service API. The easiest way to use the API is by using our hosted <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak API</a>.</p>
-
-<p>We have also give you the option to host Cloudbreak within your organization. Once it is deployed in your favourite servlet container exposes a REST API allowing to span up Hadoop clusters of arbitrary sizes on your selected cloud provider. With Cloudbreak you are one POST away from your on-demand Hadoop cluster. You can get the code from our <a href="https://github.com/sequenceiq/cloudbreak">GitHub repository</a>. For further documentation please follow up with the <a href="http://sequenceiq.com/cloudbreak/">general</a> and <a href="http://docs.cloudbreak.apiary.io/">API</a> documentation, or subscribe to one of our social channels in order to receive notifications about further blog posts and releases.</p>
-
-<h3>Cloudbreak REST client</h3>
-
-<p>In order to ease your work with the REST API and embed in your codebase we have created (and also extensively use) a Groovy REST client. The code is available at our <a href="https://github.com/sequenceiq/cloudbreak-rest-client">GitHub</a> repository.</p>
-
-<h3>Cloudbreak CLI</h3>
-
-<p>As we automate everything and we are a very DevOps focused company we are always trying to create easy ways to interact with our systems and API’s. In case of Cloudbreak we have created and released a <a href="https://github.com/sequenceiq/cloudbreak-shell">command line shell</a>, the Cloudbreak CLI. The CLI allows you to use all the REST calls, and it has a large number of easing commands. Interactive help and completion is available.</p>
-
-<h3>Cloudbreak documentation</h3>
-
-<p>We have created two types of documentation. The <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak Product</a> documentation contains an overview, installation, architectural and technical content, whereas the <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak API</a> explains the REST API with examples and a mock server to test your integration.</p>
-
-<h2>Supported Hadoop services</h2>
-
-<p>At high level the supported list of components can be grouped into two main categories: Master and Slave &ndash; and bundling them together form a Hadoop Service. <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> supports the following Hadoop services.</p>
-
-<p><code>
-| Services    | Components                                                              |
-| ----------- | ------------------------------------------------------------------------|
-| HDFS        | DATANODE, HDFS_CLIENT, JOURNALNODE, NAMENODE, SECONDARY_NAMENODE, ZKFC  |
-| YARN        | APP_TIMELINE_SERVER, NODEMANAGER, RESOURCEMANAGER, YARN_CLIENT          |
-| MAPREDUCE2  | HISTORYSERVER, MAPREDUCE2_CLIENT                                        |
-| GANGLIA     | GANGLIA_MONITOR, GANGLIA_SERVER                                         |
-| HBASE       | HBASE_CLIENT, HBASE_MASTER, HBASE_REGIONSERVER                          |
-| HIVE        | HIVE_CLIENT, HIVE_METASTORE, HIVE_SERVER, MYSQL_SERVER                  |
-| HCATALOG    | HCAT                                                                    |
-| WEBHCAT     | WEBHCAT_SERVER                                                          |
-| NAGIOS      | NAGIOS_SERVER                                                           |
-| OOZIE       | OOZIE_CLIENT, OOZIE_SERVER                                              |
-| PIG         | PIG                                                                     |
-| SQOOP       | SQOOP                                                                   |
-| STORM       | DRPC_SERVER, NIMBUS, STORM_REST_API, STORM_UI_SERVER, SUPERVISOR        |
-| TEZ         | TEZ_CLIENT                                                              |
-| FALCON      | FALCON_CLIENT, FALCON_SERVER                                            |
-| ZOOKEEPER   | ZOOKEEPER_CLIENT, ZOOKEEPER_SERVER                                      |
-</code></p>
-
-<p>Please note that you can always build your own custom stack beyond these services, using Ambari&rsquo;s custom stack definitions.</p>
-
-<h2>What’s next?</h2>
-
-<p>We will follow up with a few posts to drive you through the technology, API and insights and make it easier for you to learn, understand and use Hadoop in the cloud.</p>
-
-<p>In the meantime we suggest you to go through the <a href="http://sequenceiq.com/cloudbreak/">documentation</a>, try <a href="http://cloudbreak.sequenceiq.com/">Cloudbreak</a> and let us know how it works for you.</p>
-
-<p>Please note that <a href="http://cloudbreak.sequenceiq.com/">Cloudbreak</a> is under development, in public beta &ndash; while we consider the codebase stable for deployments (and use it daily), please let us know if you face any problems through <a href="https://github.com/sequenceiq/cloudbreak">GitHub</a> issues. Also we  welcome your open source contribution &ndash; let it be a bug fix or a new cloud provider <a href="http://sequenceiq.com/cloudbreak/#add-new-cloud-providers">implementation</a>.</p>
-
-<p>Finally, your opinion is important to us &ndash; if you’d like to see your <strong>favourite cloud provider</strong> among the existing ones, please fill this <a href="https://docs.google.com/forms/d/129RVh6VfjRsuuHOcS3VPbFYTdM2SEjANDsGCR5Pul0I/viewform">questionnaire</a>. Make your voice heard!</p>
 
 <p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>

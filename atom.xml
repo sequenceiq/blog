@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-11T13:53:04+00:00</updated>
+  <updated>2014-09-11T13:56:14+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,104 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Drill on Docker - query as a service ]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/11/apache-drill-docker/"/>
+    <updated>2014-09-11T16:00:00+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/11/apache-drill-docker</id>
+    <content type="html"><![CDATA[<p>As you might be already familiar, we have <code>dockerized</code> most of the Hadoop ecosystem &ndash; we are running MR2, Spark, Storm, Hive, HBase, Pig, Oozie, etc in Docker containers &ndash; on bare metal and in the cloud as well. We have started to use (and contribute) to Docker quite a while ago, and beside the <code>mainstream</code> benefits of containers one feature was extremely appealing to us &ndash; <strong>the SOA way of DevOps</strong>. Before I go on and explore what we mean under this allow me to collect a few links for your reference (all open sourced under an <strong>Apache 2 license</strong>), in case you plan to use Hadoop in Docker containers.</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th> Name                  </th>
+<th> Description </th>
+<th> Documentation </th>
+<th> GitHub</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td> Apache Hadoop  </td>
+<td> Pseudo dist. container </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/">http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/</a> </td>
+<td> <a href="https://github.com/sequenceiq/hadoop-docker">https://github.com/sequenceiq/hadoop-docker</a></td>
+</tr>
+<tr>
+<td></td>
+<td> Apache Ambari   </td>
+<td> Multi node &ndash; full Hadoop stack, blueprint based </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/</a> </td>
+<td> <a href="https://github.com/sequenceiq/docker-ambari">https://github.com/sequenceiq/docker-ambari</a></td>
+</tr>
+<tr>
+<td></td>
+<td> Cloudbreak         </td>
+<td> Cloud agnostic Hadoop as a Service </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/</a> </td>
+<td> <a href="https://github.com/sequenceiq/cloudbreak">https://github.com/sequenceiq/cloudbreak</a></td>
+</tr>
+<tr>
+<td></td>
+<td> Periscope          </td>
+<td> SLA policy based autoscaling for Hadoop clusters </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/</a> </td>
+<td> <a href="https://github.com/sequenceiq/periscope">https://github.com/sequenceiq/periscope</a> </td>
+</tr>
+</tbody>
+</table>
+
+
+<h2>Apache Drill at SequenceIQ</h2>
+
+<p><a href="http://incubator.apache.org/drill/">Apache Drill</a> is an open source, low latency SQL query engine for Hadoop and NoSQL. It has many nice and interesting features, but one of the most interesting one (at least for us) is the <a href="https://cwiki.apache.org/confluence/display/DRILL/Storage+Plugin+Registration">storage plugin</a> and the tolerance/support for dynamic schemas. At <a href="http://sequenceiq.com/">SequenceIQ</a> the pre and post processed data ends up in different storage systems/layers. Obliviously we use HDFS, for low latency queries we use HBase and recently (with the emergence of Tez &ndash; which we consider the next big thing) we started to use Hive as well. Quite often there is a need to access the data from <code>legacy</code> systems &ndash; and more often we see <code>SQL</code> coming back in the picture. Just FYI, for SQL on HBase we are using <a href="http://phoenix.apache.org/">Apache Phoenix</a>, and of course we have released and open sourced a <a href="http://blog.sequenceiq.com/blog/2014/09/04/sql-on-hbase-with-apache-phoenix/">Docker container</a>.</p>
+
+<p>As you see there are many storage systems use &ndash; and Drill helps us with aggregating these under one common <code>ANSI SQL syntax</code>. You can query data from HDFS, HBase, Hive, local or remote distributed file system &ndash; or write your own custom storage plugin.</p>
+
+<!-- more -->
+
+
+<h3>Lifecycle of a Drill query</h3>
+
+<p>Let’s take a simple example (from the Drill samples), where we query a file, with a <code>WHERE</code> clause. Your statement is submitted in <code>Sqlline</code> &ndash; a very popular (used with our Phoenix container as well) Java interface which can talk to a JDBC driver. The <code>SELECT</code> statement is passed into <a href="http://optiq.incubator.apache.org/">Optiq</a>. Optiq is a library for query parsing and planning, and allows pluggable transformation rules. Optiq also has a cost-based query optimizer. At high level, based on the above the statements are converted into Drill <code>logical operators</code>, and form a Drill logical plan. This plan is then submitted into one <code>DrillBit service</code> &ndash; usually running on each datanode, to benefit on the data locality, during query execution. This logical plan is then transformed into a physical plan &ndash; a simple DAG  of physical operators &ndash; using a Drill’s <code>optimizer</code>. This physical plan is broken into a multi-level execution tree (hello MPP) that is executed by multiple DrillBits. The story goes on as there are statistics collected, endpoint affinities are checked (metadata based preferred endpoint selection) and the plan is broken in fragments, but at a high level this is the execution flow.
+There are some interesting things going on under the hood which we can cover it one of the following posts &ndash; about writing our custom storage plugin.</p>
+
+<h2>Apache Drill on Docker</h2>
+
+<p>Now as you have a good overview about the capabilities of Drill, we’d like to expand on what we mean under <strong>SOA way of DevOps</strong>. Though Drill is a complex piece of software, essentially the provided service is extremely simple: <em>queries data</em>. We have created a <a href="https://registry.hub.docker.com/u/sequenceiq/drill/">Drill Docker</a> container and wrapped the <code>query</code> service inside. If you’d like to use Drill, the only thing you will have to do is to launch our Drill container &ndash; the <code>query service</code> is available <em>as a Service</em>. We have built the container in such a way that the data layer is separated from the <code>query service</code> &ndash; you can launch the container when and where you’d like to do, and attach the data using volumes. Once the data layer is attached, the only remaining thing is to let Drill know where to query &ndash; by either using one of the existing, or creating a new storage configuration.</p>
+
+<h3>Pull the container</h3>
+
+<p>The Drill container is available as a trusted build on Docker.io. You can get and start using it &ndash; the only prerequisite is to have Docker installed.</p>
+
+<p><code>docker pull sequenceiq/drill</code></p>
+
+<h3>Use the container</h3>
+
+<p>Once the container is pulled you are ready to query your data by running:</p>
+
+<p><code>docker run -it -v /data:/data sequenceiq/drill /etc/bootstrap.sh</code></p>
+
+<p>Note that the <code>-v /data:/data</code> flag specifies that you are mounting your <code>/data</code> directory on the host into a <code>/data</code> directory inside the container. The files inside the directory will be available for Drill to query, by either using the default <code>dfs</code> storage plugin, or by a custom one. To check, or create a storage plugin or to access the Drill UI you should go to <code>http://CONTAINER_IP:8047</code>. You can find your container IP by using <code>docker inspect ID</code>.</p>
+
+<p>In case you don&rsquo;t have any data, but would still like to explore Drill, start the contaier as:</p>
+
+<p><code>docker run -it sequenceiq/drill /etc/bootstrap.sh</code></p>
+
+<p>The sample data installed by default with Drill is available inside the container, thus you&rsquo;d be able to run all the Drill examples/tutorials.</p>
+
+<h3>Drill Rest API</h3>
+
+<p>Get Drillbit status: <code>http://localhost:8047/status</code>
+Get all submitted queries: <code>http://localhost:8047/queries</code>
+Get status of a given query:<code>http://localhost:8047/query/{QUERY_ID}</code></p>
+
+<p>The next version of the container will be a fully distributed (based on our Hadoop container and Hazelcast) Apache Drill Docker container. Until then feel free to let us know how you <code>drill</code> and follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[YARN Schedulers demystified - Part 2: Fair]]></title>
@@ -2893,156 +2991,6 @@ can pass the command to the last argument of: <code>boot2docker ssh &lt;COMMAND&
 
 
 <p>Let us know how <code>nsenter</code> works for you &ndash; and for updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Re-prioritize running jobs with YARN schedulers]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues/"/>
-    <updated>2014-07-02T08:20:05+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues</id>
-    <content type="html"><![CDATA[<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we run different applications all within the same Hadoop YARN cluster. Often the deployed Hadoop stack is a multi-tenant and multi-application and runtime setup &ndash; and as usual for a scenario as such end users will try to use or book as much cluster capacity as possible. A great help for solving these problems are YARN schedulers &ndash; however in our case due to certain SLA and QoS requirements we needed to step further. We have invested a great effort to build custom YARN schedulers, learn about application insights (check our <a href="http://blog.sequenceiq.com/blog/2014/05/01/mapreduce-job-profiling-with-R/">blog post</a> about how we use R to profile running jobs) and we would like to share our experience with the community. Let&rsquo;s dig into technical details.</p>
-
-<p>In YARN, one of the ResourceManager&rsquo;s most important role is the scheduling (allocating available resources in the cluster) between competing applications. It doesn&rsquo;t care about per-application states nor internal flows and optimizations, but the overall resource requirements of
-each application. Currently there are 3 different scheduler implementations available: FIFO, Fair, Capacity.</p>
-
-<p>Going back a few weeks in time we blogged about how to configure the
-<a href="http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler/">CapacityScheduler</a> and use different queue
-setups. Based on the feedbacks we have received we realized that there is a lack of knowledge about how these schedulers work and many people have asked to fill that gap. Good news that we didn&rsquo;t
-forget about you. We&rsquo;re going to start a post series where we&rsquo;ll explain them a little bit detailed with fancy diagrams and code examples.</p>
-
-<p>But before doing that, let&rsquo;s visit a concrete problem we encountered while we were developing our product stack.
-We wanted to use the CapacityScheduler, but for different reasons (SLA and QoS) move the submitted applications between different queues to set a priority among them &ndash; at runtime (quick reminder: queues are either a composition of other queues or a collection of applications, forming a tree).
-Cross application priorites can&rsquo;t be configured yet, only priorities between tasks within the application. The only problem is if you check the code you&rsquo;ll find this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">moveApplication</span><span class="o">(</span><span class="n">ApplicationId</span> <span class="n">appId</span><span class="o">,</span> <span class="n">String</span> <span class="n">newQueue</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">YarnException</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">throw</span> <span class="k">new</span> <span class="nf">YarnException</span><span class="o">(</span><span class="n">getClass</span><span class="o">().</span><span class="na">getSimpleName</span><span class="o">()</span>
-</span><span class='line'>        <span class="o">+</span> <span class="s">&quot; does not support moving apps between queues&quot;</span><span class="o">);</span>
-</span><span class='line'>  <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<!-- more -->
-
-
-<p>Currently this operation is supported only by the FairScheduler. Why is it not implemented? Let us know in a comment and you might receive a surprise present from us :). In the meantime if we&rsquo;d like
-to implement it what would be the steps? Lets start with the following queue hierarchy and their capabilities taken from the integration tests:</p>
-
-<p><img src="http://yuml.me/1fe68e90"></p>
-
-<p>Assume we&rsquo;ve submitted 2 applications, <strong>app1</strong> to <code>b2</code> and <strong>app2</strong> to <code>a2</code> (submitting applications is only allowed to leaf queues). What if <strong>app2</strong> is
-pending for so long because of the queue capacity and my friend&rsquo;s friend&rsquo;s dog cannot wait anymore to see his data clustering result? We could play with the queue capacities and max capacities, but then other apps might get scheduled as well and we don&rsquo;t want that.
-Then we could move the app to a queue where it can get resources with a much higher chance. To move an app to somewhere
-else in the hierarchy we have to consider and update a whole bunch of things. Let&rsquo;s move <strong>app1</strong> to queue <code>b1</code>.</p>
-
-<p>Obviously we have to check if the target queue is a leaf queue and moving the app there does not violate any constraints. But how to do that?
-The first part is easy (leaf or parent), but what about the other one? It has to do something with queue capacities, but checking only the target
-queue&rsquo;s capacity is not enough, we have to go up in the hierarchy (because the parent queues also keep track the number of applications
-and resource usages) but for how deep? The lowest common ancestor of the source and target is enough, because above that nothing changes. In our
-case it&rsquo;s the <code>b</code> (b1, b2). Finding it is not that hard since the queues are declared like this:</p>
-
-<ul>
-<li>root.a.a1</li>
-<li>root.a.a2</li>
-<li>root.b.b1</li>
-<li>root.b.b2</li>
-<li>root.b.b3</li>
-</ul>
-
-
-<p>Going back until <code>b</code> and check the capacities:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">CSQueue</span> <span class="n">currentQueue</span> <span class="o">=</span> <span class="n">targetQueue</span><span class="o">;</span>
-</span><span class='line'><span class="k">while</span> <span class="o">(</span><span class="n">currentQueue</span> <span class="o">!=</span> <span class="n">lowestCommonAncestor</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="c1">// maxApps</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">currentQueue</span><span class="o">.</span><span class="na">getNumApplications</span><span class="o">()</span> <span class="o">==</span> <span class="k">this</span><span class="o">.</span><span class="na">conf</span><span class="o">.</span><span class="na">getMaximumApplicationsPerQueue</span><span class="o">(</span><span class="n">currentQueue</span><span class="o">.</span><span class="na">getQueueName</span><span class="o">()))</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">throw</span> <span class="k">new</span> <span class="nf">YarnException</span><span class="o">(</span><span class="s">&quot;Moving app attempt &quot;</span> <span class="o">+</span> <span class="n">appAttId</span> <span class="o">+</span> <span class="s">&quot; to queue &quot;</span>
-</span><span class='line'>      <span class="o">+</span> <span class="n">queueName</span> <span class="o">+</span> <span class="s">&quot; would violate queue maxApps constraints on&quot;</span>
-</span><span class='line'>      <span class="o">+</span> <span class="s">&quot; queue &quot;</span> <span class="o">+</span> <span class="n">currentQueue</span><span class="o">.</span><span class="na">getQueueName</span><span class="o">());</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1">// maxCapacity</span>
-</span><span class='line'>  <span class="kt">float</span> <span class="n">potentialNewCapacity</span> <span class="o">=</span> <span class="n">Resources</span><span class="o">.</span><span class="na">divide</span><span class="o">(</span><span class="n">calculator</span><span class="o">,</span> <span class="n">clusterResource</span><span class="o">,</span> <span class="n">Resources</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">currentQueue</span><span class="o">.</span><span class="na">getUsedResources</span><span class="o">(),</span> <span class="n">consumption</span><span class="o">),</span> <span class="n">clusterResource</span><span class="o">);</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">potentialNewCapacity</span> <span class="o">&gt;=</span> <span class="n">currentQueue</span><span class="o">.</span><span class="na">getAbsoluteMaximumCapacity</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">throw</span> <span class="k">new</span> <span class="nf">YarnException</span><span class="o">(</span><span class="s">&quot;Moving app attempt &quot;</span> <span class="o">+</span> <span class="n">appAttId</span> <span class="o">+</span> <span class="s">&quot; to queue &quot;</span>
-</span><span class='line'>      <span class="o">+</span> <span class="n">queueName</span> <span class="o">+</span> <span class="s">&quot; would violate queue maxCapacity constraints on&quot;</span>
-</span><span class='line'>      <span class="o">+</span> <span class="s">&quot; queue &quot;</span> <span class="o">+</span> <span class="n">currentQueue</span><span class="o">.</span><span class="na">getQueueName</span><span class="o">());</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>  <span class="n">currentQueue</span> <span class="o">=</span> <span class="n">currentQueue</span><span class="o">.</span><span class="na">getParent</span><span class="o">();</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If everything is fine we can execute the movement.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="kt">void</span> <span class="nf">executeMove</span><span class="o">(</span><span class="n">SchedulerApplication</span> <span class="n">app</span><span class="o">,</span> <span class="n">FiCaSchedulerApp</span> <span class="n">attempt</span><span class="o">,</span> <span class="n">LeafQueue</span> <span class="n">oldQueue</span><span class="o">,</span> <span class="n">LeafQueue</span> <span class="n">newQueue</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">oldQueue</span><span class="o">.</span><span class="na">removeApplicationAttempt</span><span class="o">(</span><span class="n">attempt</span><span class="o">);</span>
-</span><span class='line'>    <span class="n">attempt</span><span class="o">.</span><span class="na">move</span><span class="o">(</span><span class="n">newQueue</span><span class="o">);</span> <span class="c1">// This updates all the queue metrics &#39;til the parent</span>
-</span><span class='line'>    <span class="n">app</span><span class="o">.</span><span class="na">setQueue</span><span class="o">(</span><span class="n">newQueue</span><span class="o">);</span>
-</span><span class='line'>    <span class="n">newQueue</span><span class="o">.</span><span class="na">trackApplications</span><span class="o">(</span><span class="n">attempt</span><span class="o">.</span><span class="na">getApplicationId</span><span class="o">(),</span> <span class="n">attempt</span><span class="o">.</span><span class="na">getUser</span><span class="o">());</span>
-</span><span class='line'>    <span class="n">newQueue</span><span class="o">.</span><span class="na">submitApplicationAttempt</span><span class="o">(</span><span class="n">attempt</span><span class="o">,</span> <span class="n">attempt</span><span class="o">.</span><span class="na">getUser</span><span class="o">());</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>There are so many things implemented in these method calls it wouldn&rsquo;t fit here, but it serves the purpose here as pseudo code.</p>
-
-<ul>
-<li><p>oldQueue.removeApplicationAttempt(attempt);<br/>
-Remove the application from the active and pending list. Notify the parents that an app has been removed.</p></li>
-<li><p>attempt.move(newQueue);<br/>
-Update the queue metrics upwards to root.</p></li>
-<li><p>app.setQueue(newQueue);<br/>
-Set the target queue in the app.</p></li>
-<li><p>newQueue.trackApplications(attempt.getApplicationId(), attempt.getUser());<br/>
-Notify the parents that a new application has been moved here.</p></li>
-<li><p>newQueue.submitApplicationAttempt(attempt, attempt.getUser());<br/>
-Finally submit the application attempt to the queue.</p></li>
-</ul>
-
-
-<p>As usual we always release the code as well &ndash; you can get the details from our <a href="https://github.com/sequenceiq">GitHub</a> page.</p>
-
-<ul>
-<li><p>Move applications between Capacity Scheduler queues <a href="https://github.com/sequenceiq/hadoop-common/blob/branch-2.4.1/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/a/ExtendedCapacityScheduler.java#L924">implementation</a>.</p></li>
-<li><p>Test case <a href="https://github.com/sequenceiq/hadoop-common/blob/branch-2.4.1/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/test/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/a/TestExtendedCapacitySchedulerAppMove.java">implementation</a>.</p></li>
-</ul>
-
-
-<p>In case you are interested on the YARN Scheduler series make sure to follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a> or <a href="https://twitter.com/sequenceiq">Twitter</a> for the upcoming posts.</p>
 ]]></content>
   </entry>
   
