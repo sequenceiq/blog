@@ -24,6 +24,35 @@ header {
 }
 
 
+:not(.highlight)>table>thead:first-child>tr:first-child>th:first-child {
+  border: 0 !important;
+  width : 0px;
+  padding: 0px !important;
+}
+
+:not(.highlight)>table>thead:first-child>tr:first-child>th {
+  border-top: 0;
+  vertical-align: bottom;
+  border: 1px solid #ddd !important;
+  border-bottom: 2px solid #ddd;
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 3;
+  padding-left: 8px !important;
+}
+
+:not(.highlight)>table>tbody>tr>td{
+  padding: 8px ;
+  line-height: 1.42857143 ;
+  vertical-align: top ;
+  border: 1px solid #ddd ;
+}
+
+:not(.highlight)>table>tbody>tr>td:first-child {
+  border: 0 !important;
+  width : 0px;
+  padding: 0px !important;
+}
 
 .navbar-nav>li>a {
   padding-top: 26px !important;
