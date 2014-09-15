@@ -7,7 +7,7 @@ categories: [Apache, Hadoop, Docker, Registry]
 published: false
 author: Janos Matyas
 ---
-Today we are releasing an updated `2.5.1` version of our [Hadoop container](https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/). Up until today the container was **CentOS (6.5)** based, but during the last few months we got lots of requests to release a Hadoop container on **Ubuntu(14.0)**. 
+Today we are releasing an updated `2.5.1` version of our [Hadoop container](https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/). Up until today the container was `CentOS` based, but during the last few months we got lots of requests to release a Hadoop container on `Ubuntu` as well. 
 
 ##Centos
 
@@ -25,7 +25,7 @@ docker build  -t sequenceiq/hadoop-docker:2.5.1 .
 As it is also released as an official Docker image from Docker's automated build repository - you can always pull or refer the image when launching containers.
 
 ```
-docker pull sequenceiq/hadoop-docker:2.5.0
+docker pull sequenceiq/hadoop-docker:2.5.1
 ```
 
 ### Start a container
@@ -33,7 +33,7 @@ docker pull sequenceiq/hadoop-docker:2.5.0
 In order to use the Docker image you have just build or pulled use:
 
 ```
-docker run -i -t sequenceiq/hadoop-docker:2.5.0 /etc/bootstrap.sh -bash
+docker run -i -t sequenceiq/hadoop-docker:2.5.1 /etc/bootstrap.sh -bash
 ```
 
 ## Ubuntu
@@ -52,7 +52,7 @@ docker build  -t sequenceiq/hadoop-ubuntu:2.5.1 .
 As it is also released as an official Docker image from Docker's automated build repository - you can always pull or refer the image when launching containers.
 
 ```
-docker pull sequenceiq/hadoop-ubuntu:2.5.0
+docker pull sequenceiq/hadoop-ubuntu:2.5.1
 ```
 
 ### Start a container
@@ -60,7 +60,7 @@ docker pull sequenceiq/hadoop-ubuntu:2.5.0
 In order to use the Docker image you have just build or pulled use:
 
 ```
-docker run -i -t sequenceiq/hadoop-ubuntu:2.5.0 /etc/bootstrap.sh -bash
+docker run -i -t sequenceiq/hadoop-ubuntu:2.5.1 /etc/bootstrap.sh -bash
 ```
 
 ## Testing
@@ -70,7 +70,7 @@ You can run one of the stock examples:
 ```
 cd $HADOOP_PREFIX
 # run the mapreduce
-bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.5.0.jar grep input output 'dfs[a-z.]+'
+bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.5.1.jar grep input output 'dfs[a-z.]+'
 
 # check the output
 bin/hdfs dfs -cat output/*
