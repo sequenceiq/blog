@@ -1,13 +1,14 @@
 ---
 layout: post
-title: "Apache Hadoop 2.5.0 on Docker"
+title: "Apache Hadoop 2.5.1 on Docker"
 date: 2014-08-18 20:07:18 +0200
 comments: true
-categories: [Apache, Hadoop, Docker, Registry]
-published: false
+categories: [Apache, Hadoop, Docker, Registry, Ubuntu]
+published: true
 author: Janos Matyas
 ---
-Following the release cycle of Hadoop, today we are releasing a new `2.5.1` version of our [Hadoop Docker container](https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/). Up until today the container was only `CentOS` based, but during the last few months we got lots of requests to release a Hadoop container on `Ubuntu` as well. From now on we will have both released, supported and published to the offical Docker repository.
+
+Following the release cycle of Hadoop, today we are releasing a new `2.5.1` version of our [Hadoop Docker container](https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/). Up until today the container was only `CentOS` based, but during the last few months we got lots of requests to release a Hadoop container on `Ubuntu` as well. From now on we will have both released, supported and published to the official Docker repository. Enjoy. 
 
 ##Centos
 
