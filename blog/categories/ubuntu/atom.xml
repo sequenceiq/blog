@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ubuntu | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/ubuntu/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-15T13:46:47+00:00</updated>
+  <updated>2014-09-15T13:47:30+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Apache Hadoop 2.5.1 on Docker]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-1-docker/"/>
-    <updated>2014-08-18T18:07:18+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-1-docker</id>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/15/hadoop-2-5-1-docker/"/>
+    <updated>2014-09-15T18:07:18+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/15/hadoop-2-5-1-docker</id>
     <content type="html"><![CDATA[<p>Following the release cycle of Hadoop, today we are releasing a new <code>2.5.1</code> version of our <a href="https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/">Hadoop Docker container</a>. Up until today the container was only <code>CentOS</code> based, but during the last few months we got lots of requests to release a Hadoop container on <code>Ubuntu</code> as well. From now on we will have both released, supported and published to the official Docker repository. Enjoy.</p>
 
 <h2>Centos</h2>
