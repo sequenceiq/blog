@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-15T13:41:22+00:00</updated>
+  <updated>2014-09-15T13:46:47+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -1278,6 +1278,97 @@ But what if you want to use (for example) an <a href="http://blog.sequenceiq.com
 <p>If you would like to play with Spark, you can use our <a href="https://registry.hub.docker.com/u/sequenceiq/spark/">Spark Docker container</a> available as a trusted build on Docker.io repository.</p>
 
 <p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Hadoop 2.5.1 on Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-1-docker/"/>
+    <updated>2014-08-18T18:07:18+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-1-docker</id>
+    <content type="html"><![CDATA[<p>Following the release cycle of Hadoop, today we are releasing a new <code>2.5.1</code> version of our <a href="https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/">Hadoop Docker container</a>. Up until today the container was only <code>CentOS</code> based, but during the last few months we got lots of requests to release a Hadoop container on <code>Ubuntu</code> as well. From now on we will have both released, supported and published to the official Docker repository. Enjoy.</p>
+
+<h2>Centos</h2>
+
+<h3>Build the image</h3>
+
+<p>In case you&rsquo;d like to try directly from the <a href="https://github.com/sequenceiq/hadoop-docker/tree/2.5.1">Dockerfile</a> you can build the image as:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker build  -t sequenceiq/hadoop-docker:2.5.1 .</span></code></pre></td></tr></table></div></figure>
+
+
+<!-- more -->
+
+
+<h3>Pull the image</h3>
+
+<p>As it is also released as an official Docker image from Docker&rsquo;s automated build repository &ndash; you can always pull or refer the image when launching containers.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/hadoop-docker:2.5.1</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Start a container</h3>
+
+<p>In order to use the Docker image you have just build or pulled use:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -i -t sequenceiq/hadoop-docker:2.5.1 /etc/bootstrap.sh -bash</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Ubuntu</h2>
+
+<h3>Build the image</h3>
+
+<p>In case you&rsquo;d like to try directly from the <a href="https://github.com/sequenceiq/docker-hadoop-ubuntu/tree/2.5.1">Dockerfile</a> you can build the image as:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker build  -t sequenceiq/hadoop-ubuntu:2.5.1 .</span></code></pre></td></tr></table></div></figure>
+
+
+<!-- more -->
+
+
+<h3>Pull the image</h3>
+
+<p>As it is also released as an official Docker image from Docker&rsquo;s automated build repository &ndash; you can always pull or refer the image when launching containers.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/hadoop-ubuntu:2.5.1</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Start a container</h3>
+
+<p>In order to use the Docker image you have just build or pulled use:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -i -t sequenceiq/hadoop-ubuntu:2.5.1 /etc/bootstrap.sh -bash</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Testing</h2>
+
+<p>You can run one of the stock examples:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cd $HADOOP_PREFIX
+</span><span class='line'># run the mapreduce
+</span><span class='line'>bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.5.1.jar grep input output 'dfs[a-z.]+'
+</span><span class='line'>
+</span><span class='line'># check the output
+</span><span class='line'>bin/hdfs dfs -cat output/*</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Hadoop native libraries, build, Bintray, etc</h2>
+
+<p>The Hadoop build process is no easy task &ndash; requires lots of libraries and their right version, protobuf, etc and takes some time &ndash; we have simplified all these, made the build and released a 64b version of Hadoop nativelibs on our <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.5.0/view/files">Bintray repo</a>. Enjoy.</p>
+
+<p>Should you have any questions let us know through our social channels as <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   
@@ -2885,112 +2976,6 @@ reflection as well. Do you know why this can happen? It&rsquo;s a good candidate
 <p>If you&rsquo;d like to play with a real multi-node Ambari managed cluster check out <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">this</a> older blog post &ndash; this will set you up with a Hadoop cluster in less than 2 minutes / one-click.</p>
 
 <p>Let us know how it works for you &ndash; for updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Docker debug with nsenter on boot2docker]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/07/05/docker-debug-with-nsenter-on-boot2docker/"/>
-    <updated>2014-07-05T12:05:41+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/07/05/docker-debug-with-nsenter-on-boot2docker</id>
-    <content type="html"><![CDATA[<p><code>nsenter</code> is a small tool allowing to <code>enter</code> into <code>n</code>ame<code>s</code>paces. Specifically
-when you work with docker, it means you can <em>enter</em> any docker container, even
-it they don&rsquo;t run any sshd. Running sshd in a docker container for debuging
-<a href="http://jpetazzo.github.io/2014/06/23/docker-ssh-considered-evil/">considered evil</a>.</p>
-
-<h2>Nsenter with Boot2docker</h2>
-
-<p>Docker doesn&rsquo;t run directly on OS X and on Windows, so you need
-<a href="http://boot2docker.io/">boot2docker</a>. To get <code>nsenter</code> working with boot2docker
-is a bit trickier.</p>
-
-<p>For the impatient here is a simple function, which lets you enter any docker
-container directly from OS X (or any boot2docker host):</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker-enter() {
-</span><span class='line'>  boot2docker ssh '[ -f /var/lib/boot2docker/nsenter ] || docker run --rm -v /var/lib/boot2docker/:/target jpetazzo/nsenter'
-</span><span class='line'>  boot2docker ssh -t sudo /var/lib/boot2docker/docker-enter "$@"
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<p>the first line installs <code>nsenter</code> and <code>docker-enter</code> if missing and the second line
-does the actual call.</p>
-
-<p>once you declared the function, you can use it as:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker-enter &lt;CONTAINER-ID/CONTAINER-NAME&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<!-- more -->
-
-
-<h2>TL;DR</h2>
-
-<p>If you are interested about the details how this works read on.</p>
-
-<h2>Install nseneter onto boot2docker</h2>
-
-<p>How to install nsenter into boot2docker? Its a bit tricky, as boot2docker isn&rsquo;t
-a full-blown linux, it&rsquo;s based on tiny core linux, so compiling on it is not trivial.</p>
-
-<p>But guess what, <strong>jpetazzo</strong> already created a <a href="https://github.com/jpetazzo/nsenter">dockerized nsenter</a>
-It suggest to install the binary <code>nsenter</code> as:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run --rm -v /usr/local/bin:/target jpetazzo/nsenter</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This works with boot2docker &hellip; until you restart it. You should store all
-changes on the persistent <code>/var/lib/boot2docker</code> directory.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run --rm -v /var/lib/boot2docker/:/target jpetazzo/nsenter</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>the docker-enter script</h2>
-
-<p><a href="https://github.com/jpetazzo/nsenter/blob/master/docker-enter">docker-enter</a> is
-a helper script to do the following 2 steps:</p>
-
-<ul>
-<li>gets the <code>PID</code> of the docker container</li>
-<li>executes <code>nsenter</code> optionally passing the name of a program to execute inside
-the namespace. if no command is specified a shell will be invoked instead.</li>
-</ul>
-
-
-<p>In the previous step, when you have installed <code>nseneter</code> the <code>docker-enter</code> srcipt
-<a href="https://github.com/jpetazzo/nsenter/blob/master/installer#L6">got installed</a> into the same directory.</p>
-
-<h2>Nsenter directly from OS X</h2>
-
-<p>Some blogs advise you to first ssh into boot2docker, and use nsenter or docker-enter
-inside of the virtual env. But if you are executing a single command via ssh, you
-can pass the command to the last argument of: <code>boot2docker ssh &lt;COMMAND&gt;</code></p>
-
-<h2>One-liner</h2>
-
-<p>So combine all the steps into a single <strong>one-liner</strong> function:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker-enter() { boot2docker ssh -t "[ -f /var/lib/boot2docker/nsenter ] || docker run --rm -v /var/lib/boot2docker/:/target jpetazzo/nsenter; sudo /var/lib/boot2docker/docker-enter $@"; }</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If you want it permanently either copy-paste it into your <code>~/.profile</code> or
-<code>~/.bash_profile</code>. Or save it into <code>/usr/local/bin</code>:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl -Lo /usr/local/bin/docker-enter j.mp/docker-enter && . /usr/local/bin/docker-enter</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Let us know how <code>nsenter</code> works for you &ndash; and for updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   
