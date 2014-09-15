@@ -7,7 +7,7 @@ categories: [Apache, Hadoop, Docker, Registry]
 published: false
 author: Janos Matyas
 ---
-Today we are releasing an updated `2.5.1` version of our [Hadoop container](https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/). Up until today the container was `CentOS` based, but during the last few months we got lots of requests to release a Hadoop container on `Ubuntu` as well. 
+Following the release cycle of Hadoop, today we are releasing a new `2.5.1` version of our [Hadoop Docker container](https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/). Up until today the container was only `CentOS` based, but during the last few months we got lots of requests to release a Hadoop container on `Ubuntu` as well. From now on we will have both released, supported and published to the offical Docker repository.
 
 ##Centos
 
