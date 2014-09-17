@@ -1,0 +1,11 @@
+---
+layout: post
+title: "Apache Spark 1.1.0 on Docker"
+date: 2014-09-17 20:07:18 +0200
+comments: true
+categories: [Apache Spark, Docker]
+published: false
+author: Janos Matyas
+---
+
+Following 
