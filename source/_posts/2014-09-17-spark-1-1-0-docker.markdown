@@ -8,7 +8,7 @@ published: false
 author: Janos Matyas
 ---
 
-As you might be already familiar, we have `dockerized` most of the Hadoop ecosystem - we are running MR2, Spark, Storm, Hive, HBase, Pig, Oozie, etc in Docker containers - on bare metal and in the cloud as well. For details you can check these older posts/resources:
+As you might be already familiar, we have `dockerized` most of the Hadoop ecosystem - we are running MR2, Spark, Storm, Hive, HBase, Pig, Oozie, Drill etc in Docker containers - on bare metal and in the cloud as well. For details you can check these older posts/resources:
 
 | Name                  | Description | Documentation | GitHub
 |-----------------------|----|--------| ----------  
