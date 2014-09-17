@@ -30,6 +30,8 @@ We suggest to always pull the container from the official Docker repository - as
 docker pull sequenceiq/spark:1.1.0
 ```
 
+<!-- more -->
+
 ## Building the image
 
 Alternatively you can always build your own container based on our Dockerfile.
