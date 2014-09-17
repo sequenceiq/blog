@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-17T16:03:48+00:00</updated>
+  <updated>2014-09-17T16:05:41+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -73,6 +73,11 @@
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/spark:1.1.0</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!-- more -->
 
 
 <h2>Building the image</h2>
