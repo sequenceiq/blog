@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-17T15:47:28+00:00</updated>
+  <updated>2014-09-17T16:03:48+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,132 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Spark 1.1.0 on Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/17/spark-1-1-0-docker/"/>
+    <updated>2014-09-17T18:07:18+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/17/spark-1-1-0-docker</id>
+    <content type="html"><![CDATA[<p>As you might be already familiar, we have <code>dockerized</code> most of the Hadoop ecosystem &ndash; we are running MR2, Spark, Storm, Hive, HBase, Pig, Oozie, Drill etc in Docker containers &ndash; on bare metal and in the cloud as well. For details you can check these older posts/resources:</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th> Name                  </th>
+<th> Description </th>
+<th> Documentation </th>
+<th> GitHub</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td> Apache Hadoop  </td>
+<td> Pseudo distributed container </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/">http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/</a> </td>
+<td> <a href="https://github.com/sequenceiq/hadoop-docker">https://github.com/sequenceiq/hadoop-docker</a></td>
+</tr>
+<tr>
+<td></td>
+<td> Apache Ambari   </td>
+<td> Multi node &ndash; full Hadoop stack, blueprint based </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/</a> </td>
+<td> <a href="https://github.com/sequenceiq/docker-ambari">https://github.com/sequenceiq/docker-ambari</a></td>
+</tr>
+<tr>
+<td></td>
+<td> Cloudbreak         </td>
+<td> Cloud agnostic Hadoop as a Service </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/</a> </td>
+<td> <a href="https://github.com/sequenceiq/cloudbreak">https://github.com/sequenceiq/cloudbreak</a></td>
+</tr>
+<tr>
+<td></td>
+<td> Periscope          </td>
+<td> SLA policy based autoscaling for Hadoop clusters </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/</a> </td>
+<td> <a href="https://github.com/sequenceiq/periscope">https://github.com/sequenceiq/periscope</a> </td>
+</tr>
+</tbody>
+</table>
+
+
+<p>In this current post we’d like to help you to start with the latest Spark release in minutes &ndash; using Docker. Docker and Spark are two technologies which are very <code>hyped</code> these days. At <a href="http://sequenceiq.com/">SequenceIQ</a> we use both quite a lot, thus we put together a Docker container and sharing it with the community.</p>
+
+<p>The container’s code is available in our <a href="https://github.com/sequenceiq/docker-spark/blob/v1.1onHadoop-2.5.1/README.md">GitHub</a> repository.</p>
+
+<h3>Pull the image from Docker Repository</h3>
+
+<p>We suggest to always pull the container from the official Docker repository &ndash; as this is always maintained and supported by us.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/spark:1.1.0</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Building the image</h2>
+
+<p>Alternatively you can always build your own container based on our Dockerfile.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker build --rm -t sequenceiq/spark:1.1.0 .</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Running the image</h2>
+
+<p>Once you have pulled or built the container, you are ready to start with Spark.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -i -t -h sandbox sequenceiq/spark /etc/bootstrap.sh -bash</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Testing</h3>
+
+<p>In order to check whether everything is OK, you can run one of the stock examples, coming with Spark. Check our previous blog posts and examples about Spark <a href="http://blog.sequenceiq.com/blog/2014/07/31/spark-mllib/">here</a> and <a href="http://blog.sequenceiq.com/blog/2014/08/22/spark-submit-in-java/">here</a>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cd /usr/local/spark
+</span><span class='line'># run the spark shell
+</span><span class='line'>./bin/spark-shell --master yarn-client --driver-memory 1g --executor-memory 1g --executor-cores 1
+</span><span class='line'>
+</span><span class='line'># execute the the following command which should return 1000
+</span><span class='line'>scala&gt; sc.parallelize(1 to 1000).count()</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There are two deploy modes that can be used to launch Spark applications on YARN. In yarn-cluster mode, the Spark driver runs inside an application master process which is managed by YARN on the cluster, and the client can go away after initiating the application. In yarn-client mode, the driver runs in the client process, and the application master is only used for requesting resources from YARN.</p>
+
+<p>Estimating Pi (yarn-cluster mode):</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cd /usr/local/spark
+</span><span class='line'>
+</span><span class='line'># execute the the following command which should write the "Pi is roughly 3.1418" into the logs
+</span><span class='line'>./bin/spark-submit --class org.apache.spark.examples.SparkPi --master yarn-cluster --driver-memory 1g --executor-memory 1g --executor-cores 1 examples/target/scala-2.10/spark-examples_2.10-1.0.1.jar</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Estimating Pi (yarn-client mode):</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cd /usr/local/spark
+</span><span class='line'>
+</span><span class='line'># execute the the following command which should print the "Pi is roughly 3.1418" to the screen
+</span><span class='line'>./bin/spark-submit --class org.apache.spark.examples.SparkPi --master yarn-client --driver-memory 1g --executor-memory 1g --executor-cores 1 examples/target/scala-2.10/spark-examples_2.10-1.0.1.jar</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Should you have any questions let us know through our social channels using <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Apache Hadoop 2.5.1 on Docker]]></title>
@@ -2875,107 +3001,6 @@ Coding in Groovy is fast and fun, isn&rsquo;t it? Except when problems come up a
 <p>The Ambari REST Client is written in Groovy and in this case used by a Java application. You can find the sample bug in our
 <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/groovy-bug">repository</a>. The same thing could have been achieved with
 reflection as well. Do you know why this can happen? It&rsquo;s a good candidate for an interview question, isn&rsquo;t it &hellip;</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Apache Ambari configuration service]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service/"/>
-    <updated>2014-07-09T08:20:05+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service</id>
-    <content type="html"><![CDATA[<p>At SequenceIQ we use Apache Ambari for provisioning, managing, and monitoring Apache Hadoop clusters on different environments. However Ambari has more useful features than these &ndash; especially for us who automate and frequently build on-demand Hadoop clusters in cloud environments and submit different applications into. These Hadoop clusters carry different components, configurations and services &ndash; think of dev->test->UAT->PROD cluster lifecycles, different settings, SLA&rsquo;s, etc).</p>
-
-<p>Configuration of applications that use dynamically built YARN clusters can be challenging. This is due to the huge amount of configuration properties, some of which needs to be kept in sync on YARN client application side. Think of <em>yarn.resourcemanager.address</em>, <em>fs.defaultFS</em>, <em>yarn.resourcemanager.scheduler.address</em> to name a few. Each time these cluster specific entries change, client applications needs to be reconfigured. Those who ever played with clusters where the default properties are overridden know what this means&hellip;</p>
-
-<p>At SequenceIQ we use Ambari for building on-demand YARN clusters (see the related <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/"> blog post</a>). In our case Ambari not only maintains the configuration of the cluster it manages but also provides access to them through a set of REST resources.</p>
-
-<p>To overcome the configuration maintenance problem in YARN client applications, we implemented an Ambari REST client application that embedded in client applications can dynamically retrieve configuration from an Ambari instance. Thus the only thing needed for an application to have the proper configuration is the access to the Ambari instance.</p>
-
-<p>The Ambari REST client is an open source project we developed and contributed to Apache Ambari &ndash; it&rsquo;s a Groovy REST client used by the <a href="https://github.com/sequenceiq/ambari-shell">Ambari Shell</a> and <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a>.</p>
-
-<!-- more -->
-
-
-<p>Here is a short example on how to make use of the Ambari client in an arbitrary application:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">AmbariConfigurationService</span> <span class="o">{</span>
-</span><span class='line'><span class="o">...</span>
-</span><span class='line'><span class="kd">private</span> <span class="n">AmbariClient</span> <span class="n">ambariClient</span><span class="o">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kd">public</span> <span class="nf">AmbariConfigurationService</span><span class="o">(){</span>
-</span><span class='line'>  <span class="c1">// inject / provide the service with the ambari related properties</span>
-</span><span class='line'>  <span class="n">ambariClient</span> <span class="o">=</span> <span class="k">new</span> <span class="n">AmbariClient</span><span class="o">(</span><span class="n">ambariHost</span><span class="o">,</span> <span class="n">ambariPort</span><span class="o">,</span> <span class="n">ambariUser</span><span class="o">,</span> <span class="n">ambariPass</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// list with the properties needed by the application</span>
-</span><span class='line'><span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">configList</span> <span class="o">=</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="s">&quot;mapreduce.framework.name&quot;</span><span class="o">,</span> <span class="s">&quot;yarn.resourcemanager.address&quot;</span><span class="o">,</span> <span class="s">&quot;hbase.zookeeper.quorum&quot;</span> <span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// assembles a Configuration instance with the properties needed by the application</span>
-</span><span class='line'><span class="kd">public</span> <span class="n">Configuration</span> <span class="nf">getConfiguration</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>        <span class="c1">//  use this constructor to avoid loading of properties from the classpath!</span>
-</span><span class='line'>        <span class="n">Configuration</span> <span class="n">configuration</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Configuration</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// Map with service specific configuration. The keys are service names: eg.: yarn-site, hbase-site, global ...</span>
-</span><span class='line'>        <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">serviceConfigMap</span> <span class="o">=</span> <span class="n">ambariClient</span><span class="o">.</span><span class="na">getServiceConfigMap</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">for</span> <span class="o">(</span><span class="n">Map</span><span class="o">.</span><span class="na">Entry</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">serviceEntry</span> <span class="o">:</span> <span class="n">serviceConfigMap</span><span class="o">.</span><span class="na">entrySet</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>            <span class="k">for</span> <span class="o">(</span><span class="n">Map</span><span class="o">.</span><span class="na">Entry</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">configEntry</span> <span class="o">:</span> <span class="n">serviceEntry</span><span class="o">.</span><span class="na">getValue</span><span class="o">().</span><span class="na">entrySet</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">configList</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">configEntry</span><span class="o">.</span><span class="na">getKey</span><span class="o">()))</span> <span class="o">{</span>
-</span><span class='line'>                    <span class="n">configuration</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">configEntry</span><span class="o">.</span><span class="na">getKey</span><span class="o">(),</span> <span class="n">configEntry</span><span class="o">.</span><span class="na">getValue</span><span class="o">());</span>
-</span><span class='line'>                <span class="o">}</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="c1">// decorate the config with application specific entries, like &quot;dfs.client.use.legacy.blockreader&quot;, &quot;mapreduce.job.user.classpath.first&quot;</span>
-</span><span class='line'>        <span class="n">decorateConfiguration</span><span class="o">(</span><span class="n">configuration</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="k">return</span> <span class="n">configuration</span><span class="o">;</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><em>Note: Apart from the <code>getServiceConfigMap()</code> method you&rsquo;ll find a few interesting and useful operations</em></p>
-
-<p>You can get the Ambari client code from the <a href="https://github.com/sequenceiq/ambari-rest-client">SequenceIQ GitHub repository</a> &ndash; clone it, build it and add it as a dependency to your project.</p>
-
-<p>If you&rsquo;d like to play with a real multi-node Ambari managed cluster check out <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">this</a> older blog post &ndash; this will set you up with a Hadoop cluster in less than 2 minutes / one-click.</p>
-
-<p>Let us know how it works for you &ndash; for updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   
