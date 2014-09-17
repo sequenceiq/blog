@@ -18,7 +18,7 @@ As you might be already familiar, we have `dockerized` most of the Hadoop ecosys
 | Periscope 	     | SLA policy based autoscaling for Hadoop clusters | http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/ | https://github.com/sequenceiq/periscope 
 
 
-In this current post we’d like to help you to start with the latest Spark release in minutes - using Docker. Docker and Spark are two technologies which are very `hyped` these days. At [SequenceIQ](http://sequenceiq.com/) we use both quite a lot, thus we put together a Docker container and sharing it with the community.
+In this current post we’d like to help you to start with the `latest - 1.1.0` Spark release in minutes - using Docker. Docker and Spark are two technologies which are very `hyped` these days. At [SequenceIQ](http://sequenceiq.com/) we use both quite a lot, thus we put together a Docker container and sharing it with the community.
 
 The container’s code is available in our [GitHub](https://github.com/sequenceiq/docker-spark/blob/v1.1onHadoop-2.5.1/README.md) repository.
 
