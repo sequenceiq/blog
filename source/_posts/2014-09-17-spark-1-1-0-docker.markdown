@@ -8,4 +8,76 @@ published: false
 author: Janos Matyas
 ---
 
-Following 
+As you might be already familiar, we have `dockerized` most of the Hadoop ecosystem - we are running MR2, Spark, Storm, Hive, HBase, Pig, Oozie, etc in Docker containers - on bare metal and in the cloud as well. For details you can check these older posts/resources:
+
+| Name                  | Description | Documentation | GitHub
+|-----------------------|----|--------| ----------  
+| Apache Hadoop  | Pseudo distributed container | http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/ | https://github.com/sequenceiq/hadoop-docker
+| Apache Ambari   | Multi node - full Hadoop stack, blueprint based | http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/ | https://github.com/sequenceiq/docker-ambari
+| Cloudbreak 	     | Cloud agnostic Hadoop as a Service | http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/ | https://github.com/sequenceiq/cloudbreak
+| Periscope 	     | SLA policy based autoscaling for Hadoop clusters | http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/ | https://github.com/sequenceiq/periscope 
+
+
+In this current post we’d like to help you to start with Spark in minutes - using Docker. Docker and Spark are two technologies which are very `hyped` these days. At [SequenceIQ](http://sequenceiq.com/) we use both quite a lot, thus we put together a Docker container and sharing it with the community.
+
+The container’s code is available on our [GitHub](https://github.com/sequenceiq/docker-spark/blob/v1.1onHadoop-2.5.1/README.md) repository.
+
+###Pull the image from Docker Repository
+
+We suggest to always pull the container from the official Docker repository - as this is always maintained and supported by us. 
+
+```
+docker pull sequenceiq/spark:1.1.0
+```
+
+## Building the image
+
+Alternatively you can always build your own container based on our Dockerfile.
+
+```
+docker build --rm -t sequenceiq/spark:1.1.0 .
+```
+
+## Running the image
+
+Once you have pulled or built the container, you are ready to start with Spark. 
+
+```
+docker run -i -t -h sandbox sequenceiq/spark /etc/bootstrap.sh -bash
+```
+
+###Testing
+
+In order to check whether everything is OK, you can run one of the stock examples, coming with Spark. Check our previous blog posts and examples about Spark [here](http://blog.sequenceiq.com/blog/2014/07/31/spark-mllib/) and [here](http://blog.sequenceiq.com/blog/2014/08/22/spark-submit-in-java/). 
+
+```
+cd /usr/local/spark
+# run the spark shell
+./bin/spark-shell --master yarn-client --driver-memory 1g --executor-memory 1g --executor-cores 1
+
+# execute the the following command which should return 1000
+scala> sc.parallelize(1 to 1000).count()
+```
+
+There are two deploy modes that can be used to launch Spark applications on YARN. In yarn-cluster mode, the Spark driver runs inside an application master process which is managed by YARN on the cluster, and the client can go away after initiating the application. In yarn-client mode, the driver runs in the client process, and the application master is only used for requesting resources from YARN.
+
+Estimating Pi (yarn-cluster mode): 
+
+```
+cd /usr/local/spark
+
+# execute the the following command which should write the "Pi is roughly 3.1418" into the logs
+./bin/spark-submit --class org.apache.spark.examples.SparkPi --master yarn-cluster --driver-memory 1g --executor-memory 1g --executor-cores 1 examples/target/scala-2.10/spark-examples_2.10-1.0.1.jar
+```
+
+Estimating Pi (yarn-client mode):
+
+```
+cd /usr/local/spark
+
+# execute the the following command which should print the "Pi is roughly 3.1418" to the screen
+./bin/spark-submit --class org.apache.spark.examples.SparkPi --master yarn-client --driver-memory 1g --executor-memory 1g --executor-cores 1 examples/target/scala-2.10/spark-examples_2.10-1.0.1.jar
+```
+
+Should you have any questions let us know through our social channels as [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
+
