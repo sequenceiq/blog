@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Doktorics | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/doktorics/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-18T13:10:31+00:00</updated>
+  <updated>2014-09-18T13:11:22+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -56,8 +56,11 @@ shell: curl -o /usr/bin/jq <a href="http://stedolan.github.io/jq/download/linux6
 
 <p>Using Google cloud you have 2 choices:</p>
 
-<p>..<em> Create snapshots starting from a default image
-..</em> Create a custom image</p>
+<ol>
+<li> Create snapshots starting from a default image</li>
+<li> Create a custom image</li>
+</ol>
+
 
 <h3>Image creation using snapshots</h3>
 
