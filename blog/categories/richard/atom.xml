@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Richard | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/richard/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-18T12:56:46+00:00</updated>
+  <updated>2014-09-18T13:10:31+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Cloudbreak new provider implementation - Part I: Build your custom image]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/09/15/custom-image-on-gcc/"/>
-    <updated>2014-09-15T07:42:58+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/09/15/custom-image-on-gcc</id>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/18/custom-image-on-gcc/"/>
+    <updated>2014-09-18T07:42:58+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/18/custom-image-on-gcc</id>
     <content type="html"><![CDATA[<p>Not so long ago we have released <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; the cloud agnostic, open source and Docker based Hadoop as a Service API (with support for <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">autoscaling</a> Hadoop clusters). As we have <code>dockerized</code> the whole Hadoop ecosystem, we are shipping the containers to different cloud providers, such as Amazon AWS, Microsoft Azure and Google Cloud Compute. Also Cloudbreak has an <a href="http://sequenceiq.com/cloudbreak/#add-new-cloud-providers">SDK</a> which allows you to quickly add your favorite cloud provider. In this post (series) we’d like to guide you trough the process, and show you how to create a custom image &ndash; on Google Cloud. We have chose Google Cloud as this is the least documented and has the smallest amount on default images (there are thousand for Amazon, and hundreds for Azure). Nevertheless on all cloud provider usually you’d like to have a custom image with your preferred OS, configuration and potentially installed applications.</p>
 
 <!-- more -->
@@ -25,13 +25,12 @@
 
 <h3>Why do we need custom images on every cloud?</h3>
 
-<p>First, the installation process is much easier and faster on a custom image because we are using docker on the host OS so cocking an image with the specific containers is very useful instead of pulling the docker images in every instance creation.
-All the above are true for us as well &ndash; with some simplifications. We use Docker to run every process/application &ndash; for the benefits we have covered in other posts many times &ndash; and apart from Docker, our (or the customer’s) preferred OS and a few other helper/debugger things (such as <a href="https://registry.hub.docker.com/u/jpetazzo/nsenter/">nsenter</a>)
+<p>All the above are true for us as well &ndash; with some simplifications. We use Docker to run every process/application &ndash; for the benefits we have covered in other posts many times &ndash; and apart from Docker, our (or the customer’s) preferred OS and a few other helper/debugger things (such as <a href="https://registry.hub.docker.com/u/jpetazzo/nsenter/">nsenter</a>)
 we are almost fine. We have made some PAM related fixes/contributions for Docker &ndash; and until they are not in the upstream we have built/derive from our base layer/containers &ndash; so with this and the actual containers included this is pretty much how a cloud base image looks like for us.</p>
 
-<p>As usual for us, we always automate everything &ndash; building custom cloud base images is part of the automation and our CI/CD process as well. For that we use <a href="http://www.ansible.com/home">Ansible</a> as our preferred IT automation tool. So the first step is to define your own <a href="http://docs.ansible.com/playbooks.html">playbook</a> to install everything on the virtual machine.</p>
+<p>As usual we always automate everything &ndash; building custom cloud base images is part of the automation and our CI/CD process as well. For that we use <a href="http://www.ansible.com/home">Ansible</a> as the preferred IT automation tool. So the first step is to define your own <a href="http://docs.ansible.com/playbooks.html">playbook</a> to install everything on the virtual machine.</p>
 
-<p>A simplest playbook looks like this:</p>
+<p>A simple playbook looks like this:</p>
 
 <p>```
   &ndash; name: Install Docker</p>
@@ -55,17 +54,14 @@ shell: curl -o /usr/bin/jq <a href="http://stedolan.github.io/jq/download/linux6
 
 <p>```</p>
 
-<p>Using the Google cloud you have 2 choices:</p>
+<p>Using Google cloud you have 2 choices:</p>
 
-<ul>
-<li>Create snapshots starting from a default image</li>
-<li>Create a custom image</li>
-</ul>
-
+<p>..<em> Create snapshots starting from a default image
+..</em> Create a custom image</p>
 
 <h3>Image creation using snapshots</h3>
 
-<p>We are using Debian as the host image OS on Google Cloud, and have created a virtual machine using the default <a href="https://developers.google.com/compute/docs/operating-systems#backported_debian_7_wheezy">Debian</a> image. First thing first, you need to create a persistent disk:</p>
+<p>We are using Debian as the host OS on Google Cloud, and have created a virtual machine using the default <a href="https://developers.google.com/compute/docs/operating-systems#backported_debian_7_wheezy">Debian</a> image. First thing first, you need to create a persistent disk:</p>
 
 <p><code>
 gcloud compute disks create temporary-disk --zone ZONE
