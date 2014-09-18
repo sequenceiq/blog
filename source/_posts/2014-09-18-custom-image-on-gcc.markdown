@@ -5,7 +5,7 @@ date: 2014-09-15 09:42:58 +0200
 comments: true
 categories: [Cloudbreak, Docker, Hadoop, Cloud, Google Cloud]
 categories: Richard Doktorics
-published: false
+published: true
 ---
 
 Not so long ago we have released [Cloudbreak](http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/), the cloud agnostic, open source and Docker based Hadoop as a Service API. AS we have ‘dockerized’ the whole Hadoop ecosystem, we are shipping the containers to different cloud providers, such as Amazon AWS, Microsoft Azure and Google Cloud Compute. Also Cloudbreak has an [SDK](http://sequenceiq.com/cloudbreak/#add-new-cloud-providers) which allows you to quickly add your favorite cloud provider. In this post (series) we’d like to guide you trough the process, and show you how to create a custom image - on Google Cloud. We have chose Google Cloud as this is the least documented and has the smallest amount on default images (there are thousand for Amazon, and hundreds for Azure). Nevertheless on all cloud provider usually you’d like to have a custom image with your preferred OS, configuration and potentially installed applications.
@@ -18,7 +18,7 @@ First, the installation process is much easier and faster on a custom image beca
 All the above are true for us as well - with some simplifications. We use Docker to run every process/application - for the benefits we have covered in other posts many times - and apart from Docker, our (or the customer’s) preferred OS and a few other helper/debugger things (such as [nsenter](https://registry.hub.docker.com/u/jpetazzo/nsenter/)) 
 we are almost fine. We have made some PAM related fixes/contributions for Docker - and until they are not in the upstream we have built/derive from our base layer/containers - so with this and the actual containers included this is pretty much how a cloud base image looks like for us.
 
-As usual for us, we always automate everything - building custom cloud base images is part of the automation and our CI/CD process as well. For that we use [Ansible](http://www.ansible.com/home), as our preferred IT automation tool. So the first step is to define your own [Playbook](http://docs.ansible.com/playbooks.html) to install everything on the virtual machine.
+As usual for us, we always automate everything - building custom cloud base images is part of the automation and our CI/CD process as well. For that we use [Ansible](http://www.ansible.com/home) as our preferred IT automation tool. So the first step is to define your own [playbook](http://docs.ansible.com/playbooks.html) to install everything on the virtual machine.
 
 A simplest playbook looks like this:
 
@@ -151,4 +151,4 @@ Now you have an `official` image template but you have to create the image in Go
 gcutil addimage my-ubuntu gs://<bucket-name>/ubuntu_image.tar.gz
 ```
 
-Once this is done you have created your custom built Google Cloud image, and you are ready to start instances using it. Let us know how it works for you, and make sure you follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
+Once this is done you have created your custom built Google Cloud image, and you are ready to start cloud instances using it. Let us know how it works for you, and make sure you follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
