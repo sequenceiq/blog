@@ -4,7 +4,7 @@ title: "Cloudbreak new provider implementation - Part I: Build your custom image
 date: 2014-09-18 09:42:58 +0200
 comments: true
 categories: [Cloudbreak, Docker, Hadoop, Cloud, Google Cloud]
-categories: Richard Doktorics
+author: Richard Doktorics
 published: true
 ---
 
