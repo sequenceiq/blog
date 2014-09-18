@@ -12,7 +12,7 @@ Not that long time ago we have released [Cloudbreak](http://blog.sequenceiq.com/
 
 <!-- more -->
 
-## Why do we need custom image in every cloud?
+### Why do we need custom images on every cloud?
 
 First, the installation process is much easier and faster on a custom image because we are using docker on the host OS so cocking an image with the specific containers is very useful instead of pulling the docker images in every instance creation.
 All the above are true for us as well - with some simplifications. We use Docker to run every process/application - for the benefits we have covered in other posts many times - and apart from Docker, our (or the customer’s) preferred OS and a few other helper/debugger things (such as [nsenter](https://registry.hub.docker.com/u/jpetazzo/nsenter/)) 
@@ -47,7 +47,7 @@ Using the Google cloud you have 2 choices:
 - Create snapshots starting from a default image
 - Create a custom image 
 
-## Image creation with snapshots
+### Image creation using snapshots
 
 We are using Debian as the host image OS on Google Cloud, and have created a virtual machine using the default [Debian](https://developers.google.com/compute/docs/operating-systems#backported_debian_7_wheezy) image. First thing first, you need to create a persistent disk:
 
@@ -102,7 +102,8 @@ Once you uploaded it to a Google bucket you are done, and ready to use it.
 gsutil cp /mnt/tmp/IMAGE_NAME.image.tar.gz gs://BUCKET_NAME
 ```
 
-## Create a custom image - using your favorite OS
+### Create a custom image - using your favorite OS
+
 [Ubuntu server 14.04](http://www.ubuntu.com/download/server) is many’s preferred Linux distribution - unluckily there is no default image using Ubuntu as the OS in the Google Cloud](https://developers.google.com/compute/docs/operating-systems). Luckily this is not that complicated - the process below works with any other OS as well. In order to start you should have [Virtualbox](https://www.virtualbox.org/) installed. Download an Ubuntu server from [Ubuntu’s](http://www.ubuntu.com/server) web page.
 Install in into the [Virtualbox](https://www.virtualbox.org/) box, start it and `ssh` into. Once you are inside you will have to install the [Google Cloud SDK](https://developers.google.com/cloud/sdk/). This is needed for the custom image, as contains some extra feature like `google-startup-scripts`. Remember that Ubuntu (and in general a few cloud providers) support `cloud-init` scripts, and this is why we need the Google Cloud SDK - as we ship these images to the `cloud`.
 
