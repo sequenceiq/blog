@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Cloudbreak new provider implementation - Part I: Build your custom image"
-date: 2014-09-15 09:42:58 +0200
+date: 2014-09-18 09:42:58 +0200
 comments: true
 categories: [Cloudbreak, Docker, Hadoop, Cloud, Google Cloud]
 categories: Richard Doktorics
@@ -14,13 +14,12 @@ Not so long ago we have released [Cloudbreak](http://blog.sequenceiq.com/blog/20
 
 ### Why do we need custom images on every cloud?
 
-First, the installation process is much easier and faster on a custom image because we are using docker on the host OS so cocking an image with the specific containers is very useful instead of pulling the docker images in every instance creation.
 All the above are true for us as well - with some simplifications. We use Docker to run every process/application - for the benefits we have covered in other posts many times - and apart from Docker, our (or the customer’s) preferred OS and a few other helper/debugger things (such as [nsenter](https://registry.hub.docker.com/u/jpetazzo/nsenter/)) 
 we are almost fine. We have made some PAM related fixes/contributions for Docker - and until they are not in the upstream we have built/derive from our base layer/containers - so with this and the actual containers included this is pretty much how a cloud base image looks like for us.
 
-As usual for us, we always automate everything - building custom cloud base images is part of the automation and our CI/CD process as well. For that we use [Ansible](http://www.ansible.com/home) as our preferred IT automation tool. So the first step is to define your own [playbook](http://docs.ansible.com/playbooks.html) to install everything on the virtual machine.
+As usual we always automate everything - building custom cloud base images is part of the automation and our CI/CD process as well. For that we use [Ansible](http://www.ansible.com/home) as the preferred IT automation tool. So the first step is to define your own [playbook](http://docs.ansible.com/playbooks.html) to install everything on the virtual machine.
 
-A simplest playbook looks like this:
+A simple playbook looks like this:
 
 ```
   - name: Install Docker
@@ -42,14 +41,14 @@ A simplest playbook looks like this:
 
 ```
 
-Using the Google cloud you have 2 choices:
+Using Google cloud you have 2 choices:
 
-- Create snapshots starting from a default image
-- Create a custom image 
+..* Create snapshots starting from a default image
+..* Create a custom image 
 
 ### Image creation using snapshots
 
-We are using Debian as the host image OS on Google Cloud, and have created a virtual machine using the default [Debian](https://developers.google.com/compute/docs/operating-systems#backported_debian_7_wheezy) image. First thing first, you need to create a persistent disk:
+We are using Debian as the host OS on Google Cloud, and have created a virtual machine using the default [Debian](https://developers.google.com/compute/docs/operating-systems#backported_debian_7_wheezy) image. First thing first, you need to create a persistent disk:
 
 ```
 gcloud compute disks create temporary-disk --zone ZONE
