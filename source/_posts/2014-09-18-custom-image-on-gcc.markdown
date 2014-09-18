@@ -43,8 +43,8 @@ A simple playbook looks like this:
 
 Using Google cloud you have 2 choices:
 
-..* Create snapshots starting from a default image
-..* Create a custom image 
+  1. Create snapshots starting from a default image
+  2. Create a custom image 
 
 ### Image creation using snapshots
 
