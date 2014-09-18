@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Cloudbreak | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/cloudbreak/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-18T13:11:22+00:00</updated>
+  <updated>2014-09-18T13:13:02+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,169 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Cloudbreak new provider implementation - Part I: Build your custom image]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/18/custom-image-on-gcc/"/>
+    <updated>2014-09-18T07:42:58+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/18/custom-image-on-gcc</id>
+    <content type="html"><![CDATA[<p>Not so long ago we have released <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; the cloud agnostic, open source and Docker based Hadoop as a Service API (with support for <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">autoscaling</a> Hadoop clusters). As we have <code>dockerized</code> the whole Hadoop ecosystem, we are shipping the containers to different cloud providers, such as Amazon AWS, Microsoft Azure and Google Cloud Compute. Also Cloudbreak has an <a href="http://sequenceiq.com/cloudbreak/#add-new-cloud-providers">SDK</a> which allows you to quickly add your favorite cloud provider. In this post (series) we’d like to guide you trough the process, and show you how to create a custom image &ndash; on Google Cloud. We have chose Google Cloud as this is the least documented and has the smallest amount on default images (there are thousand for Amazon, and hundreds for Azure). Nevertheless on all cloud provider usually you’d like to have a custom image with your preferred OS, configuration and potentially installed applications.</p>
+
+<!-- more -->
+
+
+<h3>Why do we need custom images on every cloud?</h3>
+
+<p>All the above are true for us as well &ndash; with some simplifications. We use Docker to run every process/application &ndash; for the benefits we have covered in other posts many times &ndash; and apart from Docker, our (or the customer’s) preferred OS and a few other helper/debugger things (such as <a href="https://registry.hub.docker.com/u/jpetazzo/nsenter/">nsenter</a>)
+we are almost fine. We have made some PAM related fixes/contributions for Docker &ndash; and until they are not in the upstream we have built/derive from our base layer/containers &ndash; so with this and the actual containers included this is pretty much how a cloud base image looks like for us.</p>
+
+<p>As usual we always automate everything &ndash; building custom cloud base images is part of the automation and our CI/CD process as well. For that we use <a href="http://www.ansible.com/home">Ansible</a> as the preferred IT automation tool. So the first step is to define your own <a href="http://docs.ansible.com/playbooks.html">playbook</a> to install everything on the virtual machine.</p>
+
+<p>A simple playbook looks like this:</p>
+
+<p>```
+  &ndash; name: Install Docker</p>
+
+<pre><code>shell: curl -sL https://get.docker.io/ | sh
+when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+</code></pre>
+
+<ul>
+<li><p>name: Pull sequenceiq/ambari image
+shell: docker pull sequenceiq/ambari:pam-fix</p></li>
+<li><p>name: Pull jpetazzo/nsenter image
+shell: docker pull jpetazzo/nsenter</p></li>
+<li><p>name: Install bridge-utils
+apt: name=bridge-utils state=latest
+when: ansible_distribution == &lsquo;Debian&rsquo; or ansible_distribution == &lsquo;Ubuntu&rsquo;</p></li>
+<li><p>name: install jq
+shell: curl -o /usr/bin/jq <a href="http://stedolan.github.io/jq/download/linux64/jq">http://stedolan.github.io/jq/download/linux64/jq</a> &amp;&amp; chmod +x /usr/bin/jq</p></li>
+</ul>
+
+
+<p>```</p>
+
+<p>Using Google cloud you have 2 choices:</p>
+
+<ol>
+<li> Create snapshots starting from a default image</li>
+<li> Create a custom image</li>
+</ol>
+
+
+<h3>Image creation using snapshots</h3>
+
+<p>We are using Debian as the host OS on Google Cloud, and have created a virtual machine using the default <a href="https://developers.google.com/compute/docs/operating-systems#backported_debian_7_wheezy">Debian</a> image. First thing first, you need to create a persistent disk:</p>
+
+<p><code>
+gcloud compute disks create temporary-disk --zone ZONE
+</code></p>
+
+<p>Then create a virtual machine with the temporary-disk:</p>
+
+<p><code>
+gcloud compute instances create example-instance \
+  --scopes storage-rw --image IMAGE \
+  --disk name=temporary-disk device-name=temporary-disk --zone ZONE
+</code></p>
+
+<p>And attach the disk to the google cloud instance:</p>
+
+<p><code>
+gcloud compute instances attach-disk example-instance
+  --disk temporary-disk --device-name temporary-disk --zone ZONE
+</code></p>
+
+<p>When this is finished then you can <code>shh</code> to the <code>sample-instance</code>. You can now check your mounted volumes with this command:</p>
+
+<p><code>
+ls -l /dev/disk/by-id/google-*
+</code></p>
+
+<p>Now you need to create a folder which will contain your custom built image:</p>
+
+<p><code>
+sudo mkdir /mnt/tmp
+</code></p>
+
+<p>You have to format your partition before the image creation:</p>
+
+<p><code>
+sudo /usr/share/google/safe_format_and_mount -m "mkfs.ext4 -F" /dev/sdb /mnt/tmp
+</code></p>
+
+<p>Now you can start building the image which will last about 10 minutes:</p>
+
+<p><code>
+sudo gcimagebundle -d /dev/sda -o /mnt/tmp/ --log_file=/tmp/imagecreation.log
+</code></p>
+
+<p>You have now an image in /tmp with a special hex number like <code>/tmp/HEX-NUMBER.image.tar.gz</code></p>
+
+<p>Once you uploaded it to a Google bucket you are done, and ready to use it.</p>
+
+<p><code>
+gsutil cp /mnt/tmp/IMAGE_NAME.image.tar.gz gs://BUCKET_NAME
+</code></p>
+
+<h3>Create a custom image &ndash; using your favorite OS</h3>
+
+<p><a href="http://www.ubuntu.com/download/server">Ubuntu server 14.04</a> is many’s preferred Linux distribution &ndash; unluckily there is no default image using Ubuntu as the OS in the Google Cloud](<a href="https://developers.google.com/compute/docs/operating-systems">https://developers.google.com/compute/docs/operating-systems</a>). Luckily this is not that complicated &ndash; the process below works with any other OS as well. In order to start you should have <a href="https://www.virtualbox.org/">Virtualbox</a> installed. Download an Ubuntu server from <a href="http://www.ubuntu.com/server">Ubuntu’s</a> web page.
+Install in into the <a href="https://www.virtualbox.org/">Virtualbox</a> box, start it and <code>ssh</code> into. Once you are inside you will have to install the <a href="https://developers.google.com/cloud/sdk/">Google Cloud SDK</a>. This is needed for the custom image, as contains some extra feature like <code>google-startup-scripts</code>. Remember that Ubuntu (and in general a few cloud providers) support <code>cloud-init</code> scripts, and this is why we need the Google Cloud SDK &ndash; as we ship these images to the <code>cloud</code>.</p>
+
+<p>After the installation add the following kernel options into the <code>/etc/default/grub</code>:</p>
+
+<p>```</p>
+
+<h1>to enable paravirtualization</h1>
+
+<p>CONFIG_KVM_GUEST=y</p>
+
+<h1>to enable the paravirtualized clock.</h1>
+
+<p>CONFIG_KVM_CLOCK=y</p>
+
+<h1>to enable paravirtualized PCI devices.</h1>
+
+<p>CONFIG_VIRTIO_PCI=y</p>
+
+<h1>to enable access to paravirtualized disks.</h1>
+
+<p>CONFIG_SCSI_VIRTIO=y</p>
+
+<h1>to enable access to the networking.</h1>
+
+<p>CONFIG_VIRTIO_NET=y
+```</p>
+
+<p>Now you are ready to prepare an <code>official</code> image into a tar file, by selecting the virtual box image file on your disk and convert it.
+You can convert your <code>vmdk</code> file into the supported raw type by using:</p>
+
+<p><code>
+qemu-img convert -f vmdk -O raw VMDK_FILE_NAME.vmdk disk.img
+</code></p>
+
+<p>The .img file name has to be <code>disk.img</code>. After you have converted the image, you have to make a tar file:</p>
+
+<p><code>
+tar -Szcf &lt;image-tar-name&gt;.tar.gz disk.raw
+</code></p>
+
+<p>Same as before, you have to upload in to a Google Cloud Bucket:</p>
+
+<p><code>
+gsutil cp &lt;image-tar-name&gt;.tar.gz gs://&lt;bucket-name&gt;
+</code></p>
+
+<p>Now you have an <code>official</code> image template but you have to create the image in Google Cloud:</p>
+
+<p><code>
+gcutil addimage my-ubuntu gs://&lt;bucket-name&gt;/ubuntu_image.tar.gz
+</code></p>
+
+<p>Once this is done you have created your custom built Google Cloud image, and you are ready to start cloud instances using it. Let us know how it works for you, and make sure you follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a> for updates.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Infrastructure management with CloudFormation]]></title>
@@ -450,7 +613,7 @@ sudo docker run -it &mdash;rm &mdash;name cont2  ubuntu /bin/bash</p>
 
 <h1>execute on vm1</h1>
 
-<p>sudo ssh -f -N -w 2:1 <a href="&#109;&#97;&#105;&#108;&#x74;&#111;&#58;&#114;&#111;&#x6f;&#116;&#x40;&#49;&#x39;&#50;&#x2e;&#49;&#x36;&#x38;&#46;&#x34;&#x30;&#x2e;&#49;&#x32;">&#x72;&#111;&#111;&#x74;&#x40;&#x31;&#x39;&#x32;&#46;&#x31;&#x36;&#56;&#x2e;&#x34;&#48;&#46;&#x31;&#x32;</a>
+<p>sudo ssh -f -N -w 2:1 <a href="&#x6d;&#97;&#105;&#x6c;&#x74;&#111;&#x3a;&#114;&#x6f;&#111;&#116;&#x40;&#x31;&#x39;&#x32;&#46;&#49;&#54;&#56;&#x2e;&#x34;&#48;&#x2e;&#x31;&#x32;">&#114;&#111;&#111;&#116;&#64;&#x31;&#x39;&#50;&#x2e;&#49;&#x36;&#x38;&#x2e;&#x34;&#48;&#x2e;&#49;&#x32;</a>
 sudo ifconfig tun2 up
 sudo route add -net 172.17.52.0 netmask 255.255.255.0 dev tun2
 sudo iptables -t nat -F POSTROUTING
@@ -664,89 +827,6 @@ You are done &ndash; you can check the progress through the Ambari UI. If you lo
 </code></pre>
 
 <p>As usual for us &ndash; being committed to 100% open source &ndash; we are always open sourcing everything thus you can get the details on our <a href="https://github.com/sequenceiq/cloudbreak-shell">GitHub</a> repository.
-Should you have any questions feel free to engage with us on our <a href="http://blog.sequenceiq.com/">blog</a> or follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Launch Docker containers on Azure]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/08/04/launch-docker-containers-on-azure/"/>
-    <updated>2014-08-04T19:43:01+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/08/04/launch-docker-containers-on-azure</id>
-    <content type="html"><![CDATA[<p>Two weeks ago we have open sourced our cloud agnostic and Docker based Hadoop as a Service API &ndash; called <a href="http://sequenceiq.com/cloudbreak">Cloudbreak</a>.
-The first public beta version supports Amazon’s AWS and Microsoft’s Azure, while we are already wrapping up a few new cloud provider integrations.</p>
-
-<p>While there is some documentation about running Docker containers on Amazon, there is no detailed description about running Docker on the Azure cloud.
-With this blog post we would like to shed some light on it &ndash; recently there have been lots of announcements from Microsoft about Docker support (Azure CLI, Kubernetes, libswarm) but they are either not finished yet or are not ready to build a robust platform on top.
-We are eagerly waiting for the <a href="http://azure.microsoft.com/blog/2014/07/10/azure-collaboration-with-google-and-docker/">Kubernetes integration</a>.</p>
-
-<p>In the meantime, if you are interested in running a <code>cluster</code> of Docker container, or do some more complex stuff then read on.</p>
-
-<p>Just to briefly recap &ndash; with Cloudbreak we are launching on demand Hadoop clusters (check our <a href="http://blog.sequenceiq.com/blog/2014/07/25/cloudbreak-technology/">blog</a> for further technical details) in Docker containers. These containers are <code>shipped</code> to different cloud VMsm and dynamically find and join each other &ndash; they form a fully functional Hadoop cluster without the need to do anything manually on the host, or apply any manual pre-configuration.
-So how are we doing this?</p>
-
-<!--more-->
-
-
-<h3>Docker ready base VM image</h3>
-
-<p>First of all you need a base image with Docker installed &ndash; thus for that we have built and made available an Ubuntu 14.04 image with Docker installed. Apart from Docker, to build a fully dynamic and <code>service discovery</code> aware Docker cluster we needed <a href="http://stedolan.github.io/jq/">jq</a> and <a href="http://www.linuxfromscratch.org/blfs/view/svn/basicnet/bridge-utils.html"> bridge-utils</a>.</p>
-
-<p>Once this base image is created you will need to make it public and re-usable. In order to do that the image has to be published in <a href="http://vmdepot.msopentech.com/List/Index">VMdepot</a>. When you are about to use an image from VM depot, and create a VM based on that you will need to copy it in your own storage account &ndash; note that doing it at first time this can be a slow process (20-25 minutes, copying the 30 GB image).</p>
-
-<h3>Dynamic networking</h3>
-
-<p>Now you have an image based on that you can launch your own VMs, and the Docker container inside your VM. While there are a few options to do that, we needed to find a unified way to do so &ndash; note that  <a href="http://sequenceiq.com/cloudbreak">Cloudbreak</a> is a cloud agnostic solution &ndash; and we do not want to create init scripts for each and every cloud environment we use. Amazon’s AWS has a feature so called <code>userdata</code> &ndash; an option of passing data to the instance that can be used to perform common automated configuration tasks and even run scripts after the instance starts. You can pass two types of user data to Amazon AWS: shell scripts and cloud-init directives. In order to keep the launch process unified everywhere we are using <a href="https://help.ubuntu.com/community/CloudInit">cloud-init</a> on Azure as well.</p>
-
-<p>You can use/start Docker with different networking setup &ndash; using a bridged network or using the host network. You can check the init scripts in our <a href="https://github.com/sequenceiq/cloudbreak/blob/master/src/main/resources/azure-init.sh">GitHub</a> repository.</p>
-
-<p><strong>Bridged network</strong></p>
-
-<p>```bash</p>
-
-<h1>set bridge0 in docker opts</h1>
-
-<p>sh -c &ldquo;cat > /etc/default/docker&rdquo; &lt;&lt;&ldquo;EOF&rdquo;
-DOCKER_OPTS=&ldquo;-b bridge0 -H unix:// -H tcp://0.0.0.0:2375&rdquo;
-EOF</p>
-
-<p>CMD=&ldquo;docker run -d -p SOURCE_PORT:DESTINATION_PORT 0 -e SERF_JOIN_IP=$SERF_JOIN_IP -e SERF_ADVERTISE_IP=$MY_IP &mdash;dns 127.0.0.1 &mdash;name ${NODE_PREFIX}${INSTANCE_IDX} -h ${NODE_PREFIX}${INSTANCE_IDX}.${MYDOMAIN} &mdash;entrypoint /usr/local/serf/bin/start-serf-agent.sh  $IMAGE $AMBARI_ROLE&rdquo;</p>
-
-<p>```
-<strong>Host network</strong></p>
-
-<p><code>bash
-CMD="docker run -d -e SERF_JOIN_IP=$AMBARI_SERVER_IP --net=host --name ${NODE_PREFIX}${INSTANCE_IDX} --entrypoint /usr/local/serf/bin/start-serf-agent.sh  $IMAGE $AMBARI_ROLE"
-</code></p>
-
-<p><em>Note: for cloud based clusters we are giving up on the bridged based network &ndash; mostly due to Azure&rsquo;s networking limitations &ndash; and will use the <code>net=host</code> solution in the next release. The bridged network will still be a supported solution, though we are using it mostly with bare metal or multi container/host solutions.</em></p>
-
-<p>Azure has (comparing with Amazon’s AWS or Google’s Cloud compute) an <code>uncommon</code> network setup and supports limited flexibility &ndash; in order to overcome these, and still have a dynamic Hadoop cluster different scenarios / use cases requires different Docker networking &ndash; that is quite a large <strong>undocumented</strong> topic which we will cover in our next blog posts &ndash; in particular the issues, differences and solutions to use Docker on different cloud providers. While we have briefly talked about <a href="http://sequenceiq.com/cloudbreak/#technology">Serf</a> in the <a href="https://cloudbreak.sequenceiq.com">Cloudbreak</a> documentation, we will enter in deep technical details in one of our next posts as well. Should you be interested in these, make sure you follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a> for updates.</p>
-
-<h3>SequenceIQ’s Azure REST API &ndash; open sourced</h3>
-
-<p>At <a href="htp://sequenceiq.com">SequenceIQ</a> we always automate everything &ndash; and in order to launch VM instances, configure networks, start containers, etc we needed a REST client which we can use it from our JAVA and Scala codebase. Since the Microsoft API is XML based &ndash; <em>yo, it’s 2014</em> &ndash; we have created and open sourced a Groovy based <a href="https://github.com/sequenceiq/azure-rest-client">Azure REST API</a> &ndash; wrapping the XML calls into a nice, easy to use and clean REST API. Feel free to use it &ndash; it’s open sourced under an Apache 2 license. Note that <a href="https://cloudbreak.sequenceiq.com">Cloudbreak</a> does not store your Azure user credential &ndash; whereas with the defulat Azue CLI that would have been possible &ndash; the only thing we need from your side to work is your subscription id. The process is documented here: <a href="http://sequenceiq.com/cloudbreak/#accounts.">http://sequenceiq.com/cloudbreak/#accounts.</a></p>
-
-<h3>Metadata service for Azure</h3>
-
-<p>The another nice feature we have created for Azure VMs is a <code>metadata service</code>. While a service as such does exists on Amazon’s AWS it’s missing from Microsoft Azure &ndash; note that our Cloudbreak solution is a cloud agnostic one, and we always strive to use identical solution on all cloud providers. The instance metadata is data about your instance that you can use to configure or manage the running instances &ndash; and available via a REST call. We have developed a service as such for Azure &ndash; <a href="https://github.com/sequenceiq/cloudbreak/blob/master/src/main/java/com/sequenceiq/cloudbreak/service/stack/connector/azure/AzureMetadataSetup.java">AzureMetadataSetup</a>. As you can see we collect the metadata, and make it available under a <code>unique hash</code> for each cluster by calling the following resource: <code>/metadata/{hash}</code></p>
-
-<p>```java
-private Set<CoreInstanceMetaData> collectMetaData(Stack stack, AzureClient azureClient, String name) {</p>
-
-<pre><code>... try {
-            CoreInstanceMetaData instanceMetaData = new CoreInstanceMetaData(vmName,
-                    getPrivateIP((String) virtualMachine),
-                    getVirtualIP((String) virtualMachine));
-            instanceMetaDatas.add(instanceMetaData);
-        } catch (IOException e) { ...
-</code></pre>
-
-<p>}
-```
-This service is used in a few cases &ndash; for example to learn different network setups as the hosts are using different network options than the Docker containers.</p>
-
-<p>As usual for us &ndash; being committed to 100% open source &ndash; we are always open sourcing everything thus you can get the details on our <a href="https://github.com/sequenceiq/cloudbreak">GitHub</a> repository.
 Should you have any questions feel free to engage with us on our <a href="http://blog.sequenceiq.com/">blog</a> or follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
 ]]></content>
   </entry>

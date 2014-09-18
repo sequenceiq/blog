@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Docker | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/docker/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-18T13:11:22+00:00</updated>
+  <updated>2014-09-18T13:13:02+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,169 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Cloudbreak new provider implementation - Part I: Build your custom image]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/18/custom-image-on-gcc/"/>
+    <updated>2014-09-18T07:42:58+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/18/custom-image-on-gcc</id>
+    <content type="html"><![CDATA[<p>Not so long ago we have released <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; the cloud agnostic, open source and Docker based Hadoop as a Service API (with support for <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">autoscaling</a> Hadoop clusters). As we have <code>dockerized</code> the whole Hadoop ecosystem, we are shipping the containers to different cloud providers, such as Amazon AWS, Microsoft Azure and Google Cloud Compute. Also Cloudbreak has an <a href="http://sequenceiq.com/cloudbreak/#add-new-cloud-providers">SDK</a> which allows you to quickly add your favorite cloud provider. In this post (series) we’d like to guide you trough the process, and show you how to create a custom image &ndash; on Google Cloud. We have chose Google Cloud as this is the least documented and has the smallest amount on default images (there are thousand for Amazon, and hundreds for Azure). Nevertheless on all cloud provider usually you’d like to have a custom image with your preferred OS, configuration and potentially installed applications.</p>
+
+<!-- more -->
+
+
+<h3>Why do we need custom images on every cloud?</h3>
+
+<p>All the above are true for us as well &ndash; with some simplifications. We use Docker to run every process/application &ndash; for the benefits we have covered in other posts many times &ndash; and apart from Docker, our (or the customer’s) preferred OS and a few other helper/debugger things (such as <a href="https://registry.hub.docker.com/u/jpetazzo/nsenter/">nsenter</a>)
+we are almost fine. We have made some PAM related fixes/contributions for Docker &ndash; and until they are not in the upstream we have built/derive from our base layer/containers &ndash; so with this and the actual containers included this is pretty much how a cloud base image looks like for us.</p>
+
+<p>As usual we always automate everything &ndash; building custom cloud base images is part of the automation and our CI/CD process as well. For that we use <a href="http://www.ansible.com/home">Ansible</a> as the preferred IT automation tool. So the first step is to define your own <a href="http://docs.ansible.com/playbooks.html">playbook</a> to install everything on the virtual machine.</p>
+
+<p>A simple playbook looks like this:</p>
+
+<p>```
+  &ndash; name: Install Docker</p>
+
+<pre><code>shell: curl -sL https://get.docker.io/ | sh
+when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+</code></pre>
+
+<ul>
+<li><p>name: Pull sequenceiq/ambari image
+shell: docker pull sequenceiq/ambari:pam-fix</p></li>
+<li><p>name: Pull jpetazzo/nsenter image
+shell: docker pull jpetazzo/nsenter</p></li>
+<li><p>name: Install bridge-utils
+apt: name=bridge-utils state=latest
+when: ansible_distribution == &lsquo;Debian&rsquo; or ansible_distribution == &lsquo;Ubuntu&rsquo;</p></li>
+<li><p>name: install jq
+shell: curl -o /usr/bin/jq <a href="http://stedolan.github.io/jq/download/linux64/jq">http://stedolan.github.io/jq/download/linux64/jq</a> &amp;&amp; chmod +x /usr/bin/jq</p></li>
+</ul>
+
+
+<p>```</p>
+
+<p>Using Google cloud you have 2 choices:</p>
+
+<ol>
+<li> Create snapshots starting from a default image</li>
+<li> Create a custom image</li>
+</ol>
+
+
+<h3>Image creation using snapshots</h3>
+
+<p>We are using Debian as the host OS on Google Cloud, and have created a virtual machine using the default <a href="https://developers.google.com/compute/docs/operating-systems#backported_debian_7_wheezy">Debian</a> image. First thing first, you need to create a persistent disk:</p>
+
+<p><code>
+gcloud compute disks create temporary-disk --zone ZONE
+</code></p>
+
+<p>Then create a virtual machine with the temporary-disk:</p>
+
+<p><code>
+gcloud compute instances create example-instance \
+  --scopes storage-rw --image IMAGE \
+  --disk name=temporary-disk device-name=temporary-disk --zone ZONE
+</code></p>
+
+<p>And attach the disk to the google cloud instance:</p>
+
+<p><code>
+gcloud compute instances attach-disk example-instance
+  --disk temporary-disk --device-name temporary-disk --zone ZONE
+</code></p>
+
+<p>When this is finished then you can <code>shh</code> to the <code>sample-instance</code>. You can now check your mounted volumes with this command:</p>
+
+<p><code>
+ls -l /dev/disk/by-id/google-*
+</code></p>
+
+<p>Now you need to create a folder which will contain your custom built image:</p>
+
+<p><code>
+sudo mkdir /mnt/tmp
+</code></p>
+
+<p>You have to format your partition before the image creation:</p>
+
+<p><code>
+sudo /usr/share/google/safe_format_and_mount -m "mkfs.ext4 -F" /dev/sdb /mnt/tmp
+</code></p>
+
+<p>Now you can start building the image which will last about 10 minutes:</p>
+
+<p><code>
+sudo gcimagebundle -d /dev/sda -o /mnt/tmp/ --log_file=/tmp/imagecreation.log
+</code></p>
+
+<p>You have now an image in /tmp with a special hex number like <code>/tmp/HEX-NUMBER.image.tar.gz</code></p>
+
+<p>Once you uploaded it to a Google bucket you are done, and ready to use it.</p>
+
+<p><code>
+gsutil cp /mnt/tmp/IMAGE_NAME.image.tar.gz gs://BUCKET_NAME
+</code></p>
+
+<h3>Create a custom image &ndash; using your favorite OS</h3>
+
+<p><a href="http://www.ubuntu.com/download/server">Ubuntu server 14.04</a> is many’s preferred Linux distribution &ndash; unluckily there is no default image using Ubuntu as the OS in the Google Cloud](<a href="https://developers.google.com/compute/docs/operating-systems">https://developers.google.com/compute/docs/operating-systems</a>). Luckily this is not that complicated &ndash; the process below works with any other OS as well. In order to start you should have <a href="https://www.virtualbox.org/">Virtualbox</a> installed. Download an Ubuntu server from <a href="http://www.ubuntu.com/server">Ubuntu’s</a> web page.
+Install in into the <a href="https://www.virtualbox.org/">Virtualbox</a> box, start it and <code>ssh</code> into. Once you are inside you will have to install the <a href="https://developers.google.com/cloud/sdk/">Google Cloud SDK</a>. This is needed for the custom image, as contains some extra feature like <code>google-startup-scripts</code>. Remember that Ubuntu (and in general a few cloud providers) support <code>cloud-init</code> scripts, and this is why we need the Google Cloud SDK &ndash; as we ship these images to the <code>cloud</code>.</p>
+
+<p>After the installation add the following kernel options into the <code>/etc/default/grub</code>:</p>
+
+<p>```</p>
+
+<h1>to enable paravirtualization</h1>
+
+<p>CONFIG_KVM_GUEST=y</p>
+
+<h1>to enable the paravirtualized clock.</h1>
+
+<p>CONFIG_KVM_CLOCK=y</p>
+
+<h1>to enable paravirtualized PCI devices.</h1>
+
+<p>CONFIG_VIRTIO_PCI=y</p>
+
+<h1>to enable access to paravirtualized disks.</h1>
+
+<p>CONFIG_SCSI_VIRTIO=y</p>
+
+<h1>to enable access to the networking.</h1>
+
+<p>CONFIG_VIRTIO_NET=y
+```</p>
+
+<p>Now you are ready to prepare an <code>official</code> image into a tar file, by selecting the virtual box image file on your disk and convert it.
+You can convert your <code>vmdk</code> file into the supported raw type by using:</p>
+
+<p><code>
+qemu-img convert -f vmdk -O raw VMDK_FILE_NAME.vmdk disk.img
+</code></p>
+
+<p>The .img file name has to be <code>disk.img</code>. After you have converted the image, you have to make a tar file:</p>
+
+<p><code>
+tar -Szcf &lt;image-tar-name&gt;.tar.gz disk.raw
+</code></p>
+
+<p>Same as before, you have to upload in to a Google Cloud Bucket:</p>
+
+<p><code>
+gsutil cp &lt;image-tar-name&gt;.tar.gz gs://&lt;bucket-name&gt;
+</code></p>
+
+<p>Now you have an <code>official</code> image template but you have to create the image in Google Cloud:</p>
+
+<p><code>
+gcutil addimage my-ubuntu gs://&lt;bucket-name&gt;/ubuntu_image.tar.gz
+</code></p>
+
+<p>Once this is done you have created your custom built Google Cloud image, and you are ready to start cloud instances using it. Let us know how it works for you, and make sure you follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a> for updates.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Apache Spark 1.1.0 on Docker]]></title>
@@ -386,258 +549,6 @@ cd $HADOOP_PREFIX</p>
 <p>The Hadoop build process is no easy task &ndash; requires lots of libraries and their right version, protobuf, etc and takes some time &ndash; we have simplified all these, made the build and released a 64b version of Hadoop nativelibs on our <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.4.1/view/files">Bintray repo</a>. Enjoy.</p>
 
 <p>Should you have any questions let us know through our social channels as <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Docker intercontainer networking explained]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/08/12/docker-networking/"/>
-    <updated>2014-08-12T08:53:15+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/08/12/docker-networking</id>
-    <content type="html"><![CDATA[<p>The purpose of this blog entry is to cover advanced topics regarding Docker networking and explain different concepts to inter-connect Docker containers when the containers are running on different host machines.
-For the demonstration we are using VMs on <a href="https://www.virtualbox.org/">VirtualBox</a> launched with <a href="http://www.vagrantup.com/">Vagrant</a>, but the explained networking concepts work also on Amazon EC2 (with VPC) and Azure unless stated otherwise.</p>
-
-<p>To set up the the test environment clone the <a href="https://github.com/sequenceiq/sequenceiq-samples">SequenceIQ&rsquo;s samples repository</a> and follow the instructions.</p>
-
-<p><code>
-git clone git@github.com:sequenceiq/sequenceiq-samples.git
-cd sequenceiq-samples/docker-networking
-vagrant up
-</code></p>
-
-<p>The <code>vagrant up</code> command launches the test setup, which conatins two Ubuntu 14.04 VMs with the network configuration:</p>
-
-<ul>
-<li><a href="https://www.virtualbox.org/manual/ch06.html#network_nat">NAT</a></li>
-<li><a href="https://docs.vagrantup.com/v2/networking/private_network.html">Private networking</a></li>
-</ul>
-
-
-<p>The NAT (related to eth0 interface on VMs) is used only for access the external network from VMs e.g. download files from debian repository, but it is not used for inter-container communication. The Vagrant sets up a properly configured Host Only Networking in VirtualBox therefore the VMs can communicate with each other on the defined IP addresses:</p>
-
-<ul>
-<li>vm1: 192.168.40.11</li>
-<li>vm2: 192.168.40.12</li>
-</ul>
-
-
-<p>Let&rsquo;s see how Docker containers running on these VMs can send IP packets to each other.</p>
-
-<!--more-->
-
-
-<h2>Setting up bridge0</h2>
-
-<p>The Docker attaches all containers to the virtual subnet implemented by docker0, this means that by default on both VMs the Docker containers will be launched with IP addresses from range 172.17.42.1/24. This is a problem for some of the solutions explained below, because if the containers on different hosts have the same IP addresses then we won&rsquo;t be able to properly route the IP packets between them. Therefore on each VMs a network bridge is created with the following subnets:</p>
-
-<ul>
-<li>vm1: 172.17.51.1/24</li>
-<li>vm2: 172.17.52.1/24</li>
-</ul>
-
-
-<p>This means that every container luanched on vm1 will get an IP address from range 172.17.51.2 &ndash; 172.17.51.255 and containers on vm2 will have an address from range 172.17.52.2 &ndash; 172.17.52.255.</p>
-
-<p>```bash</p>
-
-<h1>do not execute, it was already executed on vm1 as root during provision from Vagrant</h1>
-
-<p>brctl addbr bridge0
-sudo ifconfig bridge0 172.17.51.1 netmask 255.255.255.0
-sudo bash -c &lsquo;echo DOCKER_OPTS=\&ldquo;-b=bridge0\&rdquo; >> /etc/default/docker&rsquo;
-sudo service docker restart</p>
-
-<h1>do not execute, it was already executed on vm1 as root during provision from Vagrant</h1>
-
-<p>sudo brctl addbr bridge0
-sudo ifconfig bridge0 172.17.52.1 netmask 255.255.255.0
-sudo bash -c &lsquo;echo DOCKER_OPTS=\&ldquo;-b=bridge0\&rdquo; >> /etc/default/docker&rsquo;
-sudo service docker restart
-```</p>
-
-<p>As noted in the comments the above configuration is already executed during the provisioning of VMs and it was copied here just for the sake of clarity and completeness.</p>
-
-<h2>Expose container ports to host</h2>
-
-<p>Probably the simplest way to solve inter-container communication is to expose ports from container to the host. This can be done with the <code>-p</code> switch. E.g. exposing the port 3333 is as simple as:</p>
-
-<p>```bash</p>
-
-<h1>execute on vm1</h1>
-
-<p>sudo docker run -it &mdash;rm &mdash;name cont1 -p 3333:3333 ubuntu /bin/bash -c &ldquo;nc -l 3333&rdquo;</p>
-
-<h1>execute on vm2</h1>
-
-<p>sudo docker run -it &mdash;rm &mdash;name cont2 ubuntu /bin/bash -c &ldquo;nc -w 1 -v 192.168.40.11 3333&rdquo;</p>
-
-<h1>Result: Connection to 192.168.40.11 3333 port [tcp/*] succeeded!</h1>
-
-<p>```</p>
-
-<p>This might be well suited for cases when the communication ports are defined in advance (e.g. MySQL will run on port 3306), but will not work when the application uses dynamic ports for communication (like Hadoop does with IPC ports).</p>
-
-<h2>Host networking</h2>
-
-<p>If the container is started with <code>--net=host</code> then it avoids placing the container inside of a separate network stack, but as the Docker documentation says this option &ldquo;tells Docker to not containerize the container&rsquo;s networking&rdquo;. The <code>cont1</code> container can bind directly to the network interface of host therefore the <code>nc</code> will be available directly on 192.168.40.11.</p>
-
-<p>```bash</p>
-
-<h1>execute on vm1</h1>
-
-<p>sudo docker run -it &mdash;rm &mdash;name cont1 &mdash;net=host ubuntu /bin/bash -c &ldquo;nc -l 3333&rdquo;</p>
-
-<h1>execute on vm2</h1>
-
-<p>sudo docker run -it &mdash;rm &mdash;name cont2 ubuntu /bin/bash -c &ldquo;nc -w 1 -v 192.168.40.11 3333&rdquo;</p>
-
-<h1>Result: Connection to 192.168.40.11 3333 port [tcp/*] succeeded!</h1>
-
-<p>```</p>
-
-<p>Of course if you want to access cont2 from cont1 then cont2 also needs to be started with <code>--net=host</code> option.
-The host networking is very powerful solution for inter-container communication, but it has its drawbacks, since the ports used by the container can collide with the ports used by host or other containers utilising &mdash;net=host option, because all of them are sharing the same network stack.</p>
-
-<h2>Direct Routing</h2>
-
-<p>So far we have seen methods where the containers have used the IP address of host to communicate with each other, but there are solutions to inter-connect the containers by using their own IPs. If we are using the containers own IPs for routing then it is important that we shall be able to distinguish based on IP which container is running on vm1 and which one is running on on vm2, this was the reason why the bridge0 interface was created as explained in &ldquo;Setting up bridge0&rdquo; section.
-To make the things a bit easier to understand I have created a simplified diagram of the network interfaces in our current test setup. If I would like to oversimplify the thing then I would say that, we shall setup the routing in that way that the packets from one container are following the red lines shown on the diagram.</p>
-
-<p style="text-align:center;"> <img class="<a" src="href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/docker-networking/img/routing.png">https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/docker-networking/img/routing.png</a>"></p>
-
-<p>To achive this we need to configure the routing table on hosts in that way that every packet which destination is 172.17.51.0/24 is forwarded to vm1 and every IP packet where the destination is 172.17.52.0/24 is forwarded to vm2. To repeat it shortly, the containers running on vm1 are placed to subnet 172.17.51.0/24, containers on vm2 are on subnet 172.17.52.0/24.</p>
-
-<p>```bash</p>
-
-<h1>execute on vm1</h1>
-
-<p>sudo route add -net 172.17.52.0 netmask 255.255.255.0 gw 192.168.40.12
-sudo iptables -t nat -F POSTROUTING
-sudo iptables -t nat -A POSTROUTING -s 172.17.51.0/24 ! -d 172.17.0.0/16 -j MASQUERADE
-sudo docker run -it &mdash;rm &mdash;name cont1  ubuntu /bin/bash</p>
-
-<h1>Inside the container (cont1)</h1>
-
-<p>nc -l 3333</p>
-
-<h1>execute on vm2</h1>
-
-<p>sudo route add -net 172.17.51.0  netmask 255.255.255.0  gw 192.168.40.11
-sudo iptables -t nat -F POSTROUTING
-sudo iptables -t nat -A POSTROUTING -s 172.17.52.0/24 ! -d 172.17.0.0/16 -j MASQUERADE
-sudo docker run -it &mdash;rm &mdash;name cont2  ubuntu /bin/bash</p>
-
-<h1>Inside the container (cont2)</h1>
-
-<p>nc -w 1 -v 172.17.51.2 3333</p>
-
-<h1>Result: Connection to 172.17.51.2 3333 port [tcp/*] succeeded!</h1>
-
-<p>```</p>
-
-<p>The <code>route add</code> command adds the desired routing to the route table, but you might wonder why the iptables configuration is necessary. The reason for that the Docker by default sets up a rule to the nat table to masquerade all IP packets that are leaving the machine. In our case we definitely don&rsquo;t want this, therefore we delete all MASQUERADE rules with -F option. At this point we already would be able to make the connection from one container to other and vice verse, but the containers would not be able to communicate with the outside world, therefore an iptables rule needs to be added to masquerade the packets that are going outside of 172.17.0.0/16. I need to mention the another approach would be to use the <a href="https://docs.docker.com/articles/networking/#between-containers">&mdash;iptables=false</a> option of the daemon to avoid any manipulation in the iptables and you can do all the config manually.</p>
-
-<p>Such kind of direct routing from one vm to other vm works great and easy to set up, but cannot be used if the hosts are not on the same subnet. If the host are located the on different subnet the tunneling might be an option as you will see it in the next section.</p>
-
-<p><em>Note: This solution works on Amazon EC2 instances only if the <a href="http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_NAT_Instance.html#EIP_Disable_SrcDestCheck">Source/Destionation Check</a> is disabled.</em></p>
-
-<p><em>Note: Due to the packet filtering policy of Azure this method cannot be used there.</em></p>
-
-<h2>Generic Routing Encapsulation (GRE) tunnel</h2>
-
-<p>GRE is a tunneling protocol that can encapsulate a wide variety of network layer protocols inside virtual point-to-point links.
-The main idea is to create a GRE tunnel between the VMs and send all traffic through it:</p>
-
-<p style="text-align:center;"> <img class="<a" src="href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/docker-networking/img/gre.png">https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/docker-networking/img/gre.png</a>"></p>
-
-<p>In order to create a tunnel you need to specify the name, the type (which is gre in our case) and the IP address of local and the remote end. Consequently the tun2 name used for the tunnel on on vm1 since from vm1 perspective that is the tunnel endpoint which leads to vm2 and every packet sent to tun2 to will eventually come out on vm2 end.</p>
-
-<p>```bash</p>
-
-<h1>GRE tunnel config execute on vm1</h1>
-
-<p>sudo iptunnel add tun2 mode gre local 192.168.40.11 remote 192.168.40.12
-sudo ifconfig tun2 10.0.201.1
-sudo ifconfig tun2 up
-sudo route add -net 172.17.52.0 netmask 255.255.255.0 dev tun2
-sudo iptables -t nat -F POSTROUTING
-sudo iptables -t nat -A POSTROUTING -s 172.17.51.0/24 ! -d 172.17.0.0/16 -j MASQUERADE
-sudo docker run -it &mdash;rm &mdash;name cont1  ubuntu /bin/bash</p>
-
-<h1>Inside the container (cont1)</h1>
-
-<p>nc -l 3333</p>
-
-<h1>GRE tunnel config execute on vm2</h1>
-
-<p>sudo iptunnel add tun1 mode gre local 192.168.40.12 remote 192.168.40.11
-sudo ifconfig tun1 10.0.202.1
-sudo ifconfig tun1 up
-sudo route add -net 172.17.51.0 netmask 255.255.255.0 dev tun1
-sudo iptables -t nat -F POSTROUTING
-sudo iptables -t nat -A POSTROUTING -s 172.17.52.0/24 ! -d 172.17.0.0/16 -j MASQUERADE
-sudo docker run -it &mdash;rm &mdash;name cont2  ubuntu /bin/bash</p>
-
-<h1>Inside the container (cont2)</h1>
-
-<p>nc -w 1 -v 172.17.51.2 3333</p>
-
-<h1>Result: Connection to 172.17.51.2 3333 port [tcp/*] succeeded!</h1>
-
-<p>```</p>
-
-<p>After the tunnel is set up and activated the remaining commands are very similar to the commands executed in the &ldquo;Direct Routing&rdquo; section. The main difference here is that we do not route the traffic directly to other vm, but we are routing it into <code>dev tun1</code> and <code>dev tun2</code> respectively.</p>
-
-<p>With GRE tunnels a point-to-point connection is set up between two hosts, which means that if you have more then two hosts in your network and want to interconnect all of them, then n-1 tunnel endpoint needs to be created on every host, which will be quite challenging to maintain if you have a large cluster.</p>
-
-<p><em>Note: GRE packets are <a href="http://msdn.microsoft.com/en-us/library/azure/dn133803.aspx">filtered out</a> on Azure therefore this solution cannot be used there.</em></p>
-
-<h2>Virtual Private Network (VPN)</h2>
-
-<p>If more secured connections is required between containers then VPNs can be used on VMs. This addiotional security might significantly increase processing overhead. This overhead is highly depends on which VPN solution are you going to use. In this demo we use the VPN capabilities of SSH which is not really suited for production use. In order to enable the VPN capabilites of ssh the  PermitTunnel parameter needs to be switched on in sshd_config. If you are using the Vagranfile provided to this tutorial then nothing needs to be done, since this parameter was already set up for you during provisioning in the bootstrap.sh.</p>
-
-<p>```bash</p>
-
-<h1>execute on vm1</h1>
-
-<p>sudo ssh -f -N -w 2:1 <a href="&#109;&#97;&#105;&#x6c;&#x74;&#111;&#x3a;&#x72;&#111;&#x6f;&#x74;&#64;&#49;&#x39;&#x32;&#46;&#x31;&#54;&#56;&#x2e;&#x34;&#x30;&#x2e;&#x31;&#x32;">&#x72;&#x6f;&#x6f;&#x74;&#x40;&#x31;&#x39;&#x32;&#46;&#x31;&#x36;&#56;&#46;&#52;&#x30;&#x2e;&#x31;&#x32;</a>
-sudo ifconfig tun2 up
-sudo route add -net 172.17.52.0 netmask 255.255.255.0 dev tun2
-sudo iptables -t nat -F POSTROUTING
-sudo iptables -t nat -A POSTROUTING -s 172.17.51.0/24 ! -d 172.17.0.0/16 -j MASQUERADE
-sudo docker run -it &mdash;rm &mdash;name cont1  ubuntu /bin/bash</p>
-
-<h1>Inside the container (cont1)</h1>
-
-<p>nc -l 3333</p>
-
-<h1>execute on vm2</h1>
-
-<p>sudo ifconfig tun1 up
-sudo route add -net 172.17.51.0 netmask 255.255.255.0 dev tun1
-sudo iptables -t nat -F POSTROUTING
-sudo iptables -t nat -A POSTROUTING -s 172.17.52.0/24 ! -d 172.17.0.0/16 -j MASQUERADE
-sudo docker run -it &mdash;rm &mdash;name cont2  ubuntu /bin/bash</p>
-
-<h1>Inside the container (cont2)</h1>
-
-<p>nc -w 1 -v 172.17.51.2 3333</p>
-
-<h1>Result: Connection to 172.17.51.2 3333 port [tcp/*] succeeded!</h1>
-
-<p>```</p>
-
-<p>The ssh is launched with -w option where the numerical ids of tun devices were specified. After executing the command the tunnel interfaces are created on both VMs. The interfaces needs to be be activated with ifconfig up and after that we need to setup the rooting to direct the traffic to  172.17.51.0/24 and 172.17.52.0/24 to tun2 and tun1.</p>
-
-<p>As mentioned the VPN capabilities of SSH is not recommended in production, but other solutions like  <a href="https://openvpn.net/index.php/open-source.html">OpenVPN</a> would worth a try to secure the communication between the hosts (and also between the containers).</p>
-
-<h2>Conclusion</h2>
-
-<p>The above examples were hand written mainly for demonstration purposes, but there are great tools like <a href="https://github.com/jpetazzo/pipework">Pipework</a> that can make your life simpler and will do the heavy lifting for you.</p>
-
-<p>If you want to check how these methods are working in production environment you are just a few clicks from it, since under the hood these methods are responsible to solve the inter-container communication in our cloud agnostic Hadoop as a Service API called <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>.</p>
-
-<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   

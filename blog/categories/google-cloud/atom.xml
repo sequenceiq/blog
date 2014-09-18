@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Richard | SequenceIQ Blog]]></title>
-  <link href="http://blog.sequenceiq.com/blog/categories/richard/atom.xml" rel="self"/>
+  <title><![CDATA[Category: Google Cloud | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com/blog/categories/google-cloud/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-18T13:11:22+00:00</updated>
+  <updated>2014-09-18T13:13:02+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>

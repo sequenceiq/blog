@@ -138,9 +138,15 @@
       
         <div class="row-fluid">
             
-            <a href="/blog/categories/doktorics/"><span class="label label-warning">Doktorics</span></a>
+            <a href="/blog/categories/cloud/"><span class="label label-warning">Cloud</span></a>
             
-            <a href="/blog/categories/richard/"><span class="label label-warning">Richard</span></a>
+            <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
+            
+            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
+            
+            <a href="/blog/categories/google-cloud/"><span class="label label-warning">Google Cloud</span></a>
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
             
         </div>
       
@@ -148,7 +154,7 @@
     <div class="col-md-10 post-container">
       <h1 class="link">
           <a href="/blog/2014/09/18/custom-image-on-gcc/">Cloudbreak new provider implementation - Part I: Build your custom image</a>
-          <span class="badge name-badge"></span>
+          <span class="badge name-badge">Richard Doktorics</span>
 
       </h1>
       <p>Not so long ago we have released <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; the cloud agnostic, open source and Docker based Hadoop as a Service API (with support for <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">autoscaling</a> Hadoop clusters). As we have <code>dockerized</code> the whole Hadoop ecosystem, we are shipping the containers to different cloud providers, such as Amazon AWS, Microsoft Azure and Google Cloud Compute. Also Cloudbreak has an <a href="http://sequenceiq.com/cloudbreak/#add-new-cloud-providers">SDK</a> which allows you to quickly add your favorite cloud provider. In this post (series) we’d like to guide you trough the process, and show you how to create a custom image &ndash; on Google Cloud. We have chose Google Cloud as this is the least documented and has the smallest amount on default images (there are thousand for Amazon, and hundreds for Azure). Nevertheless on all cloud provider usually you’d like to have a custom image with your preferred OS, configuration and potentially installed applications.</p>
