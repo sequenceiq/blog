@@ -8,7 +8,7 @@ categories: Richard Doktorics
 published: true
 ---
 
-Not so long ago we have released [Cloudbreak](http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/), the cloud agnostic, open source and Docker based Hadoop as a Service API. AS we have ‘dockerized’ the whole Hadoop ecosystem, we are shipping the containers to different cloud providers, such as Amazon AWS, Microsoft Azure and Google Cloud Compute. Also Cloudbreak has an [SDK](http://sequenceiq.com/cloudbreak/#add-new-cloud-providers) which allows you to quickly add your favorite cloud provider. In this post (series) we’d like to guide you trough the process, and show you how to create a custom image - on Google Cloud. We have chose Google Cloud as this is the least documented and has the smallest amount on default images (there are thousand for Amazon, and hundreds for Azure). Nevertheless on all cloud provider usually you’d like to have a custom image with your preferred OS, configuration and potentially installed applications.
+Not so long ago we have released [Cloudbreak](http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/) - the cloud agnostic, open source and Docker based Hadoop as a Service API. As we have `dockerized` the whole Hadoop ecosystem, we are shipping the containers to different cloud providers, such as Amazon AWS, Microsoft Azure and Google Cloud Compute. Also Cloudbreak has an [SDK](http://sequenceiq.com/cloudbreak/#add-new-cloud-providers) which allows you to quickly add your favorite cloud provider. In this post (series) we’d like to guide you trough the process, and show you how to create a custom image - on Google Cloud. We have chose Google Cloud as this is the least documented and has the smallest amount on default images (there are thousand for Amazon, and hundreds for Azure). Nevertheless on all cloud provider usually you’d like to have a custom image with your preferred OS, configuration and potentially installed applications.
 
 <!-- more -->
 
@@ -151,4 +151,4 @@ Now you have an `official` image template but you have to create the image in Go
 gcutil addimage my-ubuntu gs://<bucket-name>/ubuntu_image.tar.gz
 ```
 
-Once this is done you have created your custom built Google Cloud image, and you are ready to start cloud instances using it. Let us know how it works for you, and make sure you follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
+Once this is done you have created your custom built Google Cloud image, and you are ready to start cloud instances using it. Let us know how it works for you, and make sure you follow us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq) for updates.
