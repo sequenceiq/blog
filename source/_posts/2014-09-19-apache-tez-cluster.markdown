@@ -30,7 +30,7 @@ The container’s code is available on our [GitHub]() repository.
 We suggest to always pull the container from the official Docker repository - as this is always maintained and supported by us. 
 
 ```
-docker pull sequenceiq/ambari:tez
+docker pull sequenceiq/ambari:1.7.0-ea-tez
 ```
 
 <!-- more -->
@@ -62,6 +62,10 @@ amb-deploy-cluster 4
 ```
 
 ###Testing
+
+```
+hadoop jar /usr/lib/tez/tez-mapreduce-examples-0.4.0.2.1.5.0-696.jar orderedwordcount /apps/tez/conf/tez-site.xml /output
+```
 
 
 Should you have any questions let us know through our social channels using [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
