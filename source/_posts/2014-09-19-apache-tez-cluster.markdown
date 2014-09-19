@@ -5,7 +5,7 @@ date: 2014-09-19 09:42:58 +0200
 comments: true
 categories: [Apache Tez, Docker, Hadoop, Performance]
 author: Janos Matyas
-published: false
+published: true
 ---
 
 This week the [Apache Tez](http://tez.apache.org/) community announced the release of the 0.5 version of the project. At [SequenceIQ](http://sequenceiq.com/) first time we came across Tez was in 2013 - after [Hortonworks](http://hortonworks.com/) launched the `Stinger Initiative`. Though we were not using Hive (that might change soon) we have quickly realized the `other` capabilities of Tez - the expressive data flow API, data movement patterns, dynamic graph reconfiguration, etc - to name a few. 
