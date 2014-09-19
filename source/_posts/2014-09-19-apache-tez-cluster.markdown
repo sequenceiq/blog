@@ -40,7 +40,7 @@ docker pull sequenceiq/ambari:1.7.0-ea-tez
 Alternatively you can always build your own container based on our Dockerfile. 
 
 ```
-docker build --rm -t sequenceiq/ambari:1.7.0-ea-tez .
+docker build --rm -t sequenceiq/ambari:1.7.0-ea-tez ambari-server/
 ```
 
 ## Running the cluster
