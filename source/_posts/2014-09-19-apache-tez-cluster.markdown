@@ -4,7 +4,7 @@ title: "Apache Tez cluster on Docker"
 date: 2014-09-19 09:42:58 +0200
 comments: true
 categories: [Apache Tez, Docker, Hadoop, Performance]
-author: Janos Matyas
+author: Wilbur Sargunaraj
 published: false
 ---
 
