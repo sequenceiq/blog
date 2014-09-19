@@ -8,15 +8,16 @@ author: Janos Matyas
 published: false
 ---
 
-This week the [Apache Tez](http://tez.apache.org/) community announced the release of the 0.5 version of the project. At SequenceIQ we came across Tez early 2013 - when [Hortonworks](http://hortonworks.com/) launched the `Stinger Initiative`. Though at [SequenceIQ](http://sequenceiq.com/) we are not using Hive (that might change soon), we have quickly realized the `other` capabilities of Tez - the expressive data flow API, data movement patterns, dynamic graph reconfiguration, etc - to name a few. 
+This week the [Apache Tez](http://tez.apache.org/) community announced the release of the 0.5 version of the project. At [SequenceIQ](http://sequenceiq.com/) we came across Tez in 2013 - after [Hortonworks](http://hortonworks.com/) launched the `Stinger Initiative`. Though we are not using Hive (that might change soon), we have quickly realized the `other` capabilities of Tez - the expressive data flow API, data movement patterns, dynamic graph reconfiguration, etc - to name a few. 
 
 We quickly became `fans` of Tez - and have started to run internal PoC projects, rewrite ML algorithms and legacy MR2 code to run /leverage Tez. The new release comes with a stable developer API and a proven stability track, and this has triggered a `major` re-architecture/refactoring project at SequenceIQ. While I don’t want to enter in too deep details, we are building a Platform as a Service API - with the first two stages of the project already released: 
 
 [Cloudbreak](http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/) - our Docker based cloud agnostic Hadoop as a Service API (AWS, Azure, Google Cloud, DigitalOcean)
-	
 [Periscope](http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/) - an SLA policy based autoscaling API for Hadoop YARN
 
 The last unreleased piece is a project called [Banzai Pipeline](http://docs.banzai.apiary.io/) - a big data pipeline API (with 50+ pre-built data and job pipes), running on **MR2, Tez and Spark**. 
+
+_Yeah, we are keen surfers - that's why all the projects are named after a famous reef break_
 
 With all these said, we have put together a `Tez Ready` Docker based Hadoop cluster to share our excitement and allow you to quickly start and get familiar with the nice features of the Tez API. The cluster is built on our widely used Apache Ambari Docker [container](http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/), with some additional features. The containers are `service discovery` aware - you don’t need to setup anything beforehand, configure IP addresses or DNS names - the only thing you will need to do is just specify the number of nodes desired in your cluster, and you are ready to go. If you are interested on the underlying architecture (using Docker, Serf and dnsmasq) you can check our slides from the [Hadoop Summit](http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning).
 
