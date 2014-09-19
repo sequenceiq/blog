@@ -12,8 +12,9 @@ This week the [Apache Tez](http://tez.apache.org/) community announced the relea
 
 We than quickly became `advocates` of Tez - and have started to run internal PoC projects, rewrite ML algorithms and legacy MR2 code on Tez. The new release comes with a stable developer API and a proven stability track, thus this has triggered a `major` re-architecture/refactoring project at SequenceIQ. While I don’t want to enter in too deep details, we are building the **Heroku/Cloudfoundry of the Hadoop ecosystem** - with the first two stages of the project already released:
 
-	* [Cloudbreak](http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/) - our Docker based cloud agnostic Hadoop as a Service API (AWS, Azure, Google Cloud, DigitalOcean)
-	* [Periscope](http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/) - an SLA policy based autoscaling API for Hadoop YARN
+	[Cloudbreak](http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/) - our Docker based cloud agnostic Hadoop as a Service API (AWS, Azure, Google Cloud, DigitalOcean)
+	
+	[Periscope](http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/) - an SLA policy based autoscaling API for Hadoop YARN
 
 The last piece is a project called [Banzai Pipeline](http://docs.banzai.apiary.io/) - a big data pipeline API (with lots of pre-built data and job pipes), running on MR2, Tez and Spark. 
 
