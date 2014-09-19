@@ -40,12 +40,12 @@ docker pull sequenceiq/ambari:tez
 Alternatively you can always build your own container based on our Dockerfile. 
 
 ```
-docker build --rm -t sequenceiq/ambari:tez
+docker build --rm -t sequenceiq/ambari:1.7.0-ea-tez
 ```
 
 ## Running the cluster
 
-We have put together a few shell functions to simplify your work, so before you start make sure you get the following `ambari-functions` [file](https://github.com/sequenceiq/docker-ambari/blob/1.7.0-ea/ambari-functions). 
+We have put together a few shell functions to simplify your work, so before you start make sure you get the following `ambari-functions` [file](https://github.com/sequenceiq/docker-ambari/blob/1.7.0-ea-tez/ambari-functions). 
 
 !!!CHANGE ME - Specify the Docker.io TAG
 
