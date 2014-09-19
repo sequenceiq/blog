@@ -40,7 +40,7 @@ docker pull sequenceiq/ambari:1.7.0-ea-tez
 Alternatively you can always build your own container based on our Dockerfile. 
 
 ```
-docker build --rm -t sequenceiq/ambari:1.7.0-ea-tez
+docker build --rm -t sequenceiq/ambari:1.7.0-ea-tez .
 ```
 
 ## Running the cluster
@@ -53,17 +53,13 @@ curl -Lo .amb j.mp/docker-ambari-tez && . .amb
 
 ###Create your Apache Tez cluster
 
-You are almost there. The only thing you will need to do is to specify the number of nodes you need in your cluster. We will launch the containers, they will dynamically join the cluster and apply the Tez specific configurations. Once the cluster is started you are ready to submit your custom Tez application or use one of the stock Tez examples.
+You are almost there. The only thing you will need to do is to specify the number of nodes you need in your cluster. We will launch the containers, they will dynamically join the cluster and apply the Tez specific configurations. 
 
 ```
 amb-deploy-cluster 4
 ```
 
-###Testing
-
-```
-hadoop jar /usr/lib/tez/tez-mapreduce-examples-0.4.0.2.1.5.0-696.jar orderedwordcount /apps/tez/conf/tez-site.xml /output
-```
+Once the cluster is started you can [enter](http://blog.sequenceiq.com/blog/2014/07/05/docker-debug-with-nsenter-on-boot2docker/) in the container and submit your custom Tez application or use one of the stock Tez examples.
 
 
 Should you have any questions let us know through our social channels using [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
