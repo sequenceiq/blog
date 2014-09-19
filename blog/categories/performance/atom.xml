@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Performance | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/performance/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-19T18:49:05+00:00</updated>
+  <updated>2014-09-19T18:50:02+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -28,9 +28,6 @@
 <p>One of the unreleased component is a project called <a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> &ndash; a big data pipeline API (with 50+ pre-built data and job pipes), running on <strong>MR2, Tez and Spark</strong>.</p>
 
 <p>With all these said, we have put together a <code>Tez Ready</code> Docker based Hadoop cluster to share our excitement and allow you to quickly start and get familiar with the nice features of the Tez API. The cluster is built on our widely used Apache Ambari Docker <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">container</a>, with some additional features. The containers are <code>service discovery</code> aware. You don’t need to setup anything beforehand, configure IP addresses or DNS names &ndash; the only thing you will need to do is just specify the number of nodes desired in your cluster, and you are ready to go. If you are interested on the underlying architecture (using Docker, Serf and dnsmasq) you can check my slides/presentation from the <a href="http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning">Hadoop Summit</a>.</p>
-
-<!-- more -->
-
 
 <p>I&rsquo;d like to highlight one important feature of Tez &ndash; us being crazy about automation/DevOps &ndash; the simplicity and the capability of running multiple versions of Tez on the same YARN cluster. We are contributors to many Apache projects (Hadoop, YARN, Ambari, etc) and since we have started to use Tez we consider to contribute there as well (at the end of the day will be a core part of our platform). Adding new features, changing code or fixing bugs always introduce undesired <code>features</code> &ndash; nevertheless, the Tez binaries built by different colleagues can be tested at scale, using the same cluster without affecting each others work. Check Gopal V&rsquo;s good <a href="(https://github.com/t3rmin4t0r/notes/wiki/I-Like-Tez,-DevOps-Edition-(WIP">introduction</a>) about Tez and DevOps.</p>
 
