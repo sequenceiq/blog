@@ -4,7 +4,7 @@ title: "Apache Tez cluster on Docker"
 date: 2014-09-19 09:42:58 +0200
 comments: true
 categories: [Apache Tez, Docker, Hadoop, Performance]
-author: Wilbur Sargunaraj
+author: Janos Matyas
 published: false
 ---
 
@@ -61,5 +61,6 @@ amb-deploy-cluster 4
 
 Once the cluster is started you can [enter](http://blog.sequenceiq.com/blog/2014/07/05/docker-debug-with-nsenter-on-boot2docker/) in the container and submit your custom Tez application or use one of the stock Tez examples.
 
+Check back next week, as we are releasing `real world` examples running on three different big data fabrics: Tez, MR2 and Spark.
 
 Should you have any questions let us know through our social channels using [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
