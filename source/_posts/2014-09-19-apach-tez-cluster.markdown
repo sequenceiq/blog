@@ -10,7 +10,7 @@ published: false
 
 This week the [Apache Tez](http://tez.apache.org/) community announced the release of the 0.5 version of the project. At SequenceIQ we came across Tez early 2013 - when [Hortonworks](http://hortonworks.com/) launched the `Stinger Initiative`. Though at [SequenceIQ](http://sequenceiq.com/) we are not using Hive (that might change soon), we have quickly realized the `other` capabilities of Tez - the expressive data flow API, data movement patterns, dynamic graph reconfiguration, etc - to name a few. 
 
-We quickly became `fans` of Tez - and have started to run internal PoC projects, rewrite ML algorithms and legacy MR2 code to run /leverage Tez. The new release comes with a stable developer API and a proven stability track, and this has triggered a `major` re-architecture/refactoring project at SequenceIQ. While I don’t want to enter in too deep details, we are building the **Heroku/Cloudfoundry of the Hadoop ecosystem** - with the first two stages of the project already released: 
+We quickly became `fans` of Tez - and have started to run internal PoC projects, rewrite ML algorithms and legacy MR2 code to run /leverage Tez. The new release comes with a stable developer API and a proven stability track, and this has triggered a `major` re-architecture/refactoring project at SequenceIQ. While I don’t want to enter in too deep details, we are building a Platform as a Service API - with the first two stages of the project already released: 
 
 [Cloudbreak](http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/) - our Docker based cloud agnostic Hadoop as a Service API (AWS, Azure, Google Cloud, DigitalOcean)
 	
