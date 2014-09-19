@@ -23,7 +23,7 @@ I'd like to highlight one important feature of Tez - us being crazy about automa
 
 ##Apache Tez cluster on Docker
 
-The container’s code is available on our [GitHub]() repository.
+The container’s code is available on our [GitHub](https://github.com/sequenceiq/docker-ambari/tree/1.7.0-ea-tez) repository.
 
 ###Pull the image from the Docker Repository
 
