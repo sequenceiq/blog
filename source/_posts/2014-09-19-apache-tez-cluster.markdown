@@ -47,15 +47,13 @@ docker build --rm -t sequenceiq/ambari:1.7.0-ea-tez
 
 We have put together a few shell functions to simplify your work, so before you start make sure you get the following `ambari-functions` [file](https://github.com/sequenceiq/docker-ambari/blob/1.7.0-ea-tez/ambari-functions). 
 
-!!!CHANGE ME - Specify the Docker.io TAG
-
 ```
 curl -Lo .amb j.mp/docker-ambari-tez && . .amb
 ```
 
 ###Create your Apache Tez cluster
 
-You are almost there. The only thing you will need to do is to specify the number of nodes you need in yoir cluster. We will launch the containers, they will dynamically join the cluster and apply the Tez specific configurations. Once the cluster is started you are ready to submit your custom Tez application or use one of the stock Tez examples.
+You are almost there. The only thing you will need to do is to specify the number of nodes you need in your cluster. We will launch the containers, they will dynamically join the cluster and apply the Tez specific configurations. Once the cluster is started you are ready to submit your custom Tez application or use one of the stock Tez examples.
 
 ```
 amb-deploy-cluster 4
