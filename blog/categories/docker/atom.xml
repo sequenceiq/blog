@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Docker | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/docker/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-19T18:38:45+00:00</updated>
+  <updated>2014-09-19T18:47:31+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,71 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Tez cluster on Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/19/apache-tez-cluster/"/>
+    <updated>2014-09-19T07:42:58+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/19/apache-tez-cluster</id>
+    <content type="html"><![CDATA[<p>This week the <a href="http://tez.apache.org/">Apache Tez</a> community announced the release of the 0.5 version of the project. At <a href="http://sequenceiq.com/">SequenceIQ</a> first time we came across Tez was in 2013 &ndash; after <a href="http://hortonworks.com/">Hortonworks</a> launched the <code>Stinger Initiative</code>. Though we were not using Hive (that might change soon) we have quickly realized the <code>other</code> capabilities of Tez &ndash; the expressive data flow API, data movement patterns, dynamic graph reconfiguration, etc &ndash; to name a few.</p>
+
+<p>We quickly became <code>fans</code> of Tez &ndash; and have started to run internal PoC projects, rewrite ML algorithms and legacy MR2 code to run/leverage Tez. The new release comes with a stable developer API and a proven stability track, and this has triggered a <code>major</code> re-architecture/refactoring project at SequenceIQ. While I don’t want to enter into deep details, we are building a Platform as a Service API &ndash; with the first stages of the project already released, open sourced and in public beta:</p>
+
+<p><a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; our Docker based cloud agnostic Hadoop as a Service API (AWS, Azure, Google Cloud, DigitalOcean)
+<a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> &ndash; an SLA policy based autoscaling API for Hadoop YARN</p>
+
+<p>One of the unreleased component is a project called <a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> &ndash; a big data pipeline API (with 50+ pre-built data and job pipes), running on <strong>MR2, Tez and Spark</strong>.</p>
+
+<p>With all these said, we have put together a <code>Tez Ready</code> Docker based Hadoop cluster to share our excitement and allow you to quickly start and get familiar with the nice features of the Tez API. The cluster is built on our widely used Apache Ambari Docker <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">container</a>, with some additional features. The containers are <code>service discovery</code> aware. You don’t need to setup anything beforehand, configure IP addresses or DNS names &ndash; the only thing you will need to do is just specify the number of nodes desired in your cluster, and you are ready to go. If you are interested on the underlying architecture (using Docker, Serf and dnsmasq) you can check my slides/presentation from the <a href="http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning">Hadoop Summit</a>.</p>
+
+<p>I&rsquo;d like to highlight one important feature of Tez &ndash; us being crazy about automation/DevOps &ndash; the simplicity and the capability of running multiple versions of Tez on the same YARN cluster. We are contributors to many Apache projects (Hadoop, YARN, Ambari, etc) and since we have started to use Tez we consider to contribute there as well (at the end of the day will be a core part of our platform). Adding new features, changing code or fixing bugs always introduce undesired <code>features</code> &ndash; nevertheless, the Tez binaries built by different colleagues can be tested at scale, using the same cluster without affecting each others work. Check Gopal V&rsquo;s good <a href="(https://github.com/t3rmin4t0r/notes/wiki/I-Like-Tez,-DevOps-Edition-(WIP">introduction</a>) about Tez and DevOps.</p>
+
+<h2>Apache Tez cluster on Docker</h2>
+
+<p>The container’s code is available on our <a href="https://github.com/sequenceiq/docker-ambari/tree/1.7.0-ea-tez">GitHub</a> repository.</p>
+
+<h3>Pull the image from the Docker Repository</h3>
+
+<p>We suggest to always pull the container from the official Docker repository &ndash; as this is always maintained and supported by us.</p>
+
+<p><code>
+docker pull sequenceiq/ambari:1.7.0-ea-tez
+</code></p>
+
+<!-- more -->
+
+
+<h3>Building the image</h3>
+
+<p>Alternatively you can always build your own container based on our Dockerfile.</p>
+
+<p><code>
+docker build --rm -t sequenceiq/ambari:1.7.0-ea-tez ambari-server/
+</code></p>
+
+<h2>Running the cluster</h2>
+
+<p>We have put together a few shell functions to simplify your work, so before you start make sure you get the following <code>ambari-functions</code> <a href="https://github.com/sequenceiq/docker-ambari/blob/1.7.0-ea-tez/ambari-functions">file</a>.</p>
+
+<p><code>
+curl -Lo .amb j.mp/docker-ambari-tez &amp;&amp; . .amb
+</code></p>
+
+<h3>Create your Apache Tez cluster</h3>
+
+<p>You are almost there. The only thing you will need to do is to specify the number of nodes you need in your cluster. We will launch the containers, they will dynamically join the cluster and apply the Tez specific configurations.</p>
+
+<p><code>
+amb-deploy-cluster 4
+</code></p>
+
+<p>Once the cluster is started you can <a href="http://blog.sequenceiq.com/blog/2014/07/05/docker-debug-with-nsenter-on-boot2docker/">enter</a> in the container and submit your custom Tez application or use one of the stock Tez examples.</p>
+
+<p>Check back next week, as we are releasing <code>real world</code> examples running on three different big data fabrics: Tez, MR2 and Spark.</p>
+
+<p>Should you have any questions let us know through our social channels using <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Cloudbreak new provider implementation - Part I: Build your custom image]]></title>
@@ -483,72 +548,6 @@ Get all submitted queries: <code>http://localhost:8047/queries</code>
 Get status of a given query:<code>http://localhost:8047/query/{QUERY_ID}</code></p>
 
 <p>The next version of the container will be a fully distributed (based on our Hadoop container and Hazelcast) Apache Drill Docker container. Until then feel free to let us know how you <code>drill</code> and follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Apache Hadoop 2.5.0 on Docker]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/"/>
-    <updated>2014-08-18T18:07:18+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker</id>
-    <content type="html"><![CDATA[<p>A few weeks ago we have released an Apache Hadoop 2.3 Docker image &ndash; in a very short time this become the most <a href="https://registry.hub.docker.com/search?q=hadoop">popular</a> Hadoop image in the Docker <a href="https://registry.hub.docker.com/">registry</a>.</p>
-
-<p>Following on the success of our Hadoop 2.3.0, 2.4.0 and 2.4.1 Docker <a href="https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/">image</a>, the feedbacks and requests we have received and aligning with the Hadoop release cycle, we have released an Apache Hadoop 2.5.0 Docker image &ndash; same as the previous version this is available as a trusted and automated build on the official Docker <a href="https://registry.hub.docker.com/">registry</a>.</p>
-
-<p>Please note that beside this Hadoop image, we have released and maintain a <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/">pseudo-distributed</a> and <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">fully distributed</a> Hadoop Docker image provisioned with Apache Ambari. As they are provisioned with Ambari you have the option to change, add and remove Hadoop components using cluster blueprints.</p>
-
-<p>Also we are happy to let you know that this release of Apache Hadoop contains a few of SequenceIQ&rsquo;s open source <strong>contributions</strong> and <a href="https://issues.apache.org/jira/browse/YARN-2250">fixes</a> around YARN schedulers.
-We are working on an SLA enforcer for Hadoop &ndash; very soon to be open sourced &ndash; and part of that work we are contributing back to the community. Also there is a major contribution of ours coming in the next release of Hadoop &ndash; 2.6.0.
-Stay tuned and follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-
-<h2>Build the image</h2>
-
-<p>In case you&rsquo;d like to try directly from the <a href="https://github.com/sequenceiq/hadoop-docker">Dockerfile</a> you can build the image as:</p>
-
-<p><code>
-docker build  -t sequenceiq/hadoop-docker .
-</code></p>
-
-<!-- more -->
-
-
-<h2>Pull the image</h2>
-
-<p>As it is also released as an official Docker image from Docker&rsquo;s automated build repository &ndash; you can always pull or refer the image when launching containers.</p>
-
-<p><code>
-docker pull sequenceiq/hadoop-docker:2.5.0
-</code></p>
-
-<h2>Start a container</h2>
-
-<p>In order to use the Docker image you have just build or pulled use:</p>
-
-<p><code>
-docker run -i -t sequenceiq/hadoop-docker:2.5.0 /etc/bootstrap.sh -bash
-</code></p>
-
-<h2>Testing</h2>
-
-<p>You can run one of the stock examples:</p>
-
-<p>```
-cd $HADOOP_PREFIX</p>
-
-<h1>run the mapreduce</h1>
-
-<p>bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.5.0.jar grep input output &lsquo;dfs[a-z.]+&rsquo;</p>
-
-<h1>check the output</h1>
-
-<p>bin/hdfs dfs -cat output/*
-```</p>
-
-<h2>Hadoop native libraries, build, Bintray, etc</h2>
-
-<p>The Hadoop build process is no easy task &ndash; requires lots of libraries and their right version, protobuf, etc and takes some time &ndash; we have simplified all these, made the build and released a 64b version of Hadoop nativelibs on our <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.4.1/view/files">Bintray repo</a>. Enjoy.</p>
-
-<p>Should you have any questions let us know through our social channels as <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   
