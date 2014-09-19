@@ -19,6 +19,8 @@ One of the unreleased component is a project called [Banzai Pipeline](http://doc
 
 With all these said, we have put together a `Tez Ready` Docker based Hadoop cluster to share our excitement and allow you to quickly start and get familiar with the nice features of the Tez API. The cluster is built on our widely used Apache Ambari Docker [container](http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/), with some additional features. The containers are `service discovery` aware. You don’t need to setup anything beforehand, configure IP addresses or DNS names - the only thing you will need to do is just specify the number of nodes desired in your cluster, and you are ready to go. If you are interested on the underlying architecture (using Docker, Serf and dnsmasq) you can check my slides/presentation from the [Hadoop Summit](http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning).
 
+<!-- more -->
+
 I'd like to highlight one important feature of Tez - us being crazy about automation/DevOps - the simplicity and the capability of running multiple versions of Tez on the same YARN cluster. We are contributors to many Apache projects (Hadoop, YARN, Ambari, etc) and since we have started to use Tez we consider to contribute there as well (at the end of the day will be a core part of our platform). Adding new features, changing code or fixing bugs always introduce undesired `features` - nevertheless, the Tez binaries built by different colleagues can be tested at scale, using the same cluster without affecting each others work. Check Gopal V's good [introduction]((https://github.com/t3rmin4t0r/notes/wiki/I-Like-Tez,-DevOps-Edition-(WIP)) about Tez and DevOps.
 
 ##Apache Tez cluster on Docker
