@@ -23,7 +23,7 @@ for most of us. There is a nice [install guide](http://tez.apache.org/install.ht
 you have to copy a bunch of jars to HDFS and you're almost good to go.
 * Multiple versions of Tez can be used at the same time which solves a common problem, the rolling upgrades.
 * Distributed data processing jobs typically look like `DAGs` (directed acyclic graphs) and Tez relies on this concept to define your jobs.
-DAGs are made from `Verticles` and `Edges`. Verticles in the graph represent data transformations while edges represent the data movement
+DAGs are made from `Vertices` and `Edges`. Vertices in the graph represent data transformations while edges represent the data movement
 from producers to consumers. The DAG itself defines the structure of the data processing and the relationship between producers and consumers.
 
 Tez provides faster execution and higher predictability because it:
@@ -38,7 +38,8 @@ Tez provides faster execution and higher predictability because it:
 * The core engine can be customized (vertex manager, DAG scheduler, task scheduler)
 * Provides an event mechanism to communicate between tasks (data movement events to inform consumers by the data location)
 
-I could go on and on with the list, but let's see the TopK implementation.
+If you'd like to try Tez on a fully functional multi-node cluster we put together an Ambari based docker image. Click
+[here](http://blog.sequenceiq.com/blog/2014/09/19/apache-tez-cluster/) for details.
 
 <!-- more -->
 
@@ -72,3 +73,7 @@ In the last Vertex we start collecting the grouped sorted data so we can take th
 we need to see the global picture here that's why you can see that the parallelism is
 [set](https://github.com/sequenceiq/sequenceiq-samples/blob/master/tez-topk/src/main/java/com/sequenceiq/tez/topk/TopK.java#L129) to 1.
 We didn't specify it in the previous 2 Vertices which means that this will be decided at run time.
+
+## What's next
+In the next post we'll see how we can achieve the same with Spark and we'll do a performance comparison on a large dataset.
+If you have any questions or suggestions you can reach us on [LinkedIn](https://www.linkedin.com/company/sequenceiq/), [Twitter](https://twitter.com/sequenceiq) or [Facebook](https://www.facebook.com/sequenceiq).
