@@ -50,7 +50,7 @@ In order to do that we need to group and sort them to take the K elements. The i
 [here](https://github.com/sequenceiq/sequenceiq-samples/blob/master/tez-topk/src/main/java/com/sequenceiq/tez/topk/TopK.java#L109) with the
 DAG creation. First of all we define a `DataSourceDescriptor` which represents our dataset and a `DataSinkDescriptor` where we'll
 write the results to. As you can see there are plenty of utility classes to help you define your DAGs. Now that the input and output is
-ready let's define our `Vertexes`. You'll see the actual data transformation is really easy as Hadoop will take care of the heavy
+ready let's define our `Vertices`. You'll see the actual data transformation is really easy as Hadoop will take care of the heavy
 parts. The first Vertex is a
 [tokenizer](https://github.com/sequenceiq/sequenceiq-samples/blob/master/tez-topk/src/main/java/com/sequenceiq/tez/topk/TopK.java#L160)
 which does nothing more than splitting the rows of the CSV and emit a record with the selected column as the key and 1 as the value.
