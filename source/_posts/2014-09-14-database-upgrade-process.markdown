@@ -50,12 +50,12 @@ The process - as the common sense suggests - could be split in the following ste
 #### Start from the initial version of the database
 
 To start with, you need a database that's (structurally) identical to the production. There are several ways to achieve this;
-but as we use Postgres and we try to keep it simple, so here's what we do:
+but as we use Postgres and we try to keep it simple here's what we do:
 * we always have a QA database which is identical to the production (obviously the data is not the same)
 * we make a copy of the *data* folder of the postgres installation into an arbitrary location on the host
 * we pass it as a volume to a Docker container running Postgres
 
-This is the command you need to run every time you need a database in the initial state:
+This is the command that can be run every time you need a database:
 
 ```
 docker run -d \
@@ -73,13 +73,12 @@ where the passed in variables are the following:
 * DB_PASS - the database password
 * DB_NAME - the databaste schema
 
-You have a running database now; you can connect to it on your localhost, port 5432 with the given username/password.
-
+We have a running database now; you can connect to it on your localhost, port 5432 with the given username/password.
 
 #### Perform changes required by the new version of the application
 
-As expected, this is the most challenging part in the process: changes need to be implemented and also captured so that they
- can be applied any time (preferably in an automated way)
+As expected, this is the most challenging part in the process: changes need to be implemented and also
+captured so that they can be applied any time (preferably in an automated way)
 
 As we're using JPA (with Hibernate as JPA provider) incremental structural changes are executed with the
 SchemaUpdate tool. This can be done during the application startup or using *ant* or *maven*. As we continuously
@@ -141,7 +140,7 @@ Here the meaning of variables are the following:
 Some of the Liquibase tasks can be scripted. We scripted the diff generation and changelog application. Liquibase offers more advanced features
 too, we only needed a few of the basic features till now.
 
-#### Test the migration
+#### Testing
 
 At this point you can execute automated "smoke" tests to check the migration.
 
@@ -162,4 +161,3 @@ Obviously this step needs to be designed carefully and adapted to the custom app
 * Thanks to Docker, all the work described can be done offline (setting up the infrastructure can be done fast,
   on a dev's machine for example)
 * Liquibase changelogs can be executed individually or in group (by including subsets of changelogs)
-* the whole process can be executed easily till everything gets perfect
