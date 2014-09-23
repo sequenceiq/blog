@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Apache Tez | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/apache-tez/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-23T11:48:17+00:00</updated>
+  <updated>2014-09-23T13:01:07+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -21,7 +21,7 @@
     <content type="html"><![CDATA[<p>The Apache Tez community draw attention last week with their latest release <a href="http://tez.apache.org/releases/0.5.0/release-notes.txt">0.5.0</a>
 of the application framework. At SequenceIQ we always try to find and provide the best solutions to our customers and share the experience we gain by
 being involved in many open source Apache projects. We are always looking for the latest innovations, and try to apply them to our projects.
-For a while we&rsquo;re have been working hard on a new project called
+For a while we have been working hard on a new project called
 <a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> which we&rsquo;ll open source in the near future. One handy feature of the projects is the ability to run the same pipes on <code>MR2</code>, <code>Spark</code> and <code>Tez</code> &ndash; your choice.
 In the next couple of posts we&rsquo;ll compare these runtimes using different jobs and as the first example to implement we chose TopK. Before going into
 details let&rsquo;s revisit what Apache Tez is made of.</p>
