@@ -192,7 +192,7 @@ from producers to consumers. The DAG itself defines the structure of the data pr
 <p>The goal is to find the top K elements of a dataset. In this example&rsquo;s case is a simple CSV and we&rsquo;re looking for the top elements in a given column.
 In order to do that we need to <code>group</code> and <code>sort</code> them to <code>take</code> the K elements. The implementation can be found in our
 <a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub</a> repository. The important part starts
-with the <a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/tez-topk/src/main/java/com/sequenceiq/tez/topk/TopK.java#L109">DAG creation</a>.</p>
+with the <a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/tez-topk/src/main/java/com/sequenceiq/tez/topk/TopK.java#L136">DAG creation</a>.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -221,33 +221,33 @@ with the <a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/t
 <span class='line-number'>25</span>
 <span class='line-number'>26</span>
 <span class='line-number'>27</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">DataSourceDescriptor</span> <span class="n">dataSource</span> <span class="o">=</span> <span class="n">MRInput</span><span class="o">.</span><span class="na">createConfigBuilder</span><span class="o">(</span><span class="k">new</span> <span class="n">Configuration</span><span class="o">(</span><span class="n">tezConf</span><span class="o">),</span>
-</span><span class='line'>  <span class="n">TextInputFormat</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">inputPath</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="n">DataSourceDescriptor</span> <span class="n">dataSource</span> <span class="o">=</span> <span class="n">MRInput</span><span class="o">.</span><span class="na">createConfigBuilder</span><span class="o">(</span><span class="k">new</span> <span class="n">Configuration</span><span class="o">(</span><span class="n">tezConf</span><span class="o">),</span>
+</span><span class='line'>            <span class="n">TextInputFormat</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">inputPath</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
 </span><span class='line'>
-</span><span class='line'><span class="n">DataSinkDescriptor</span> <span class="n">dataSink</span> <span class="o">=</span> <span class="n">MROutput</span><span class="o">.</span><span class="na">createConfigBuilder</span><span class="o">(</span><span class="k">new</span> <span class="n">Configuration</span><span class="o">(</span><span class="n">tezConf</span><span class="o">),</span>
-</span><span class='line'>  <span class="n">TextOutputFormat</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">outputPath</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">DataSinkDescriptor</span> <span class="n">dataSink</span> <span class="o">=</span> <span class="n">MROutput</span><span class="o">.</span><span class="na">createConfigBuilder</span><span class="o">(</span><span class="k">new</span> <span class="n">Configuration</span><span class="o">(</span><span class="n">tezConf</span><span class="o">),</span>
+</span><span class='line'>            <span class="n">TextOutputFormat</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">outputPath</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
 </span><span class='line'>
-</span><span class='line'><span class="n">Vertex</span> <span class="n">tokenizerVertex</span> <span class="o">=</span> <span class="n">Vertex</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">TOKENIZER</span><span class="o">,</span>
-</span><span class='line'>  <span class="n">ProcessorDescriptor</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">TokenProcessor</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">())</span>
-</span><span class='line'>    <span class="o">.</span><span class="na">setUserPayload</span><span class="o">(</span><span class="n">createPayload</span><span class="o">(</span><span class="n">Integer</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">columnIndex</span><span class="o">))))</span>
-</span><span class='line'>  <span class="o">.</span><span class="na">addDataSource</span><span class="o">(</span><span class="n">INPUT</span><span class="o">,</span> <span class="n">dataSource</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">Vertex</span> <span class="n">tokenizerVertex</span> <span class="o">=</span> <span class="n">Vertex</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">TOKENIZER</span><span class="o">,</span>
+</span><span class='line'>            <span class="n">ProcessorDescriptor</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">TokenProcessor</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">())</span>
+</span><span class='line'>                    <span class="o">.</span><span class="na">setUserPayload</span><span class="o">(</span><span class="n">createPayload</span><span class="o">(</span><span class="n">Integer</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">columnIndex</span><span class="o">))))</span>
+</span><span class='line'>            <span class="o">.</span><span class="na">addDataSource</span><span class="o">(</span><span class="n">INPUT</span><span class="o">,</span> <span class="n">dataSource</span><span class="o">);</span>
 </span><span class='line'>
-</span><span class='line'><span class="n">Vertex</span> <span class="n">sumVertex</span> <span class="o">=</span> <span class="n">Vertex</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">SUM</span><span class="o">,</span>
-</span><span class='line'>  <span class="n">ProcessorDescriptor</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">SumProcessor</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">()),</span> <span class="n">Integer</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">partition</span><span class="o">));</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">topK</span> <span class="o">=</span> <span class="n">Integer</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">top</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">Vertex</span> <span class="n">sumVertex</span> <span class="o">=</span> <span class="n">Vertex</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">SUM</span><span class="o">,</span>
+</span><span class='line'>            <span class="n">ProcessorDescriptor</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">SumProcessor</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">())</span>
+</span><span class='line'>                    <span class="o">.</span><span class="na">setUserPayload</span><span class="o">(</span><span class="n">createPayload</span><span class="o">(</span><span class="n">topK</span><span class="o">)),</span> <span class="n">Integer</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">numPartitions</span><span class="o">));</span>
 </span><span class='line'>
-</span><span class='line'><span class="n">Vertex</span> <span class="n">writerVertex</span> <span class="o">=</span> <span class="n">Vertex</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">WRITER</span><span class="o">,</span>
-</span><span class='line'>  <span class="n">ProcessorDescriptor</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">Writer</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">())</span>
-</span><span class='line'>    <span class="o">.</span><span class="na">setUserPayload</span><span class="o">(</span><span class="n">createPayload</span><span class="o">(</span><span class="n">Integer</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">top</span><span class="o">))),</span> <span class="mi">1</span><span class="o">)</span>
-</span><span class='line'>  <span class="o">.</span><span class="na">addDataSink</span><span class="o">(</span><span class="n">OUTPUT</span><span class="o">,</span> <span class="n">dataSink</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">Vertex</span> <span class="n">writerVertex</span> <span class="o">=</span> <span class="n">Vertex</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">WRITER</span><span class="o">,</span>
+</span><span class='line'>            <span class="n">ProcessorDescriptor</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">Writer</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">())</span>
+</span><span class='line'>                    <span class="o">.</span><span class="na">setUserPayload</span><span class="o">(</span><span class="n">createPayload</span><span class="o">(</span><span class="n">topK</span><span class="o">)),</span> <span class="mi">1</span><span class="o">)</span>
+</span><span class='line'>            <span class="o">.</span><span class="na">addDataSink</span><span class="o">(</span><span class="n">OUTPUT</span><span class="o">,</span> <span class="n">dataSink</span><span class="o">);</span>
 </span><span class='line'>
-</span><span class='line'><span class="n">OrderedPartitionedKVEdgeConfig</span> <span class="n">edgeConf</span> <span class="o">=</span> <span class="n">OrderedPartitionedKVEdgeConfig</span>
-</span><span class='line'>  <span class="o">.</span><span class="na">newBuilder</span><span class="o">(</span><span class="n">Text</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span> <span class="n">IntWritable</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span>
-</span><span class='line'>    <span class="n">HashPartitioner</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">()).</span><span class="na">build</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">OrderedPartitionedKVEdgeConfig</span> <span class="n">tokenSumEdge</span> <span class="o">=</span> <span class="n">OrderedPartitionedKVEdgeConfig</span>
+</span><span class='line'>            <span class="o">.</span><span class="na">newBuilder</span><span class="o">(</span><span class="n">Text</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span> <span class="n">IntWritable</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span>
+</span><span class='line'>                    <span class="n">HashPartitioner</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">()).</span><span class="na">build</span><span class="o">();</span>
 </span><span class='line'>
-</span><span class='line'><span class="n">OrderedPartitionedKVEdgeConfig</span> <span class="n">sorterEdgeConf</span> <span class="o">=</span> <span class="n">OrderedPartitionedKVEdgeConfig</span>
-</span><span class='line'>  <span class="o">.</span><span class="na">newBuilder</span><span class="o">(</span><span class="n">IntWritable</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span> <span class="n">Text</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span>
-</span><span class='line'>    <span class="n">HashPartitioner</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">())</span>
-</span><span class='line'>  <span class="o">.</span><span class="na">setKeyComparatorClass</span><span class="o">(</span><span class="n">RevComparator</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">()).</span><span class="na">build</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">UnorderedKVEdgeConfig</span> <span class="n">sumWriterEdge</span> <span class="o">=</span> <span class="n">UnorderedKVEdgeConfig</span>
+</span><span class='line'>            <span class="o">.</span><span class="na">newBuilder</span><span class="o">(</span><span class="n">IntWritable</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span> <span class="n">Text</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">()).</span><span class="na">build</span><span class="o">();</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -255,7 +255,7 @@ with the <a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/t
 write the results to. As you can see there are plenty of utility classes to help you define your DAGs. Now that the input and output is
 ready let&rsquo;s define our <code>Vertices</code>. You&rsquo;ll see the actual data transformation is really easy as Hadoop will take care of the heavy
 lifting. The first Vertex is a
-<a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/tez-topk/src/main/java/com/sequenceiq/tez/topk/TopK.java#L160">tokenizer</a>
+<a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/tez-topk/src/main/java/com/sequenceiq/tez/topk/TopK.java#L198">tokenizer</a>
 which does nothing more than splitting the rows of the CSV and emit a record with the selected column as the key and <code>1</code> as the value.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -308,9 +308,14 @@ which does nothing more than splitting the rows of the CSV and emit a record wit
 <p>The interesting part here is the <code>initialize</code> method which reads the <code>UserPayload</code> to find out in which column we&rsquo;re looking for
 the top K elements. What happens after the first Vertex is that Hadoop will <code>group</code> the records by key, so we&rsquo;ll have all the keys
 with a bunch of 1s. In the next Vertex we
-<a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/tez-topk/src/main/java/com/sequenceiq/tez/topk/TopK.java#L192">sum</a>
-these values so we&rsquo;ll have all the words in the given column counted and emit records where the id is the number of occurrences and the key
-is the word in the selected column.</p>
+<a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/tez-topk/src/main/java/com/sequenceiq/tez/topk/TopK.java#L243">sum</a>
+these values so we&rsquo;ll have all the words in the given column counted. We could emit all the values to make Hadoop sort them for us,
+but we can optimize this process by reducing the data we need to send over the network. And how we are going to do that? If we
+<a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/tez-topk/src/main/java/com/sequenceiq/tez/topk/TopK.java#L340">maintain</a>
+a <code>local</code> top K of the data which the sum tasks process and emit only these values all we have left in the last Vertex is to
+select the top K results from a much smaller data set. Another important improvement here is that we can use the <code>UnorderedKVEdgeConfig</code>
+to avoid sorting the data at the task output and the merge sort at the next tasks input. We used the <code>OrderedPartitionedKVEdgeConfig</code>
+between the first 2 Vertices to demonstrate the different edges and as partition can be a huge asset.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -325,49 +330,46 @@ is the word in the selected column.</p>
 <span class='line-number'>11</span>
 <span class='line-number'>12</span>
 <span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
-</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">KeyValueWriter</span> <span class="n">kvWriter</span> <span class="o">=</span> <span class="o">(</span><span class="n">KeyValueWriter</span><span class="o">)</span> <span class="n">getOutputs</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="n">WRITER</span><span class="o">).</span><span class="na">getWriter</span><span class="o">();</span>
-</span><span class='line'>  <span class="n">KeyValuesReader</span> <span class="n">kvReader</span> <span class="o">=</span> <span class="o">(</span><span class="n">KeyValuesReader</span><span class="o">)</span> <span class="n">getInputs</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="n">TOKENIZER</span><span class="o">).</span><span class="na">getReader</span><span class="o">();</span>
-</span><span class='line'>  <span class="k">while</span> <span class="o">(</span><span class="n">kvReader</span><span class="o">.</span><span class="na">next</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">Text</span> <span class="n">word</span> <span class="o">=</span> <span class="o">(</span><span class="n">Text</span><span class="o">)</span> <span class="n">kvReader</span><span class="o">.</span><span class="na">getCurrentKey</span><span class="o">();</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
-</span><span class='line'>    <span class="k">for</span> <span class="o">(</span><span class="n">Object</span> <span class="n">value</span> <span class="o">:</span> <span class="n">kvReader</span><span class="o">.</span><span class="na">getCurrentValues</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">sum</span> <span class="o">+=</span> <span class="o">((</span><span class="n">IntWritable</span><span class="o">)</span> <span class="n">value</span><span class="o">).</span><span class="na">get</span><span class="o">();</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>    <span class="n">kvWriter</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="k">new</span> <span class="n">IntWritable</span><span class="o">(</span><span class="n">sum</span><span class="o">),</span> <span class="n">word</span><span class="o">);</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Hadoop takes care of the <code>sorting</code> part, the only problem is that it will sort it in ascending order.
-We can fix it by defining a custom <a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/tez-topk/src/main/java/com/sequenceiq/tez/topk/TopK.java#L254">rawcomparator</a>.
-We simply switch the parameters and the result will be sorted in descending order.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
-</span><span class='line'><span class="kd">public</span> <span class="kt">int</span> <span class="nf">compare</span><span class="o">(</span><span class="kt">byte</span><span class="o">[]</span> <span class="n">b1</span><span class="o">,</span> <span class="kt">int</span> <span class="n">s1</span><span class="o">,</span> <span class="kt">int</span> <span class="n">l1</span><span class="o">,</span> <span class="kt">byte</span><span class="o">[]</span> <span class="n">b2</span><span class="o">,</span> <span class="kt">int</span> <span class="n">s2</span><span class="o">,</span> <span class="kt">int</span> <span class="n">l2</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">return</span> <span class="n">WritableComparator</span><span class="o">.</span><span class="na">compareBytes</span><span class="o">(</span><span class="n">b2</span><span class="o">,</span> <span class="n">s2</span><span class="o">,</span> <span class="n">l2</span><span class="o">,</span> <span class="n">b1</span><span class="o">,</span> <span class="n">s1</span><span class="o">,</span> <span class="n">l1</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">Preconditions</span><span class="o">.</span><span class="na">checkArgument</span><span class="o">(</span><span class="n">getInputs</span><span class="o">().</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">1</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">Preconditions</span><span class="o">.</span><span class="na">checkArgument</span><span class="o">(</span><span class="n">getOutputs</span><span class="o">().</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">1</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">KeyValueWriter</span> <span class="n">kvWriter</span> <span class="o">=</span> <span class="o">(</span><span class="n">KeyValueWriter</span><span class="o">)</span> <span class="n">getOutputs</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="n">WRITER</span><span class="o">).</span><span class="na">getWriter</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">KeyValuesReader</span> <span class="n">kvReader</span> <span class="o">=</span> <span class="o">(</span><span class="n">KeyValuesReader</span><span class="o">)</span> <span class="n">getInputs</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="n">TOKENIZER</span><span class="o">).</span><span class="na">getReader</span><span class="o">();</span>
+</span><span class='line'>        <span class="k">while</span> <span class="o">(</span><span class="n">kvReader</span><span class="o">.</span><span class="na">next</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">Text</span> <span class="n">currentWord</span> <span class="o">=</span> <span class="o">(</span><span class="n">Text</span><span class="o">)</span> <span class="n">kvReader</span><span class="o">.</span><span class="na">getCurrentKey</span><span class="o">();</span>
+</span><span class='line'>            <span class="kt">int</span> <span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+</span><span class='line'>            <span class="k">for</span> <span class="o">(</span><span class="n">Object</span> <span class="n">value</span> <span class="o">:</span> <span class="n">kvReader</span><span class="o">.</span><span class="na">getCurrentValues</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">sum</span> <span class="o">+=</span> <span class="o">((</span><span class="n">IntWritable</span><span class="o">)</span> <span class="n">value</span><span class="o">).</span><span class="na">get</span><span class="o">();</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>            <span class="n">localTop</span><span class="o">.</span><span class="na">store</span><span class="o">(</span><span class="n">sum</span><span class="o">,</span> <span class="n">currentWord</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+</span><span class='line'>        <span class="o">}</span>
 </span><span class='line'>
-</span><span class='line'><span class="nd">@Override</span>
-</span><span class='line'><span class="kd">public</span> <span class="kt">int</span> <span class="nf">compare</span><span class="o">(</span><span class="n">IntWritable</span> <span class="n">intWritable</span><span class="o">,</span> <span class="n">IntWritable</span> <span class="n">intWritable2</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">return</span> <span class="n">intWritable2</span><span class="o">.</span><span class="na">compareTo</span><span class="o">(</span><span class="n">intWritable</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
+</span><span class='line'>        <span class="n">Map</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">,</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="n">localTop</span><span class="o">.</span><span class="na">getTopK</span><span class="o">();</span>
+</span><span class='line'>        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">top</span> <span class="o">:</span> <span class="n">result</span><span class="o">.</span><span class="na">keySet</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">IntWritable</span> <span class="n">topWritable</span> <span class="o">=</span> <span class="k">new</span> <span class="n">IntWritable</span><span class="o">(</span><span class="n">top</span><span class="o">);</span>
+</span><span class='line'>            <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">string</span> <span class="o">:</span> <span class="n">result</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">top</span><span class="o">))</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">word</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">string</span><span class="o">);</span>
+</span><span class='line'>                <span class="n">kvWriter</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">topWritable</span><span class="o">,</span> <span class="n">word</span><span class="o">);</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>All we have left is to <a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/tez-topk/src/main/java/com/sequenceiq/tez/topk/TopK.java#L213">take</a>
-the first K element and write it to HDFS and we&rsquo;re done. Except that we have to
+<p>All we have left is to <a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/tez-topk/src/main/java/com/sequenceiq/tez/topk/TopK.java#L318">take</a>
+the first K elements of the reduced data set (from the local top Ks) and write it to HDFS and we&rsquo;re done. Except that we have to
 define the data movements with edges.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -379,11 +381,11 @@ define the data movements with edges.</p>
 <span class='line-number'>7</span>
 </pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">DAG</span> <span class="n">dag</span> <span class="o">=</span> <span class="n">DAG</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="s">&quot;topk&quot;</span><span class="o">);</span>
 </span><span class='line'><span class="n">dag</span>
-</span><span class='line'>  <span class="o">.</span><span class="na">addVertex</span><span class="o">(</span><span class="n">tokenizerVertex</span><span class="o">)</span>
-</span><span class='line'>  <span class="o">.</span><span class="na">addVertex</span><span class="o">(</span><span class="n">sumVertex</span><span class="o">)</span>
-</span><span class='line'>  <span class="o">.</span><span class="na">addVertex</span><span class="o">(</span><span class="n">writerVertex</span><span class="o">)</span>
-</span><span class='line'>  <span class="o">.</span><span class="na">addEdge</span><span class="o">(</span><span class="n">Edge</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">tokenizerVertex</span><span class="o">,</span> <span class="n">sumVertex</span><span class="o">,</span> <span class="n">edgeConf</span><span class="o">.</span><span class="na">createDefaultEdgeProperty</span><span class="o">()))</span>
-</span><span class='line'>  <span class="o">.</span><span class="na">addEdge</span><span class="o">(</span><span class="n">Edge</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">sumVertex</span><span class="o">,</span> <span class="n">writerVertex</span><span class="o">,</span> <span class="n">sorterEdgeConf</span><span class="o">.</span><span class="na">createDefaultEdgeProperty</span><span class="o">()));</span>
+</span><span class='line'>    <span class="o">.</span><span class="na">addVertex</span><span class="o">(</span><span class="n">tokenizerVertex</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">.</span><span class="na">addVertex</span><span class="o">(</span><span class="n">sumVertex</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">.</span><span class="na">addVertex</span><span class="o">(</span><span class="n">writerVertex</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">.</span><span class="na">addEdge</span><span class="o">(</span><span class="n">Edge</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">tokenizerVertex</span><span class="o">,</span> <span class="n">sumVertex</span><span class="o">,</span> <span class="n">tokenSumEdge</span><span class="o">.</span><span class="na">createDefaultEdgeProperty</span><span class="o">()))</span>
+</span><span class='line'>    <span class="o">.</span><span class="na">addEdge</span><span class="o">(</span><span class="n">Edge</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">sumVertex</span><span class="o">,</span> <span class="n">writerVertex</span><span class="o">,</span> <span class="n">sumWriterEdge</span><span class="o">.</span><span class="na">createDefaultBroadcastEdgeProperty</span><span class="o">()));</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -394,7 +396,7 @@ define the data movements with edges.</p>
 <p>In the last Vertex we start collecting the grouped sorted data so we can take the first K elements. This part kills the parallelism as
 we need to see the global picture here, that&rsquo;s why you can see that the parallelism is
 <a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/tez-topk/src/main/java/com/sequenceiq/tez/topk/TopK.java#L129">set</a> to <code>1</code>.
-We didn&rsquo;t specify it in the previous 2 Vertices which means that this will be decided at run time.</p>
+Leaving the parallelism undefined or -1 results that the number of launched tasks will be determined by the <code>ApplicationMaster</code>.</p>
 
 <h3>TopK DataGen</h3>
 
