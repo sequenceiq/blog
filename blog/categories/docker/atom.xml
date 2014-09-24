@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Docker | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/docker/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-24T14:19:42+00:00</updated>
+  <updated>2014-09-24T15:35:50+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -44,6 +44,9 @@ regular job, and work full time on an open-source project!</p>
 <p>You can use zedapp as a <em>chrome plugin</em> or a <em>standalone</em> app. Downloads are
 available at: <a href="http://zedapp.org/download/">zedapp.org</a>. I recommend to
 go for the <strong>standalone</strong> version.</p>
+
+<!-- more -->
+
 
 <h2>Install zedrem</h2>
 
