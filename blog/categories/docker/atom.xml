@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Docker | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/docker/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-24T15:35:50+00:00</updated>
+  <updated>2014-09-24T16:22:31+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -28,7 +28,7 @@ an easier way to edit files in a running docker container. First of all try to
 <h2>Why Zedapp</h2>
 
 <p>Most of the time I use either vi or <a href="https://atom.io/">Atom</a>, but a few months
-ago I stumbled upon <a href="zedapp.org">Zedapp</a> an opinionated editor. It aims to
+ago I stumbled upon <a href="http://zedapp.org/">Zedapp</a> an opinionated editor. It aims to
 reduce cognitive load while editing, by simplifying things, like deliberately
 not using tabs.</p>
 
