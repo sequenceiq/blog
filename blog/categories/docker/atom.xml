@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Docker | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/docker/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-24T14:18:56+00:00</updated>
+  <updated>2014-09-24T14:19:42+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,157 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Edit files in Docker containers]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/24/edit-files-docker/"/>
+    <updated>2014-09-24T13:53:04+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/24/edit-files-docker</id>
+    <content type="html"><![CDATA[<p>I wish I get 1 dollar each time I install vi in a docker container &hellip; I wanted
+an easier way to edit files in a running docker container. First of all try to
+<strong>avoid</strong> editing files at all, as it is against the container philosophy
+(see the last paragraph).</p>
+
+<p>But if you have a valid reason, here comes the how-to.</p>
+
+<h2>Why Zedapp</h2>
+
+<p>Most of the time I use either vi or <a href="https://atom.io/">Atom</a>, but a few months
+ago I stumbled upon <a href="zedapp.org">Zedapp</a> an opinionated editor. It aims to
+reduce cognitive load while editing, by simplifying things, like deliberately
+not using tabs.</p>
+
+<p>It stands out with its <strong>first-class support of remote editing</strong> let it be a
+remote server, or even directly editing github repositories.</p>
+
+<p>Zedapp just reached version 1.0 and if you like it, consider help Zef Hemmel
+at <a href="https://gratipay.com/zefhemel/">gratipay</a>, who was brave enough to quit his
+regular job, and work full time on an open-source project!</p>
+
+<h2>Install Zedapp</h2>
+
+<p>You can use zedapp as a <em>chrome plugin</em> or a <em>standalone</em> app. Downloads are
+available at: <a href="http://zedapp.org/download/">zedapp.org</a>. I recommend to
+go for the <strong>standalone</strong> version.</p>
+
+<h2>Install zedrem</h2>
+
+<p>For <a href="http://zedapp.org/features/edit-remote-files/">remote editing</a>,
+you need zedrem, a small process serving files to be edited in Zedapp.
+Zedrem is packaged into a docker image:
+<a href="https://github.com/sequenceiq/docker-zedapp">sequenceiq/zedapp</a></p>
+
+<p>To start a local zed-server, and zed-client in the target container, there
+is a helper script: <strong>zed</strong></p>
+
+<p>To install the docker image and the shell script run this:
+<code>
+docker run --rm \
+  -v /usr/local/bin:/target \
+  -v /usr/local/bin/docker:/usr/local/bin/docker \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  sequenceiq/zedapp
+</code></p>
+
+<p>Actually there is only a single binary called <strong>zedrem</strong>, i just use the
+terminology: zed-server and zed-client to
+distinguish when you use it with or without the <code>--server</code> option.</p>
+
+<p>Now you are ready to start a zedrem session, to edit files in Zedapp which are
+inside of a Docker container&rsquo;s directory.</p>
+
+<h2>Start a zedrem session</h2>
+
+<p>To start a zedrem client in a container
+<code>
+zed &lt;container&gt; &lt;directory&gt;
+</code></p>
+
+<p>This will:
+&ndash; start a <code>zedrem-server</code> if not already running.
+&ndash; copy and start <code>zedrem-client</code> into the selected container and print out
+  the zedrem session&rsquo;s <strong>remote-url</strong>.</p>
+
+<p>Navigate to the project list window by: <code>Command-Shift-O</code>/<code>Ctrl-Shift-O</code>. Select
+ <code>Remote Folder</code>, enter the remote-url into <code>Zedrem URL</code> input field and press
+ <code>Open</code>.</p>
+
+<p>Thats all enyoj! All the following paragraphs are for the curious only.</p>
+
+<h2>Boot2docker helper function</h2>
+
+<p>The <code>Install zedrem</code> step should have detected that you are using Boot2docker,
+and instructed you to create a helper function, but in case you missed it, or
+for reference:</p>
+
+<p><code>
+zed() { boot2docker ssh "sudo zed $@" ; }
+</code>
+This is needed as the helper script called <code>zed</code> is installed inside of
+Boot2docker, so you need the ususal <code>boot2docker ssh</code> workaround.</p>
+
+<p>after that you can issue directly on OSX:
+<code>
+zed &lt;container&gt; &lt;directory&gt;
+</code></p>
+
+<h2>Local zedrem server.</h2>
+
+<p>By default when you want to use Zedapp for remote editing, you need two
+other components then Zedapp:</p>
+
+<ul>
+<li><strong>zedrem-server</strong> Zedapp gets file content, and sends edit commands
+on webservices protocol. It maintains sessions with zedrem-clients.</li>
+<li><strong>zedrem-client</strong> a small process serving files from a specified directory.</li>
+</ul>
+
+
+<p>When you use zedrem-client via the official server, all the editing commands/content
+travel around the blobe:</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/docker-zedapp/master/images/zed-remote.png" alt="zedrem remote" /></p>
+
+<p>Compare it with the dockerized local server setup, which is more quick and
+secure:
+<img src="https://raw.githubusercontent.com/sequenceiq/docker-zedapp/master/images/zed-docker.png" alt="zedrem docker" /></p>
+
+<h2>nsenter</h2>
+
+<p>You might wonder about the step: <strong>copy zedrem into the container</strong>. How is it
+possible? Docker&rsquo;s <code>cp</code> command only supportts the other direction: copy from a
+container into a local dir.</p>
+
+<p>There is an <a href="https://github.com/docker/docker/issues/5846">open issue</a>, so it
+will be fixed soon, but meanwhile you can use nsenter to the rescue. Jérôme
+Petazzoni prepared us a canned <a href="https://github.com/jpetazzo/nsenter">nsenter</a>
+with the helper script: <code>docker-enter</code>. We can missuse docker-enter to copy
+a file from local fs into the container by:</p>
+
+<p><code>
+cat local-file | docker-enter $container sh -c 'cat&gt;/zedrem'
+</code></p>
+
+<p>btw: <code>docker exec</code> is already merged into the master branch, so it will replace
+nsenter completely.</p>
+
+<h2>Don&rsquo;t do this at all</h2>
+
+<p>Let&rsquo;s make it clear, that most of the time you don&rsquo;t need this.
+First of all editing files in a container, other than development or debug
+considered bad practice.</p>
+
+<p>You find yourself editing nginx config files? Don&rsquo;t do it, use the great generic
+<a href="https://github.com/progrium/nginx-appliance">nginx appliance</a> from Jeff Lindsay.</p>
+
+<p>If you <strong>really</strong> need to edit files in a docker container, just use volumes.</p>
+
+<p>This process comes handy if you&rsquo;ve already started a container, and the file in
+question doesn&rsquo;t sits on a volume.</p>
+
+<p>If you have any questions or suggestions you can reach us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Apache Tez cluster on Docker]]></title>
@@ -450,104 +601,6 @@ cd $HADOOP_PREFIX</p>
 <p>The Hadoop build process is no easy task &ndash; requires lots of libraries and their right version, protobuf, etc and takes some time &ndash; we have simplified all these, made the build and released a 64b version of Hadoop nativelibs on our <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.5.0/view/files">Bintray repo</a>. Enjoy.</p>
 
 <p>Should you have any questions let us know through our social channels as <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Apache Drill on Docker - query as a service ]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/09/11/apache-drill-docker/"/>
-    <updated>2014-09-11T16:00:00+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/09/11/apache-drill-docker</id>
-    <content type="html"><![CDATA[<p>As you might be already familiar, we have <code>dockerized</code> most of the Hadoop ecosystem &ndash; we are running MR2, Spark, Storm, Hive, HBase, Pig, Oozie, etc in Docker containers &ndash; on bare metal and in the cloud as well. We have started to use (and contribute) to Docker quite a while ago, and beside the <code>mainstream</code> benefits of containers one feature was extremely appealing to us &ndash; <strong>the SOA way of DevOps</strong>. Before I go on and explore what we mean under this allow me to collect a few links for your reference (all open sourced under an <strong>Apache 2 license</strong>), in case you plan to use Hadoop in Docker containers.</p>
-
-<table>
-<thead>
-<tr>
-<th></th>
-<th> Name                  </th>
-<th> Description </th>
-<th> Documentation </th>
-<th> GitHub</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td> Apache Hadoop  </td>
-<td> Pseudo dist. container </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/">http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/</a> </td>
-<td> <a href="https://github.com/sequenceiq/hadoop-docker">https://github.com/sequenceiq/hadoop-docker</a></td>
-</tr>
-<tr>
-<td></td>
-<td> Apache Ambari   </td>
-<td> Multi node &ndash; full Hadoop stack, blueprint based </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/</a> </td>
-<td> <a href="https://github.com/sequenceiq/docker-ambari">https://github.com/sequenceiq/docker-ambari</a></td>
-</tr>
-<tr>
-<td></td>
-<td> Cloudbreak         </td>
-<td> Cloud agnostic Hadoop as a Service </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/</a> </td>
-<td> <a href="https://github.com/sequenceiq/cloudbreak">https://github.com/sequenceiq/cloudbreak</a></td>
-</tr>
-<tr>
-<td></td>
-<td> Periscope          </td>
-<td> SLA policy based autoscaling for Hadoop clusters </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/</a> </td>
-<td> <a href="https://github.com/sequenceiq/periscope">https://github.com/sequenceiq/periscope</a> </td>
-</tr>
-</tbody>
-</table>
-
-
-<h2>Apache Drill at SequenceIQ</h2>
-
-<p><a href="http://incubator.apache.org/drill/">Apache Drill</a> is an open source, low latency SQL query engine for Hadoop and NoSQL. It has many nice and interesting features, but one of the most interesting one (at least for us) is the <a href="https://cwiki.apache.org/confluence/display/DRILL/Storage+Plugin+Registration">storage plugin</a> and the tolerance/support for dynamic schemas. At <a href="http://sequenceiq.com/">SequenceIQ</a> the pre and post processed data ends up in different storage systems/layers. Obliviously we use HDFS, for low latency queries we use HBase and recently (with the emergence of Tez &ndash; which we consider the next big thing) we started to use Hive as well. Quite often there is a need to access the data from <code>legacy</code> systems &ndash; and more often we see <code>SQL</code> coming back in the picture. Just FYI, for SQL on HBase we are using <a href="http://phoenix.apache.org/">Apache Phoenix</a>, and of course we have released and open sourced a <a href="http://blog.sequenceiq.com/blog/2014/09/04/sql-on-hbase-with-apache-phoenix/">Docker container</a>.</p>
-
-<p>As you see there are many storage systems use &ndash; and Drill helps us with aggregating these under one common <code>ANSI SQL syntax</code>. You can query data from HDFS, HBase, Hive, local or remote distributed file system &ndash; or write your own custom storage plugin.</p>
-
-<!-- more -->
-
-
-<h3>Lifecycle of a Drill query</h3>
-
-<p>Let’s take a simple example (from the Drill samples), where we query a file, with a <code>WHERE</code> clause. Your statement is submitted in <code>Sqlline</code> &ndash; a very popular (used with our Phoenix container as well) Java interface which can talk to a JDBC driver. The <code>SELECT</code> statement is passed into <a href="http://optiq.incubator.apache.org/">Optiq</a>. Optiq is a library for query parsing and planning, and allows pluggable transformation rules. Optiq also has a cost-based query optimizer. At high level, based on the above the statements are converted into Drill <code>logical operators</code>, and form a Drill logical plan. This plan is then submitted into one <code>DrillBit service</code> &ndash; usually running on each datanode, to benefit on the data locality, during query execution. This logical plan is then transformed into a physical plan &ndash; a simple DAG  of physical operators &ndash; using a Drill’s <code>optimizer</code>. This physical plan is broken into a multi-level execution tree (hello MPP) that is executed by multiple DrillBits. The story goes on as there are statistics collected, endpoint affinities are checked (metadata based preferred endpoint selection) and the plan is broken in fragments, but at a high level this is the execution flow.
-There are some interesting things going on under the hood which we can cover it one of the following posts &ndash; about writing our custom storage plugin.</p>
-
-<h2>Apache Drill on Docker</h2>
-
-<p>Now as you have a good overview about the capabilities of Drill, we’d like to expand on what we mean under <strong>SOA way of DevOps</strong>. Though Drill is a complex piece of software, essentially the provided service is extremely simple: <em>queries data</em>. We have created a <a href="https://registry.hub.docker.com/u/sequenceiq/drill/">Drill Docker</a> container and wrapped the <code>query</code> service inside. If you’d like to use Drill, the only thing you will have to do is to launch our Drill container &ndash; the <code>query service</code> is available <em>as a Service</em>. We have built the container in such a way that the data layer is separated from the <code>query service</code> &ndash; you can launch the container when and where you’d like to do, and attach the data using volumes. Once the data layer is attached, the only remaining thing is to let Drill know where to query &ndash; by either using one of the existing, or creating a new storage configuration.</p>
-
-<h3>Pull the container</h3>
-
-<p>The Drill container is available as a trusted build on Docker.io. You can get and start using it &ndash; the only prerequisite is to have Docker installed.</p>
-
-<p><code>docker pull sequenceiq/drill</code></p>
-
-<h3>Use the container</h3>
-
-<p>Once the container is pulled you are ready to query your data by running:</p>
-
-<p><code>docker run -it -v /data:/data sequenceiq/drill /etc/bootstrap.sh</code></p>
-
-<p>Note that the <code>-v /data:/data</code> flag specifies that you are mounting your <code>/data</code> directory on the host into a <code>/data</code> directory inside the container. The files inside the directory will be available for Drill to query, by either using the default <code>dfs</code> storage plugin, or by a custom one. To check, or create a storage plugin or to access the Drill UI you should go to <code>http://CONTAINER_IP:8047</code>. You can find your container IP by using <code>docker inspect ID</code>.</p>
-
-<p>In case you don&rsquo;t have any data, but would still like to explore Drill, start the contaier as:</p>
-
-<p><code>docker run -it sequenceiq/drill /etc/bootstrap.sh</code></p>
-
-<p>The sample data installed by default with Drill is available inside the container, thus you&rsquo;d be able to run all the Drill examples/tutorials.</p>
-
-<h3>Drill Rest API</h3>
-
-<p>Get Drillbit status: <code>http://localhost:8047/status</code>
-Get all submitted queries: <code>http://localhost:8047/queries</code>
-Get status of a given query:<code>http://localhost:8047/query/{QUERY_ID}</code></p>
-
-<p>The next version of the container will be a fully distributed (based on our Hadoop container and Hazelcast) Apache Drill Docker container. Until then feel free to let us know how you <code>drill</code> and follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   

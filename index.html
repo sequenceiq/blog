@@ -130,6 +130,201 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/09/24/edit-files-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">24 September 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
+            
+            <a href="/blog/categories/zedapp/"><span class="label label-warning">Zedapp</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/09/24/edit-files-docker/">Edit files in Docker containers</a>
+          <span class="badge name-badge">Lajos Papp</span>
+
+      </h1>
+      <p>I wish I get 1 dollar each time I install vi in a docker container &hellip; I wanted
+an easier way to edit files in a running docker container. First of all try to
+<strong>avoid</strong> editing files at all, as it is against the container philosophy
+(see the last paragraph).</p>
+
+<p>But if you have a valid reason, here comes the how-to.</p>
+
+<h2>Why Zedapp</h2>
+
+<p>Most of the time I use either vi or <a href="https://atom.io/">Atom</a>, but a few months
+ago I stumbled upon <a href="zedapp.org">Zedapp</a> an opinionated editor. It aims to
+reduce cognitive load while editing, by simplifying things, like deliberately
+not using tabs.</p>
+
+<p>It stands out with its <strong>first-class support of remote editing</strong> let it be a
+remote server, or even directly editing github repositories.</p>
+
+<p>Zedapp just reached version 1.0 and if you like it, consider help Zef Hemmel
+at <a href="https://gratipay.com/zefhemel/">gratipay</a>, who was brave enough to quit his
+regular job, and work full time on an open-source project!</p>
+
+<h2>Install Zedapp</h2>
+
+<p>You can use zedapp as a <em>chrome plugin</em> or a <em>standalone</em> app. Downloads are
+available at: <a href="http://zedapp.org/download/">zedapp.org</a>. I recommend to
+go for the <strong>standalone</strong> version.</p>
+
+<h2>Install zedrem</h2>
+
+<p>For <a href="http://zedapp.org/features/edit-remote-files/">remote editing</a>,
+you need zedrem, a small process serving files to be edited in Zedapp.
+Zedrem is packaged into a docker image:
+<a href="https://github.com/sequenceiq/docker-zedapp">sequenceiq/zedapp</a></p>
+
+<p>To start a local zed-server, and zed-client in the target container, there
+is a helper script: <strong>zed</strong></p>
+
+<p>To install the docker image and the shell script run this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run --rm \
+</span><span class='line'>  -v /usr/local/bin:/target \
+</span><span class='line'>  -v /usr/local/bin/docker:/usr/local/bin/docker \
+</span><span class='line'>  -v /var/run/docker.sock:/var/run/docker.sock \
+</span><span class='line'>  sequenceiq/zedapp</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Actually there is only a single binary called <strong>zedrem</strong>, i just use the
+terminology: zed-server and zed-client to
+distinguish when you use it with or without the <code>--server</code> option.</p>
+
+<p>Now you are ready to start a zedrem session, to edit files in Zedapp which are
+inside of a Docker container&rsquo;s directory.</p>
+
+<h2>Start a zedrem session</h2>
+
+<p>To start a zedrem client in a container</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>zed &lt;container&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This will:
+&ndash; start a <code>zedrem-server</code> if not already running.
+&ndash; copy and start <code>zedrem-client</code> into the selected container and print out
+  the zedrem session&rsquo;s <strong>remote-url</strong>.</p>
+
+<p>Navigate to the project list window by: <code>Command-Shift-O</code>/<code>Ctrl-Shift-O</code>. Select
+ <code>Remote Folder</code>, enter the remote-url into <code>Zedrem URL</code> input field and press
+ <code>Open</code>.</p>
+
+<p>Thats all enyoj! All the following paragraphs are for the curious only.</p>
+
+<h2>Boot2docker helper function</h2>
+
+<p>The <code>Install zedrem</code> step should have detected that you are using Boot2docker,
+and instructed you to create a helper function, but in case you missed it, or
+for reference:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>zed() { boot2docker ssh "sudo zed $@" ; }</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is needed as the helper script called <code>zed</code> is installed inside of
+Boot2docker, so you need the ususal <code>boot2docker ssh</code> workaround.</p>
+
+<p>after that you can issue directly on OSX:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>zed &lt;container&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Local zedrem server.</h2>
+
+<p>By default when you want to use Zedapp for remote editing, you need two
+other components then Zedapp:</p>
+
+<ul>
+<li><strong>zedrem-server</strong> Zedapp gets file content, and sends edit commands
+on webservices protocol. It maintains sessions with zedrem-clients.</li>
+<li><strong>zedrem-client</strong> a small process serving files from a specified directory.</li>
+</ul>
+
+
+<p>When you use zedrem-client via the official server, all the editing commands/content
+travel around the blobe:</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/docker-zedapp/master/images/zed-remote.png" alt="zedrem remote" /></p>
+
+<p>Compare it with the dockerized local server setup, which is more quick and
+secure:
+<img src="https://raw.githubusercontent.com/sequenceiq/docker-zedapp/master/images/zed-docker.png" alt="zedrem docker" /></p>
+
+<h2>nsenter</h2>
+
+<p>You might wonder about the step: <strong>copy zedrem into the container</strong>. How is it
+possible? Docker&rsquo;s <code>cp</code> command only supportts the other direction: copy from a
+container into a local dir.</p>
+
+<p>There is an <a href="https://github.com/docker/docker/issues/5846">open issue</a>, so it
+will be fixed soon, but meanwhile you can use nsenter to the rescue. Jérôme
+Petazzoni prepared us a canned <a href="https://github.com/jpetazzo/nsenter">nsenter</a>
+with the helper script: <code>docker-enter</code>. We can missuse docker-enter to copy
+a file from local fs into the container by:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cat local-file | docker-enter $container sh -c 'cat&gt;/zedrem'</span></code></pre></td></tr></table></div></figure>
+
+
+<p>btw: <code>docker exec</code> is already merged into the master branch, so it will replace
+nsenter completely.</p>
+
+<h2>Don&rsquo;t do this at all</h2>
+
+<p>Let&rsquo;s make it clear, that most of the time you don&rsquo;t need this.
+First of all editing files in a container, other than development or debug
+considered bad practice.</p>
+
+<p>You find yourself editing nginx config files? Don&rsquo;t do it, use the great generic
+<a href="https://github.com/progrium/nginx-appliance">nginx appliance</a> from Jeff Lindsay.</p>
+
+<p>If you <strong>really</strong> need to edit files in a docker container, just use volumes.</p>
+
+<p>This process comes handy if you&rsquo;ve already started a container, and the file in
+question doesn&rsquo;t sits on a volume.</p>
+
+<p>If you have any questions or suggestions you can reach us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+
+      
+      
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/09/23/topn-on-apache-tez/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -849,78 +1044,6 @@ Yes!</p>
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/09/01/sla-samples-periscope/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">01 September 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/autoscaling/"><span class="label label-warning">Autoscaling</span></a>
-            
-            <a href="/blog/categories/cloud/"><span class="label label-warning">Cloud</span></a>
-            
-            <a href="/blog/categories/periscope/"><span class="label label-warning">Periscope</span></a>
-            
-            <a href="/blog/categories/qos/"><span class="label label-warning">QoS</span></a>
-            
-            <a href="/blog/categories/sla/"><span class="label label-warning">SLA</span></a>
-            
-            <a href="/blog/categories/schedulers/"><span class="label label-warning">Schedulers</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/09/01/sla-samples-periscope/">SLA policies for autoscaling Hadoop clusters</a>
-          <span class="badge name-badge">Janos Matyas</span>
-
-      </h1>
-      <p>Last week we have <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">announced</a> and open sourced <a href="http://sequenceiq.com/periscope/">Periscope</a> &ndash; the industry’s first SLA policy based autoscaling API for Hadoop YARN clusters. In this post we’d like to come up with some examples, setting up alarms and attach scaling policies to your Hadoop cluster.</p>
-
-<p>Periscope is built on existing (and coming/contributed by us) features provided by Apache Hadoop, YARN, Ambari, Docker containers and SequenceIQ’s <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>. Just FYI, <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> is our open source and cloud agnostic Hadoop as a Service API, built on Docker containers. While Periscope can attach scaling policies to <code>static</code> and <code>dynamic</code> clusters &ndash; in this post we’d like to emphasize Periscope’s capabilities while working with &mdash; `dynamic &ndash; cloud based Hadoop deployments  &ndash; such as Hadoop clusters deployed with <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>.</p>
-
-<p>SLAs policies are configured based on <code>alarms</code>, whereas an alarm is created based on <code>metrics</code> &ndash; these entities are explained below.</p>
-
-<h2>Alarms</h2>
-
-<p>An alarm watches a <code>metric</code> over a specified time period, and used by one or more action or scaling policy based on the value of the metric relative to a given threshold over the time period. A few of the supported <code>metrics</code> are listed below:</p>
-
-<p>*<code>PENDING_CONTAINERS</code>&ndash; pending YARN containers</p>
-
-<p>*<code>PENDING_APPLICATIONS</code> &ndash; pending/queued YARN applications</p>
-
-<p>*<code>LOST_NODES</code> &ndash; cluster nodes lost</p>
-
-<p>*<code>UNHEALTHY_NODES</code> &ndash; unhealthy cluster nodes</p>
-
-<p>*<code>GLOBAL_RESOURCES</code> &ndash; global resources</p>
-
-
-      
-       <a href="/blog/2014/09/01/sla-samples-periscope/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -940,6 +1063,10 @@ Yes!</p>
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/09/24/edit-files-docker/">Edit files in Docker containers</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/09/23/topn-on-apache-tez/">TopK on Apache Tez</a>
