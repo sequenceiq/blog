@@ -130,6 +130,59 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/09/25/strata-hadoop-world-2014/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">25 September 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/hadoop-world/"><span class="label label-warning">Hadoop World</span></a>
+            
+            <a href="/blog/categories/startup/"><span class="label label-warning">Startup</span></a>
+            
+            <a href="/blog/categories/strata/"><span class="label label-warning">Strata</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/09/25/strata-hadoop-world-2014/">Strata + Hadoop World 2014 Startup Showcase</a>
+          <span class="badge name-badge">Janos Matyas</span>
+
+      </h1>
+      <p><a href="http://sequenceiq.com">SequenceIQ</a> is happy to announce that it has been selected among the top 10 leading big data startups by a team of investors, entrepreneurs, and industry analysts and will present live at the Startup Showcase at <strong>Strata + Hadoop World 2014, New York.</strong></p>
+
+<p>We will have a space in the showcase to win over the judges, and pitch our company and innovative technology to the thousands of developers, founders, executives, investors and researchers that attend <a href="http://strataconf.com/stratany2014">Strata</a>.</p>
+
+<p>Come and watch our showcase on Wednesday, October 15 or catch up with us during the conference (@sequenceiq).</p>
+
+<p>Stay in touch with us through <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+
+      
+      
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/09/24/edit-files-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -832,94 +885,6 @@ for a more detailed reference.</p>
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/09/04/sql-on-hbase-with-apache-phoenix/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">04 September 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/apache-phoenix/"><span class="label label-warning">Apache Phoenix</span></a>
-            
-            <a href="/blog/categories/hbase/"><span class="label label-warning">HBase</span></a>
-            
-            <a href="/blog/categories/jooq/"><span class="label label-warning">Jooq</span></a>
-            
-            <a href="/blog/categories/sql/"><span class="label label-warning">SQL</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/09/04/sql-on-hbase-with-apache-phoenix/">SQL on HBase with Apache Phoenix</a>
-          <span class="badge name-badge">Krisztian Horvath</span>
-
-      </h1>
-      <p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we use HBase to store large amounts of high velocity data and interact with them &ndash; many times we use native HBase interfaces but recently there was a need (internal and external) to access the data through an SQL interface.</p>
-
-<h2>Introduction</h2>
-
-<p>HBase is an open-source, distributed, versioned, non-relational database modeled after Google&rsquo;s Bigtable. It&rsquo;s designed to handle
-billions of rows and millions of columns. However, using it as a relational database where you would store your data normalized,
-split into multiple tables is not easy and most likely you will struggle with it as you would do in any other non-relational database.
-Here comes <a href="http://phoenix.apache.org/">Apache Phoenix</a> in the picture. It&rsquo;s an SQL skin over HBase delivered as a
-client-embedded JDBC driver targeting low latency queries. The project is in incubating state and under heavy development, but you
-can already start embracing it.</p>
-
-<h2>Installation</h2>
-
-<p>Download the appropriate distribution from <a href="http://xenia.sote.hu/ftp/mirrors/www.apache.org/phoenix/">here</a>:</p>
-
-<ul>
-<li>Phoenix 3.x &ndash; HBase 0.94.x</li>
-<li>Phoenix 4.x &ndash; HBase 0.98.1+</li>
-</ul>
-
-
-<p><em>Note the compatibilities between the HBase and Phoenix versions</em></p>
-
-<p>Alternatively you can clone the <a href="https://github.com/apache/phoenix/tree/4.0">repository</a> and build it yourself (mvn clean install -DskipTests).
-It should produce a jar file like this: phoenix-<code>version</code>-client.jar. Copy it to HBase&rsquo;s classpath (easiest way is to copy into
-HBASE_HOME/lib). If you have multiple nodes it has to be there on every node. Restart the RegionServers and you are good to go. That&rsquo;s it?
-Yes!</p>
-
-<h2>Sample</h2>
-
-<p>We&rsquo;ve pre-cooked a <a href="https://github.com/sequenceiq/phoenix-docker">Docker</a> image for you so you can follow this sample and play with it (the image is based on Hadoop 2.5, HBase 0.98.5, Phoenix 4.1.0):</p>
-
-<h3>Normal launch</h3>
-
-<p><code>docker run -it sequenceiq/phoenix:v4.1onHbase-0.98.5</code></p>
-
-<h3>Alternative launch with sqlline</h3>
-
-<p><code>docker run -it sequenceiq/phoenix:v4.1onHbase-0.98.5 /etc/bootstrap-phoenix.sh -sqlline</code></p>
-
-
-      
-       <a href="/blog/2014/09/04/sql-on-hbase-with-apache-phoenix/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -939,6 +904,10 @@ Yes!</p>
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/09/25/strata-hadoop-world-2014/">Strata + Hadoop World 2014 Startup Showcase</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/09/24/edit-files-docker/">Edit files in Docker containers</a>
