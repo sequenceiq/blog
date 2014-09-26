@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: devops | SequenceIQ Blog]]></title>
+  <title><![CDATA[Category: DevOps | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/devops/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-26T16:25:17+00:00</updated>
+  <updated>2014-09-26T16:44:07+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -14,258 +14,380 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Building the build environment with Ansible and Docker]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/05/09/building-the-build-environment-with-ansible-and-docker/"/>
-    <updated>2014-05-09T11:51:57+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/05/09/building-the-build-environment-with-ansible-and-docker</id>
-    <content type="html"><![CDATA[<p>At SequenceIQ we put a strong emphasis on automating everything we can and this automation starts with our continuous integration &amp; delivery process.</p>
+    <title type="html"><![CDATA[Docker debug with nsenter on boot2docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/07/05/docker-debug-with-nsenter-on-boot2docker/"/>
+    <updated>2014-07-05T12:05:41+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/07/05/docker-debug-with-nsenter-on-boot2docker</id>
+    <content type="html"><![CDATA[<p><code>nsenter</code> is a small tool allowing to <code>enter</code> into <code>n</code>ame<code>s</code>paces. Specifically
+when you work with docker, it means you can <em>enter</em> any docker container, even
+it they don&rsquo;t run any sshd. Running sshd in a docker container for debuging
+<a href="http://jpetazzo.github.io/2014/06/23/docker-ssh-considered-evil/">considered evil</a>.</p>
 
-<h2>Introduction</h2>
+<h2>Nsenter with Boot2docker</h2>
 
-<p>Lately there is a lot of buzz around continuous integration, development and deployment. More and more companies are moving away from long release cycles towards the &ldquo;release early, release often&rdquo; approach. The advantages of this approach are well known: lower overhead, earlier bug discovery and bug fixing, fewer context switches for the developers to name just a few. There are very good resources to learn about these concepts &ndash; blog posts by different companies (e.g.: by <a href="http://techblog.netflix.com/2013/08/deploying-netflix-api.html">Netflix</a>) and of course the <a href="http://www.amazon.com/dp/0321601912">book</a> &lsquo;Continuous Delivery&rsquo; by Jez Humble and David Farley &ndash; we&rsquo;ll now try to add our own experiences as well.</p>
+<p>Docker doesn&rsquo;t run directly on OS X and on Windows, so you need
+<a href="http://boot2docker.io/">boot2docker</a>. To get <code>nsenter</code> working with boot2docker
+is a bit trickier.</p>
 
-<p>We&rsquo;ll share two blog posts about our continuous delivery at SequenceIQ: the first one being an introductory post about some tools we use to make the whole process easier and more robust, the second one explains the <a href="http://scottchacon.com/2011/08/31/github-flow.html">flow</a> we use from committing changes to being the changes available in our different environments.</p>
+<p>For the impatient here is a simple function, which lets you enter any docker
+container directly from OS X (or any boot2docker host):</p>
 
-<h2>Tools</h2>
+<p><code>
+docker-enter() {
+  boot2docker ssh '[ -f /var/lib/boot2docker/nsenter ] || docker run --rm -v /var/lib/boot2docker/:/target jpetazzo/nsenter'
+  boot2docker ssh -t sudo /var/lib/boot2docker/docker-enter "$@"
+}
+</code></p>
 
-<p>Our CI and CD process at SequenceIQ is based on Ansible, Jenkins and of course Docker.
-When we started to build our own process, we decided that we don&rsquo;t want to commit the same mistake that a lot of companies make about their build environment. At these companies the build servers where Jenkins and/or the other build tools are installed are often prepared once in the far past by someone who probably doesn&rsquo;t work there anymore. It quickly becomes something that everyone is afraid to touch and just hope that it will work forever. As the projects improve there will be a lot of different tools with a lot of different versions on the build machine and soon it leads to a small chaos, where the maintenance will involve a lot of hard manual work. To get rid of these problems, we use <a href="http://www.ansible.com/">Ansible</a> to &ldquo;build the build infrastructure&rdquo;, and Docker to run the builds in separated self-sufficient containers.</p>
+<p>the first line installs <code>nsenter</code> and <code>docker-enter</code> if missing and the second line
+does the actual call.</p>
+
+<p>once you declared the function, you can use it as:</p>
+
+<p><code>
+docker-enter &lt;CONTAINER-ID/CONTAINER-NAME&gt;
+</code></p>
 
 <!-- more -->
 
 
-<h2>Ansible</h2>
+<h2>TL;DR</h2>
 
-<p>We have an Ansible script which starts an EC2 instance in the cloud and provisions everything on this server automatically. This script can be easily executed with a single command from a developer laptop:</p>
+<p>If you are interested about the details how this works read on.</p>
+
+<h2>Install nseneter onto boot2docker</h2>
+
+<p>How to install nsenter into boot2docker? Its a bit tricky, as boot2docker isn&rsquo;t
+a full-blown linux, it&rsquo;s based on tiny core linux, so compiling on it is not trivial.</p>
+
+<p>But guess what, <strong>jpetazzo</strong> already created a <a href="https://github.com/jpetazzo/nsenter">dockerized nsenter</a>
+It suggest to install the binary <code>nsenter</code> as:</p>
 
 <p><code>
-ansible-playbook -i hosts ci.yml
+docker run --rm -v /usr/local/bin:/target jpetazzo/nsenter
 </code></p>
 
-<p>To run this command Ansible, python and some python modules must be installed on the local machine. To avoid having different version of these tools on the development machines we automated the installation of our development environment too &ndash; maybe the topic of another post in the future.
-So let&rsquo;s see how the Ansible script works exactly.</p>
+<p>This works with boot2docker &hellip; until you restart it. You should store all
+changes on the persistent <code>/var/lib/boot2docker</code> directory.</p>
 
-<h3>Creating an instance in the cloud</h3>
+<p><code>
+docker run --rm -v /var/lib/boot2docker/:/target jpetazzo/nsenter
+</code></p>
 
-<p>First it needs to start an instance in the AWS cloud, so it invokes our <strong>ec2 role</strong> on localhost:
-```yaml
-&ndash; name: Request and init EC2 instance
-  hosts: localhost
-  roles:</p>
+<h2>the docker-enter script</h2>
 
-<pre><code> - ec2
-</code></pre>
-
-<p>```</p>
-
-<p>The ec2 role requests an EC2 spot priced instance and associates it with an elastic IP. We can easily use a spot priced instance because if it gets shut down by AWS we can recreate it in a few minutes! Ansible has a few <a href="http://docs.ansible.com/list_of_cloud_modules.html">cloud modules</a> which makes it quite easy to manage EC2 instances. Requesting a spot priced instance looks like this (the placeholders come from Ansible group variables):
-
-<code>yaml
-- name: Create an EC2 spot priced instance
-  local_action:
-  module: ec2
-  key_name: "{{ ec2.keypair }}"
-  group: "{{ ec2.security_group }}"
-  instance_type: "{{ ec2.instance_type }}"
-  spot_price: "{{ ec2.spot_price }}"
-  image: "{{ ec2.image }}"
-  wait: yes
-  region: "{{ ec2.region }}"
-  id: "{{ ec2.idempotent_id }}"
-  register: ec2result
-</code>
-</p>
-
-<h3>Provisioning the build server</h3>
-
-<p>After the EC2 instance is running and accepting SSH connections, the script can go on and start to install the tools needed. Because almost everything is running in separated Docker containers, we only need 3 things: Docker, Nginx and Jenkins. Installing Docker is pretty easy as the new Amazon Linux AMIs are <a href="http://aws.amazon.com/amazon-linux-ami/2014.03-release-notes/">prepared</a> to run Docker. We only need to install it from Amazon&rsquo;s provided Software Repository, and start the service. It looks like this in the Ansible script:</p>
-
-<p>```yaml
-&ndash; name: Install Docker on Amazon Linux AMI
-  when: ansible_os_family == &ldquo;RedHat&rdquo;
-  yum: name=docker state=present</p>
+<p><a href="https://github.com/jpetazzo/nsenter/blob/master/docker-enter">docker-enter</a> is
+a helper script to do the following 2 steps:</p>
 
 <ul>
-<li>name: Start Docker service
-service: name=docker state=started
-```</li>
+<li>gets the <code>PID</code> of the docker container</li>
+<li>executes <code>nsenter</code> optionally passing the name of a program to execute inside
+the namespace. if no command is specified a shell will be invoked instead.</li>
 </ul>
 
 
-<p>After Docker is installed we can start some containers that are used by some Jenkins builds later (e.g.: a SonarQube server and a MySQL database that holds the results &ndash; we&rsquo;ve created publicly available <a href="https://index.docker.io/u/sequenceiq/sonar-server/">containers</a> on our Github page.</p>
+<p>In the previous step, when you have installed <code>nseneter</code> the <code>docker-enter</code> srcipt
+<a href="https://github.com/jpetazzo/nsenter/blob/master/installer#L6">got installed</a> into the same directory.</p>
 
-<p>To install and configure Nginx we use an <a href="https://galaxy.ansible.com/list#/roles/466">existing role</a> from Ansible Galaxy that is well prepared and easily configurable. We are configuring Nginx to forward requests from port 80 to either Jenkins or Sonar.</p>
+<h2>Nsenter directly from OS X</h2>
 
-<p>For example the configuration for Jenkins is the following in the Ansible group variables:</p>
+<p>Some blogs advise you to first ssh into boot2docker, and use nsenter or docker-enter
+inside of the virtual env. But if you are executing a single command via ssh, you
+can pass the command to the last argument of: <code>boot2docker ssh &lt;COMMAND&gt;</code></p>
 
-<p>```yaml
-nginx_sites:
-  default:</p>
+<h2>One-liner</h2>
 
-<pre><code>- listen 80
-- server_name jenkins.sequenceiq.com
-- location / {
-   proxy_pass http://jenkins;
-   proxy_redirect off;
-   proxy_set_header Host $host;
-   proxy_set_header X-Forwarded-Host $server_name;
-  }
-</code></pre>
+<p>So combine all the steps into a single <strong>one-liner</strong> function:</p>
 
-<p>nginx_configs:
-  proxy:</p>
+<p><code>
+docker-enter() { boot2docker ssh -t "[ -f /var/lib/boot2docker/nsenter ] || docker run --rm -v /var/lib/boot2docker/:/target jpetazzo/nsenter; sudo /var/lib/boot2docker/docker-enter $@"; }
+</code></p>
 
-<pre><code>- proxy_set_header X-Real-IP $remote_addr
-- proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for
-</code></pre>
+<p>If you want it permanently either copy-paste it into your <code>~/.profile</code> or
+<code>~/.bash_profile</code>. Or save it into <code>/usr/local/bin</code>:</p>
 
-<p>  upstream:</p>
+<p><code>
+curl -Lo /usr/local/bin/docker-enter j.mp/docker-enter &amp;&amp; . /usr/local/bin/docker-enter
+</code></p>
 
-<pre><code>- upstream jenkins { server 127.0.0.1:8080 weight=10; }
-</code></pre>
-
-<p>```</p>
-
-<p>The most difficult thing to install is Jenkins: we want our configurations and jobs to be instantly available as well. Jenkins has a <a href="https://wiki.jenkins-ci.org/display/JENKINS/Jenkins+CLI">command-line interface</a> that allows access from a script. It has a lot of built-in commands to manage jobs and other configurations and it even has a command to execute a Groovy script on the server. We use these features extensively to prepare the whole Jenkins environment from sketch. Our Jenkins role (that will be available soon on Ansible Galaxy) is able to do the following:
-&ndash; Install Jenkins and its dependencies, and get the Jenkins CLI jar from the specified URL.
-&ndash; Configure the global Jenkins properties like the mail server, or the properties needed for the Github pull request builder plugin &ndash; it is simply achieved by copying a global config.xml to the Jenkins home directory using Ansible&rsquo;s copy module.
-&ndash; Install and update plugins through the Jenkins CLI. Installing plugins looks like this:</p>
-
-<p>
-<code>yaml
-- name: Install plugins
-  sudo: yes
-  shell: java -jar {{ jenkins.cli_dest }} -s http://localhost:8080/ install-plugin {{item.item}}
-  when: item.stdout.find('false') != -1
-  with_items: check_plugins.results
-  notify:
-  - 'Restart Jenkins'
-</code>
-</p>
-
-<ul>
-<li>Configure security (we use Github OAuth). The Jenkins CLI doesn&rsquo;t have any dedicated commands for setting security, but it can be configured with a Groovy script that can be invoked from the CLI:</li>
-</ul>
-
-
-<p>```groovy
-def githubSecurityRealm = new org.jenkinsci.plugins.GithubSecurityRealm(&ldquo;<a href="https://github.com">https://github.com</a>&rdquo;, &ldquo;<a href="https://api.github.com">https://api.github.com</a>&rdquo;, clientId, clientSecret)
-def authorizationStrategy = new org.jenkinsci.plugins.GithubAuthorizationStrategy(&ldquo;admin1,admin2&rdquo;,true,&ldquo;organization name&rdquo;,true,false,false)
-jenkins.model.Jenkins.instance.setSecurityRealm(githubSecurityRealm)
-jenkins.model.Jenkins.instance.setAuthorizationStrategy(authorizationStrategy)
-jenkins.model.Jenkins.instance.save()</p>
-
-<p>```</p>
-
-<ul>
-<li><p>Copy private keys for Github builds &ndash; it simply copies the predefined private SSH keys from a local directory to the <code>~/.ssh</code> directory of the Jenkins user. We use a dedicated Github user to communicate with Github from Jenkins.</p></li>
-<li><p>Creating jobs from XML configuration. The Jenkins CLI supports the creation of Jenkins jobs through the create-job command that accepts an XML file as input that defines the Jenkins job. Currently our Jenkins role works by invoking this command for every job that is defined in the variables and has a corresponding XML file in a predefined directory.  We are planning to later modify this role to have a template that holds the structure of a Jenkins job XML so it won&rsquo;t be needed to create the whole XML file manually, only the required parameters among the Ansible variables.</p></li>
-</ul>
-
-
-<p>
-<code>yaml
-- name: Create jenkins jobs
-  shell: java -jar {{ jenkins.cli_dest }} -s http://localhost:8080/ create-job {{ item }} &lt; {{ jenkins.dest }}/{{item}}.xml
-  with_items: jenkins_jobs
-  when: existing_jobs.changed and existing_jobs.stdout.find('{{ item }}') == -1
-</code>
-</p>
-
-<h2>Docker</h2>
-
-<p>The other tool besides Ansible that we use extensively in our build environment is Docker. Docker is a quickly expanding technology that enables the creation of lightweight application containers. If you don&rsquo;t know about Docker yet, check out the official <a href="https://www.docker.io/gettingstarted/">Getting Started guide</a> or our own <a href="http://blog.sequenceiq.com/blog/2014/04/04/hadoop-docker-introduction/">blog post</a> about it.
-With the help of Docker we don&rsquo;t need to worry about the tools needed for the builds or its dependencies on the continuous integration server as they are packaged in separate containers. Every one of our builds on Jenkins are only a few lines that runs a container, maybe copies something out of it and removes the container after it finished. We provide a few environment variables, some shared directories or some links between containers where needed. One of our jobs in Jenkins that builds the master branch looks like this:
-```bash</p>
-
-<h1>!/bin/bash</h1>
-
-<p>docker run -i &mdash;name $BUILD_TAG \
--v &ldquo;/var/lib/jenkins/.gradle-api:/root/.gradle:rw&rdquo; \
--e &ldquo;SONAR_USERNAME=$SONAR_USERNAME&rdquo; \
--e &ldquo;SONAR_PW=$SONAR_PW&rdquo; \
--e &ldquo;BUILD_NUMBER=$BUILD_NUMBER&rdquo; \
--e &ldquo;KEY=$(cat /var/lib/jenkins/.ssh/id_rsa| base64 -w 0)&rdquo; \
--e &ldquo;REPO=$REPO_ADDRESS&rdquo; \
--e &ldquo;BRANCH=master&rdquo; \
--e &ldquo;BUILD_TASKS=clean build sonarRunner uploadArchives&rdquo; \
--e &ldquo;BUILD_ENV=jenkins&rdquo; \
--e &ldquo;GRADLE_OPTS=-XX:MaxPermSize=512m&rdquo; \
-&mdash;link sonar_server:sonar \
-&mdash;link sonar_mysql:sonar_db \
-sequenceiq/build /etc/build-project.sh
-sleep 5
-docker cp $BUILD_TAG:/tmp/prj/build/build.info $WORKSPACE
-docker rm $BUILD_TAG</p>
-
-<p>```</p>
-
-<p>And not only our builds run in Docker, some other tools we use on the build environment also run in containers. For instance our code quality management tool, SonarQube and the MySQL database it uses also runs in separate containers. This way we don&rsquo;t need to install them on the EC2 instance directly, we only need to link them where needed &ndash; see the example above!</p>
-
-<p>In our next blog post about continuous integration we&rsquo;ll explain the process we use at SequenceIQ to continuously deliver the new features to production using the Github flow with Jenkins and Docker.</p>
+<p>Let us know how <code>nsenter</code> works for you &ndash; and for updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Hadoop 2.3 with docker]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/03/19/hadoop-2-dot-3-with-docker/"/>
-    <updated>2014-03-19T03:54:09+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/03/19/hadoop-2-dot-3-with-docker</id>
-    <content type="html"><![CDATA[<p>You want to try out hadoop 2.3? Go to the zoo and <a href="http://sethgodin.typepad.com/seths_blog/2005/03/dont_shave_that.html">shave a yak</a>.
-Or simply just use <a href="https://www.docker.io/">docker</a>.</p>
+    <title type="html"><![CDATA[Multi-node Hadoop cluster on Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/"/>
+    <updated>2014-06-19T20:29:10+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker</id>
+    <content type="html"><![CDATA[<p>In the <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/">previous post</a>
+you saw how easy is to create a single-node Hadoop <em>cluster</em> on your devbox.</p>
+
+<p>Now lets raise the bar and create a multinode Hadoop cluster on Docker. Before we
+start, make sure you have the latest Ambari image:</p>
 
 <p><code>
-docker run -i -t sequenceiq/hadoop-docker /etc/bootstrap.sh -bash
+docker pull sequenceiq/ambari:1.6.0
 </code></p>
 
-<h2>Testing</h2>
+<h2>One-liner</h2>
 
-<p>```bash</p>
+<p>Once you have the latest image, you can start running Docker containers.
+But instead of typing long commands like <code>docker run [options] image [command]</code>,
+we have created a couple of <a href="https://github.com/sequenceiq/docker-ambari/blob/master/ambari-functions">shell functions</a> to help you with Docker commands.</p>
 
-<h1>start ssh and hdfs</h1>
-
-<p>cd $HADOOP_PREFIX</p>
-
-<h1>run the mapreduce</h1>
-
-<p>bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.3.0.jar grep input output &lsquo;dfs[a-z.]+&rsquo;</p>
-
-<h1>check the output</h1>
-
-<p>bin/hdfs dfs -cat output/*
-```</p>
+<p>Using these functions the impatient can provision a 3 node Hadoop cluster with this one-liner:
+<code>
+curl -Lo .amb j.mp/docker-ambari &amp;&amp; . .amb &amp;&amp; amb-deploy-cluster
+</code></p>
 
 <!-- more -->
 
 
-<h2>Yak shaving an elefant</h2>
+<p>Note that you can always alter the default parameters as the blueprint, cluster size, etc &hellip; check the shell <code>j.mp/docker-ambari</code> function&rsquo;s head for the parameters list.</p>
 
-<p>I had problems installing hadoop 2.3 and by googling i stumbled upon this <a href="http://mail-archives.apache.org/mod_mbox/hadoop-mapreduce-user/201403.mbox/%3C53192FD4.2040003@oss.nttdata.co.jp%3E">email thread</a>,
-which references an <a href="http://aajisaka.github.io/hadoop-project/hadoop-project-dist/hadoop-common/SingleCluster.html#Standalone_Operation">alternative hadoop docs</a> deployed on github.</p>
+<p>It does the following steps:</p>
 
-<p>By following that description i run into an other issue:
-hadoop is delivered with 32 bit native libraries. No big deal &hellip;</p>
+<ul>
+<li>runs <code>ambari-server start</code> in a daemon Docker (background) container (and also an <code>ambari-agent start</code>)</li>
+<li>runs <code>n-1</code> daemon containers with <code>ambari-agent start</code> connecting to the server</li>
+<li>runs AmbariShell with attached terminal (to see provision progress)
 
-<h2>Hadoop native libraries</h2>
+<ul>
+<li>AmbariShell will post the built-in multi-node blueprint to <code>/api/v1/blueprints</code> REST API</li>
+<li>AmbariShell auto-assign hosts to host_groups defined in the blueprint</li>
+<li>creates a cluster, by posting to the <code>/api/v1/clusters</code> REST API</li>
+</ul>
+</li>
+</ul>
 
-<p>Of course there is an official <a href="http://hadoop.apache.org/docs/r2.3.0/hadoop-project-dist/hadoop-common/NativeLibraries.html">Native Libraries Guide</a> it instructs you
-to simple download the sources and <strong>mvn package</strong>. But than you face a new issue: missing <em>protobuf</em>. Eeeasy &hellip;</p>
 
-<h2>Protobuf 2.5</h2>
+<h2>Custom blueprint</h2>
 
-<p>Unfortunately <strong>yum install protobuf</strong> installs an older 2.3 version, which is close but no cigar.
- So you download protobuf source, and <strong>./configure &amp;&amp; make &amp;&amp; make install</strong></p>
+<p>If you have your own blueprint, put it into a <a href="https://gist.github.com/">gist</a>
+and you can use it from AmbariShell. First start AmbariShell:
+<code>
+amb-start-cluster 2
+amb-shell
+</code></p>
 
-<p>To succeed on that one you have to install a couple of development packages, and there you go.</p>
+<p>AmbariShell will wait for:</p>
 
-<h2>Bintray</h2>
+<ul>
+<li>Ambari REST API
+Below you will see a happy path to create a multi node Hadoop cluster using the AmbariShell.</li>
+</ul>
 
-<p>I wanted to save you those steps so created a binary distro of the native libs
-compiled with 64 bit CentOS. So I created <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.3.0/view/files">Bintray r̨epo</a>. Enjoy</p>
 
-<h2>Automate everything</h2>
+<p><code>
+host list
+blueprint add --url https://gist.githubusercontent.com/lalyos/xxx/raw/custum-blueprint.json
+cluster build --blueprint custom-blueprint
+cluster assign --hostGroup host_group_1 --host amb0.mycorp.kom
+cluster assign --hostGroup host_group_2 --host amb1.mycorp.kom
+cluster assign --hostGroup host_group_2 --host amb1.mycorp.kom
+cluster create
+</code></p>
 
-<p>As I&rsquo;m an automation fetishist, a Docker file was created, and released in the official <a href="https://index.docker.io/u/sequenceiq/hadoop-docker/">docker repo</a></p>
+<p>In AmbariShell the <code>hint</code> command will always guide you on the happy path,
+and remember that devops are lazy, so instead of typing press <code>&lt;TAB&gt;</code> for autocomplete or suggestions.</p>
+
+<p>Autocomplete will help you to:</p>
+
+<ul>
+<li>complete the command in the given context (e.g. without any blueprint, cluster commands are not available)</li>
+<li>add required parameters</li>
+<li>add optional parameters: press tab after double dash <code>--&lt;TAB&gt;</code></li>
+<li>complete parameter arguments, such as blueprint names, hostnames &hellip;</li>
+</ul>
+
+
+<h2>Summary</h2>
+
+<p>Ever since we started to use Docker we are always developing against a multi-node
+Hadoop cluster &ndash; as running a 3-4 node cluster in a laptop actually has less overhead
+than working on a Sandbox VM.</p>
+
+<p>We are <em>Dockerizing</em> the Hadoop ecosystem and simplifying the provisioning
+process &ndash; watch this space or follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>
+for the latest news about <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a> &ndash; the
+open source cloud agnostic <em>Hadoop as a Service</em> API built on Docker.</p>
+
+<p>Hope this helps and simplifies your development process &ndash; let us know how it goes
+for you or if you need any help with Hadoop on Docker.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Ambari provisioned Hadoop cluster on Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/"/>
+    <updated>2014-06-17T08:51:14+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker</id>
+    <content type="html"><![CDATA[<p>We are getting close to release and open source our <strong>Docker-based Hadoop Provisioning</strong> project.
+The <a href="http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning">slides</a>
+were presented recently at the <a href="http://hadoopsummit.org/san-jose/">Hadoop Summit</a>, and
+there is an interest from the community to learn the technical details.</p>
+
+<p>The project &ndash; called <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a> &ndash; will provide a REST API to provision a Hadoop cluster &ndash; anywhere. The cluster can be hosted
+on AWS EC2, Azure, physical servers or even your laptop &ndash; we are adding more providers &ndash; but always based on the same concept:
+<a href="http://ambari.apache.org/">Apache Ambari</a> managed <a href="http://www.docker.com/">Docker</a>
+containers.</p>
+
+<p>This blog entry is the first in a series, where we describe the Docker layer step-by-step:</p>
+
+<ul>
+<li>Single-node Docker based Hadoop &ldquo;cluster&rdquo; locally</li>
+<li>Multi-node Docker based Hadoop cluster</li>
+<li>Multi-node Docker based Hadoop cluster on EC2</li>
+<li>Cloudbreak</li>
+</ul>
+
+
+<h2>Get Docker</h2>
+
+<p>The only required software is Docker, so if you don&rsquo;t have it yet, jump to the
+installation section of the <a href="https://docs.docker.com/installation/">official documentation</a>.</p>
+
+<p>The very basic you need to work with Docker containers, is described in the
+<a href="https://docs.docker.com/userguide/dockerizing/">users guide</a>.</p>
+
+<h2>Single-node Cluster</h2>
+
+<p>All setup is based on <a href="https://hub.docker.com/u/sequenceiq/">Docker images</a> only
+the glue-code is different. Let&rsquo;s start with the most simple setup:</p>
+
+<ul>
+<li>start the first Docker container in the background that runs <strong>ambari-server</strong> and <strong>ambari-agent</strong>.</li>
+<li>start the second Docker container which:
+
+<ul>
+<li>waits for the agent connecting to the server</li>
+<li>starts an <a href="https://github.com/sequenceiq/ambari-shell">ambari-shell</a>, which will instruct ambari-server on its REST API:
+
+<ul>
+<li>define an <strong><a href="https://cwiki.apache.org/confluence/display/AMBARI/Blueprints">Ambari Blueprint</a></strong> by posting a JSON to <code>&lt;AMBARI_URL&gt;/api/v1/blueprints</code></li>
+<li>create a Hadoop cluster by posting a JSON to <code>&lt;AMBARI_URL&gt;/api/v1/clusters</code> using the blueprint created in the previous step</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<p><code>
+docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/ambari:1.6.0 --tag ambari-server=true
+docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -t --rm --entrypoint /bin/sh sequenceiq/ambari:1.6.0 -c /tmp/install-cluster.sh
+</code></p>
+
+<p>or if you want a <strong>twitter-sized</strong> one-liner to start with Hadoop in less than a minute:</p>
+
+<p><code>
+curl -LOs j.mp/ambari-singlenode &amp;&amp; . ambari-singlenode
+</code></p>
+
+<!-- more -->
+
+
+<p>When you pull the <code>sequenceiq/ambari</code> image first it will take a couple of minutes (for me it was 4 minutes).
+Meanwhile you have started and running the download let&rsquo;s explain all those parameters.</p>
+
+<h2>First container: ambari-server and ambari-agent</h2>
+
+<p>Let&rsquo;s break down the parameters of the first container:
+<code>
+docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/ambari:1.6.0 --tag ambari-server=true
+</code></p>
+
+<ul>
+<li><strong>-d</strong> : Detached mode, container runs in the background</li>
+<li><strong>-p 8080</strong> : Publish ambari web and REST API port</li>
+<li><strong>-h amb0.mycorp.kom</strong> : hostname</li>
+<li><strong>&mdash;name ambari-singlenode</strong> : assign a name to the container</li>
+<li><strong>sequenceiq/ambari:1.6.0</strong> : the name of the image</li>
+<li><strong>&mdash;tag ambari-server=true</strong> : the <em>command</em> but please note that this is appended to the <em>entrypoint</em>.</li>
+</ul>
+
+
+<p>The default <em>entrypoint</em> of the image is <code>start-serf-agent.sh</code>
+<a href="https://github.com/sequenceiq/docker-ambari/blob/master/ambari-server/Dockerfile#L24">see the Dockerfile</a>
+so the <code>--tag ambari-server=true</code> command is actually an argument of the <a href="http://www.serfdom.io/">serf agent</a>.</p>
+
+<h3>Serf</h3>
+
+<p>What is <a href="http://www.serfdom.io/">Serf</a>? The definition goes like:</p>
+
+<blockquote><p>Serf is a decentralized solution for cluster membership, failure detection, and orchestration. Lightweight and highly available.</p></blockquote>
+
+<p>Right now it doesn&rsquo;t seem to make any sense to talk about membership and cluster, but remember we want to
+have the exact same process/tools for dev env and production.</p>
+
+<p>The only Serf feature we use at this point is that you can define shell scripts based <strong>event-handlers</strong> for
+each membership events:</p>
+
+<ul>
+<li>member-join</li>
+<li>member-failed</li>
+<li>member-leave</li>
+<li>member-xxx</li>
+</ul>
+
+
+<p>The <strong>member-join</strong> event-handler script will check the Serf tags, defined by <code>--tag name=value</code>
+and will start:
+ &ndash; ambari-server java process: if the <strong>ambari-server</strong> tag is <strong>true</strong>
+ &ndash; ambari-agent python process: if the <strong>ambari-agent</strong> tag is <strong>true</strong></p>
+
+<p>You might noted that only the <strong>ambari-server</strong> tag is defined. The reason is that <strong>ambari-agent</strong> is defined as <strong>true</strong> by default.</p>
+
+<h2>Second container: ambari-shell</h2>
+
+<p><code>
+docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -t --rm --entrypoint /bin/sh sequenceiq/ambari:1.6.0 -c /tmp/install-cluster.sh
+</code></p>
+
+<ul>
+<li><strong>-e BLUEPRINT=single-node-hdfs-yarn</strong> : the template to use for the cluster (single-node-hdfs-yarn/multi-node-hdfs-yarn/lambda-architecture) <a href="https://github.com/sequenceiq/ambari-rest-client/tree/master/src/main/resources/blueprints">see the blueprint JSON on GitHub</a></li>
+<li><strong>&mdash;link ambari-singlenode:ambariserver </strong> :  it will make all exposed ports and the private IP of <code>ambari-singlenode</code> available as <code>AMBARISERVER_xxx</code> env variables</li>
+<li><strong>-t</strong> : pseudo terminal, to see the progress</li>
+<li><strong>&mdash;rm</strong> : remove the container once it&rsquo;s finished</li>
+<li><strong>&mdash;entrypoint /bin/sh</strong> : the default entrypoint runs the shell in interactive mode, we want to overwrite it with a script specified as <code>/tmp/install-cluster.sh</code></li>
+</ul>
+
+
+<h1>Install completed</h1>
+
+<p>Once Ambari-shell completed with the installation, you are ready to use it.
+To find out the IP of the Ambari server run:</p>
+
+<p><code>
+docker inspect -f "" ambari-singlenode
+</code></p>
+
+<p>To start with you can browse ambari web ui on <code>port 8080</code>. The default username/password is admin/admin.</p>
+
+<p>or if you can&rsquo;t reach directly the private IP of the container (windows users), use the port exposed to the host:
+<code>
+docker port ambari-singlenode 8080
+</code></p>
+
+<h1>Next steps</h1>
+
+<p>In the upcomming blog posts we will do a multinode Hadoop cluster with the same toolset, so stay tuned &hellip;</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Hadoop Summit 2014 - SequenceIQ slides]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/06/06/hadoop-summit-slides/"/>
+    <updated>2014-06-06T13:42:11+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/06/06/hadoop-summit-slides</id>
+    <content type="html"><![CDATA[<p>These are the slides of our presentation from the Hadoop Summit 2014, San Jose. We would like to thank all who have joined the session and the positive feedbacks we have received. This gives us a great confidence and validates our efforts that there is a great need to an easy and seamless Hadoop provisionig &ndash; let it be bare metal, cloud or other virtualizations.</p>
+
+<p>Watch this space as <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a> will be open sourced in the coming weeks.</p>
+
+<iframe src="http://www.slideshare.net/slideshow/embed_code/35573123" width="640" height="400" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px 1px 0; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe>
+
+
+<p> <div style="margin-bottom:5px"> <strong> <a href="https://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning" title="Docker based Hadoop provisioning - Hadoop Summit 2014 " target="_blank">Docker based Hadoop provisioning &ndash; Hadoop Summit 2014 </a> </strong> from <strong><a href="http://www.slideshare.net/JanosMatyas" target="_blank">Janos Matyas</a></strong> </div></p>
 ]]></content>
   </entry>
   
