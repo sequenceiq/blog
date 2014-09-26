@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-26T14:39:21+00:00</updated>
+  <updated>2014-09-26T14:54:04+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,218 +12,6 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
-  
-  <entry>
-    <title type="html"><![CDATA[Managing database upgrades with Liquibase and Docker]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/09/26/database-upgrade-process/"/>
-    <updated>2014-09-26T16:00:00+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/09/26/database-upgrade-process</id>
-    <content type="html"><![CDATA[<p>At <a href="http://sequenceiq.com">SequenceIQ</a> we are <code>crazy</code> about automating everything &ndash; let it be the provisioning of a thousand nodes Hadoop cluster using <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> or a simple database change. We apply the same automated CI/CD process to all our projects, including plain old RDBMS schema changes &hellip; yes, though we are a <code>big data</code> technology company sometimes we do use JPA as well.</p>
-
-<p>As applications evolve their underlying data model change. New functionalities often need data model changes and the initial design
-needs to be adapted to the ever changing demands.<br/>
-These changes usually are of two types : structural changes (e.g.: addition/removal of tables, columns, constraints etc &hellip;)
-and migration of the existing data to the new version of the datamodel.</p>
-
-<p>As the data model gets more and more complex  &ndash; this will happen in-spite of trying to keep it as simple as possible &ndash;
-the complexity of these tasks grow proportionally.</p>
-
-<p>This happens here at SequenceIQ too; the post is about how we address some of these problems.</p>
-
-<!-- more -->
-
-
-<h2>Directives</h2>
-
-<ul>
-<li>We need a process to follow each time such changes arise</li>
-<li>Use appropriate tools that do the job (instead of reinventing the wheel)</li>
-<li>Make the process <strong>automated</strong> as much as possible</li>
-</ul>
-
-
-<h3>The process</h3>
-
-<p>The process &ndash; as the common sense suggests &ndash; could be split in the following steps:</p>
-
-<ul>
-<li>start from the initial version of the database (the version in production)</li>
-<li>perform changes required by the new version of the application</li>
-<li>capture and store differences between the two versions of the database</li>
-<li>(automatically) apply changes to the initial database version</li>
-<li>perform tests</li>
-<li>apply changes to production</li>
-</ul>
-
-
-<h3>Tools</h3>
-
-<ul>
-<li>Dockerized (Postgres) database</li>
-<li>Dockerized Liquibase</li>
-<li>Jenkins</li>
-</ul>
-
-
-<h3>Implementation</h3>
-
-<h4>Start from the initial version of the database</h4>
-
-<p>To start with, you need a database that&rsquo;s (structurally) identical with the production one. There are several ways to achieve this;we use Postgres and try to keep it simple, so here&rsquo;s what we do:
-* we always have a QA database which is identical with the production (obliviously the data is not the same)
-* we make a copy of the <em>data</em> folder of the postgres installation into an arbitrary location on the host
-* we pass it as a volume to a Docker container running Postgres</p>
-
-<p>We run the following command each time we need a fresh database:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -d \
-</span><span class='line'>  --name $CONTAINER_NAME \
-</span><span class='line'>  -v /$WORKING_DIR/data:/data \
-</span><span class='line'>  -p 5432:5432 \
-</span><span class='line'>  -e "USER=$DB_USER" \
-</span><span class='line'>  -e "PASS=$DB_PASS" \
-</span><span class='line'>  -e "DB=$DB_NAME" \
-</span><span class='line'>paintedfox/postgresql</span></code></pre></td></tr></table></div></figure>
-
-
-<p>where the passed in variables are the following:
-* CONTAINER_NAME &ndash; the name of the database Docker container
-* DB_USER &ndash; the database user name
-* DB_PASS &ndash; the database password
-* DB_NAME &ndash; the database schema</p>
-
-<p>We have a running database now (in less than a minute) &ndash; same as the prod; we can connect to it with a client on your localhost, port 5432 with the given username/password.</p>
-
-<h4>Perform changes required by the new version of the application</h4>
-
-<p>As expected, this is the most challenging part in the process: changes need to be implemented and also
-captured so that they can be applied any time (preferably in an <strong>automated</strong> way)</p>
-
-<p>As we&rsquo;re using JPA (with Hibernate as JPA provider) incremental structural changes are executed with the
-SchemaUpdate tool. This can be done during the application startup or using <em>ant</em> or <em>maven</em>.
-As we continuously test the application we choose to start the application configured to update the database based on the
-changed data model (annotations). Alternatively we could regenerate the whole schema. (See the SchemaUpdate tool documentation:
-<a href="http://docs.jboss.org/hibernate/core/3.6/reference/en-US/html/toolsetguide.html">here</a>)</p>
-
-<p>At this point we have a database that aligns with the new version of the application.</p>
-
-<p>Please note here, that only <code>incremental</code> changes have been applied to the database till now, meaning that for example new fields have been added,
- but old/deprecated fields haven&rsquo;t been deleted.</p>
-
-<p>Other type of scripts need to be implemented manually:</p>
-
-<ol>
-<li><p>changes that couldn&rsquo;t be performed by the SchemaUpdate tool, such as cleanup (SQL) scripts. This being done, differences till this phase can be
-automatically generated by running the Liquibase Docker container &ndash; see the next section.
-Differences are stored under version control, in form of <em>Liquibase changelogs</em></p></li>
-<li><p>data migration scripts, that adapt the existing data to the new structure. Think of cases
-when for example a field becomes a new entity and instead of a value you need to store a reference to the new entity.
-We store these kind of scripts along with the generated diff files under version control in form of <em>Liquibase changelogs</em></p></li>
-</ol>
-
-
-<h4>Dockerized Liquibase</h4>
-
-<p>Speaking of tools, we found that <a href="http://www.liquibase.org/index.html">Liquibase</a> addresses many of our requirements, such as</p>
-
-<ol>
-<li>track database changes (changes being stored in VCS)</li>
-<li>automatically generate diffs between two versions of the database</li>
-<li>automatically update a database based on changelogs</li>
-</ol>
-
-
-<p>We have created a docker image with a <code>liquibase</code> installation. You can find the project <a href="https://github.com/sequenceiq/docker-liquibase">here</a>;</p>
-
-<p>The image can be built locally with the command:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker build -t sequenceiq/docker-liquibase .</span></code></pre></td></tr></table></div></figure>
-
-
-<p></p>
-
-<p>from the project root, or pulled from the Docker repository:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/docker-liquibase</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Containers built from this image can be used to perform <code>liquibase</code> operations on any host. This saves us a
-lot of time by having the installation and configuration shipped and helps us to automate most of the tasks;</p>
-
-<p>You can use the container for performing liquibase tasks manually in a terminal, or you can start the container to automatically perform
-specific tasks (and quit eventually).</p>
-
-<p>To start the container linked to the previously started database container and perform manual operations, run:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -it \
-</span><span class='line'>--name $LIQUIBASE_CONTAINER \
-</span><span class='line'>--link $DB_CONTAINER:db \
-</span><span class='line'>--entrypoint /bin/bash \
-</span><span class='line'>-v /$LIQUIBASE_CHANGELOGS:/changelogs \
-</span><span class='line'>$LIQUIBASE_DOCKER_IMAGE \
-</span><span class='line'>/bin/bash</span></code></pre></td></tr></table></div></figure>
-
-
-<p>See the description of the variables:</p>
-
-<ul>
-<li>LIQUIBASE_CONTAINER the name of the Liquibase Docker container</li>
-<li>DB_CONTAINER the name of the database container the Liquibase container is to be linked to</li>
-<li>LIQUIBASE_CHANGELOGS the folder holding the liquibase changelogs (Liquibase will read and write here)</li>
-<li>LIQUIBASE_DOCKER_IMAGE the name of the dockerized Liquibase Docker image</li>
-</ul>
-
-
-<p>Some of the Liquibase tasks can be scripted. We scripted the diff generation and changelog application. Liquibase offers more advanced features
-too.</p>
-
-<h4>Testing</h4>
-
-<p>We write tests that can be run automatically to check the process. Each <code>changeset</code>, especially those related to data migration / transformation
-is covered.</p>
-
-<h4>Apply liquibase changelogs to the production database</h4>
-
-<p>After the application is tested upon applying the database changes &ndash; that ensures that changelogs are correct, it&rsquo;s easy to set up
-a <code>jenkins</code> job that:</p>
-
-<ul>
-<li>checks out the proper version of changelogs</li>
-<li>starts a docker container linked to the (production) database and applies changelogs</li>
-</ul>
-
-
-<p>Obviously this step needs to be designed carefully and adapted to the custom application deployment needs.</p>
-
-<h4>Notes</h4>
-
-<ul>
-<li>Thanks to Docker, all the work described here can be done offline (setting up the infrastructure can be done fast,
-on a dev&rsquo;s machine for example)</li>
-<li>Liquibase changelogs can be executed individually or in group (by including subsets of changelogs) thus during the whole process we can adopt a step-by step approach</li>
-</ul>
-
-
-<p>If you have any questions or suggestions you can reach us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
   
   <entry>
     <title type="html"><![CDATA[Strata + Hadoop World 2014 Startup Showcase]]></title>
@@ -2862,6 +2650,205 @@ The main idea is to create a GRE tunnel between the VMs and send all traffic thr
 <p>If you want to check how these methods are working in production environment you are just a few clicks from it, since under the hood these methods are responsible to solve the inter-container communication in our cloud agnostic Hadoop as a Service API called <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>.</p>
 
 <p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Create Hadoop clusters in the cloud using a CLI]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/08/07/clodubreak-shell/"/>
+    <updated>2014-08-07T19:43:01+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/08/07/clodubreak-shell</id>
+    <content type="html"><![CDATA[<p>Few weeks back we have announced <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; the open source Hadoop as a Service API. Included in the release we open sourced a REST API, REST client, UI and a CLI/shell. In this post we’d like to show you how easy is to use <a href="https://github.com/sequenceiq/cloudbreak-shell">Cloudbreak shell</a> in order to create on demand Hadoop clusters on your favorite cloud provider.</p>
+
+<p>While it’s up to everybody&rsquo;s personal preference whether to use a UI, a command line interface or the REST API directly, at SequenceIQ we prefer to use command line tools whenever it’s possible because it’s much faster than interacting with a web UI and it’s a better candidate for automation. Yeah &ndash; we have mentioned this many times &ndash; we are <code>obsessed with automation</code>; any step which is a candidate of doing it twice we script and automate it.</p>
+
+<p>This <code>thing</code> with the automation does not affect the effort and quality standards we put on building the UI &ndash; <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> has an extremely intuitive and clean <strong>responsive</strong> UI and it’s built on the latest and greatest web UI framework &ndash; <a href="https://angularjs.org/">Angular JS</a>. We will have a post about the UI, however we consider it so simple to use that we ask you to go ahead and give it a try. You are a signup and a few clicks away from your Hadoop cluster.</p>
+
+<p>Now back to the CLI. Remember one of our Apache contribution &ndash; the <a href="http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell/">Ambari shell and REST API</a>? Well, the Cloudbreak shell is built on the same technology &ndash; Spring Shell. It’s an interactive shell that can be easily extended using a Spring based programming model and battle tested in various projects like Spring Roo, Spring XD, and Spring REST Shell Combine these two projects to create a powerful tool.</p>
+
+<h2>Cloudbreak Shell</h2>
+
+<p>The goal with the CLI was to provide an interactive command line tool which supports:</p>
+
+<ul>
+<li>all functionality available through the REST API or Cloudbreak web UI</li>
+<li>makes possible complete automation of management task via <strong>scripts</strong></li>
+<li>context aware command availability</li>
+<li>tab completion</li>
+<li>required/optional parameter support</li>
+<li><strong>hint</strong> command to guide you on the usual path</li>
+</ul>
+
+
+<h2>Install Cloudbreak Shell</h2>
+
+<p>You have 3 options to give it a try:</p>
+
+<ul>
+<li>use our prepared <a href="https://registry.hub.docker.com/u/sequenceiq/cloudbreak/">docker image</a></li>
+<li>download the latest self-containing executable jar form our maven repo</li>
+<li>build it from source</li>
+</ul>
+
+
+<p>We will follow up with the first two, in this post we’d like to guide you through the third option.</p>
+
+<h3>Build from source</h3>
+
+<p>If want to use the code or extend it with new commands follow the steps below. You will need:
+&ndash; jdk 1.7
+&ndash; maven 3.x.x</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git clone https://github.com/sequenceiq/cloudbreak-shell.git
+</span><span class='line'>cd cloudbreak-shell
+</span><span class='line'>mvn clean package</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!--more-->
+
+
+<h2>Connect to Cloudbreak</h2>
+
+<p>In order to use the shell you will have to have a Cloudbreak account. You can get one by subscribing to our hosted and free <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> instance. Alternatively you can build your own Cloudbreak and deploy it within your organization &ndash; for that just follow up with the steps in the Cloudbreak <a href="http://sequenceiq.com/cloudbreak/#quickstart-and-installation">documentation</a>. We suggest to try our hosted solution as in case you have any issues we can always help you with. Please feel free to create bugs, ask for enhancements or just give us feedback by either using our <a href="https://github.com/sequenceiq/cloudbreak">GitHub repository</a> or the other channels highlighted in the product documentation (Google Groups, email or social channels).
+The shell is built as a single executable jar with the help of <a href="http://projects.spring.io/spring-boot/">Spring Boot</a>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Usage:
+</span><span class='line'>  java -jar cloudbreak-shell-0.1-SNAPSHOT.jar                  : Starts Cloudbreak Shell in interactive mode.
+</span><span class='line'>  java -jar cloudbreak-shell-0.1-SNAPSHOT.jar --cmdfile=&lt;FILE&gt; : Cloudbreak executes commands read from the file.
+</span><span class='line'>
+</span><span class='line'>Options:
+</span><span class='line'>  --cloudbreak.host=&lt;HOSTNAME&gt;       Hostname of the Cloudbreak REST API Server [use:cloudbreak-api.sequenceiq.com].
+</span><span class='line'>  --cloudbreak.port=&lt;PORT&gt;           Port of the Cloudbreak REST API Server [use:80].
+</span><span class='line'>  --cloudbreak.user=&lt;USER&gt;           Username of the Cloudbreak user [use:your user name ].
+</span><span class='line'>  --cloudbreak.password=&lt;PASSWORD&gt;   Password of the Cloudbreak admin [use: your password].
+</span><span class='line'>
+</span><span class='line'>Note:
+</span><span class='line'>  All options are mandatory.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once you are connected you can start to create a cluster. If you are lost and need guidance through the process you can use <code>hint</code>. You can always use <code>TAB</code> for completion. Note that all commands are <code>context aware</code> &ndash; they are available only when it makes sense &ndash; this way you are never confused and guided by the system on the right path.</p>
+
+<h3>Create a cloud credential</h3>
+
+<p>In order to start using Cloudbreak you will need to have a cloud user, for example an Amazon AWS account. Note that Cloudbreak <strong>does not</strong> store you cloud user details &ndash; we work around the concept of <a href="http://aws.amazon.com/iam/">IAM</a> &ndash; on Amazon (or other cloud providers) you will have to create an IAM role, a policy and associate that with your Cloudbreak account &ndash; for further documentation please refer to the <a href="http://sequenceiq.com/cloudbreak/#accounts">documentation</a>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>credential createEC2 --description “description" --name “myCredentialName" --roleArn "arn:aws:iam::NUMBER:role/cloudbreak-ABC" --sshKeyUrl “URL towards your AWS public key"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Alternatively you can upload your public key from a file as well, by using the <code>—sshKeyPath</code> switch. You can check whether the credential was creates successfully by using the <code>credential list</code> command. You can switch between your cloud credential &ndash; when you’d like to use one and act with that you will have to use:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>credential select --id #ID of the credential</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Create a template</h3>
+
+<p>A template gives developers and systems administrators an easy way to create and manage a collection of cloud infrastructure related resources, maintaining and updating them in an orderly and predictable fashion. A template can be used repeatedly to create identical copies of the same stack (or to use as a foundation to start a new stack).</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>template createEC2 --description "awstemplate" --name "awstemplate" --region EU_WEST_1 --instanceType M3Large --sshLocation 0.0.0.0/0 </span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can check whether the template was created successfully by using the <code>template list</code> command. Check the template with or select if you are happy with:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>template show --id #ID of the template
+</span><span class='line'>
+</span><span class='line'>template select --id #ID of the template</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Create a stack</h3>
+
+<p>Stacks are template <code>instances</code> &ndash; a running cloud infrastructure created based on a template. Use the following command to create a stack to be used with your Hadoop cluster:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>stack create --name “myStackName" --nodeCount 20 </span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Select a blueprint</h3>
+
+<p>We ship default Hadoop cluster blueprints with Cloudbreak. You can use these blueprints or add yours. To see the available blueprints and use one of them please use:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>blueprint list
+</span><span class='line'>
+</span><span class='line'>blueprint select --id #ID of the blueprint</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Create a Hadoop cluster</h3>
+
+<p>You are almost done &ndash; one more command and this will create your Hadoop cluster on your favorite cloud provider. Same as the API, or UI this will use your <code>template</code>, and by using CloudFormation will launch a cloud <code>stack</code> &ndash; once the <code>stack</code> is up and running (cloud provisioning is done) it will use your selected <code>blueprint</code> and install your custom Hadoop cluster with the selected components and services. For the supported list of Hadoop components and services please check the <a href="http://sequenceiq.com/cloudbreak/#supported-components">documentation</a>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cluster create --description “my cluster desc"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You are done &ndash; you can check the progress through the Ambari UI. If you log back to <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak UI</a> you can check the progress over there as well, and learn the IP address of Ambari.</p>
+
+<h3>Automate the process</h3>
+
+<p>Each time you start the shell the executed commands are logged in a file line by line and later either with the <code>script</code> command or specifying an <code>—cmdfile</code> option the same commands can be executed again.</p>
+
+<h2>Commands</h2>
+
+<p>For the full list of available commands please check below. Please note that all commands are context aware, and you can always use <code>TAB</code> for command completion.</p>
+
+<pre><code>* blueprint add - Add a new blueprint with either --url or --file
+* blueprint defaults - Adds the default blueprints to Cloudbreak
+* blueprint list - Shows the currently available blueprints
+* blueprint select - Select the blueprint by its id
+* blueprint show - Shows the blueprint by its id
+* cluster create - Create a new cluster based on a blueprint and template
+* cluster show - Shows the cluster by stack id
+* credential createAzure - Create a new Azure credential
+* credential createEC2 - Create a new EC2 credential
+* credential defaults - Adds the default credentials to Cloudbreak
+* credential list - Shows all of your credentials
+* credential select - Select the credential by its id
+* credential show - Shows the credential by its id
+* exit - Exits the shell
+* help - List all commands usage
+* hint - Shows some hints
+* quit - Exits the shell
+* script - Parses the specified resource file and executes its commands
+* stack create - Create a new stack based on a template
+* stack list - Shows all of your stack
+* stack select - Select the stack by its id
+* stack show - Shows the stack by its id
+* stack terminate - Terminate the stack by its id
+* template create - Create a new cloud template
+* template createEC2 - Create a new EC2 template
+* template defaults - Adds the default templates to Cloudbreak
+* template list - Shows the currently available cloud templates
+* template select - Select the template by its id
+* template show - Shows the template by its id
+* version - Displays shell version
+</code></pre>
+
+<p>As usual for us &ndash; being committed to 100% open source &ndash; we are always open sourcing everything thus you can get the details on our <a href="https://github.com/sequenceiq/cloudbreak-shell">GitHub</a> repository.
+Should you have any questions feel free to engage with us on our <a href="http://blog.sequenceiq.com/">blog</a> or follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
 ]]></content>
   </entry>
   
