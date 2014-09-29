@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Liquibase | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/liquibase/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-09-29T07:43:10+00:00</updated>
+  <updated>2014-09-29T07:46:44+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -18,14 +18,10 @@
     <link href="http://blog.sequenceiq.com/blog/2014/09/26/database-upgrade-process/"/>
     <updated>2014-09-26T16:00:00+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/09/26/database-upgrade-process</id>
-    <content type="html"><![CDATA[<p>At <a href="http://sequenceiq.com">SequenceIQ</a> we are <em>crazy</em> about automating everything &ndash; let it be the provisioning of a thousand nodes Hadoop
-cluster using <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> or a simple database change.
-We apply the same automated CI/CD process to all our projects, including plain old RDBMS schema changes &hellip; yes, though we are a <em>big data</em> technology
-company sometimes we do use JPA as well.</p>
+    <content type="html"><![CDATA[<p>At <a href="http://sequenceiq.com">SequenceIQ</a> we are <code>crazy</code> about automating everything &ndash; let it be the provisioning of a thousand nodes Hadoop cluster using <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> or a simple database change. We apply the same automated CI/CD process to all our projects, including plain old RDBMS schema changes &hellip; yes, though we are a <code>big data</code> technology company sometimes we do use JPA as well.</p>
 
 <p>As applications evolve their underlying data model change. New functionalities often need data model changes and the initial design
-needs to be adapted to the ever changing demands. These changes usually are of two types : structural changes
-(e.g.: addition/removal of tables, columns, constraints etc &hellip;)
+needs to be adapted to the ever changing demands. These changes usually are of two types : structural changes (e.g.: addition/removal of tables, columns, constraints etc &hellip;)
 and migration of the existing data to the new version of the datamodel.
 As the data model gets more and more complex  &ndash; this will happen in-spite of trying to keep it as simple as possible &ndash;
 the complexity of these tasks grow proportionally. This happens here at SequenceIQ too; the post is about how we address some of these problems.</p>
@@ -69,15 +65,10 @@ the complexity of these tasks grow proportionally. This happens here at Sequence
 
 <h4>Start from the initial version of the database</h4>
 
-<p>To start with, you need a database that&rsquo;s (structurally) identical with the production one. There are several ways to achieve this;we use Postgres and try to
-keep it simple, so here&rsquo;s what we do:</p>
-
-<ul>
-<li>we always have a QA database which is identical with the production (obliviously the data is not the same)</li>
-<li>we make a copy of the <em>data</em> folder of the postgres installation into an arbitrary location on the host</li>
-<li>we pass it as a volume to a Docker container running Postgres</li>
-</ul>
-
+<p>To start with, you need a database that&rsquo;s (structurally) identical with the production one. There are several ways to achieve this;we use Postgres and try to keep it simple, so here&rsquo;s what we do:
+* we always have a QA database which is identical with the production (obliviously the data is not the same)
+* we make a copy of the <em>data</em> folder of the postgres installation into an arbitrary location on the host
+* we pass it as a volume to a Docker container running Postgres</p>
 
 <p>We run the following command each time we need a fresh database:</p>
 
@@ -90,17 +81,12 @@ docker run -d \
   -e "PASS=$DB_PASS" \
   -e "DB=$DB_NAME" \
 paintedfox/postgresql
-</code></p>
-
-<p>where the passed in variables are the following:</p>
-
-<ul>
-<li>CONTAINER_NAME &ndash; the name of the database Docker container</li>
-<li>DB_USER &ndash; the database user name</li>
-<li>DB_PASS &ndash; the database password</li>
-<li>DB_NAME &ndash; the database schema</li>
-</ul>
-
+</code>
+where the passed in variables are the following:
+* CONTAINER_NAME &ndash; the name of the database Docker container
+* DB_USER &ndash; the database user name
+* DB_PASS &ndash; the database password
+* DB_NAME &ndash; the database schema</p>
 
 <p>We have a running database now (in less than a minute) &ndash; same as the prod; we can connect to it with a client on your localhost, port 5432 with the given username/password.</p>
 
@@ -114,19 +100,15 @@ As we continuously test the application we choose to start the application confi
 changed data model (annotations). Alternatively we could regenerate the whole schema. (See the SchemaUpdate tool documentation:
 <a href="http://docs.jboss.org/hibernate/core/3.6/reference/en-US/html/toolsetguide.html">here</a>)</p>
 
-<p>At this point we have a database that aligns with the new version of the application. Please note here, that only <code>incremental</code> changes have been applied to
-the database till now, meaning that for example new fields have been added,
+<p>At this point we have a database that aligns with the new version of the application. Please note here, that only <code>incremental</code> changes have been applied to the database till now, meaning that for example new fields have been added,
  but old/deprecated fields haven&rsquo;t been deleted.</p>
 
 <p>Other type of scripts need to be implemented manually:</p>
 
 <ul>
-<li><p>changes that couldn&rsquo;t be performed by the SchemaUpdate tool, such as cleanup (SQL) scripts. This being done, differences till this phase
-can be automatically generated by running the Liquibase Docker container &ndash; see the next section. Differences are stored under version control,
-in form of <em>Liquibase changelogs</em></p></li>
+<li><p>changes that couldn&rsquo;t be performed by the SchemaUpdate tool, such as cleanup (SQL) scripts. This being done, differences till this phase can be automatically generated by running the Liquibase Docker container &ndash; see the next section. Differences are stored under version control, in form of <em>Liquibase changelogs</em></p></li>
 <li><p>data migration scripts, that adapt the existing data to the new structure. Think of cases
-when for example a field becomes a new entity and instead of a value you need to store a reference to the new entity. We store these kind of scripts along
-with the generated diff files under version control in form of <em>Liquibase changelogs</em></p></li>
+when for example a field becomes a new entity and instead of a value you need to store a reference to the new entity. We store these kind of scripts along with the generated diff files under version control in form of <em>Liquibase changelogs</em></p></li>
 </ul>
 
 
@@ -141,25 +123,19 @@ with the generated diff files under version control in form of <em>Liquibase cha
 </ul>
 
 
-<p>We have created a docker image with a <em>liquibase</em> installation. You can find the project <a href="https://github.com/sequenceiq/docker-liquibase">here</a></p>
+<p>We have created a docker image with a <code>liquibase</code> installation. You can find the project <a href="https://github.com/sequenceiq/docker-liquibase">here</a>;</p>
 
-<p>The image can be built locally with the command:</p>
-
-<p><code>
+<p>The image can be built locally with the command:
+<code>
 docker build -t sequenceiq/docker-liquibase .
 </code></p>
 
-<p>or from the project root, or pulled from the Docker repository:</p>
-
-<p><code>
+<p>or from the project root, or pulled from the Docker repository:<br/>
+<code>
 docker pull sequenceiq/docker-liquibase
 </code></p>
 
-<p>Containers built from this image can be used to perform <em>liquibase</em> operations on any host.
-This saves us a lot of time by having the installation and configuration shipped and helps us to automate most of the tasks.
-You can use the container for performing liquibase tasks manually in a terminal, or you can start the container to
-automatically perform specific tasks (and quit eventually). To start the container linked to the previously started database
-container and perform manual operations, run:</p>
+<p>Containers built from this image can be used to perform <code>liquibase</code> operations on any host. This saves us a lot of time by having the installation and configuration shipped and helps us to automate most of the tasks. You can use the container for performing liquibase tasks manually in a terminal, or you can start the container to automatically perform specific tasks (and quit eventually). To start the container linked to the previously started database container and perform manual operations, run:</p>
 
 <p><code>
 docker run -it \
@@ -169,9 +145,8 @@ docker run -it \
 -v /$LIQUIBASE_CHANGELOGS:/changelogs \
 $LIQUIBASE_DOCKER_IMAGE \
 /bin/bash
-</code></p>
-
-<p>See the description of the variables:</p>
+</code>
+See the description of the variables:</p>
 
 <ul>
 <li>LIQUIBASE_CONTAINER the name of the Liquibase Docker container</li>
@@ -203,13 +178,11 @@ $LIQUIBASE_DOCKER_IMAGE \
 
 <ul>
 <li>Thanks to Docker, all the work described here can be done offline (setting up the infrastructure can be done fast, on a dev&rsquo;s machine for example)</li>
-<li>Liquibase changelogs can be executed individually or in group (by including subsets of changelogs) thus during the whole process we can adopt a
-step-by step approach</li>
+<li>Liquibase changelogs can be executed individually or in group (by including subsets of changelogs) thus during the whole process we can adopt a step-by step approach</li>
 </ul>
 
 
-<p>If you have any questions or suggestions you can reach us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>,
- <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+<p>If you have any questions or suggestions you can reach us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   
