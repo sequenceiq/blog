@@ -184,7 +184,7 @@
 <td> Periscope          </td>
 <td> SLA policy based autoscaling for Hadoop clusters </td>
 <td> <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/</a> </td>
-<td> <a href="https://github.com/sequenceiq/periscope">https://github.com/sequenceiq/periscope</a> </td>
+<td> <a href="https://github.com/sequenceiq/periscope">https://github.com/sequenceiq/periscope</a></td>
 </tr>
 </tbody>
 </table>
@@ -252,7 +252,7 @@
 </pre></td><td class='code'><pre><code class=''><span class='line'>cd /usr/local/spark
 </span><span class='line'>
 </span><span class='line'># execute the the following command which should write the "Pi is roughly 3.1418" into the logs
-</span><span class='line'>./bin/spark-submit --class org.apache.spark.examples.SparkPi --master yarn-cluster --driver-memory 1g --executor-memory 1g --executor-cores 1 examples/target/scala-2.10/spark-examples_2.10-1.0.1.jar</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>./bin/spark-submit --class org.apache.spark.examples.SparkPi --master yarn-cluster --driver-memory 1g --executor-memory 1g --executor-cores 1 ./lib/spark-examples-1.1.0-hadoop2.4.0.jar</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Estimating Pi (yarn-client mode):</p>
@@ -264,7 +264,7 @@
 </pre></td><td class='code'><pre><code class=''><span class='line'>cd /usr/local/spark
 </span><span class='line'>
 </span><span class='line'># execute the the following command which should print the "Pi is roughly 3.1418" to the screen
-</span><span class='line'>./bin/spark-submit --class org.apache.spark.examples.SparkPi --master yarn-client --driver-memory 1g --executor-memory 1g --executor-cores 1 examples/target/scala-2.10/spark-examples_2.10-1.0.1.jar</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>./bin/spark-submit --class org.apache.spark.examples.SparkPi --master yarn-client --driver-memory 1g --executor-memory 1g --executor-cores 1 ./lib/spark-examples-1.1.0-hadoop2.4.0.jar</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Should you have any questions let us know through our social channels using <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
