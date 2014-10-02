@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Correlation | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com/blog/categories/correlation/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-10-02T17:35:55+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
+  <author>
+    <name><![CDATA[SequenceIQ]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Spark - create and test jobs]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/29/spark-correlation-and-testing/"/>
+    <updated>2014-09-29T13:42:24+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/29/spark-correlation-and-testing</id>
+    <content type="html"><![CDATA[<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we use different runtimes (MR2, Spark, Tez) when submitting jobs from <a href="http://docs.banzai.apiary.io/reference">Banzai</a> to a YARN clusters.
+Some of these jobs are quite simple (filtering, sorting, projection etc.), but most of them can be complicated or not so oblivious at first (e.g.: complex machine learning algorithms).
+From Banzai’s perspective/looking from outside a YARN cluster, what only matters is the input and the output dataset &ndash; as we have abstracted all the pipeline steps &ndash;  so testing of this steps properly is a must.
+In this post we’d like to show such an example that &ndash; a correlation job on vectors with <a href="https://spark.apache.org/">Apache Spark</a> and how we test it.</p>
+
+<h2>Correlation example (on vectors) with Apache Spark</h2>
+
+<p>Suppose that we have an input dataset (CSV file for the sake of simplicity of the sample code) and we want to reveal the dependency between all of the columns. (all data is vectorized, if not you will have to vectorize your data first).
+If we want to build a <code>testable</code> job, we have to focus only on the algorithm part. Our goal here is to work only on the Resilient Distributed Dataset and take the context creation outside of the job.
+This way you cab run and create your <code>SparkContext</code>locally and substitute an HDFS data source (or something else) with simple objects.</p>
+
+<p>Interface: (output: vector index pairs with their correlation coefficient)</p>
+
+<p>``` scala
+abstract class CorrelationJob {</p>
+
+<p>  def computeCorrelation(input: RDD[String]) : Array[(Int, Int, Double)]</p>
+
+<p>  def d2d(d: Double) : Double = new java.text.DecimalFormat(&ldquo;#.######&rdquo;).format(d).toDouble</p>
+
+<p>}
+```</p>
+
+<!-- more -->
+
+
+<p>Below we show you how a Pearson correlation job implementation looks like with RDD functions. First, you need to gather all combinations of the vector indices and count the size of the dataset.
+After that, the only thing what you need is to compute the <a href="http://www.statisticshowto.com/what-is-the-correlation-coefficient-formula/">correlation coefficient</a> on all column combinations (based on the square, dot product and sum of the fields per line). It takes 1 map and 1 reduce operation per pairs. (<code>iterative</code> &ndash;> typical example where you need to use Spark instead of MR2)</p>
+
+<p>``` scala
+  override def computeCorrelation(input: RDD[String]) : Array[(Int, Int, Double)] = {</p>
+
+<pre><code>val numbersInput = input
+  .map(line =&gt; line.split(",").map(_.toDouble))
+  .cache()
+
+val combinedFields = (0 to numbersInput.first().size - 1).combinations(2)
+val size = numbersInput.count()
+val res = for (field &lt;- combinedFields) yield {
+  val col1Index = field.head
+  val col2Index = field.last
+  val tempData = numbersInput.map{arr =&gt; {
+    val data1 = arr(col1Index)
+    val data2 = arr(col2Index)
+    (data1, data2, data1 * data2, math.pow(data1, 2), math.pow(data2, 2))
+  }}
+  val (sum1: Double, sum2: Double, dotProduct: Double, sq1: Double, sq2: Double) = tempData.reduce {
+    case ((a1, a2, aDot, a1sq, a2sq), (b1, b2, bDot, b1sq, b2sq)) =&gt;
+      (a1 + b1, a2 + b2, aDot + bDot, a1sq + b1sq, a2sq + b2sq)
+  }
+  val corr = pearsonCorr(size, sum1, sum2, sq1, sq2, dotProduct)
+  (col1Index, col2Index, d2d(corr))
+}
+res.toArray
+</code></pre>
+
+<p>  }</p>
+
+<p>  // correlation formula
+  def pearsonCorr(size: Long, sum1: Double, sum2: Double, sq1: Double, sq2: Double, dotProduct: Double): Double = {</p>
+
+<pre><code>val numerator = (size * dotProduct) - (sum1 * sum2)
+val denominator = scala.math.sqrt(size * sq1 - sum1 * sum1) * scala.math.sqrt(size * sq2 - sum2 * sum2)
+numerator / denominator
+</code></pre>
+
+<p>  }
+```</p>
+
+<h2>MLlib Statistics</h2>
+
+<p>By the way <a href="https://spark.apache.org/releases/spark-release-1-1-0.html">Spark Release 1.1.0</a> contains an algorithm for correlation computation, thus we now show you how to use that instead of the above one.
+With <a href="https://github.com/apache/spark/blob/master/mllib/src/main/scala/org/apache/spark/mllib/stat/Statistics.scala">Statistics</a> you can produce a correlation matrix from vectors. For obtaining the correlation coefficient pairs, we just need to get the upper triangular matrix without diagonal. It looks much simpler, isn&rsquo;t is?</p>
+
+<p>``` scala
+  override def computeCorrelation(input: RDD[String]) : Array[(Int, Int, Double)] = {</p>
+
+<pre><code>val vectors = input
+  .map(line =&gt; Vectors.dense(line.split(",").map(_.toDouble)))
+  .cache()
+
+val corr: Matrix = Statistics.corr(vectors, "pearson")
+val num = corr.numRows
+
+// upper triangular matrix without diagonal
+val res = for ((x, i) &lt;- corr.toArray.zipWithIndex if (i / num) &lt; i % num )
+yield ((i / num), (i % num), d2d(x))
+
+res
+</code></pre>
+
+<p>  }
+```</p>
+
+<h2>Testing</h2>
+
+<p>For testing Spark jobs we use the Specs2 framework. We do not want to start a Spark context before every test case, so we just start/end it before/after steps.
+In order to run Spark locally set master to &ldquo;local&rdquo;. In our example (for demonstration purposes) we do not turn off Spark logging (or set to warn level) but it is recommended.</p>
+
+<p>``` scala
+abstract class SparkJobSpec extends SpecificationWithJUnit with BeforeAfterExample {</p>
+
+<p>  @transient var sc: SparkContext = _</p>
+
+<p>  def beforeAll = {</p>
+
+<pre><code>System.clearProperty("spark.driver.port")
+System.clearProperty("spark.hostPort")
+
+val conf = new SparkConf()
+  .setMaster("local")
+  .setAppName("test")
+sc = new SparkContext(conf)
+</code></pre>
+
+<p>  }</p>
+
+<p>  def afterAll = {</p>
+
+<pre><code>if (sc != null) {
+  sc.stop()
+  sc = null
+  System.clearProperty("spark.driver.port")
+  System.clearProperty("spark.hostPort")
+}
+</code></pre>
+
+<p>  }</p>
+
+<p>  override def map(fs: => Fragments) = Step(beforeAll) ^ super.map(fs) ^ Step(afterAll)</p>
+
+<p>}</p>
+
+<p><code>
+In our test specification we check that both correlation implementations are correct or not.
+</code> scala
+@RunWith(classOf[JUnitRunner])
+class CorrelationJobTest extends SparkJobSpec {</p>
+
+<p>  &ldquo;Spark Correlation implementations&rdquo; should {</p>
+
+<pre><code>val input = Seq("1,2,9,5", "2,7,5,6","4,5,3,4","6,7,5,6")
+val correctOutput = Array(
+  (0, 1, 0.620299),
+  (0, 2, -0.627215),
+  (0, 3, 0.11776),
+  (1, 2, -0.70069),
+  (1, 3, 0.552532),
+  (2, 3, 0.207514)
+  )
+
+"case 1 : return with correct output (custom spark correlation)" in {
+  val inputRDD = sc.parallelize(input)
+  val customCorr = new CustomCorrelationJob().computeCorrelation(inputRDD, sc)
+  customCorr must_== correctOutput
+}
+"case 2: return with correct output (stats spark correlation)" in {
+  val inputRDD = sc.parallelize(input)
+  val statCorr = new StatsCorrelationJob().computeCorrelation(inputRDD, sc)
+  statCorr must_== correctOutput
+}
+"case 3: equal to each other" in {
+  val inputRDD = sc.parallelize(input)
+  val statCorr = new StatsCorrelationJob().computeCorrelation(inputRDD, sc)
+  val customCorr = new CustomCorrelationJob().computeCorrelation(inputRDD, sc)
+  statCorr must_== customCorr
+}
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>To build and test the project use this command from our <a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub examples</a> spark-correlation directory:</p>
+
+<p><code>bash
+./gradlew clean build
+</code></p>
+
+<p>You can run this correlation example in our free Docker based Apache Spark container as well. (with <a href="https://github.com/apache/spark/blob/master/bin/spark-submit">spark-submit</a> script). You can get the Spark container from the official <a href="https://registry.hub.docker.com/u/sequenceiq/spark/">Docker registry</a> or from our <a href="https://github.com/sequenceiq/docker-spark">GitHub</a> repository. The source code is available at <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/spark-correlation">SequenceIQ&rsquo;s GitHub repository</a>.</p>
+
+<p>If you have any questions or suggestions you can reach us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>,
+ <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Pearson correlation with Scalding]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/06/23/scalding-correlation-example/"/>
+    <updated>2014-06-23T18:07:18+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/06/23/scalding-correlation-example</id>
+    <content type="html"><![CDATA[<h2>Introduction</h2>
+
+<p>At SequenceIQ we are processing data in batch and streaming &ndash; for both we use Scala as our prefered language; for batch processing in particular we use Scalding to build our job and data pipelines. Actually there is <code>Babylon</code> at SequenceIQ as we use Java, Scala, Go, R, Groovy, Ansible, shell, JavaScript and what not &ndash; follow up with us for a post talking about the language heterogeneity.</p>
+
+<p>Scalding is a powerful tool and great choice to simplify the writing and abstracting MapReduce jobs &ndash; an open source project originally developed by Twitter and recently the community.
+In the following detailed example we&rsquo;d like show you an example of how to write and test Scalding jobs, running on Hadoop.</p>
+
+<h2>Writing a Pearson correlation job</h2>
+
+<p>In this example, we&rsquo;d like to calculate a Pearson&rsquo;s product-moment coefficient on 2 columns of a given <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/scalding-correlation/data">input</a>.
+This is a simple computation and the easiest way to find any dependency between two datasets.
+First of all we need all the parameters for the given <a href="http://www.statisticshowto.com/what-is-the-correlation-coefficient-formula/">formula</a>.
+In Scala the code would look like this:</p>
+
+<p>``` scala
+trait CorrelationOp {
+  def calculateCorrelation(size: Long, su1: Double, su2: Double, sq1: Double, sq2: Double, dotProd: Double) : Double = {</p>
+
+<pre><code>val dividend = (size * dotProd) - (su1 * su2)
+val divisor = scala.math.sqrt(size * sq1 - su1 * su1) * scala.math.sqrt(size * sq2 - su2 * su2)
+dividend / divisor
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<!-- more -->
+
+
+<p>In this example we compute all the required parameters for the correlation formula using the <a href="https://github.com/twitter/scalding/wiki/Fields-based-API-Reference">Field API</a> of Scala.
+First we obtain the input/output and the two comparable column arguments which comes from command line parameters (usage : &mdash;key value) and provide the schema for the CSV input.
+After the input is read we map the two selected fields (product and squares); with the underlined informations, we are able to produce the required parameters (grouping part).
+At the end we just need to use the formula on the given fields (second map) and write the results into a TSV file.
+``` scala
+  val comparableColumn1 = args(&ldquo;column1&rdquo;)
+  val comparableColumn2 = args(&ldquo;column2&rdquo;)
+  val samplePercent = args.getOrElse(&ldquo;samplePercent&rdquo;,&ldquo;1.00&rdquo;).toDouble</p>
+
+<p>  val scheme = new Fields(&ldquo;id&rdquo;, &ldquo;num1&rdquo;, &ldquo;num2&rdquo;, &ldquo;num3&rdquo;, &ldquo;num4&rdquo;, &ldquo;num5&rdquo;)</p>
+
+<p>  Csv(args(&ldquo;input&rdquo;), fields = scheme, skipHeader = true).read
+  .sample(samplePercent)
+  .map((comparableColumn1,comparableColumn2) &ndash;> (&lsquo;prod, 'compSq1, 'compSq2)){</p>
+
+<pre><code>values : (Double, Double) =&gt;
+  (values._1 * values._2, math.pow(values._1, 2), math.pow(values._2, 2))
+</code></pre>
+
+<p>  }
+  .groupAll{</p>
+
+<pre><code>_.size
+  .sum[Double](comparableColumn1 -&gt; 'compSum1)
+  .sum[Double](comparableColumn2 -&gt; 'compSum2)
+  .sum[Double]('compSq1 -&gt; 'normSq1)
+  .sum[Double]('compSq2 -&gt; 'normSq2)
+  .sum[Double]('prod -&gt; 'dotProduct)
+</code></pre>
+
+<p>  }
+  .limit(1)
+  .project(&lsquo;size,'compSum1, 'compSum2, 'normSq1, 'normSq2, 'dotProduct)
+  .map(('size, 'compSum1, 'compSum2,'normSq1, 'normSq2, 'dotProduct)</p>
+
+<pre><code>-&gt; ('key, 'correlation)){
+fields : (Long, Double, Double, Double, Double, Double) =&gt;
+  val (size, sum1, sum2, normSq1, normSq2, dotProduct) = fields
+  val corr = calculateCorrelation(size, sum1, sum2, normSq1, normSq2, dotProduct)
+  (comparableColumn1 + "-" + comparableColumn2, corr)
+</code></pre>
+
+<p>  }
+  .project(&lsquo;key, 'correlation)
+  .write(Tsv(args(&ldquo;output&rdquo;)))</p>
+
+<p>```</p>
+
+<p>For running the example you will have to run the following command: (<em>you can use &mdash;hdfs instead of &mdash;local</em>)</p>
+
+<p><code>bash
+yarn jar scalding-correalation-1.0.jar com.sequenceiq.scalding.correlation.SimpleCorrelationJob --local --input data/data.csv --output data/corr-out.tsv --column1 num1 --column2 num2 --samplePercent 0.1
+</code></p>
+
+<h2>Testing Scalding jobs</h2>
+
+<p>In order to test that your data transformations are correct, you can use the
+<a href="http://twitter.github.io/scalding/com/twitter/scalding/JobTest.html">JobTest</a> class for unit testing.
+``` scala
+@RunWith(classOf[JUnitRunner])
+class SimpleCorrelationJobTest  extends Specification {
+  &ldquo;A SimpleCorrelation Job&rdquo; should {</p>
+
+<pre><code>val input = List((1,2,3,3,4,5),(2,1,2,3,4,5),(3,4,5,3,4,5))
+val correctOutputLimit = 0.8
+
+JobTest("com.sequenceiq.scalding.correlation.SimpleCorrelationJob")
+  .arg("input", "fakeInput")
+  .arg("output", "fakeOutput")
+  .arg("column1", "num1")
+  .arg("column2", "num2")
+  .arg("correlationThreshold", "0.8")
+  .source(Csv("fakeInput", ",", new Fields("id","num1","num2","num3","num4","num5"),skipHeader = true), input)
+  .sink[(String, Double)](Tsv("fakeOutput", fields = Fields.ALL)) {
+  outputBuf =&gt;
+    val actualOutput = outputBuf.toList.head._2
+    "return greater correlation result than 0.8" in {
+      correctOutputLimit must be_&lt; (actualOutput)
+    }
+}
+  .run
+  .finish
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<h2>Writing results to HBase</h2>
+
+<p>In case we&rsquo;d like to store our data in a database (at SequenceIQ we use HBase) we can use a special Cascading Tap for it.
+In this example we used <a href="https://github.com/ParallelAI/SpyGlass">Spyglass</a> to store the correlation results in HBase.
+``` scala
+  val tableName = args(&ldquo;tableName&rdquo;)
+  val quorum_name = args(&ldquo;quorum&rdquo;)
+  val quorum_port = args(&ldquo;quorumPort&rdquo;).toInt</p>
+
+<p>  val scheme = List(&lsquo;key, 'correlation)
+  val familyNames = List(&ldquo;corrCf&rdquo;)</p>
+
+<p>  Tsv(args(&ldquo;input&rdquo;)).read</p>
+
+<pre><code>.toBytesWritable(scheme)
+.write(
+  new HBaseSource(
+    tableName,
+    quorum_name + ":" + quorum_port,
+    scheme.head,
+    familyNames,
+    scheme.tail.map((x: Symbol) =&gt; new Fields(x.name)).toList,
+    timestamp = Platform.currentTime
+  ))
+</code></pre>
+
+<p>```</p>
+
+<h2>Build the application</h2>
+
+<p><code>bash
+./gradlew clean jar
+</code>
+or
+<code>bash
+export GRADLE_OPTS="-XX:MaxPermSize=2048m" # for tests
+./gradlew clean build
+</code></p>
+
+<h2>Running the example and persisting to HBase</h2>
+
+<p>In order to run the example you&rsquo;ll have to run the following command: (you can use &mdash;hdfs instead of &mdash;local)
+<code>bash
+yarn jar scalding-correalation-1.0.jar com.sequenceiq.scalding.hbase.HBaseWriterJob --local --input data/corr-out.tsv --tableName corrTable --quorum localhost --quorumPort 2181
+</code></p>
+
+<p>Hope this correlation example and introduction into Scalding was useful &ndash; you can get the example project from our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/scalding-correlation">GitHub</a> repository.</p>
+]]></content>
+  </entry>
+  
+</feed>

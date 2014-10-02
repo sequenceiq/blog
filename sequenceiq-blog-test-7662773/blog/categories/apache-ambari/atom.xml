@@ -1,0 +1,567 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Apache Ambari | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com/blog/categories/apache-ambari/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-10-02T17:35:55+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
+  <author>
+    <name><![CDATA[SequenceIQ]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Ambari 1.7.0 early access]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/05/apache-ambari-1-7-0-ea/"/>
+    <updated>2014-09-05T16:37:37+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/05/apache-ambari-1-7-0-ea</id>
+    <content type="html"><![CDATA[<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we use <a href="http://ambari.apache.org/">Apache Ambari</a> every day &ndash; it’s our tool to provision Hadoop clusters.</p>
+
+<p>Beside that we are contributors to Ambari, we are so excited about the coming Apache Ambari 1.7.0 new <a href="https://cwiki.apache.org/confluence/pages/viewpage.action?pageId=30755705">features</a> that we could not help and put together an <strong>early access</strong> <a href="https://github.com/sequenceiq/docker-ambari/tree/1.7.0-ea">Ambari 1.7.0 Docker container</a>.</p>
+
+<p>Give it a try, and provision an arbitrary number of Hadoop cluster on your laptop (or production environment), using our container and Ambari shell. Let us know how it works for you. Enjoy.</p>
+
+<h3>Get the Docker container</h3>
+
+<p>In case you don’t have Docker browse among our previous posts &ndash; we have a few posts about howto’s, examples and best practices in general for Docker and in particular about how to run the full Hadoop stack on Docker.</p>
+
+<p><code>
+docker pull sequenceiq/ambari:1.7.0-ea
+</code></p>
+
+<!--more-->
+
+
+<p>Once you have the container you are almost ready to go &ndash; we always automate everything and <strong>over simplify</strong> Hadoop provisioning.</p>
+
+<h3>Get ambari-functions</h3>
+
+<p>Get the following <code>ambari-functions</code> <a href="https://github.com/sequenceiq/docker-ambari/blob/1.7.0-ea/ambari-functions">file</a> from our GitHub.</p>
+
+<p><code>
+curl -Lo .amb j.mp/docker-ambari-170ea &amp;&amp; . .amb
+</code></p>
+
+<h3>Create your cluster</h3>
+
+<p><code>
+amb-deploy-cluster 4
+</code></p>
+
+<p><strong>Whaaat?</strong> No really, that’s it &ndash; we have just provisioned you a 4 node Hadoop cluster in less than 2 minutes. Docker, Apache Ambari and Ambari Shell combined is quite powerful, isn&rsquo;t it? You can always start playing with your desired services by changing the <a href="https://github.com/sequenceiq/ambari-rest-client/tree/master/src/main/resources/blueprints">blueprints</a> &ndash; the full Hadoop stack is supported.</p>
+
+<p>If you’d like to play around and understand how this works check our previous blog posts &ndash; a good start is this first post about one of our contribution, the <a href="http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell/">Ambari Shell</a>.</p>
+
+<p>You have just seen how easy is to provision a Hadoop cluster on your laptop, if you’d like to see how we provision a Hadoop cluster in the cloud using the very same Docker image you can check our open source, cloud agnostic Hadoop as a Service API &ndash; <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a>. Last week we have released a project called <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> &ndash; the industry&rsquo;s first open source autoscaling API for Hadoop.</p>
+
+<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Multi-node Hadoop cluster on Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/"/>
+    <updated>2014-06-19T20:29:10+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker</id>
+    <content type="html"><![CDATA[<p>In the <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/">previous post</a>
+you saw how easy is to create a single-node Hadoop <em>cluster</em> on your devbox.</p>
+
+<p>Now lets raise the bar and create a multinode Hadoop cluster on Docker. Before we
+start, make sure you have the latest Ambari image:</p>
+
+<p><code>
+docker pull sequenceiq/ambari:1.6.0
+</code></p>
+
+<h2>One-liner</h2>
+
+<p>Once you have the latest image, you can start running Docker containers.
+But instead of typing long commands like <code>docker run [options] image [command]</code>,
+we have created a couple of <a href="https://github.com/sequenceiq/docker-ambari/blob/master/ambari-functions">shell functions</a> to help you with Docker commands.</p>
+
+<p>Using these functions the impatient can provision a 3 node Hadoop cluster with this one-liner:
+<code>
+curl -Lo .amb j.mp/docker-ambari &amp;&amp; . .amb &amp;&amp; amb-deploy-cluster
+</code></p>
+
+<!-- more -->
+
+
+<p>Note that you can always alter the default parameters as the blueprint, cluster size, etc &hellip; check the shell <code>j.mp/docker-ambari</code> function&rsquo;s head for the parameters list.</p>
+
+<p>It does the following steps:</p>
+
+<ul>
+<li>runs <code>ambari-server start</code> in a daemon Docker (background) container (and also an <code>ambari-agent start</code>)</li>
+<li>runs <code>n-1</code> daemon containers with <code>ambari-agent start</code> connecting to the server</li>
+<li>runs AmbariShell with attached terminal (to see provision progress)
+
+<ul>
+<li>AmbariShell will post the built-in multi-node blueprint to <code>/api/v1/blueprints</code> REST API</li>
+<li>AmbariShell auto-assign hosts to host_groups defined in the blueprint</li>
+<li>creates a cluster, by posting to the <code>/api/v1/clusters</code> REST API</li>
+</ul>
+</li>
+</ul>
+
+
+<h2>Custom blueprint</h2>
+
+<p>If you have your own blueprint, put it into a <a href="https://gist.github.com/">gist</a>
+and you can use it from AmbariShell. First start AmbariShell:
+<code>
+amb-start-cluster 2
+amb-shell
+</code></p>
+
+<p>AmbariShell will wait for:</p>
+
+<ul>
+<li>Ambari REST API
+Below you will see a happy path to create a multi node Hadoop cluster using the AmbariShell.</li>
+</ul>
+
+
+<p><code>
+host list
+blueprint add --url https://gist.githubusercontent.com/lalyos/xxx/raw/custum-blueprint.json
+cluster build --blueprint custom-blueprint
+cluster assign --hostGroup host_group_1 --host amb0.mycorp.kom
+cluster assign --hostGroup host_group_2 --host amb1.mycorp.kom
+cluster assign --hostGroup host_group_2 --host amb1.mycorp.kom
+cluster create
+</code></p>
+
+<p>In AmbariShell the <code>hint</code> command will always guide you on the happy path,
+and remember that devops are lazy, so instead of typing press <code>&lt;TAB&gt;</code> for autocomplete or suggestions.</p>
+
+<p>Autocomplete will help you to:</p>
+
+<ul>
+<li>complete the command in the given context (e.g. without any blueprint, cluster commands are not available)</li>
+<li>add required parameters</li>
+<li>add optional parameters: press tab after double dash <code>--&lt;TAB&gt;</code></li>
+<li>complete parameter arguments, such as blueprint names, hostnames &hellip;</li>
+</ul>
+
+
+<h2>Summary</h2>
+
+<p>Ever since we started to use Docker we are always developing against a multi-node
+Hadoop cluster &ndash; as running a 3-4 node cluster in a laptop actually has less overhead
+than working on a Sandbox VM.</p>
+
+<p>We are <em>Dockerizing</em> the Hadoop ecosystem and simplifying the provisioning
+process &ndash; watch this space or follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>
+for the latest news about <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a> &ndash; the
+open source cloud agnostic <em>Hadoop as a Service</em> API built on Docker.</p>
+
+<p>Hope this helps and simplifies your development process &ndash; let us know how it goes
+for you or if you need any help with Hadoop on Docker.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Ambari provisioned Hadoop cluster on Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/"/>
+    <updated>2014-06-17T08:51:14+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker</id>
+    <content type="html"><![CDATA[<p>We are getting close to release and open source our <strong>Docker-based Hadoop Provisioning</strong> project.
+The <a href="http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning">slides</a>
+were presented recently at the <a href="http://hadoopsummit.org/san-jose/">Hadoop Summit</a>, and
+there is an interest from the community to learn the technical details.</p>
+
+<p>The project &ndash; called <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a> &ndash; will provide a REST API to provision a Hadoop cluster &ndash; anywhere. The cluster can be hosted
+on AWS EC2, Azure, physical servers or even your laptop &ndash; we are adding more providers &ndash; but always based on the same concept:
+<a href="http://ambari.apache.org/">Apache Ambari</a> managed <a href="http://www.docker.com/">Docker</a>
+containers.</p>
+
+<p>This blog entry is the first in a series, where we describe the Docker layer step-by-step:</p>
+
+<ul>
+<li>Single-node Docker based Hadoop &ldquo;cluster&rdquo; locally</li>
+<li>Multi-node Docker based Hadoop cluster</li>
+<li>Multi-node Docker based Hadoop cluster on EC2</li>
+<li>Cloudbreak</li>
+</ul>
+
+
+<h2>Get Docker</h2>
+
+<p>The only required software is Docker, so if you don&rsquo;t have it yet, jump to the
+installation section of the <a href="https://docs.docker.com/installation/">official documentation</a>.</p>
+
+<p>The very basic you need to work with Docker containers, is described in the
+<a href="https://docs.docker.com/userguide/dockerizing/">users guide</a>.</p>
+
+<h2>Single-node Cluster</h2>
+
+<p>All setup is based on <a href="https://hub.docker.com/u/sequenceiq/">Docker images</a> only
+the glue-code is different. Let&rsquo;s start with the most simple setup:</p>
+
+<ul>
+<li>start the first Docker container in the background that runs <strong>ambari-server</strong> and <strong>ambari-agent</strong>.</li>
+<li>start the second Docker container which:
+
+<ul>
+<li>waits for the agent connecting to the server</li>
+<li>starts an <a href="https://github.com/sequenceiq/ambari-shell">ambari-shell</a>, which will instruct ambari-server on its REST API:
+
+<ul>
+<li>define an <strong><a href="https://cwiki.apache.org/confluence/display/AMBARI/Blueprints">Ambari Blueprint</a></strong> by posting a JSON to <code>&lt;AMBARI_URL&gt;/api/v1/blueprints</code></li>
+<li>create a Hadoop cluster by posting a JSON to <code>&lt;AMBARI_URL&gt;/api/v1/clusters</code> using the blueprint created in the previous step</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<p><code>
+docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/ambari:1.6.0 --tag ambari-server=true
+docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -t --rm --entrypoint /bin/sh sequenceiq/ambari:1.6.0 -c /tmp/install-cluster.sh
+</code></p>
+
+<p>or if you want a <strong>twitter-sized</strong> one-liner to start with Hadoop in less than a minute:</p>
+
+<p><code>
+curl -LOs j.mp/ambari-singlenode &amp;&amp; . ambari-singlenode
+</code></p>
+
+<!-- more -->
+
+
+<p>When you pull the <code>sequenceiq/ambari</code> image first it will take a couple of minutes (for me it was 4 minutes).
+Meanwhile you have started and running the download let&rsquo;s explain all those parameters.</p>
+
+<h2>First container: ambari-server and ambari-agent</h2>
+
+<p>Let&rsquo;s break down the parameters of the first container:
+<code>
+docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/ambari:1.6.0 --tag ambari-server=true
+</code></p>
+
+<ul>
+<li><strong>-d</strong> : Detached mode, container runs in the background</li>
+<li><strong>-p 8080</strong> : Publish ambari web and REST API port</li>
+<li><strong>-h amb0.mycorp.kom</strong> : hostname</li>
+<li><strong>&mdash;name ambari-singlenode</strong> : assign a name to the container</li>
+<li><strong>sequenceiq/ambari:1.6.0</strong> : the name of the image</li>
+<li><strong>&mdash;tag ambari-server=true</strong> : the <em>command</em> but please note that this is appended to the <em>entrypoint</em>.</li>
+</ul>
+
+
+<p>The default <em>entrypoint</em> of the image is <code>start-serf-agent.sh</code>
+<a href="https://github.com/sequenceiq/docker-ambari/blob/master/ambari-server/Dockerfile#L24">see the Dockerfile</a>
+so the <code>--tag ambari-server=true</code> command is actually an argument of the <a href="http://www.serfdom.io/">serf agent</a>.</p>
+
+<h3>Serf</h3>
+
+<p>What is <a href="http://www.serfdom.io/">Serf</a>? The definition goes like:</p>
+
+<blockquote><p>Serf is a decentralized solution for cluster membership, failure detection, and orchestration. Lightweight and highly available.</p></blockquote>
+
+<p>Right now it doesn&rsquo;t seem to make any sense to talk about membership and cluster, but remember we want to
+have the exact same process/tools for dev env and production.</p>
+
+<p>The only Serf feature we use at this point is that you can define shell scripts based <strong>event-handlers</strong> for
+each membership events:</p>
+
+<ul>
+<li>member-join</li>
+<li>member-failed</li>
+<li>member-leave</li>
+<li>member-xxx</li>
+</ul>
+
+
+<p>The <strong>member-join</strong> event-handler script will check the Serf tags, defined by <code>--tag name=value</code>
+and will start:
+ &ndash; ambari-server java process: if the <strong>ambari-server</strong> tag is <strong>true</strong>
+ &ndash; ambari-agent python process: if the <strong>ambari-agent</strong> tag is <strong>true</strong></p>
+
+<p>You might noted that only the <strong>ambari-server</strong> tag is defined. The reason is that <strong>ambari-agent</strong> is defined as <strong>true</strong> by default.</p>
+
+<h2>Second container: ambari-shell</h2>
+
+<p><code>
+docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -t --rm --entrypoint /bin/sh sequenceiq/ambari:1.6.0 -c /tmp/install-cluster.sh
+</code></p>
+
+<ul>
+<li><strong>-e BLUEPRINT=single-node-hdfs-yarn</strong> : the template to use for the cluster (single-node-hdfs-yarn/multi-node-hdfs-yarn/lambda-architecture) <a href="https://github.com/sequenceiq/ambari-rest-client/tree/master/src/main/resources/blueprints">see the blueprint JSON on GitHub</a></li>
+<li><strong>&mdash;link ambari-singlenode:ambariserver </strong> :  it will make all exposed ports and the private IP of <code>ambari-singlenode</code> available as <code>AMBARISERVER_xxx</code> env variables</li>
+<li><strong>-t</strong> : pseudo terminal, to see the progress</li>
+<li><strong>&mdash;rm</strong> : remove the container once it&rsquo;s finished</li>
+<li><strong>&mdash;entrypoint /bin/sh</strong> : the default entrypoint runs the shell in interactive mode, we want to overwrite it with a script specified as <code>/tmp/install-cluster.sh</code></li>
+</ul>
+
+
+<h1>Install completed</h1>
+
+<p>Once Ambari-shell completed with the installation, you are ready to use it.
+To find out the IP of the Ambari server run:</p>
+
+<p><code>
+docker inspect -f "" ambari-singlenode
+</code></p>
+
+<p>To start with you can browse ambari web ui on <code>port 8080</code>. The default username/password is admin/admin.</p>
+
+<p>or if you can&rsquo;t reach directly the private IP of the container (windows users), use the port exposed to the host:
+<code>
+docker port ambari-singlenode 8080
+</code></p>
+
+<h1>Next steps</h1>
+
+<p>In the upcomming blog posts we will do a multinode Hadoop cluster with the same toolset, so stay tuned &hellip;</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Hadoop Summit 2014 - SequenceIQ slides]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/06/06/hadoop-summit-slides/"/>
+    <updated>2014-06-06T13:42:11+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/06/06/hadoop-summit-slides</id>
+    <content type="html"><![CDATA[<p>These are the slides of our presentation from the Hadoop Summit 2014, San Jose. We would like to thank all who have joined the session and the positive feedbacks we have received. This gives us a great confidence and validates our efforts that there is a great need to an easy and seamless Hadoop provisionig &ndash; let it be bare metal, cloud or other virtualizations.</p>
+
+<p>Watch this space as <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a> will be open sourced in the coming weeks.</p>
+
+<iframe src="http://www.slideshare.net/slideshow/embed_code/35573123" width="640" height="400" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px 1px 0; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe>
+
+
+<p> <div style="margin-bottom:5px"> <strong> <a href="https://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning" title="Docker based Hadoop provisioning - Hadoop Summit 2014 " target="_blank">Docker based Hadoop provisioning &ndash; Hadoop Summit 2014 </a> </strong> from <strong><a href="http://www.slideshare.net/JanosMatyas" target="_blank">Janos Matyas</a></strong> </div></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Ambari + Spring Shell = Ambari Shell]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell/"/>
+    <updated>2014-05-26T13:42:11+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell</id>
+    <content type="html"><![CDATA[<h2>Introduction</h2>
+
+<p><a href="http://ambari.apache.org/">Apache Ambari&rsquo;s</a> goal is to make Hadoop cluster management
+as simple as possible. It provides an intuitive easy-to-use web UI backed by its RESTful API.
+With only a few clicks you&rsquo;re able to install Hadoop services across any number of hosts
+and Ambari will take care of the configurations as well. After the installation is complete
+you can monitor your cluster taking leverage of <a href="http://ganglia.sourceforge.net/">Ganglia</a>
+and <a href="http://www.nagios.org/">Nagios</a>.</p>
+
+<p>At SequenceIQ we prefer to use command line tools whenever it&rsquo;s possible,
+because it&rsquo;s much faster than interacting with a web UI and it&rsquo;s a better candidate for automation.
+Here comes <a href="https://github.com/spring-projects/spring-shell#readme">Spring Shell</a> to our rescue.</p>
+
+<p>It&rsquo;s an interactive shell that can be easily extended using a Spring based programming model and battle
+tested in various projects like <a href="http://projects.spring.io/spring-roo/">Spring Roo</a>,
+<a href="http://docs.spring.io/spring-xd/docs/1.0.0.BUILD-SNAPSHOT/reference/html/">Spring XD</a>, and
+<a href="https://github.com/spring-projects/rest-shell">Spring REST Shell</a> Combine these two projects
+and a really powerful tool will come to light.</p>
+
+<h2>Ambari Shell</h2>
+
+<p>The goal is to provide an interactive command line tool which supports:</p>
+
+<ul>
+<li>all functionality available through the REST API or Ambari web UI</li>
+<li>makes possible complete automation of management task via <strong>scripts</strong></li>
+<li>context aware command availability</li>
+<li>tab completion</li>
+<li>required/optional parameter support</li>
+<li><strong>hint</strong> command to guide you on the usual path</li>
+</ul>
+
+
+<p>Since we&rsquo;re open sourcing the project, it should be available and part of the official Ambari repository
+<a href="https://issues.apache.org/jira/browse/AMBARI-5482">soon</a>.</p>
+
+<h2>Install Ambari Shell</h2>
+
+<p>For now you have 3 options to give it a try:</p>
+
+<ul>
+<li>use our prepared <a href="https://index.docker.io/u/sequenceiq/ambari-shell/">docker image</a></li>
+<li>download the latest self-containing executable jar form our maven repo</li>
+<li>build it from source</li>
+</ul>
+
+
+<h3>Run via docker</h3>
+
+<p>As we love to dockerize everything, we prepared a <a href="https://index.docker.io/u/sequenceiq/ambari-shell/">docker image</a>
+with jdk1.7 on latest ubuntu, ambari-shell preinstalled. Detailed description is available on <a href="https://github.com/sequenceiq/ambari-shell-docker">github</a>.</p>
+
+<p><code>
+docker run -it --rm sequenceiq/ambari-shell --ambari.host=&lt;HOSTNAME&gt; --ambari.port=&lt;PORT&gt;
+</code></p>
+
+<!-- more -->
+
+
+<h3>Run latest snapshot</h3>
+
+<p>You need only jdk 1.7. The script below will download the latest ambari-shell.jar into a
+temporary folder, and give you instruction on how to use.</p>
+
+<p><code>
+curl -Ls https://raw.githubusercontent.com/sequenceiq/ambari-shell/master/latest-snap.sh | bash
+</code></p>
+
+<h3>Build from source</h3>
+
+<p>If want to check the code, or extend it with new commands, Follow the steps below. You will need:
+&ndash; jdk 1.7
+&ndash; maven 3.x.x</p>
+
+<p><code>
+git clone https://github.com/sequenceiq/ambari-shell.git
+cd ambari-shell
+mvn package
+</code></p>
+
+<p>The shell is built as a single executable jar with the help of <a href="http://projects.spring.io/spring-boot/">Spring Boot</a>.
+<code>
+java -jar target/ambari-shell-1.0-SNAPSHOT.jar --ambari.host=&lt;HOSTNAME&gt; --ambari.port=&lt;PORT&gt;
+</code></p>
+
+<h2>Start a &ldquo;sandbox&rdquo; Ambari Server</h2>
+
+<p>The image is available at the Docker repository, which means you only need to run the following to get a running Ambari server:
+<code>
+docker run -d -P -h server.ambari.com --name ambari-singlenode sequenceiq/ambari
+</code></p>
+
+<h2>Connect Ambari Shell to the server</h2>
+
+<p>Once the server is up and running (10-20 sec) you can connect to it with the shell:
+```
+Usage:
+  java -jar ambari-shell.jar                  : Starts Ambari Shell in interactive mode.
+  java -jar ambari-shell.jar &mdash;cmdfile=<FILE> : Ambari Shell executes commands read from the file.</p>
+
+<p>Options:
+  &mdash;ambari.host=<HOSTNAME>       Hostname of the Ambari Server [default: localhost].
+  &mdash;ambari.port=<PORT>           Port of the Ambari Server [default: 8080].
+  &mdash;ambari.user=<USER>           Username of the Ambari admin [default: admin].
+  &mdash;ambari.password=<PASSWORD>   Password of the Ambari admin [default: admin].</p>
+
+<p>Note:
+  At least one option is mandatory.
+```</p>
+
+<h2>Create a cluster</h2>
+
+<p>All commands are context aware and are available only when it makes sense. For example the <code>cluster create</code> command is not available
+until a blueprint hasn&rsquo;t been added or selected. A good approach is to use the <code>hint</code> command &ndash; as the Ambari UI, this will give
+you hints about the available commands and the flow of creating or configuring a cluster. You can always use TAB for completion
+or available parameters.</p>
+
+<p>Initially there are no blueprints available &ndash; you can add blueprints from file or URL. For your convenience we&rsquo;ve added two
+blueprints as defaults. You can get these blueprints by using the <code>blueprint defaults</code> command. The result is the following:
+<code>
+ambari-shell&gt; blueprint defaults
+ambari-shell&gt; blueprint list
+</code>
+```
+  BLUEPRINT              STACK</p>
+
+<hr />
+
+<p>  multi-node-hdfs-yarn   HDP:2.0
+  single-node-hdfs-yarn  HDP:2.0
+<code>``
+Once the blueprints are added you can use them to create a cluster by typing</code>cluster build &mdash;blueprint single-node-hdfs-yarn`.
+Now that the blueprint is selected you have to assign the hosts to the available host groups. Use</p>
+
+<p>```
+ambari-shell> cluster build &mdash;blueprint single-node-hdfs-yarn
+CLUSTER_BUILD:single-node-hdfs-yarn> cluster assign &mdash;hostGroup host_group_1 &mdash;host server.ambari.com</p>
+
+<p>  HOSTGROUP     HOST</p>
+
+<hr />
+
+<p>  host_group_1  server.ambari.com
+<code>
+Once you are happy with the host - host group associations you can choose `cluster create` to start building the cluster.
+Progress can be checked either at the Amabri UI or using the `tasks` command.
+</code></p>
+
+<p>CLUSTER_BUILD:single-node-hdfs-yarn> cluster create
+Successfully created the cluster
+CLUSTER:single-node-hdfs-yarn> tasks</p>
+
+<p>  TASK                        STATUS</p>
+
+<hr />
+
+<p>  HISTORYSERVER INSTALL       QUEUED
+  ZOOKEEPER_SERVER START      PENDING
+  ZOOKEEPER_CLIENT INSTALL    PENDING
+  HDFS_CLIENT INSTALL         PENDING
+  HISTORYSERVER START         PENDING
+  NODEMANAGER INSTALL         QUEUED
+  NODEMANAGER START           PENDING
+  ZOOKEEPER_SERVER INSTALL    QUEUED
+  YARN_CLIENT INSTALL         PENDING
+  NAMENODE INSTALL            QUEUED
+  RESOURCEMANAGER INSTALL     QUEUED
+  NAMENODE START              PENDING
+  RESOURCEMANAGER START       PENDING
+  DATANODE START              PENDING
+  SECONDARY_NAMENODE START    PENDING
+  DATANODE INSTALL            QUEUED
+  MAPREDUCE2_CLIENT INSTALL   PENDING
+  SECONDARY_NAMENODE INSTALL  QUEUED
+```</p>
+
+<p>Each time you start the shell the executed commands are logged in a file line by line and later either with the <code>script</code> command
+or specifying an <code>--cmdfile</code> option the same commands can be executed.</p>
+
+<h2>Commands</h2>
+
+<p>The currently supported commands are:</p>
+
+<ul>
+<li><code>blueprint add</code> &ndash; Add a new blueprint with either &mdash;url or &mdash;file</li>
+<li><code>blueprint defaults</code> &ndash; Adds the default blueprints to Ambari</li>
+<li><code>blueprint list</code> &ndash; Lists all known blueprints</li>
+<li><code>blueprint show</code> &ndash; Shows the blueprint by its id</li>
+<li><code>cluster assign</code> &ndash; Assign host to host group</li>
+<li><code>cluster build</code> &ndash; Starts to build a cluster</li>
+<li><code>cluster create</code> &ndash; Create a cluster based on current blueprint and assigned hosts</li>
+<li><code>cluster delete</code> &ndash; Delete the cluster</li>
+<li><code>cluster preview</code> &ndash; Shows the currently assigned hosts</li>
+<li><code>cluster reset</code> &ndash; Clears the host &ndash; host group assignments</li>
+<li><code>debug off</code> &ndash; Stops showing the URL of the API calls</li>
+<li><code>debug on</code> &ndash; Shows the URL of the API calls</li>
+<li><code>exit</code> &ndash; Exits the shell</li>
+<li><code>hello</code> &ndash; Prints a simple elephant to the console</li>
+<li><code>help</code> &ndash; List all commands usage</li>
+<li><code>hint</code> &ndash; Shows some hints</li>
+<li><code>host components</code> &ndash; Lists the components assigned to the selected host</li>
+<li><code>host focus</code> &ndash; Sets the useHost to the specified host</li>
+<li><code>host list</code> &ndash; Lists the available hosts</li>
+<li><code>quit</code> &ndash; Exits the shell</li>
+<li><code>script</code> &ndash; Parses the specified resource file and executes its commands</li>
+<li><code>service components</code> &ndash; Lists all services with their components</li>
+<li><code>service list</code> &ndash; Lists the available services</li>
+<li><code>tasks</code> &ndash; Lists the Ambari tasks</li>
+<li><code>version</code> &ndash; Displays shell version</li>
+</ul>
+
+
+<h2>Summary</h2>
+
+<p>To sum it up in less than two minutes watch this video:</p>
+
+<script type="text/javascript" src="https://asciinema.org/a/9783.js" id="asciicast-9783" async></script>
+
+]]></content>
+  </entry>
+  
+</feed>

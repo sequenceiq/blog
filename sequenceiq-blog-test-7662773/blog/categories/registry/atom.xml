@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Registry | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com/blog/categories/registry/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-10-02T17:35:55+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
+  <author>
+    <name><![CDATA[SequenceIQ]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Hadoop 2.5.1 on Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/15/hadoop-2-5-1-docker/"/>
+    <updated>2014-09-15T18:07:18+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/15/hadoop-2-5-1-docker</id>
+    <content type="html"><![CDATA[<p>Following the release cycle of Hadoop, today we are releasing a new <code>2.5.1</code> version of our <a href="https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/">Hadoop Docker container</a>. Up until today the container was only <code>CentOS</code> based, but during the last few months we got lots of requests to release a Hadoop container on <code>Ubuntu</code> as well. From now on we will have both released, supported and published to the official Docker repository. Enjoy.</p>
+
+<h2>Centos</h2>
+
+<h3>Build the image</h3>
+
+<p>In case you&rsquo;d like to try directly from the <a href="https://github.com/sequenceiq/hadoop-docker/tree/2.5.1">Dockerfile</a> you can build the image as:</p>
+
+<p><code>
+docker build  -t sequenceiq/hadoop-docker:2.5.1 .
+</code></p>
+
+<!-- more -->
+
+
+<h3>Pull the image</h3>
+
+<p>As it is also released as an official Docker image from Docker&rsquo;s automated build repository &ndash; you can always pull or refer the image when launching containers.</p>
+
+<p><code>
+docker pull sequenceiq/hadoop-docker:2.5.1
+</code></p>
+
+<h3>Start a container</h3>
+
+<p>In order to use the Docker image you have just build or pulled use:</p>
+
+<p><code>
+docker run -i -t sequenceiq/hadoop-docker:2.5.1 /etc/bootstrap.sh -bash
+</code></p>
+
+<h2>Ubuntu</h2>
+
+<h3>Build the image</h3>
+
+<p>In case you&rsquo;d like to try directly from the <a href="https://github.com/sequenceiq/docker-hadoop-ubuntu/tree/2.5.1">Dockerfile</a> you can build the image as:</p>
+
+<p><code>
+docker build  -t sequenceiq/hadoop-ubuntu:2.5.1 .
+</code></p>
+
+<!-- more -->
+
+
+<h3>Pull the image</h3>
+
+<p>As it is also released as an official Docker image from Docker&rsquo;s automated build repository &ndash; you can always pull or refer the image when launching containers.</p>
+
+<p><code>
+docker pull sequenceiq/hadoop-ubuntu:2.5.1
+</code></p>
+
+<h3>Start a container</h3>
+
+<p>In order to use the Docker image you have just build or pulled use:</p>
+
+<p><code>
+docker run -i -t sequenceiq/hadoop-ubuntu:2.5.1 /etc/bootstrap.sh -bash
+</code></p>
+
+<h2>Testing</h2>
+
+<p>You can run one of the stock examples:</p>
+
+<p>```
+cd $HADOOP_PREFIX</p>
+
+<h1>run the mapreduce</h1>
+
+<p>bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.5.1.jar grep input output &lsquo;dfs[a-z.]+&rsquo;</p>
+
+<h1>check the output</h1>
+
+<p>bin/hdfs dfs -cat output/*
+```</p>
+
+<h2>Hadoop native libraries, build, Bintray, etc</h2>
+
+<p>The Hadoop build process is no easy task &ndash; requires lots of libraries and their right version, protobuf, etc and takes some time &ndash; we have simplified all these, made the build and released a 64b version of Hadoop nativelibs on our <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.5.0/view/files">Bintray repo</a>. Enjoy.</p>
+
+<p>Should you have any questions let us know through our social channels as <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Hadoop 2.5.0 on Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/"/>
+    <updated>2014-08-18T18:07:18+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker</id>
+    <content type="html"><![CDATA[<p>A few weeks ago we have released an Apache Hadoop 2.3 Docker image &ndash; in a very short time this become the most <a href="https://registry.hub.docker.com/search?q=hadoop">popular</a> Hadoop image in the Docker <a href="https://registry.hub.docker.com/">registry</a>.</p>
+
+<p>Following on the success of our Hadoop 2.3.0, 2.4.0 and 2.4.1 Docker <a href="https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/">image</a>, the feedbacks and requests we have received and aligning with the Hadoop release cycle, we have released an Apache Hadoop 2.5.0 Docker image &ndash; same as the previous version this is available as a trusted and automated build on the official Docker <a href="https://registry.hub.docker.com/">registry</a>.</p>
+
+<p>Please note that beside this Hadoop image, we have released and maintain a <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/">pseudo-distributed</a> and <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">fully distributed</a> Hadoop Docker image provisioned with Apache Ambari. As they are provisioned with Ambari you have the option to change, add and remove Hadoop components using cluster blueprints.</p>
+
+<p>Also we are happy to let you know that this release of Apache Hadoop contains a few of SequenceIQ&rsquo;s open source <strong>contributions</strong> and <a href="https://issues.apache.org/jira/browse/YARN-2250">fixes</a> around YARN schedulers.
+We are working on an SLA enforcer for Hadoop &ndash; very soon to be open sourced &ndash; and part of that work we are contributing back to the community. Also there is a major contribution of ours coming in the next release of Hadoop &ndash; 2.6.0.
+Stay tuned and follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+
+<h2>Build the image</h2>
+
+<p>In case you&rsquo;d like to try directly from the <a href="https://github.com/sequenceiq/hadoop-docker">Dockerfile</a> you can build the image as:</p>
+
+<p><code>
+docker build  -t sequenceiq/hadoop-docker .
+</code></p>
+
+<!-- more -->
+
+
+<h2>Pull the image</h2>
+
+<p>As it is also released as an official Docker image from Docker&rsquo;s automated build repository &ndash; you can always pull or refer the image when launching containers.</p>
+
+<p><code>
+docker pull sequenceiq/hadoop-docker:2.5.0
+</code></p>
+
+<h2>Start a container</h2>
+
+<p>In order to use the Docker image you have just build or pulled use:</p>
+
+<p><code>
+docker run -i -t sequenceiq/hadoop-docker:2.5.0 /etc/bootstrap.sh -bash
+</code></p>
+
+<h2>Testing</h2>
+
+<p>You can run one of the stock examples:</p>
+
+<p>```
+cd $HADOOP_PREFIX</p>
+
+<h1>run the mapreduce</h1>
+
+<p>bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.5.0.jar grep input output &lsquo;dfs[a-z.]+&rsquo;</p>
+
+<h1>check the output</h1>
+
+<p>bin/hdfs dfs -cat output/*
+```</p>
+
+<h2>Hadoop native libraries, build, Bintray, etc</h2>
+
+<p>The Hadoop build process is no easy task &ndash; requires lots of libraries and their right version, protobuf, etc and takes some time &ndash; we have simplified all these, made the build and released a 64b version of Hadoop nativelibs on our <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.4.1/view/files">Bintray repo</a>. Enjoy.</p>
+
+<p>Should you have any questions let us know through our social channels as <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Hadoop 2.4.1 on Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/06/25/hadoop-2-4-0-docker/"/>
+    <updated>2014-06-25T18:07:18+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/06/25/hadoop-2-4-0-docker</id>
+    <content type="html"><![CDATA[<p>A few weeks ago we have released an Apache Hadoop 2.3 Docker image &ndash; in a very short time this become the most <a href="https://registry.hub.docker.com/search?q=hadoop&amp;s=downloads">popular</a> Hadoop image in the Docker <a href="https://registry.hub.docker.com/">registry</a>.</p>
+
+<p>Following on the success of our Hadoop 2.3 Docker <a href="https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/">image</a>, the feedbacks and requests we have received and aligning with the Hadoop release cycle, we have released an Apache Hadoop 2.4.1 Docker image &ndash; same as the previous version this is available as a trusted and automated build on the official Docker <a href="https://registry.hub.docker.com/">registry</a>.</p>
+
+<p>Please note that beside this Hadoop image, we have released and maintain a <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/">pseudo-distributed</a> and <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">distributed</a> Hadoop Docker image provisioned with Apache Ambari. As they are provisioned with Ambari you have the option to change, add and remove Hadoop components using cluster blueprints.</p>
+
+<h2>Build the image</h2>
+
+<p>In case you&rsquo;d like to try directly from the <a href="https://github.com/sequenceiq/hadoop-docker">Dockerfile</a> you can build the image as:</p>
+
+<p><code>
+docker build  -t sequenceiq/hadoop-docker .
+</code></p>
+
+<!-- more -->
+
+
+<h2>Pull the image</h2>
+
+<p>As it is also released as an official Docker image from Docker&rsquo;s automated build repository &ndash; you can always pull or refer the image when launching containers.</p>
+
+<p><code>
+docker pull sequenceiq/hadoop-docker:2.4.1
+</code></p>
+
+<h2>Start a container</h2>
+
+<p>In order to use the Docker image you have just build or pulled use:</p>
+
+<p><code>
+docker run -i -t sequenceiq/hadoop-docker /etc/bootstrap.sh -bash
+</code></p>
+
+<h2>Testing</h2>
+
+<p>You can run one of the stock examples:</p>
+
+<p>```
+cd $HADOOP_PREFIX</p>
+
+<h1>run the mapreduce</h1>
+
+<p>bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.4.1.jar grep input output &lsquo;dfs[a-z.]+&rsquo;</p>
+
+<h1>check the output</h1>
+
+<p>bin/hdfs dfs -cat output/*
+```</p>
+
+<h2>Hadoop native libraries, build, Bintray, etc</h2>
+
+<p>The Hadoop build process is no easy task &ndash; requires lots of libraries and their right version, protobuf, etc and takes some time &ndash; we have simplified all these, made the build and released a 64b version of Hadoop nativelibs on our <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.4.1/view/files">Bintray repo</a>. Enjoy.</p>
+]]></content>
+  </entry>
+  
+</feed>

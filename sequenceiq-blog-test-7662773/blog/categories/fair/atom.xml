@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Fair | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com/blog/categories/fair/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-10-02T17:35:55+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
+  <author>
+    <name><![CDATA[SequenceIQ]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[YARN Schedulers demystified - Part 2: Fair]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/09/yarn-schedulers-demystified-part-2-fair/"/>
+    <updated>2014-09-09T16:00:00+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/09/yarn-schedulers-demystified-part-2-fair</id>
+    <content type="html"><![CDATA[<p>In our previous blog post we have been demystifying the <a href="http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1/">Capacity scheduler internals</a> &ndash; as promised in this post is the Fair scheduler’s turn. You can check also our previous post to find out how fair is the Fair scheduler in real life <a href="http://blog.sequenceiq.com/blog/2014/08/16/fairplay/">here</a>.</p>
+
+<p>You might ask why YARN schedulers are so important for us? Recently we have released and open sourced the industry&rsquo;s first SLA policy based autoscaling API for Hadoop clusters, called <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> &ndash; and part of the project is based on schedulers, <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> and our contribution to Apache YARN.</p>
+
+<h2>The Fair Scheduler internals</h2>
+
+<p>The FairScheduler&rsquo;s purpose is to assign resources to applications such that all apps get &ndash; on average &ndash; an equal share of resources over time.
+By default the scheduler bases fairness decisions only on memory, but it can be configured otherwise. When only a single app is running
+in the cluster it can take all the resources. When new apps are submitted resources that free up are assigned to the new apps,
+so that each app eventually on gets roughly the same amount of resources. Queues can be weighted to determine the fraction of total
+resources that each app should get.</p>
+
+<h2>Configuration</h2>
+
+<p>Although the CapacityScheduler is the default we can easily tell YARN to use the FairScheduler. In yarn-site.xml
+```
+<property></p>
+
+<pre><code>  &lt;name&gt;yarn.resourcemanager.scheduler.class&lt;/name&gt;
+  &lt;value&gt;org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairScheduler&lt;/value&gt;
+</code></pre>
+
+<p></property>
+<property></p>
+
+<pre><code>  &lt;name&gt;yarn.scheduler.fair.allocation.file&lt;/name&gt;
+  &lt;value&gt;/etc/hadoop/conf.empty/fair-scheduler.xml&lt;/value&gt;
+</code></pre>
+
+<p></property>
+<code>``
+The FairScheduler consists of 2 configuration files: scheduler-wide options can be placed into</code>yarn-site.xml<code>and queue settings in the
+</code>allocation file` which must be in XML format. Click <a href="http://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-site/FairScheduler.html">here</a>
+for a more detailed reference.</p>
+
+<h3>Few things worth noting compared to CapacityScheduler regarding queues</h3>
+
+<ul>
+<li>Both CapacityScheduler and FairScheduler supports hierarchical queues and all queues descend from a queue named <code>root</code>.</li>
+<li>Both uses a queue called <code>default</code> as well.</li>
+<li>Applications can be submitted to leaf queues only.</li>
+<li>Both CapacityScheduler and FairScheduler can create new queues at run time, the only difference is the how. In case of the CapacityScheduler
+  the configuration file needed to be modified and we have to explicitly tell the ResourceManager to reload the configuration, while the
+  FairScheduler does the same based on the queue placement policies which is less painful.</li>
+<li>FairScheduler introduced scheduling policies which determines which job should get resources at each scheduling opportunity. The cool thing
+  about this that besides the default ones (&ldquo;fifo&rdquo; &ldquo;fair&rdquo; &ldquo;drf&rdquo;) anyone can create new scheduling policies by extending the
+  <code>org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.SchedulingPolicy</code> class and place it to the classpath.</li>
+<li>FairScheduler allows different queue placement policies as mentioned earlier. These policies tell the scheduler where to place the incoming app
+  among the queues. Placement can depend on users, groups or requested queue by the applications.</li>
+<li>In FairScheduler applications can be submitted to non-existing queues if the <code>create</code> flag is set and it will create that queue, while the
+  CapacityScheduler will instantly reject the submission.</li>
+<li>From Hadoop 2.6.0 (<a href="https://issues.apache.org/jira/browse/YARN-1495">YARN-1495</a>) both schedulers will let users to manually move
+  applications across queues.<br/>
+  <code>Side note:</code> This feature allows us to re-prioritize and define SLAs on applications and place them to queues where they get the enforced
+  resources. Our newly open sourced project <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> will add this
+  capability for static clusters besides dynamic ones in the near future.</li>
+</ul>
+
+
+<!-- more -->
+
+
+<h2>Messaging</h2>
+
+<p>The event mechanism is the same as with CapacityScheduler &ndash; thus I&rsquo;m not going to take account on the events &ndash; and if you check the handler methods
+(<a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/CapacityScheduler.java#L956">here</a>
+and <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/FairScheduler.java#L1134">here</a>)
+you can notice that they look fairly the same.
+```java
+@Override
+  public void handle(SchedulerEvent event) {</p>
+
+<pre><code>switch (event.getType()) {
+case NODE_ADDED:
+  if (!(event instanceof NodeAddedSchedulerEvent)) {
+    throw new RuntimeException("Unexpected event type: " + event);
+  }
+  NodeAddedSchedulerEvent nodeAddedEvent = (NodeAddedSchedulerEvent)event;
+  addNode(nodeAddedEvent.getAddedRMNode());
+  recoverContainersOnNode(nodeAddedEvent.getContainerReports(),
+      nodeAddedEvent.getAddedRMNode());
+  break;
+case NODE_REMOVED:
+  if (!(event instanceof NodeRemovedSchedulerEvent)) {
+    throw new RuntimeException("Unexpected event type: " + event);
+  }
+  NodeRemovedSchedulerEvent nodeRemovedEvent = (NodeRemovedSchedulerEvent)event;
+  removeNode(nodeRemovedEvent.getRemovedRMNode());
+  break;
+case NODE_UPDATE:
+  if (!(event instanceof NodeUpdateSchedulerEvent)) {
+    throw new RuntimeException("Unexpected event type: " + event);
+  }
+  NodeUpdateSchedulerEvent nodeUpdatedEvent = (NodeUpdateSchedulerEvent)event;
+  nodeUpdate(nodeUpdatedEvent.getRMNode());
+  break;
+case APP_ADDED:
+  if (!(event instanceof AppAddedSchedulerEvent)) {
+    throw new RuntimeException("Unexpected event type: " + event);
+  }
+  AppAddedSchedulerEvent appAddedEvent = (AppAddedSchedulerEvent) event;
+  addApplication(appAddedEvent.getApplicationId(),
+    appAddedEvent.getQueue(), appAddedEvent.getUser(),
+    appAddedEvent.getIsAppRecovering());
+  break;
+case APP_REMOVED:
+  if (!(event instanceof AppRemovedSchedulerEvent)) {
+    throw new RuntimeException("Unexpected event type: " + event);
+  }
+  AppRemovedSchedulerEvent appRemovedEvent = (AppRemovedSchedulerEvent)event;
+  removeApplication(appRemovedEvent.getApplicationID(),
+    appRemovedEvent.getFinalState());
+  break;
+case APP_ATTEMPT_ADDED:
+  if (!(event instanceof AppAttemptAddedSchedulerEvent)) {
+    throw new RuntimeException("Unexpected event type: " + event);
+  }
+  AppAttemptAddedSchedulerEvent appAttemptAddedEvent =
+      (AppAttemptAddedSchedulerEvent) event;
+  addApplicationAttempt(appAttemptAddedEvent.getApplicationAttemptId(),
+    appAttemptAddedEvent.getTransferStateFromPreviousAttempt(),
+    appAttemptAddedEvent.getIsAttemptRecovering());
+  break;
+case APP_ATTEMPT_REMOVED:
+  if (!(event instanceof AppAttemptRemovedSchedulerEvent)) {
+    throw new RuntimeException("Unexpected event type: " + event);
+  }
+  AppAttemptRemovedSchedulerEvent appAttemptRemovedEvent =
+      (AppAttemptRemovedSchedulerEvent) event;
+  removeApplicationAttempt(
+      appAttemptRemovedEvent.getApplicationAttemptID(),
+      appAttemptRemovedEvent.getFinalAttemptState(),
+      appAttemptRemovedEvent.getKeepContainersAcrossAppAttempts());
+  break;
+case CONTAINER_EXPIRED:
+  if (!(event instanceof ContainerExpiredSchedulerEvent)) {
+    throw new RuntimeException("Unexpected event type: " + event);
+  }
+  ContainerExpiredSchedulerEvent containerExpiredEvent =
+      (ContainerExpiredSchedulerEvent)event;
+  ContainerId containerId = containerExpiredEvent.getContainerId();
+  completedContainer(getRMContainer(containerId),
+      SchedulerUtils.createAbnormalContainerStatus(
+          containerId,
+          SchedulerUtils.EXPIRED_CONTAINER),
+      RMContainerEventType.EXPIRE);
+  break;
+default:
+  LOG.error("Unknown event arrived at FairScheduler: " + event.toString());
+}
+</code></pre>
+
+<p>  }
+```</p>
+
+<h3>NODE_ADDED &amp;&amp; NODE_REMOVED</h3>
+
+<p>It&rsquo;s the same as in CapacityScheduler, adjusts the global resources based on whether a node joined or left the cluster.</p>
+
+<h3>APP_ADDED</h3>
+
+<p>Application submission is slightly different from CapacityScheduler (well not on client side as it&rsquo;s the same there), but because of
+the queue placement policy. Administrators can define a <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementPolicy.java">QueuePlacementPolicy</a>
+which will determine where to place the submitted application. A QueuePlacementPolicy stands from a list of <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java">QueuePlacementRules</a>.
+These rules are ordered meaning that the first rule which can place the application into a queue will apply. If no rule can apply the
+application submission will be rejected. Each rule accept a <code>create</code> argument in which case it&rsquo;s true the rule can create a queue if it is missing.
+The following rules exist:</p>
+
+<ul>
+<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L124">User</a>:
+  places the application into a queue with user&rsquo;s name e.g: root.chris</li>
+<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L140">PrimaryGroup</a>:
+  places the application into a queue with the user&rsquo;s primary group name e.g: root.hdfs</li>
+<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L160">SecondaryGroupExistingQueue</a>:
+  places the application into a queue with the user&rsquo;s secondary group name</li>
+<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L188">NestedUserQueue</a>:
+  places the application into a queue with the user&rsquo;s name under the queue returned by the nested rule</li>
+<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L258">Specified</a>:
+  places the application into a queue which was requested when submitted</li>
+<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L282">Default</a>:
+  places the application into the default queue</li>
+<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L324">Reject</a>:
+  it is a termination rule in the sequence of rules, if no rule applied before then it will reject the submission</li>
+</ul>
+
+
+<p>ACLs are also checked before creating and adding the application to the list of <code>SchedulerApplications</code> and updating the metrics.</p>
+
+<h3>APP_REMOVED</h3>
+
+<p>Simply stops the application and sets it&rsquo;s final state.</p>
+
+<h3>APP_ATTEMPT_ADDED</h3>
+
+<p>The analogy is the same with the CapacityScheduler that application attempts trigger the application to actually run. Based on the
+allocation configuration mentioned above the <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/MaxRunningAppsEnforcer.java">MaxRunningAppsEnforcer</a>
+will decide whether the app is placed into the <code>runnableApps</code> or the <code>nonRunnableApps</code> inside of the queue. <code>MaxRunningAppsEnforcer</code> also
+keeps track of the runnable and non runnable apps per user. Attempt states are also transferred from one to another.</p>
+
+<h3>APP_ATTEMPT_REMOVED</h3>
+
+<p>Releases all the allocated, acquired, running containers (in case of <code>ApplicationMaster</code> restart the running containers won&rsquo;t get killed),
+releases all reserved containers, cleans up pending requests and informs the queues. <code>MaxRunningAppsEnforcer</code> gets updated as well.</p>
+
+<h3>NODE_UPDATE</h3>
+
+<p>As we learned from CapacityScheduler <code>NodeUpdateSchedulerEvents</code> arrive every second. FairScheduler support asynchronous scheduling on a
+different thread regardless of the <code>NodeManager's</code> <code>heartbeats</code> as well. We also learned the importance of the <code>Allocation</code> method which
+issues the <code>ResourceRequests</code> of an application and in this case it does exactly the same as in case of CapacityScheduler. You can read
+about the form of these requests there. At each node update the scheduler updates the capacities of the resources if it&rsquo;s changed, processes
+the completed and newly launched containers, updates the metrics and tries to allocate resources to applications. Just like with CapacityScheduler
+container reservation has the advantage thus it gets fulfilled first. If there is no reservation it tries to schedule in a queue which is
+farthest below fair share. The scheduler first orders the queues and then the applications inside the queues using the configured
+<a href="https://github.com/apache/hadoop-common/tree/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/policies">SchedulingPolicy</a>.
+As I mentioned in the configuration section there are 3 default policies available:</p>
+
+<ul>
+<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/policies/FifoPolicy.java">FifoPolicy</a>
+  (fifo) &ndash; Orders first by priorities and then by submission time.</li>
+<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/policies/DominantResourceFairnessPolicy.java">DominantResourceFairnessPolicy</a>
+  (drf) &ndash; Orders by trying to equalize dominant resource usage.
+  (dominant resource usage is the largest ratio of resource usage to capacity among the resource types it is using)</li>
+<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/policies/FairSharePolicy.java">FairSharePolicy</a>
+  (fair) &ndash; Orders via weighted fair sharing. In addition, Schedulables below their min share get priority over those whose
+  min share is met. Schedulables below their min share are compared by how far below it they are as a ratio. For example, if job A has 8
+  out of a min share of 10 tasks and job B has 50 out of a min share of 100, then job B is scheduled next, because B is at 50% of its
+  min share and A is at 80% of its min share. Schedulables above their min share are compared by (runningTasks / weight).</li>
+</ul>
+
+
+<p>SchedulingPolicies can be written and used by anyone without major investment to how to do it. All it takes is to extend a
+<a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/SchedulingPolicy.java">class</a>
+and place the implementation to the classpath and restart the <code>ResourceManager</code>. Even though it&rsquo;s easy to do and it&rsquo;s not a major investment
+the fairness will depend on it thus the effect will be major, so you should really consider it. After the decision of which application should
+get resources first the game is pretty much the same as with the CapacityScheduler. First it tries to allocate container on a data local node
+and after a delay on a rack local node and in the end falling back to an off switch node.</p>
+
+<h3>CONTAINER_EXPIRED</h3>
+
+<p>Cleans up the expired containers just like it would be a finished container.</p>
+
+<h2>What&rsquo;s next?</h2>
+
+<p>We might do a Part 3 post about the FIFOScheduler, though that&rsquo;s really straightforward &ndash; nevertheless, let us know if you&rsquo;d like to read about. As we have already mentioned, last week we released <a href="http://sequenceiq.com/periscope/">Periscope</a> &ndash; the industry’s first SLA policy based autoscaling API for Hadoop YARN &ndash; all these features we have blogged about are based on our contribution in Hadoop, YARN and Ambari -so stay tuned and follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a> for updates.</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: MLlib | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com/blog/categories/mllib/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-10-02T17:35:55+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
+  <author>
+    <name><![CDATA[SequenceIQ]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Spark - create and test jobs]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/29/spark-correlation-and-testing/"/>
+    <updated>2014-09-29T13:42:24+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/29/spark-correlation-and-testing</id>
+    <content type="html"><![CDATA[<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we use different runtimes (MR2, Spark, Tez) when submitting jobs from <a href="http://docs.banzai.apiary.io/reference">Banzai</a> to a YARN clusters.
+Some of these jobs are quite simple (filtering, sorting, projection etc.), but most of them can be complicated or not so oblivious at first (e.g.: complex machine learning algorithms).
+From Banzai’s perspective/looking from outside a YARN cluster, what only matters is the input and the output dataset &ndash; as we have abstracted all the pipeline steps &ndash;  so testing of this steps properly is a must.
+In this post we’d like to show such an example that &ndash; a correlation job on vectors with <a href="https://spark.apache.org/">Apache Spark</a> and how we test it.</p>
+
+<h2>Correlation example (on vectors) with Apache Spark</h2>
+
+<p>Suppose that we have an input dataset (CSV file for the sake of simplicity of the sample code) and we want to reveal the dependency between all of the columns. (all data is vectorized, if not you will have to vectorize your data first).
+If we want to build a <code>testable</code> job, we have to focus only on the algorithm part. Our goal here is to work only on the Resilient Distributed Dataset and take the context creation outside of the job.
+This way you cab run and create your <code>SparkContext</code>locally and substitute an HDFS data source (or something else) with simple objects.</p>
+
+<p>Interface: (output: vector index pairs with their correlation coefficient)</p>
+
+<p>``` scala
+abstract class CorrelationJob {</p>
+
+<p>  def computeCorrelation(input: RDD[String]) : Array[(Int, Int, Double)]</p>
+
+<p>  def d2d(d: Double) : Double = new java.text.DecimalFormat(&ldquo;#.######&rdquo;).format(d).toDouble</p>
+
+<p>}
+```</p>
+
+<!-- more -->
+
+
+<p>Below we show you how a Pearson correlation job implementation looks like with RDD functions. First, you need to gather all combinations of the vector indices and count the size of the dataset.
+After that, the only thing what you need is to compute the <a href="http://www.statisticshowto.com/what-is-the-correlation-coefficient-formula/">correlation coefficient</a> on all column combinations (based on the square, dot product and sum of the fields per line). It takes 1 map and 1 reduce operation per pairs. (<code>iterative</code> &ndash;> typical example where you need to use Spark instead of MR2)</p>
+
+<p>``` scala
+  override def computeCorrelation(input: RDD[String]) : Array[(Int, Int, Double)] = {</p>
+
+<pre><code>val numbersInput = input
+  .map(line =&gt; line.split(",").map(_.toDouble))
+  .cache()
+
+val combinedFields = (0 to numbersInput.first().size - 1).combinations(2)
+val size = numbersInput.count()
+val res = for (field &lt;- combinedFields) yield {
+  val col1Index = field.head
+  val col2Index = field.last
+  val tempData = numbersInput.map{arr =&gt; {
+    val data1 = arr(col1Index)
+    val data2 = arr(col2Index)
+    (data1, data2, data1 * data2, math.pow(data1, 2), math.pow(data2, 2))
+  }}
+  val (sum1: Double, sum2: Double, dotProduct: Double, sq1: Double, sq2: Double) = tempData.reduce {
+    case ((a1, a2, aDot, a1sq, a2sq), (b1, b2, bDot, b1sq, b2sq)) =&gt;
+      (a1 + b1, a2 + b2, aDot + bDot, a1sq + b1sq, a2sq + b2sq)
+  }
+  val corr = pearsonCorr(size, sum1, sum2, sq1, sq2, dotProduct)
+  (col1Index, col2Index, d2d(corr))
+}
+res.toArray
+</code></pre>
+
+<p>  }</p>
+
+<p>  // correlation formula
+  def pearsonCorr(size: Long, sum1: Double, sum2: Double, sq1: Double, sq2: Double, dotProduct: Double): Double = {</p>
+
+<pre><code>val numerator = (size * dotProduct) - (sum1 * sum2)
+val denominator = scala.math.sqrt(size * sq1 - sum1 * sum1) * scala.math.sqrt(size * sq2 - sum2 * sum2)
+numerator / denominator
+</code></pre>
+
+<p>  }
+```</p>
+
+<h2>MLlib Statistics</h2>
+
+<p>By the way <a href="https://spark.apache.org/releases/spark-release-1-1-0.html">Spark Release 1.1.0</a> contains an algorithm for correlation computation, thus we now show you how to use that instead of the above one.
+With <a href="https://github.com/apache/spark/blob/master/mllib/src/main/scala/org/apache/spark/mllib/stat/Statistics.scala">Statistics</a> you can produce a correlation matrix from vectors. For obtaining the correlation coefficient pairs, we just need to get the upper triangular matrix without diagonal. It looks much simpler, isn&rsquo;t is?</p>
+
+<p>``` scala
+  override def computeCorrelation(input: RDD[String]) : Array[(Int, Int, Double)] = {</p>
+
+<pre><code>val vectors = input
+  .map(line =&gt; Vectors.dense(line.split(",").map(_.toDouble)))
+  .cache()
+
+val corr: Matrix = Statistics.corr(vectors, "pearson")
+val num = corr.numRows
+
+// upper triangular matrix without diagonal
+val res = for ((x, i) &lt;- corr.toArray.zipWithIndex if (i / num) &lt; i % num )
+yield ((i / num), (i % num), d2d(x))
+
+res
+</code></pre>
+
+<p>  }
+```</p>
+
+<h2>Testing</h2>
+
+<p>For testing Spark jobs we use the Specs2 framework. We do not want to start a Spark context before every test case, so we just start/end it before/after steps.
+In order to run Spark locally set master to &ldquo;local&rdquo;. In our example (for demonstration purposes) we do not turn off Spark logging (or set to warn level) but it is recommended.</p>
+
+<p>``` scala
+abstract class SparkJobSpec extends SpecificationWithJUnit with BeforeAfterExample {</p>
+
+<p>  @transient var sc: SparkContext = _</p>
+
+<p>  def beforeAll = {</p>
+
+<pre><code>System.clearProperty("spark.driver.port")
+System.clearProperty("spark.hostPort")
+
+val conf = new SparkConf()
+  .setMaster("local")
+  .setAppName("test")
+sc = new SparkContext(conf)
+</code></pre>
+
+<p>  }</p>
+
+<p>  def afterAll = {</p>
+
+<pre><code>if (sc != null) {
+  sc.stop()
+  sc = null
+  System.clearProperty("spark.driver.port")
+  System.clearProperty("spark.hostPort")
+}
+</code></pre>
+
+<p>  }</p>
+
+<p>  override def map(fs: => Fragments) = Step(beforeAll) ^ super.map(fs) ^ Step(afterAll)</p>
+
+<p>}</p>
+
+<p><code>
+In our test specification we check that both correlation implementations are correct or not.
+</code> scala
+@RunWith(classOf[JUnitRunner])
+class CorrelationJobTest extends SparkJobSpec {</p>
+
+<p>  &ldquo;Spark Correlation implementations&rdquo; should {</p>
+
+<pre><code>val input = Seq("1,2,9,5", "2,7,5,6","4,5,3,4","6,7,5,6")
+val correctOutput = Array(
+  (0, 1, 0.620299),
+  (0, 2, -0.627215),
+  (0, 3, 0.11776),
+  (1, 2, -0.70069),
+  (1, 3, 0.552532),
+  (2, 3, 0.207514)
+  )
+
+"case 1 : return with correct output (custom spark correlation)" in {
+  val inputRDD = sc.parallelize(input)
+  val customCorr = new CustomCorrelationJob().computeCorrelation(inputRDD, sc)
+  customCorr must_== correctOutput
+}
+"case 2: return with correct output (stats spark correlation)" in {
+  val inputRDD = sc.parallelize(input)
+  val statCorr = new StatsCorrelationJob().computeCorrelation(inputRDD, sc)
+  statCorr must_== correctOutput
+}
+"case 3: equal to each other" in {
+  val inputRDD = sc.parallelize(input)
+  val statCorr = new StatsCorrelationJob().computeCorrelation(inputRDD, sc)
+  val customCorr = new CustomCorrelationJob().computeCorrelation(inputRDD, sc)
+  statCorr must_== customCorr
+}
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>To build and test the project use this command from our <a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub examples</a> spark-correlation directory:</p>
+
+<p><code>bash
+./gradlew clean build
+</code></p>
+
+<p>You can run this correlation example in our free Docker based Apache Spark container as well. (with <a href="https://github.com/apache/spark/blob/master/bin/spark-submit">spark-submit</a> script). You can get the Spark container from the official <a href="https://registry.hub.docker.com/u/sequenceiq/spark/">Docker registry</a> or from our <a href="https://github.com/sequenceiq/docker-spark">GitHub</a> repository. The source code is available at <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/spark-correlation">SequenceIQ&rsquo;s GitHub repository</a>.</p>
+
+<p>If you have any questions or suggestions you can reach us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>,
+ <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Spark - MLlib Introduction]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/07/31/spark-mllib/"/>
+    <updated>2014-07-31T07:47:32+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/07/31/spark-mllib</id>
+    <content type="html"><![CDATA[<h3>Introduction</h3>
+
+<p>In one of our earlier posts we have mentioned that we use Scalding (among others) for writing MR jobs. Scala/Scalding simplifies the implementation of many MR patterns and makes it easy to implement quite complex jobs like machine learning algorithms. Map Reduce is a mature and widely used framework and it is a good choice for processing large amounts of data &ndash; but not as great if you’d like to use it for fast iterative algorithms/processing. This is a use case where <a href="https://spark.apache.org/">Apache Spark</a> can be quite handy. Spark is fit for these kind of algorithms, because it tries to keep everything in memory (in case of you run out of memory, you can switch to another <a href="http://spark.apache.org/docs/latest/programming-guide.html#rdd-persistence">storage levels</a>).</p>
+
+<h3>Apache Spark &ndash; MLlib library</h3>
+
+<p><a href="https://spark.apache.org/docs/latest/mllib-guide.html">MLlib</a> is a machine learning library which ships with Apache Spark, and can run on any Hadoop2/YARN cluster without any pre-installation. At SequenceIQ we use MLlib in Scala &ndash; but you could use it from Java and Python as well. Let us quickly show you an MLlib clustering algorithm with code examples.</p>
+
+<h3>KMeans example</h3>
+
+<p>K-Means (Lloyd&rsquo;s algorithm) is a simple NP-hard unsupervised learning algorithm that solve well known clustering problems. The essence of the algorithm is to separate your data into K cluster. In simple terms it needs 4 steps. First of all you have to vectorize your data. (you can do that with text values too). The code looks like this:</p>
+
+<p>```scala</p>
+
+<pre><code>val data = context.textFile(input).map {
+  line =&gt; Vectors.dense(line.split(',').map(_.toDouble))
+}.cache()
+</code></pre>
+
+<p>```</p>
+
+<!-- more -->
+
+
+<p>The second step is to choose K center points (centroids). The third one is to assign each vector to the group that has the closest centroid. After all this is done, next thing you will need to do is to recalculate the positions of the centroids. You have to repeat the third and fourth steps until the centroids are not moving (<code>the iterative stuff</code>). The <a href="https://github.com/apache/spark/blob/master/mllib/src/main/scala/org/apache/spark/mllib/clustering/KMeans.scala">KMeans</a> MLlib model is doing that for you.</p>
+
+<p>```scala</p>
+
+<pre><code>val clusters: KMeansModel = KMeans.train(data, K, maxIteration, runs)
+
+val vectorsAndClusterIdx = data.map{ point =&gt;
+  val prediction = clusters.predict(point)
+  (point.toString, prediction)
+}
+</code></pre>
+
+<p>```
+After you have your model result, you can utilize it in your RDD object.</p>
+
+<h3>Running Spark job on YARN</h3>
+
+<p>In order to run this Spark application on YARN first of all you will need a Hadoop YARN cluster. For that you could use our Hadoop as a Service API called <a href="http://sequenceiq.com/cloudbreak">Cloudbreak</a> &ndash; using a <code>multi-node-hdfs-yarn</code> blueprint will set you up a Spark ready Hadoop cluster in less than 2 minutes on your favorite cloud provider. Give it a try at our hosted <a href="https://cloudbreak.sequenceiq.com">Cloudbreak</a> instance.</p>
+
+<p>Once your cluster it’s up and ready you can run the following command:</p>
+
+<p><code>bash
+./bin/spark-submit --class com.sequenceiq.spark.Main --master \
+yarn-client --driver-memory 1g --executor-memory 1g --executor-cores 1 \
+/root/spark-clustering-1.0.jar hdfs://sandbox:9000/input/input.txt /output 10 10 1
+</code>
+Alternatively you can run this in our free Docker based Apache Spark container as well. You can get a Spark container from the official <a href="https://registry.hub.docker.com/u/sequenceiq/spark/">Docker registry</a> or from our <a href="https://github.com/sequenceiq/docker-spark">GitHub</a> repository.
+As always we are making the source code available at <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/spark-clustering">SequenceIQ&rsquo;s GitHub repository</a> (check the other interesting examples as well).  You can find 2 simple input datasets for testing purposes.</p>
+
+<p>The result of the clustering looks like this (generated with R):</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/spark-clustering/data/spark-clustering_1.jpeg" alt="" /></p>
+
+<p>While there is a loud buzz about what’s faster than the other and there are huge numbers thrown in as the <em>X</em> multiplier factor we don’t really want to enter that game &ndash; as a fact we’d like to mention that both example performs better than Mahout KMeans (2-3x faster with 20 iterations), but these are really small datasets. We have seen larger datasets in production where the performances are quite the same, or can go the other way (especially that Spark is new and people don’t always get the configuration right).</p>
+
+<p>In one of our next post we will show you metrics for a much larger dataset and other ML algorithms &ndash; follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a> for updates.</p>
+
+<h3>Apache Tez</h3>
+
+<p>We can’t finish this blog post before not talking about <a href="http://tez.apache.org/">Apache Tez</a> &ndash; the project is aimed at building an application framework which allows for a complex directed-acyclic-graph of tasks for processing data &ndash; fast. We (and many others) believe that this can be a good alternative for Spark &ndash; especially for machine learning. The number of frameworks which are adding or moving the MR runtime to Tez is increasing &ndash; among the few to mention are Cascading, Summingbird, Conjecture &ndash; including us as well.</p>
+
+<p>Note that Apache Tez has already showed <strong>awesome</strong> result. Being the key building block of the <a href="http://hortonworks.com/labs/stinger/">Stinger inititive</a> &ndash; led by Hortonworks &ndash; managed to bring near real time queries and speed up Hive with 100x.</p>
+
+<h3>Other promising machine learning frameworks</h3>
+
+<p>If you are interested in machine learning frameworks, you have to check  <a href="https://github.com/etsy/Conjecture">Conjecture</a> or <a href="https://github.com/tresata/ganitha">ganitha</a> &ndash; they both show great fueatures and have promising results.</p>
+]]></content>
+  </entry>
+  
+</feed>

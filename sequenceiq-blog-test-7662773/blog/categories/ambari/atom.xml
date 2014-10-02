@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Ambari | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com/blog/categories/ambari/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-10-02T17:35:55+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
+  <author>
+    <name><![CDATA[SequenceIQ]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Submit a Spark job to YARN from code]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/08/22/spark-submit-in-java/"/>
+    <updated>2014-08-22T08:09:28+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/08/22/spark-submit-in-java</id>
+    <content type="html"><![CDATA[<p>In our previous Apache Spark related post we showed you how to write a simple machine learning job. In this post we’d like to show you how to submit a Spark job from code. At SequenceIQ we submit jobs to different clusters &ndash; based on load, customer profile, associated SLAs, etc. Doing this the <code>documented</code> way was cumbersome so we needed a way to submit Spark jobs (and in general all of our jobs running in a YARN cluster) from code. Also due to the <code>dynamic</code> clusters, and changing job configurations we can’t use hardcoded parameters &ndash; in a previous <a href="http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service/">blog post</a> we highlighted how are we doing all these.</p>
+
+<h2>Business as usual</h2>
+
+<p>Basically as you from the <a href="https://spark.apache.org/docs/1.0.1/submitting-applications.html">Spark documentation</a>, you have to use the <a href="https://github.com/apache/spark/blob/master/bin/spark-submit">spark-submit</a> script to submit a job. In nutshell SparkSubmit is called
+by the <a href="https://github.com/apache/spark/blob/master/bin/spark-class">spark-class</a> script with a lots of decorated arguments. In our example we examine only the YARN part of the submissions.
+As you can see in <a href="https://github.com/apache/spark/blob/master/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala">SparkSubmit.scala</a> the YARN <a href="https://github.com/apache/spark/blob/master/yarn/stable/src/main/scala/org/apache/spark/deploy/yarn/Client.scala">Client</a> is loaded and its main method invoked (based on the arguments of the script).</p>
+
+<p>```scala</p>
+
+<pre><code>// If we're deploying into YARN, use yarn.Client as a wrapper around the user class
+if (!deployOnCluster) {
+  childMainClass = args.mainClass
+  if (isUserJar(args.primaryResource)) {
+    childClasspath += args.primaryResource
+  }
+} else if (clusterManager == YARN) {
+  childMainClass = "org.apache.spark.deploy.yarn.Client"
+  childArgs += ("--jar", args.primaryResource)
+  childArgs += ("--class", args.mainClass)
+}
+
+...
+// Here we invoke the main method of the Client
+val mainClass = Class.forName(childMainClass, true, loader)
+val mainMethod = mainClass.getMethod("main", new Array[String](0).getClass)
+try {
+  mainMethod.invoke(null, childArgs.toArray)
+} catch {
+  case e: InvocationTargetException =&gt; e.getCause match {
+    case cause: Throwable =&gt; throw cause
+    case null =&gt; throw e
+}
+</code></pre>
+
+<p>```
+It’s a pretty straightforward way to submit a Spark job to a YARN cluster, though you will need to change manually the parameters which as passed as arguments.</p>
+
+<!--more-->
+
+
+<h2>Submitting the job from Java code</h2>
+
+<p>In case if you would like to submit a job to YARN from Java code, you can just simply use this Client class directly in your application.
+(but you have to make sure that every environment variable what you will need is set properly).</p>
+
+<h3>Passing Configuration object</h3>
+
+<p>In the main method the org.apache.hadoop.conf.Configuration object is not passed to the Client class. A <code>Configuration</code> is created explicitly in the constructor, which is actually okay (then client configurations are loaded from $HADOOP_CONF_DIR/core-site.xml and $HADOOP_CONF_DIR/yarn-site.xml).
+But what if you want to use (for example) an <a href="http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service/">Ambari Configuration Service</a> for retrieve your configuration, instead of using hardcoded ones?</p>
+
+<p>```scala</p>
+
+<pre><code>... // Client class - constructor
+  def this(clientArgs: ClientArguments, spConf: SparkConf) =
+    this(clientArgs, new Configuration(), spConf)
+
+... // Client object - main method
+System.setProperty("SPARK_YARN_MODE", "true")
+val sparkConf = new SparkConf()
+
+try {
+  val args = new ClientArguments(argStrings, sparkConf)
+  new Client(args, sparkConf).run()
+} catch {
+  case e: Exception =&gt; {
+    Console.err.println(e.getMessage)
+    System.exit(1)
+  }
+}
+
+System.exit(0)
+</code></pre>
+
+<p>```</p>
+
+<p>Fortunately, the configuration can be passed here (there is a <code>Configuration</code> field in the Client), but you have to write your own main method.</p>
+
+<h3>Code example</h3>
+
+<p>In our example we also use the 2 client XMLs as configuration (for demonstration purposes only), the main difference here is that we read the properties from the XMLs and filling them in the Configuration. Then we pass the Configuration object to the Client (which is directly invoked here).</p>
+
+<p>```scala
+ def main(args: Array[String]) {</p>
+
+<pre><code>val config = new Configuration()
+fillProperties(config, getPropXmlAsMap("config/core-site.xml"))
+fillProperties(config, getPropXmlAsMap("config/yarn-site.xml"))
+
+System.setProperty("SPARK_YARN_MODE", "true")
+
+val sparkConf = new SparkConf()
+val cArgs = new ClientArguments(args, sparkConf)
+
+new Client(cArgs, config, sparkConf).run()
+</code></pre>
+
+<p>  }
+```</p>
+
+<p>To build the project use this command from the spark-submit directory:</p>
+
+<p><code>bash
+./gradlew clean build
+</code></p>
+
+<p>After building it you find the required jars in spark-submit-runner/build/libs (<code>uberjar</code> with all required dependencies) and spark-submit-app/build/libs. Put them in the same directory (do this also with this <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/spark-submit/spark-submit-runner/src/main/resources">config folder</a> too). After that run this command:</p>
+
+<p><code>bash
+java -cp spark-submit-runner-1.0.jar com.sequenceuq.spark.SparkRunner \
+  --jar spark-submit-app-1.0.jar \
+  --class com.sequenceiq.spark.Main \
+  --driver-memory 1g \
+  --executor-memory 1g \
+  --executor-cores 1 \
+  --arg hdfs://sandbox:9000/input/sample.txt \
+  --arg /output \
+  --arg 10 \
+  --arg 10
+</code></p>
+
+<p>During the submission note that: not just the app jar, but the spark-submit-runner jar is also uploaded (which is an <code>uberjar</code>) to the HDFS. To avoid this, you have to upload it to the HDFS manually and set the <strong>SPARK_JAR</strong> environment variable.</p>
+
+<p><code>bash
+export SPARK_JAR="hdfs:///spark/spark-submit-runner-1.0.jar"
+</code></p>
+
+<p>If you get &ldquo;Permission denied&rdquo; exception on submit, you should set the <strong>HADOOP_USER_NAME</strong> environment variable to root (or something with proper rights).</p>
+
+<p>As usual for us we ship the code &ndash; you can get it from our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/spark-submit">GitHub</a> samples repository; the sample input is available <a href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/spark-clustering/data/input.txt">here</a>.</p>
+
+<p>If you would like to play with Spark, you can use our <a href="https://registry.hub.docker.com/u/sequenceiq/spark/">Spark Docker container</a> available as a trusted build on Docker.io repository.</p>
+
+<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Ambari configuration service]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service/"/>
+    <updated>2014-07-09T08:20:05+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service</id>
+    <content type="html"><![CDATA[<p>At SequenceIQ we use Apache Ambari for provisioning, managing, and monitoring Apache Hadoop clusters on different environments. However Ambari has more useful features than these &ndash; especially for us who automate and frequently build on-demand Hadoop clusters in cloud environments and submit different applications into. These Hadoop clusters carry different components, configurations and services &ndash; think of dev->test->UAT->PROD cluster lifecycles, different settings, SLA&rsquo;s, etc).</p>
+
+<p>Configuration of applications that use dynamically built YARN clusters can be challenging. This is due to the huge amount of configuration properties, some of which needs to be kept in sync on YARN client application side. Think of <em>yarn.resourcemanager.address</em>, <em>fs.defaultFS</em>, <em>yarn.resourcemanager.scheduler.address</em> to name a few. Each time these cluster specific entries change, client applications needs to be reconfigured. Those who ever played with clusters where the default properties are overridden know what this means&hellip;</p>
+
+<p>At SequenceIQ we use Ambari for building on-demand YARN clusters (see the related <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/"> blog post</a>). In our case Ambari not only maintains the configuration of the cluster it manages but also provides access to them through a set of REST resources.</p>
+
+<p>To overcome the configuration maintenance problem in YARN client applications, we implemented an Ambari REST client application that embedded in client applications can dynamically retrieve configuration from an Ambari instance. Thus the only thing needed for an application to have the proper configuration is the access to the Ambari instance.</p>
+
+<p>The Ambari REST client is an open source project we developed and contributed to Apache Ambari &ndash; it&rsquo;s a Groovy REST client used by the <a href="https://github.com/sequenceiq/ambari-shell">Ambari Shell</a> and <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a>.</p>
+
+<!-- more -->
+
+
+<p>Here is a short example on how to make use of the Ambari client in an arbitrary application:</p>
+
+<p>``` java
+public class AmbariConfigurationService {
+&hellip;
+private AmbariClient ambariClient;</p>
+
+<p>public AmbariConfigurationService(){
+  // inject / provide the service with the ambari related properties
+  ambariClient = new AmbariClient(ambariHost, ambariPort, ambariUser, ambariPass);
+}</p>
+
+<p>// list with the properties needed by the application
+private List<String> configList = Arrays.asList(&ldquo;mapreduce.framework.name&rdquo;, &ldquo;yarn.resourcemanager.address&rdquo;, &ldquo;hbase.zookeeper.quorum&rdquo; );</p>
+
+<p>// assembles a Configuration instance with the properties needed by the application
+public Configuration getConfiguration() {</p>
+
+<pre><code>    //  use this constructor to avoid loading of properties from the classpath!
+    Configuration configuration = new Configuration(false);
+
+    // Map with service specific configuration. The keys are service names: eg.: yarn-site, hbase-site, global ...
+    Map&lt;String, Map&lt;String, String&gt;&gt; serviceConfigMap = ambariClient.getServiceConfigMap();
+
+    for (Map.Entry&lt;String, Map&lt;String, String&gt;&gt; serviceEntry : serviceConfigMap.entrySet()) {
+        for (Map.Entry&lt;String, String&gt; configEntry : serviceEntry.getValue().entrySet()) {
+            if (configList.contains(configEntry.getKey())) {
+                configuration.set(configEntry.getKey(), configEntry.getValue());
+            }
+        }
+    }
+
+    // decorate the config with application specific entries, like "dfs.client.use.legacy.blockreader", "mapreduce.job.user.classpath.first"
+    decorateConfiguration(configuration);
+
+    return configuration;
+}
+</code></pre>
+
+<p>}
+<code>
+_Note: Apart from the</code>getServiceConfigMap() ``` method you&rsquo;ll find a few interesting and useful operations_</p>
+
+<p>You can get the Ambari client code from the <a href="https://github.com/sequenceiq/ambari-rest-client">SequenceIQ GitHub repository</a> &ndash; clone it, build it and add it as a dependency to your project.</p>
+
+<p>If you&rsquo;d like to play with a real multi-node Ambari managed cluster check out <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">this</a> older blog post &ndash; this will set you up with a Hadoop cluster in less than 2 minutes / one-click.</p>
+
+<p>Let us know how it works for you &ndash; for updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Job profiling with R]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/05/01/mapreduce-job-profiling-with-R/"/>
+    <updated>2014-05-01T21:08:04+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/05/01/mapreduce-job-profiling-with-R</id>
+    <content type="html"><![CDATA[<p>Management of a large Hadoop cluster is not an easy task &ndash; however thanks to projects like <a href="http://ambari.apache.org/">Apache Ambari</a> these tasks are getting easier. Ambari provides an intuitive, easy-to-use Hadoop management web UI backed by its REST API to provision, manage and monitor a Hadoop cluster. While Ambari helps us a lot to monitor a cluster (leverages <a href="http://ganglia.sourceforge.net/">Ganglia</a> and <a href="http://www.nagios.org/">Nagios</a>), many times we have to profile our MapReduce jobs as well.</p>
+
+<p>At SequenceIQ in order to profile MapReduce jobs, understand (job)internal statistics and create usefull graphs many times we rely on <a href="http://www.r-project.org/">R</a>. The metrics are collected from Ambari and the <a href="http://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-site/HistoryServerRest.html">YARN History Server</a>.</p>
+
+<p>In this blog post we would like to explain and guide you through a simple process of collecting MapReduce job metrics, calculate different statistics and generate easy to understand charts.</p>
+
+<p>The MapReduce application is the following:</p>
+
+<ul>
+<li>The input set of data is 12 pieces of 1 GB size files. Each file containes the same line of 16 bytes (012345678998765 plus the new line character)</li>
+<li>The number of mappers running is 48, because the block size on HDFS is 256 MB and there are 12 files.</li>
+<li>We use TextInputFormat (line num, line content) pairs. The output of the mapper function is the same as the input <code>IdentityMapper</code></li>
+<li>The number of reducers is 20.</li>
+<li>For simplicity we use <code>IdentityReducer</code> as the reducer function.</li>
+<li>We use a special partitioner called <code>LinePartitoner</code>. The partitioning is based on line numbers (the key) and it makes sure that each reducer gets the same amount of data (line number <em>modulo</em> reducer number).</li>
+</ul>
+
+
+<h2>How to get the job results with R</h2>
+
+<p>The job id that we are analysing with R is job_1395530889914_0005 (<em>replace this with your job is</em>)</p>
+
+<p>First we load the R functions:</p>
+
+<p><code>source("JobHistory.r")</code></p>
+
+<p>Then we extract/read the job from the HistoryServer. It is actually using the Rest API of HistoryServer, parsing the JSON output.</p>
+
+<p><code>job&lt;-getJob("job_1395530889914_0005","node02:19888")</code></p>
+
+<p>The structure of the job follows the structure that is returned from the HistoryServer except that for example the parameters of all the tasks are converted into vectors so that can be easily handled in R.</p>
+
+<!-- more -->
+
+
+<p>A job is a list of <code>things</code>:</p>
+
+<p><code>&gt; names(job)</code></p>
+
+<p><code>[1] "job"      "counters" "tasks"    "attempts"</code></p>
+
+<p>The job$job contains some basic data</p>
+
+<p><code>&gt; names(job$job)</code></p>
+
+<p><code>[1] "startTime"                "finishTime"               "id"                       "name"                     "queue"</code></p>
+
+<p><code>[6] "user"                     "state"                    "mapsTotal"                "mapsCompleted"            "reducesTotal"</code></p>
+
+<p><code>[11] "reducesCompleted"         "uberized"                 "diagnostics"              "avgMapTime"               "avgReduceTime"</code></p>
+
+<p><code>[16] "avgShuffleTime"           "avgMergeTime"             "failedReduceAttempts"     "killedReduceAttempts"     "successfulReduceAttempts"</code></p>
+
+<p><code>[21] "failedMapAttempts"        "killedMapAttempts"        "successfulMapAttempts"</code></p>
+
+<p>The items below job$tasks are all vectors (if there are numeric) or non-named lists:</p>
+
+<p><code>&gt; names(job$tasks)</code></p>
+
+<p><code>[1] "startTime"         "finishTime"        "elapsedTime"       "progress"          "id"          "state"             "type"</code></p>
+
+<p><code>[8] "successfulAttempt"</code></p>
+
+<p>This way we can easily calculate the mean of the <code>running</code> times of all the tasks like this:</p>
+
+<p><code>mean(job$tasks$finishTime-job$tasks$startTime)</code></p>
+
+<p><code>[1] 147307</code></p>
+
+<p>The <code>attempts</code> list also contains vectors or lists of parameters. Only the successful attempts are in the attempt list.</p>
+
+<p><code>&gt; names(job$attempts)</code></p>
+
+<p><code>[1] "startTime"           "finishTime"          "elapsedTime"         "progress"            "id"                  "rack"</code></p>
+
+<p><code>[7] "state"               "nodeHttpAddress"     "diagnostics"         "type"                "assignedContainerId" "shuffleFinishTime"</code></p>
+
+<p><code>[13] "mergeFinishTime"     "elapsedShuffleTime"  "elapsedMergeTime"    "elapsedReduceTime"</code></p>
+
+<p>This way we can easily calculate the average <code>merge</code> times:</p>
+
+<p><code>&gt; mean(job$attempts$mergeFinishTime-job$attempts$shuffleFinishTime)</code></p>
+
+<p><code>[1] 4875.15</code></p>
+
+<p>Which is the same as:</p>
+
+<p><code>&gt; mean(job$attempts$elapsedMergeTime)</code></p>
+
+<p><code>[1] 4875.15</code></p>
+
+<h2>The R generated graphs</h2>
+
+<p>The are two types of graphs for the beginning</p>
+
+<p><code>plotTasksTimes(job)</code></p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/48_mappers_20_reducers_mr_task_times.png" alt="" /></p>
+
+<p>This graph shows start and finish times for each tasks (mappers and reducers as well). The tasks are sorted by their start times, so the reducers are on the top. There are 48 mappers and 20 reducers. The times are relative to the startTime of the first mapper in milliseconds(could show absolute values as well).</p>
+
+<p><code>plotActiveMRTasksNum(job)</code></p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/48_mappers_20_reducers_mr.png" alt="" /></p>
+
+<p>The graph above contains the number of active tasks at each time. It shows the mappers with green and also show the reduce phases as well. The shuffle part is orange, the merge part is magenta and the reduce part (reducer function is running) is blue. The times are relative to the startTime of the first mapper in milliseconds (could show absolute values as well).</p>
+
+<p><code>plotActiveReduceTasksNumDetailed(job, FALSE)</code></p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/48_mappers_20_reducers_reduce_phases.png" alt="" /></p>
+
+<p>This graph shows only the reduce part with the three phases: shuffle, merge, reduce. The times are absolute times (could show absolute values as well).</p>
+
+<p><code>plotTimeBoxes&lt;-function(data, nodeNum=21, slotsPerNode=4)</code></p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/48_mappers_20_reducers_mr_by_nodes.png" alt="" /></p>
+
+<p>As you can see monitoring a MapReduce job through the HistoryServer it is extremely easy, and R is very usefull to apply different statistics and plot graphs. Also as you start playing with different setups the results can quickly be retrived, the graphs regenerated to analyze how different configuratins are affecting the execution time/behaviour of the jobs.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/96_mappers_20_reducers_mr_by_nodes.png" alt="" /></p>
+
+<p>As always, the example project is available at our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/yarn-monitoring-R">GitHub</a> page. We are working on a <code>heuristic</code> queue scheduler for a better utilization of our cluster, and also to provide QoS on Hadoop &ndash; profiling and understanding the running MapReduce jobs and the job queues are essential for that. Also based on the charts broken down by nodes we can quickly identify servers with potential issues (slow I/O, memory, etc).</p>
+
+<p>Follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a> to read about how we progress with the sceduler and get early access, or feel free to contribute to our YARN monitoring project.</p>
+]]></content>
+  </entry>
+  
+</feed>

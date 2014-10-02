@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: RemoteBlockReader2 | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com/blog/categories/remoteblockreader2/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-10-02T17:35:55+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
+  <author>
+    <name><![CDATA[SequenceIQ]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[HDFS and java.nio.channels]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/03/07/read-from-hdfs/"/>
+    <updated>2014-03-07T08:12:44+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/03/07/read-from-hdfs</id>
+    <content type="html"><![CDATA[<p>Many times there is a need to access files or interact with HDFS from Java applications or libraries. Hadoop has built in many tools in order to work or interact with HDFS &ndash; however in case you&rsquo;d like to read into a content of a file remotely (e.g. retrieve the headers of a CSV/TSV file) random exceptions can occurs. One of these remote exceptions coming from the HDFS NameNode is a <em>java.io.IOException: File /user/abc/xyz/ could only be replicated to 0 nodes, instead of 1.</em></p>
+
+<p>Such an exception can be reproduced by the following code snippet:</p>
+
+<p>```
+java BufferedInputStream bufferedInputStream</p>
+
+<p>/<em>*
+ * For the sake of readability, try/cacth/finally blocks are removed
+ * Don&rsquo;t Say We Didn&rsquo;t Warn You
+ </em>/</p>
+
+<p>FileSystem fs = FileSystem.get(configuration);</p>
+
+<pre><code>        Path filePath = getFilePath(dataPath);
+</code></pre>
+
+<p>BufferedInputStream bufferedInputStream = new BufferedInputStream(fs.open(filePath));</p>
+
+<pre><code>listReader = new CsvListReader(new BufferedReader(new InputStreamReader(bufferedInputStream)),
+                    CsvPreference.STANDARD_PREFERENCE);
+</code></pre>
+
+<p>```
+The exception looks like this:</p>
+
+<p>```
+ERROR SimpleFeatureSelector:67 &ndash; Exception {}
+java.lang.IllegalStateException: Must not use direct buffers with InputStream API</p>
+
+<pre><code>at com.google.common.base.Preconditions.checkState(Preconditions.java:176)
+at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.doReadFully(PacketReceiver.java:211)
+at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.doRead(PacketReceiver.java:134)
+at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.receiveNextPacket(PacketReceiver.java:102)
+at org.apache.hadoop.hdfs.RemoteBlockReader2.readNextPacket(RemoteBlockReader2.java:170)
+</code></pre>
+
+<p>```</p>
+
+<p><em>Note: actually all HDFS operations fail in case of the underlying input stream does not have a readable channel (check the java.nio.channels package. RemoteBlockReader2 needs channel based inputstreams to deal with direct buffers.</em></p>
+
+<!-- more -->
+
+
+<p>Digging into details and checking the Hadoop 2.2 source code we find the followings:</p>
+
+<p>Through the<code>org.apache.hadoop.hdfs.BlockReaderFactory</code> you can get access to a BlockReader implementation like <code>org.apache.hadoop.hdfs.RemoteBlockReader2</code>, which it is responsible for reading a single block from a single datanode.</p>
+
+<p>The blockreader is retrieved in the following way:</p>
+
+<p>``` java</p>
+
+<p>@SuppressWarnings(&ldquo;deprecation&rdquo;)
+public static BlockReader newBlockReader(</p>
+
+<pre><code>                                 Conf conf,
+                             Socket sock, String file,
+                                 ExtendedBlock block, 
+                                 Token&lt;BlockTokenIdentifier&gt; blockToken,
+                                 long startOffset, long len,
+                                 int bufferSize, boolean verifyChecksum,
+                                 String clientName)
+                                 throws IOException {
+if (conf.useLegacyBlockReader) {
+  return RemoteBlockReader.newBlockReader(
+      sock, file, block, blockToken, startOffset, len, bufferSize, verifyChecksum, clientName);
+} else {
+  return RemoteBlockReader2.newBlockReader(
+      sock, file, block, blockToken, startOffset, len, bufferSize, verifyChecksum, clientName);      
+}
+</code></pre>
+
+<p>  }</p>
+
+<p>```</p>
+
+<p>In order to avoid the exception and use the right version of the block reader, the followin property <code>conf.useLegacyBlockReader</code> should be TRUE.</p>
+
+<p>Long story short, the configuration set of a job should be set to: <code>configuration.set("dfs.client.use.legacy.blockreader", "true")</code>.</p>
+
+<p>Unluckily in all cases when interacting with HDFS, and the underlying input stream does not have a readable channel, you can&rsquo;t use the <em>RemoteBlockReader2</em> implementation, but you have to fall back to the old legacy <em>RemoteBlockReader</em>.</p>
+
+<p>Hope this helps,
+SequenceIQ</p>
+]]></content>
+  </entry>
+  
+</feed>

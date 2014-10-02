@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: HBase | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com/blog/categories/hbase/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-10-02T17:35:55+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
+  <author>
+    <name><![CDATA[SequenceIQ]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[SQL on HBase with Apache Phoenix]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/04/sql-on-hbase-with-apache-phoenix/"/>
+    <updated>2014-09-04T12:24:11+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/04/sql-on-hbase-with-apache-phoenix</id>
+    <content type="html"><![CDATA[<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we use HBase to store large amounts of high velocity data and interact with them &ndash; many times we use native HBase interfaces but recently there was a need (internal and external) to access the data through an SQL interface.</p>
+
+<h2>Introduction</h2>
+
+<p>HBase is an open-source, distributed, versioned, non-relational database modeled after Google&rsquo;s Bigtable. It&rsquo;s designed to handle
+billions of rows and millions of columns. However, using it as a relational database where you would store your data normalized,
+split into multiple tables is not easy and most likely you will struggle with it as you would do in any other non-relational database.
+Here comes <a href="http://phoenix.apache.org/">Apache Phoenix</a> in the picture. It&rsquo;s an SQL skin over HBase delivered as a
+client-embedded JDBC driver targeting low latency queries. The project is in incubating state and under heavy development, but you
+can already start embracing it.</p>
+
+<h2>Installation</h2>
+
+<p>Download the appropriate distribution from <a href="http://xenia.sote.hu/ftp/mirrors/www.apache.org/phoenix/">here</a>:</p>
+
+<ul>
+<li>Phoenix 3.x &ndash; HBase 0.94.x</li>
+<li>Phoenix 4.x &ndash; HBase 0.98.1+</li>
+</ul>
+
+
+<p><em>Note the compatibilities between the HBase and Phoenix versions</em></p>
+
+<p>Alternatively you can clone the <a href="https://github.com/apache/phoenix/tree/4.0">repository</a> and build it yourself (mvn clean install -DskipTests).
+It should produce a jar file like this: phoenix-<code>version</code>-client.jar. Copy it to HBase&rsquo;s classpath (easiest way is to copy into
+HBASE_HOME/lib). If you have multiple nodes it has to be there on every node. Restart the RegionServers and you are good to go. That&rsquo;s it?
+Yes!</p>
+
+<h2>Sample</h2>
+
+<p>We&rsquo;ve pre-cooked a <a href="https://github.com/sequenceiq/phoenix-docker">Docker</a> image for you so you can follow this sample and play with it (the image is based on Hadoop 2.5, HBase 0.98.5, Phoenix 4.1.0):</p>
+
+<h3>Normal launch</h3>
+
+<p><code>docker run -it sequenceiq/phoenix:v4.1onHbase-0.98.5</code></p>
+
+<h3>Alternative launch with sqlline</h3>
+
+<p><code>docker run -it sequenceiq/phoenix:v4.1onHbase-0.98.5 /etc/bootstrap-phoenix.sh -sqlline</code></p>
+
+<!-- more -->
+
+
+<h3>Create tables</h3>
+
+<p>The downloaded or built distribution&rsquo;s bin directory contains a pure-Java console based utility called sqlline.py. You can use this
+to connect to HBase via the Phoenix JDBC driver. You need to specify the Zookeeper&rsquo;s QuorumPeer&rsquo;s address. If the default (2181) port is
+used then type <em>sqlline.py localhost</em> (to quit type: !quit). Let&rsquo;s create two different tables:
+<code>mysql
+CREATE TABLE CUSTOMERS (ID INTEGER NOT NULL PRIMARY KEY, NAME VARCHAR(40) NOT NULL, AGE INTEGER NOT NULL, CITY CHAR(25));
+CREATE TABLE ORDERS (ID INTEGER NOT NULL PRIMARY KEY, DATE DATE, CUSTOMER_ID INTEGER, AMOUNT DOUBLE);
+</code>
+It&rsquo;s worth checking which <a href="http://phoenix.apache.org/language/datatypes.html">datatypes</a> and
+<a href="http://phoenix.apache.org/language/functions.html">functions</a> are currently supported. These tables will be translated into
+HBase tables and the metadata is stored along with it and versioned, such that snapshot queries over prior versions will automatically
+use the correct schema. You can check with HBase shell as <code>describe 'CUSTOMERS'</code>
+```
+DESCRIPTION                                                                                                                         ENABLED
+ &lsquo;CUSTOMERS&rsquo;, {TABLE_ATTRIBUTES => {coprocessor$1 => &lsquo;|org.apache.phoenix.coprocessor.ScanRegionObserver|1|&rsquo;, coprocessor$2 => &lsquo;|or true
+ g.apache.phoenix.coprocessor.UngroupedAggregateRegionObserver|1|&rsquo;, coprocessor$3 => &lsquo;|org.apache.phoenix.coprocessor.GroupedAggreg
+ ateRegionObserver|1|&rsquo;, coprocessor$4 => &lsquo;|org.apache.phoenix.coprocessor.ServerCachingEndpointImpl|1|&rsquo;, coprocessor$5 => &lsquo;|org.apa
+ che.phoenix.hbase.index.Indexer|1073741823|index.builder=org.apache.phoenix.index.PhoenixIndexBuilder,org.apache.hadoop.hbase.inde
+ x.codec.class=org.apache.phoenix.index.PhoenixIndexCodec&rsquo;}, {NAME => &lsquo;0&rsquo;, DATA_BLOCK_ENCODING => &lsquo;FAST_DIFF&rsquo;, BLOOMFILTER => &lsquo;ROW&rsquo;
+ , REPLICATION_SCOPE => &lsquo;0&rsquo;, VERSIONS => &lsquo;1&rsquo;, COMPRESSION => &lsquo;NONE&rsquo;, MIN_VERSIONS => &lsquo;0&rsquo;, TTL => &lsquo;2147483647&rsquo;, KEEP_DELETED_CELLS =</p>
+
+<blockquote><p>&lsquo;true&rsquo;, BLOCKSIZE => &lsquo;65536&rsquo;, IN_MEMORY => &lsquo;false&rsquo;, BLOCKCACHE => &lsquo;true&rsquo;}
+<code>``
+As you can see there are bunch of co-processors. Co-processors were introduced in version 0.92.0 to push arbitrary computation out
+to the HBase nodes and run in parallel across all the RegionServers. There are two types of them:</code>observers<code>and</code>endpoints`.
+Observers allow the cluster to behave differently during normal client operations. Endpoints allow you to extend the cluster’s
+capabilities, exposing new operations to client applications. Phoenix uses them to translate the SQL queries to scans and that&rsquo;s
+why it can operate so quickly. It is also possible to map an existing HBase table to a Phoenix table. In this case the binary
+representation of the row key and key values must match one of the Phoenix data types.</p></blockquote>
+
+<h3>Load data</h3>
+
+<p>After the tables are created fill them with data. For this purpose we&rsquo;ll use the <a href="http://www.jooq.org/">Jooq</a> library&rsquo;s fluent API.
+The related sample project (Spring based) can be found in our
+<a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/phoenix-jooq">GitHub</a> repository. To connect you&rsquo;ll need Phoenix&rsquo;s
+JDBC driver on your classpath (org.apache.phoenix.jdbc.PhoenixDriver). The url to connect to should be familiar as it uses the same Zookeeper QuorumPeer&rsquo;s address:
+<code>jdbc:phoenix:localhost:2181</code>. Unfortunately Jooq&rsquo;s insert statement is not suitable for us since the JDBC driver only supports the
+upsert statement so we cannot make use of the fluent API here.
+```java
+String userSql = String.format(&ldquo;upsert into customers values (%d, &lsquo;%s&rsquo;, %d, &lsquo;%s&rsquo;)&rdquo;,</p>
+
+<pre><code>                i,
+                escapeSql(names.get(random.nextInt(names.size() - 1))),
+                random.nextInt(40) + 18,
+                escapeSql(locales[random.nextInt(locales.length - 1)].getDisplayCountry()));
+</code></pre>
+
+<p>String orderSql = String.format(&ldquo;upsert into orders values (%d, CURRENT_DATE(), %d, %d)&rdquo;,</p>
+
+<pre><code>                i,
+                i,
+                random.nextInt(1_000_000));
+</code></pre>
+
+<p>dslContext.execute(userSql);
+dslContext.execute(orderSql);
+```</p>
+
+<h3>Query</h3>
+
+<p>On the generated data let&rsquo;s create queries:
+```java
+dslContext</p>
+
+<pre><code>      .select()
+      .from(tableByName("customers").as("c"))
+      .join(tableByName("orders").as("o")).on("o.customer_id = c.id")
+      .where(fieldByName("o.amount").lessThan(amount))
+      .orderBy(fieldByName("c.name").asc())
+      .fetch();
+</code></pre>
+
+<p><code>
+This query resulted the following:
+</code>
++&mdash;&mdash;+&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;+&mdash;&mdash;&ndash;+&mdash;&mdash;&mdash;&mdash;&mdash;&ndash;+&mdash;&mdash;+&mdash;&mdash;&mdash;&mdash;&mdash;+&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&ndash;+&mdash;&mdash;&mdash;&mdash;+
+|C.ID|C.NAME      |C.AGE|C.CITY     |O.ID|O.DATE    |O.CUSTOMER_ID|O.AMOUNT|
++&mdash;&mdash;+&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;+&mdash;&mdash;&ndash;+&mdash;&mdash;&mdash;&mdash;&mdash;&ndash;+&mdash;&mdash;+&mdash;&mdash;&mdash;&mdash;&mdash;+&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&ndash;+&mdash;&mdash;&mdash;&mdash;+
+| 976|Bogan, Elias|   26|Japan      | 976|2014-04-20|          976|  8664.0|
+| 827|Constrictor |   29|{null}     | 827|2014-04-20|          827|  7856.0|
+| 672|Hardwire    |   31|Tunisia    | 672|2014-04-20|          672|  9292.0|
+| 746|Lady Killer |   37|Cyprus     | 746|2014-04-20|          746|  1784.0|
+| 242|Lifeforce   |   35|Switzerland| 242|2014-04-20|          242|  5406.0|
+| 487|Topspin     |   48|{null}     | 487|2014-04-20|          487|  6512.0|
++&mdash;&mdash;+&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;+&mdash;&mdash;&ndash;+&mdash;&mdash;&mdash;&mdash;&mdash;&ndash;+&mdash;&mdash;+&mdash;&mdash;&mdash;&mdash;&mdash;+&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&ndash;+&mdash;&mdash;&mdash;&mdash;+
+<code>
+The same thing could've been achieved with sqlline also.
+</code>mysql
+select c.name as name, o.amount as amount, o.date as date from customers as c inner join orders as o on o.id = c.id where o.amount &lt; 10000;
+```
+Nested queries are not supported yet, but it will come soon.</p>
+
+<h2>Summary</h2>
+
+<p>As you saw it is pretty easy to get started with Phoenix both command line and programmatically. There are lots of lacking features, but
+the contributors are dedicated and working hard to make this project moving forward. Next step? ORM for HBase? It is also ongoing.. :)</p>
+
+<p>Follow up with <a href="https://www.linkedin.com/company/sequenceiq/">us</a> if you are interested in HBase and building an SQL interface on top.
+Don&rsquo;t hesitate to contact us should you have any questions.</p>
+
+<p><a href="http://sequenceiq.com/">SequenceIQ</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Pearson correlation with Scalding]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/06/23/scalding-correlation-example/"/>
+    <updated>2014-06-23T18:07:18+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/06/23/scalding-correlation-example</id>
+    <content type="html"><![CDATA[<h2>Introduction</h2>
+
+<p>At SequenceIQ we are processing data in batch and streaming &ndash; for both we use Scala as our prefered language; for batch processing in particular we use Scalding to build our job and data pipelines. Actually there is <code>Babylon</code> at SequenceIQ as we use Java, Scala, Go, R, Groovy, Ansible, shell, JavaScript and what not &ndash; follow up with us for a post talking about the language heterogeneity.</p>
+
+<p>Scalding is a powerful tool and great choice to simplify the writing and abstracting MapReduce jobs &ndash; an open source project originally developed by Twitter and recently the community.
+In the following detailed example we&rsquo;d like show you an example of how to write and test Scalding jobs, running on Hadoop.</p>
+
+<h2>Writing a Pearson correlation job</h2>
+
+<p>In this example, we&rsquo;d like to calculate a Pearson&rsquo;s product-moment coefficient on 2 columns of a given <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/scalding-correlation/data">input</a>.
+This is a simple computation and the easiest way to find any dependency between two datasets.
+First of all we need all the parameters for the given <a href="http://www.statisticshowto.com/what-is-the-correlation-coefficient-formula/">formula</a>.
+In Scala the code would look like this:</p>
+
+<p>``` scala
+trait CorrelationOp {
+  def calculateCorrelation(size: Long, su1: Double, su2: Double, sq1: Double, sq2: Double, dotProd: Double) : Double = {</p>
+
+<pre><code>val dividend = (size * dotProd) - (su1 * su2)
+val divisor = scala.math.sqrt(size * sq1 - su1 * su1) * scala.math.sqrt(size * sq2 - su2 * su2)
+dividend / divisor
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<!-- more -->
+
+
+<p>In this example we compute all the required parameters for the correlation formula using the <a href="https://github.com/twitter/scalding/wiki/Fields-based-API-Reference">Field API</a> of Scala.
+First we obtain the input/output and the two comparable column arguments which comes from command line parameters (usage : &mdash;key value) and provide the schema for the CSV input.
+After the input is read we map the two selected fields (product and squares); with the underlined informations, we are able to produce the required parameters (grouping part).
+At the end we just need to use the formula on the given fields (second map) and write the results into a TSV file.
+``` scala
+  val comparableColumn1 = args(&ldquo;column1&rdquo;)
+  val comparableColumn2 = args(&ldquo;column2&rdquo;)
+  val samplePercent = args.getOrElse(&ldquo;samplePercent&rdquo;,&ldquo;1.00&rdquo;).toDouble</p>
+
+<p>  val scheme = new Fields(&ldquo;id&rdquo;, &ldquo;num1&rdquo;, &ldquo;num2&rdquo;, &ldquo;num3&rdquo;, &ldquo;num4&rdquo;, &ldquo;num5&rdquo;)</p>
+
+<p>  Csv(args(&ldquo;input&rdquo;), fields = scheme, skipHeader = true).read
+  .sample(samplePercent)
+  .map((comparableColumn1,comparableColumn2) &ndash;> (&lsquo;prod, 'compSq1, 'compSq2)){</p>
+
+<pre><code>values : (Double, Double) =&gt;
+  (values._1 * values._2, math.pow(values._1, 2), math.pow(values._2, 2))
+</code></pre>
+
+<p>  }
+  .groupAll{</p>
+
+<pre><code>_.size
+  .sum[Double](comparableColumn1 -&gt; 'compSum1)
+  .sum[Double](comparableColumn2 -&gt; 'compSum2)
+  .sum[Double]('compSq1 -&gt; 'normSq1)
+  .sum[Double]('compSq2 -&gt; 'normSq2)
+  .sum[Double]('prod -&gt; 'dotProduct)
+</code></pre>
+
+<p>  }
+  .limit(1)
+  .project(&lsquo;size,'compSum1, 'compSum2, 'normSq1, 'normSq2, 'dotProduct)
+  .map(('size, 'compSum1, 'compSum2,'normSq1, 'normSq2, 'dotProduct)</p>
+
+<pre><code>-&gt; ('key, 'correlation)){
+fields : (Long, Double, Double, Double, Double, Double) =&gt;
+  val (size, sum1, sum2, normSq1, normSq2, dotProduct) = fields
+  val corr = calculateCorrelation(size, sum1, sum2, normSq1, normSq2, dotProduct)
+  (comparableColumn1 + "-" + comparableColumn2, corr)
+</code></pre>
+
+<p>  }
+  .project(&lsquo;key, 'correlation)
+  .write(Tsv(args(&ldquo;output&rdquo;)))</p>
+
+<p>```</p>
+
+<p>For running the example you will have to run the following command: (<em>you can use &mdash;hdfs instead of &mdash;local</em>)</p>
+
+<p><code>bash
+yarn jar scalding-correalation-1.0.jar com.sequenceiq.scalding.correlation.SimpleCorrelationJob --local --input data/data.csv --output data/corr-out.tsv --column1 num1 --column2 num2 --samplePercent 0.1
+</code></p>
+
+<h2>Testing Scalding jobs</h2>
+
+<p>In order to test that your data transformations are correct, you can use the
+<a href="http://twitter.github.io/scalding/com/twitter/scalding/JobTest.html">JobTest</a> class for unit testing.
+``` scala
+@RunWith(classOf[JUnitRunner])
+class SimpleCorrelationJobTest  extends Specification {
+  &ldquo;A SimpleCorrelation Job&rdquo; should {</p>
+
+<pre><code>val input = List((1,2,3,3,4,5),(2,1,2,3,4,5),(3,4,5,3,4,5))
+val correctOutputLimit = 0.8
+
+JobTest("com.sequenceiq.scalding.correlation.SimpleCorrelationJob")
+  .arg("input", "fakeInput")
+  .arg("output", "fakeOutput")
+  .arg("column1", "num1")
+  .arg("column2", "num2")
+  .arg("correlationThreshold", "0.8")
+  .source(Csv("fakeInput", ",", new Fields("id","num1","num2","num3","num4","num5"),skipHeader = true), input)
+  .sink[(String, Double)](Tsv("fakeOutput", fields = Fields.ALL)) {
+  outputBuf =&gt;
+    val actualOutput = outputBuf.toList.head._2
+    "return greater correlation result than 0.8" in {
+      correctOutputLimit must be_&lt; (actualOutput)
+    }
+}
+  .run
+  .finish
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<h2>Writing results to HBase</h2>
+
+<p>In case we&rsquo;d like to store our data in a database (at SequenceIQ we use HBase) we can use a special Cascading Tap for it.
+In this example we used <a href="https://github.com/ParallelAI/SpyGlass">Spyglass</a> to store the correlation results in HBase.
+``` scala
+  val tableName = args(&ldquo;tableName&rdquo;)
+  val quorum_name = args(&ldquo;quorum&rdquo;)
+  val quorum_port = args(&ldquo;quorumPort&rdquo;).toInt</p>
+
+<p>  val scheme = List(&lsquo;key, 'correlation)
+  val familyNames = List(&ldquo;corrCf&rdquo;)</p>
+
+<p>  Tsv(args(&ldquo;input&rdquo;)).read</p>
+
+<pre><code>.toBytesWritable(scheme)
+.write(
+  new HBaseSource(
+    tableName,
+    quorum_name + ":" + quorum_port,
+    scheme.head,
+    familyNames,
+    scheme.tail.map((x: Symbol) =&gt; new Fields(x.name)).toList,
+    timestamp = Platform.currentTime
+  ))
+</code></pre>
+
+<p>```</p>
+
+<h2>Build the application</h2>
+
+<p><code>bash
+./gradlew clean jar
+</code>
+or
+<code>bash
+export GRADLE_OPTS="-XX:MaxPermSize=2048m" # for tests
+./gradlew clean build
+</code></p>
+
+<h2>Running the example and persisting to HBase</h2>
+
+<p>In order to run the example you&rsquo;ll have to run the following command: (you can use &mdash;hdfs instead of &mdash;local)
+<code>bash
+yarn jar scalding-correalation-1.0.jar com.sequenceiq.scalding.hbase.HBaseWriterJob --local --input data/corr-out.tsv --tableName corrTable --quorum localhost --quorumPort 2181
+</code></p>
+
+<p>Hope this correlation example and introduction into Scalding was useful &ndash; you can get the example project from our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/scalding-correlation">GitHub</a> repository.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Phoenix (sneak peak)]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/04/17/apache-phoenix-sneak-peak/"/>
+    <updated>2014-04-17T13:51:08+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/04/17/apache-phoenix-sneak-peak</id>
+    <content type="html"><![CDATA[<script type="text/javascript" src="https://asciinema.org/a/8982.js" id="asciicast-8982" async></script>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Using Hortonworks Hoya at SequenceIQ]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/03/24/hoya-at-sequenceiq/"/>
+    <updated>2014-03-24T03:54:09+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/03/24/hoya-at-sequenceiq</id>
+    <content type="html"><![CDATA[<p>With this blog post we are starting a series of articles where we&rsquo;d like to describe how we use YARN, why it is central to our product stack and why we believe that Hortonworks Hoya will be a determining building block in the Hadoop ecosystem.</p>
+
+<p>While we don&rsquo;t want to get in details about <a href="http://hortonworks.com/hadoop/yarn/">YARN</a>, we&rsquo;d like to briefly explain the advantages of running an application on YARN, and introduce you to <a href="https://github.com/hortonworks/hoya">Hortonworks Hoya</a>.</p>
+
+<p>At SequenceIQ we are building a multi-tenant, scale on demand data platform, with unpredictable batch and streaming workloads.
+Before YARN we have tried different cluster management frameworks with Hadoop and managed to have pretty good results with <a href="http://aws.amazon.com/autoscaling/">Amazon EC2 Autoscaling groups</a>. Being true believers in open source and the need to diversify of provisioning Hadoop on different environments we needed to find an open source and &lsquo;standardised&rsquo; solution &ndash; welcome YARN.
+(for example we provision Hadoop on <a href="http://blog.sequenceiq.com/blog/2014/03/19/hadoop-2-dot-3-with-docker/">Docker</a>).</p>
+
+<p>YARN separates the processing engine from the resource management &ndash; and acting effectively as an OS for Hadoop.
+With YARN, you can now run multiple applications in Hadoop, all sharing a common resource management and improving cluster utilisation (we will release some metrics soon).
+YARN also provides the following features out of the box:</p>
+
+<ul>
+<li>Multi-tenancy</li>
+<li>Management and monitoring</li>
+<li>High availability</li>
+<li>Security</li>
+<li>Failover and recovery</li>
+</ul>
+
+
+<p>All of the above and the effort of the Hadoop community and the wide adoption convinced us to start implementing our platform to run on top of YARN.
+During our proof of concepts we went as far as starting all our non Hadoop (and not YARN compatible) applications on YARN &ndash; using <a href="https://github.com/hortonworks/hoya">Hoya</a>.</p>
+
+<p>Hoya was introduced by Hortonworks mid last year &ndash; with the purpose to create Apache HBase clusters on YARN (since than it supports Apache Accumulo as well).
+The code evolved pretty fast and now Hoya is a framework/application which allows you to deploy existing distributed applications on YARN &ndash; and benefit all the nice features of YARN.</p>
+
+<p>In order to support different applications Hoya has a plugin provider architecture (supported plugins are in the <em>org.apache.hoya.providers</em> package).
+Once a plugin is implemented (pretty straightforward, took us a few days only to understand and build a Flume and Tomcat plugin), the application is started in a YARN container and is monitored and controlled by YARN/Hoya.
+The clusters can be started, stopped, frozen and re-sized dynamically &ndash; and in case of container failures Hoya deploys a replacement.</p>
+
+<p>For a better architectural understanding of Hoya please read the following blog <a href="http://hortonworks.com/blog/hoya-hbase-on-yarn-application-architecture/">post</a>.</p>
+
+<p>In this first post we would like to help you to get familiar with the benefits offered by Hoya and start an HBase cluster, re-scale it dynamically, freeze and stop.
+First and foremost you will need an installation of Hadoop (2.3), the latest Hoya release (0.13.1) and HBase (0.98).
+For your convenience we have put together an automated install script which lets you start with Hoya in a few minutes.</p>
+
+<p>The script is available from our <a href="https://github.com/sequenceiq/hoya-docker/blob/master/hoya-centos-install.sh">GitHub page</a>. Also an official docker.io image is available at <a href="https://index.docker.io/u/sequenceiq/hoya-docker/">hoya-docker</a>, and the Dockerfile can be downloaded from our <a href="https://github.com/sequenceiq/hoya-docker">GitHub</a> page.</p>
+
+<p>Once Hadoop, HBase and Hoya are installed you can create an HBase cluster.
+``` bash
+create-hoya-cluster() {
+  hoya create hbase &mdash;role master 1 &mdash;role worker 1</p>
+
+<pre><code>--manager localhost:8032
+--filesystem hdfs://localhost:9000 --image hdfs://localhost:9000/hbase.tar.gz
+--appconf file:///tmp/hoya-master/hoya-core/src/main/resources/org/apache/hoya/providers/hbase/conf
+--zkhosts localhost
+</code></pre>
+
+<p>}
+```
+This will launch a 2 node HBase cluster (1 Master and 1 RegionServer). Now lets increase the number of RegionServers.</p>
+
+<p><code>bash
+flex-hoya-cluster() {
+  num_of_workers=$1
+  hoya flex hbase --role worker $num_of_workers --manager localhost:8032 --filesystem hdfs://localhost:9000
+}
+</code></p>
+
+<!-- more -->
+
+
+<p>This will start as many RegionServers as specified &ndash; in new YARN containers. Also the size of the cluster can be decreased if the load on the system does not demand for a larger number of RegionServers. The cluster can also be freezed (Hoya takes care about persisting the state).</p>
+
+<p><code>bash
+freeze-hoya-cluster() {
+  hoya freeze hbase --manager localhost:8032 --filesystem hdfs://localhost:9000
+}
+</code></p>
+
+<p>Finally when you&rsquo;d like to destroy the cluster and the state associated with the application you can use:</p>
+
+<p><code>bash
+destroy-hoya-cluster() {
+  hoya destroy hbase --manager localhost:8032 --filesystem hdfs://localhost:9000
+}
+</code>
+As you see installing Hoya and starting different applications (HBase in this case) is very simple &ndash; and all the nice features of YARN are instantly available for any clustered applications.
+In our next post we will drive you through the steps of creating your own Hoya provider, deploy it and run on a YARN cluster.</p>
+]]></content>
+  </entry>
+  
+</feed>

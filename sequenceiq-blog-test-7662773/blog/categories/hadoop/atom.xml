@@ -1,0 +1,633 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Hadoop | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com/blog/categories/hadoop/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-10-02T17:35:55+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
+  <author>
+    <name><![CDATA[SequenceIQ]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Tez cluster on Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/19/apache-tez-cluster/"/>
+    <updated>2014-09-19T07:42:58+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/19/apache-tez-cluster</id>
+    <content type="html"><![CDATA[<p>This week the <a href="http://tez.apache.org/">Apache Tez</a> community announced the release of the 0.5 version of the project. At <a href="http://sequenceiq.com/">SequenceIQ</a> first time we came across Tez was in 2013 &ndash; after <a href="http://hortonworks.com/">Hortonworks</a> launched the <code>Stinger Initiative</code>. Though we were not using Hive (that might change soon) we have quickly realized the <code>other</code> capabilities of Tez &ndash; the expressive data flow API, data movement patterns, dynamic graph reconfiguration, etc &ndash; to name a few.</p>
+
+<p>We quickly became <code>fans</code> of Tez &ndash; and have started to run internal PoC projects, rewrite ML algorithms and legacy MR2 code to run/leverage Tez. The new release comes with a stable developer API and a proven stability track, and this has triggered a <code>major</code> re-architecture/refactoring project at SequenceIQ. While I don’t want to enter into deep details, we are building a Platform as a Service API &ndash; with the first stages of the project already released, open sourced and in public beta:</p>
+
+<p><a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; our Docker based cloud agnostic Hadoop as a Service API (AWS, Azure, Google Cloud, DigitalOcean);
+<a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> &ndash; an SLA policy based autoscaling API for Hadoop YARN</p>
+
+<p>One of the unreleased component is a project called <a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> &ndash; a big data pipeline API (with 50+ pre-built data and job pipes), running on <strong>MR2, Tez and Spark</strong>.</p>
+
+<p>With all these said, we have put together a <code>Tez Ready</code> Docker based Hadoop cluster to share our excitement and allow you to quickly start and get familiar with the nice features of the Tez API. The cluster is built on our widely used Apache Ambari Docker <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">container</a>, with some additional features. The containers are <code>service discovery</code> aware. You don’t need to setup anything beforehand, configure IP addresses or DNS names &ndash; the only thing you will need to do is just specify the number of nodes desired in your cluster, and you are ready to go. If you are interested on the underlying architecture (using Docker, Serf and dnsmasq) you can check my slides/presentation from the <a href="http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning">Hadoop Summit</a>.</p>
+
+<p>I&rsquo;d like to highlight one important feature of Tez &ndash; us being crazy about automation/DevOps &ndash; the simplicity and the capability of running multiple versions of Tez on the same YARN cluster. We are contributors to many Apache projects (Hadoop, YARN, Ambari, etc) and since we have started to use Tez we consider to contribute there as well (at the end of the day will be a core part of our platform). Adding new features, changing code or fixing bugs always introduce undesired <code>features</code> &ndash; nevertheless, the Tez binaries built by different colleagues can be tested at scale, using the same cluster without affecting each others work. Check Gopal V&rsquo;s good <a href="http://bit.ly/tez-devops">introduction</a> about Tez and DevOps.</p>
+
+<h2>Apache Tez cluster on Docker</h2>
+
+<p>The container’s code is available on our <a href="https://github.com/sequenceiq/docker-ambari/tree/1.7.0-ea-tez">GitHub</a> repository.</p>
+
+<h3>Pull the image from the Docker Repository</h3>
+
+<p>We suggest to always pull the container from the official Docker repository &ndash; as this is always maintained and supported by us.</p>
+
+<p><code>
+docker pull sequenceiq/ambari:1.7.0-ea-tez
+</code></p>
+
+<!-- more -->
+
+
+<h3>Building the image</h3>
+
+<p>Alternatively you can always build your own container based on our Dockerfile.</p>
+
+<p><code>
+docker build --rm -t sequenceiq/ambari:1.7.0-ea-tez ambari-server/
+</code></p>
+
+<h2>Running the cluster</h2>
+
+<p>We have put together a few shell functions to simplify your work, so before you start make sure you get the following <code>ambari-functions</code> <a href="https://github.com/sequenceiq/docker-ambari/blob/1.7.0-ea-tez/ambari-functions">file</a>.</p>
+
+<p><code>
+curl -Lo .amb j.mp/docker-ambari-tez &amp;&amp; . .amb
+</code></p>
+
+<h3>Create your Apache Tez cluster</h3>
+
+<p>You are almost there. The only thing you will need to do is to specify the number of nodes you need in your cluster. We will launch the containers, they will dynamically join the cluster and apply the Tez specific configurations.</p>
+
+<p><code>
+amb-deploy-cluster 4
+</code></p>
+
+<p>Once the cluster is started you can <a href="http://blog.sequenceiq.com/blog/2014/07/05/docker-debug-with-nsenter-on-boot2docker/">enter</a> in the container and submit your custom Tez application or use one of the stock Tez examples.</p>
+
+<p>Check back next week, as we are releasing <code>real world</code> examples running on three different big data fabrics: Tez, MR2 and Spark.</p>
+
+<p>Should you have any questions let us know through our social channels using <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Cloudbreak new provider implementation - Part I: Build your custom image]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/18/custom-image-on-gcc/"/>
+    <updated>2014-09-18T07:42:58+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/18/custom-image-on-gcc</id>
+    <content type="html"><![CDATA[<p>Not so long ago we have released <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; the cloud agnostic, open source and Docker based Hadoop as a Service API (with support for <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">autoscaling</a> Hadoop clusters). As we have <code>dockerized</code> the whole Hadoop ecosystem, we are shipping the containers to different cloud providers, such as Amazon AWS, Microsoft Azure and Google Cloud Compute. Also Cloudbreak has an <a href="http://sequenceiq.com/cloudbreak/#add-new-cloud-providers">SDK</a> which allows you to quickly add your favorite cloud provider. In this post (series) we’d like to guide you trough the process, and show you how to create a custom image &ndash; on Google Cloud. We have chose Google Cloud as this is the least documented and has the smallest amount on default images (there are thousand for Amazon, and hundreds for Azure). Nevertheless on all cloud provider usually you’d like to have a custom image with your preferred OS, configuration and potentially installed applications.</p>
+
+<!-- more -->
+
+
+<h3>Why do we need custom images on every cloud?</h3>
+
+<p>All the above are true for us as well &ndash; with some simplifications. We use Docker to run every process/application &ndash; for the benefits we have covered in other posts many times &ndash; and apart from Docker, our (or the customer’s) preferred OS and a few other helper/debugger things (such as <a href="https://registry.hub.docker.com/u/jpetazzo/nsenter/">nsenter</a>)
+we are almost fine. We have made some PAM related fixes/contributions for Docker &ndash; and until they are not in the upstream we have built/derive from our base layer/containers &ndash; so with this and the actual containers included this is pretty much how a cloud base image looks like for us.</p>
+
+<p>As usual we always automate everything &ndash; building custom cloud base images is part of the automation and our CI/CD process as well. For that we use <a href="http://www.ansible.com/home">Ansible</a> as the preferred IT automation tool. So the first step is to define your own <a href="http://docs.ansible.com/playbooks.html">playbook</a> to install everything on the virtual machine.</p>
+
+<p>A simple playbook looks like this:</p>
+
+<p>```
+  &ndash; name: Install Docker</p>
+
+<pre><code>shell: curl -sL https://get.docker.io/ | sh
+when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+</code></pre>
+
+<ul>
+<li><p>name: Pull sequenceiq/ambari image
+shell: docker pull sequenceiq/ambari:pam-fix</p></li>
+<li><p>name: Pull jpetazzo/nsenter image
+shell: docker pull jpetazzo/nsenter</p></li>
+<li><p>name: Install bridge-utils
+apt: name=bridge-utils state=latest
+when: ansible_distribution == &lsquo;Debian&rsquo; or ansible_distribution == &lsquo;Ubuntu&rsquo;</p></li>
+<li><p>name: install jq
+shell: curl -o /usr/bin/jq <a href="http://stedolan.github.io/jq/download/linux64/jq">http://stedolan.github.io/jq/download/linux64/jq</a> &amp;&amp; chmod +x /usr/bin/jq</p></li>
+</ul>
+
+
+<p>```</p>
+
+<p>Using Google cloud you have 2 choices:</p>
+
+<ol>
+<li> Create snapshots starting from a default image</li>
+<li> Create a custom image</li>
+</ol>
+
+
+<h3>Image creation using snapshots</h3>
+
+<p>We are using Debian as the host OS on Google Cloud, and have created a virtual machine using the default <a href="https://developers.google.com/compute/docs/operating-systems#backported_debian_7_wheezy">Debian</a> image. First thing first, you need to create a persistent disk:</p>
+
+<p><code>
+gcloud compute disks create temporary-disk --zone ZONE
+</code></p>
+
+<p>Then create a virtual machine with the temporary-disk:</p>
+
+<p><code>
+gcloud compute instances create example-instance \
+  --scopes storage-rw --image IMAGE \
+  --disk name=temporary-disk device-name=temporary-disk --zone ZONE
+</code></p>
+
+<p>And attach the disk to the google cloud instance:</p>
+
+<p><code>
+gcloud compute instances attach-disk example-instance
+  --disk temporary-disk --device-name temporary-disk --zone ZONE
+</code></p>
+
+<p>When this is finished then you can <code>shh</code> to the <code>sample-instance</code>. You can now check your mounted volumes with this command:</p>
+
+<p><code>
+ls -l /dev/disk/by-id/google-*
+</code></p>
+
+<p>Now you need to create a folder which will contain your custom built image:</p>
+
+<p><code>
+sudo mkdir /mnt/tmp
+</code></p>
+
+<p>You have to format your partition before the image creation:</p>
+
+<p><code>
+sudo /usr/share/google/safe_format_and_mount -m "mkfs.ext4 -F" /dev/sdb /mnt/tmp
+</code></p>
+
+<p>Now you can start building the image which will last about 10 minutes:</p>
+
+<p><code>
+sudo gcimagebundle -d /dev/sda -o /mnt/tmp/ --log_file=/tmp/imagecreation.log
+</code></p>
+
+<p>You have now an image in /tmp with a special hex number like <code>/tmp/HEX-NUMBER.image.tar.gz</code></p>
+
+<p>Once you uploaded it to a Google bucket you are done, and ready to use it.</p>
+
+<p><code>
+gsutil cp /mnt/tmp/IMAGE_NAME.image.tar.gz gs://BUCKET_NAME
+</code></p>
+
+<h3>Create a custom image &ndash; using your favorite OS</h3>
+
+<p><a href="http://www.ubuntu.com/download/server">Ubuntu server 14.04</a> is many’s preferred Linux distribution &ndash; unluckily there is no default image using Ubuntu as the OS in the Google Cloud](<a href="https://developers.google.com/compute/docs/operating-systems">https://developers.google.com/compute/docs/operating-systems</a>). Luckily this is not that complicated &ndash; the process below works with any other OS as well. In order to start you should have <a href="https://www.virtualbox.org/">Virtualbox</a> installed. Download an Ubuntu server from <a href="http://www.ubuntu.com/server">Ubuntu’s</a> web page.
+Install in into the <a href="https://www.virtualbox.org/">Virtualbox</a> box, start it and <code>ssh</code> into. Once you are inside you will have to install the <a href="https://developers.google.com/cloud/sdk/">Google Cloud SDK</a>. This is needed for the custom image, as contains some extra feature like <code>google-startup-scripts</code>. Remember that Ubuntu (and in general a few cloud providers) support <code>cloud-init</code> scripts, and this is why we need the Google Cloud SDK &ndash; as we ship these images to the <code>cloud</code>.</p>
+
+<p>After the installation add the following kernel options into the <code>/etc/default/grub</code>:</p>
+
+<p>```</p>
+
+<h1>to enable paravirtualization</h1>
+
+<p>CONFIG_KVM_GUEST=y</p>
+
+<h1>to enable the paravirtualized clock.</h1>
+
+<p>CONFIG_KVM_CLOCK=y</p>
+
+<h1>to enable paravirtualized PCI devices.</h1>
+
+<p>CONFIG_VIRTIO_PCI=y</p>
+
+<h1>to enable access to paravirtualized disks.</h1>
+
+<p>CONFIG_SCSI_VIRTIO=y</p>
+
+<h1>to enable access to the networking.</h1>
+
+<p>CONFIG_VIRTIO_NET=y
+```</p>
+
+<p>Now you are ready to prepare an <code>official</code> image into a tar file, by selecting the virtual box image file on your disk and convert it.
+You can convert your <code>vmdk</code> file into the supported raw type by using:</p>
+
+<p><code>
+qemu-img convert -f vmdk -O raw VMDK_FILE_NAME.vmdk disk.img
+</code></p>
+
+<p>The .img file name has to be <code>disk.img</code>. After you have converted the image, you have to make a tar file:</p>
+
+<p><code>
+tar -Szcf &lt;image-tar-name&gt;.tar.gz disk.raw
+</code></p>
+
+<p>Same as before, you have to upload in to a Google Cloud Bucket:</p>
+
+<p><code>
+gsutil cp &lt;image-tar-name&gt;.tar.gz gs://&lt;bucket-name&gt;
+</code></p>
+
+<p>Now you have an <code>official</code> image template but you have to create the image in Google Cloud:</p>
+
+<p><code>
+gcutil addimage my-ubuntu gs://&lt;bucket-name&gt;/ubuntu_image.tar.gz
+</code></p>
+
+<p>Once this is done you have created your custom built Google Cloud image, and you are ready to start cloud instances using it. Let us know how it works for you, and make sure you follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a> for updates.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Hadoop 2.5.1 on Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/15/hadoop-2-5-1-docker/"/>
+    <updated>2014-09-15T18:07:18+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/15/hadoop-2-5-1-docker</id>
+    <content type="html"><![CDATA[<p>Following the release cycle of Hadoop, today we are releasing a new <code>2.5.1</code> version of our <a href="https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/">Hadoop Docker container</a>. Up until today the container was only <code>CentOS</code> based, but during the last few months we got lots of requests to release a Hadoop container on <code>Ubuntu</code> as well. From now on we will have both released, supported and published to the official Docker repository. Enjoy.</p>
+
+<h2>Centos</h2>
+
+<h3>Build the image</h3>
+
+<p>In case you&rsquo;d like to try directly from the <a href="https://github.com/sequenceiq/hadoop-docker/tree/2.5.1">Dockerfile</a> you can build the image as:</p>
+
+<p><code>
+docker build  -t sequenceiq/hadoop-docker:2.5.1 .
+</code></p>
+
+<!-- more -->
+
+
+<h3>Pull the image</h3>
+
+<p>As it is also released as an official Docker image from Docker&rsquo;s automated build repository &ndash; you can always pull or refer the image when launching containers.</p>
+
+<p><code>
+docker pull sequenceiq/hadoop-docker:2.5.1
+</code></p>
+
+<h3>Start a container</h3>
+
+<p>In order to use the Docker image you have just build or pulled use:</p>
+
+<p><code>
+docker run -i -t sequenceiq/hadoop-docker:2.5.1 /etc/bootstrap.sh -bash
+</code></p>
+
+<h2>Ubuntu</h2>
+
+<h3>Build the image</h3>
+
+<p>In case you&rsquo;d like to try directly from the <a href="https://github.com/sequenceiq/docker-hadoop-ubuntu/tree/2.5.1">Dockerfile</a> you can build the image as:</p>
+
+<p><code>
+docker build  -t sequenceiq/hadoop-ubuntu:2.5.1 .
+</code></p>
+
+<!-- more -->
+
+
+<h3>Pull the image</h3>
+
+<p>As it is also released as an official Docker image from Docker&rsquo;s automated build repository &ndash; you can always pull or refer the image when launching containers.</p>
+
+<p><code>
+docker pull sequenceiq/hadoop-ubuntu:2.5.1
+</code></p>
+
+<h3>Start a container</h3>
+
+<p>In order to use the Docker image you have just build or pulled use:</p>
+
+<p><code>
+docker run -i -t sequenceiq/hadoop-ubuntu:2.5.1 /etc/bootstrap.sh -bash
+</code></p>
+
+<h2>Testing</h2>
+
+<p>You can run one of the stock examples:</p>
+
+<p>```
+cd $HADOOP_PREFIX</p>
+
+<h1>run the mapreduce</h1>
+
+<p>bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.5.1.jar grep input output &lsquo;dfs[a-z.]+&rsquo;</p>
+
+<h1>check the output</h1>
+
+<p>bin/hdfs dfs -cat output/*
+```</p>
+
+<h2>Hadoop native libraries, build, Bintray, etc</h2>
+
+<p>The Hadoop build process is no easy task &ndash; requires lots of libraries and their right version, protobuf, etc and takes some time &ndash; we have simplified all these, made the build and released a 64b version of Hadoop nativelibs on our <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.5.0/view/files">Bintray repo</a>. Enjoy.</p>
+
+<p>Should you have any questions let us know through our social channels as <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[YARN Schedulers demystified - Part 2: Fair]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/09/yarn-schedulers-demystified-part-2-fair/"/>
+    <updated>2014-09-09T16:00:00+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/09/yarn-schedulers-demystified-part-2-fair</id>
+    <content type="html"><![CDATA[<p>In our previous blog post we have been demystifying the <a href="http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1/">Capacity scheduler internals</a> &ndash; as promised in this post is the Fair scheduler’s turn. You can check also our previous post to find out how fair is the Fair scheduler in real life <a href="http://blog.sequenceiq.com/blog/2014/08/16/fairplay/">here</a>.</p>
+
+<p>You might ask why YARN schedulers are so important for us? Recently we have released and open sourced the industry&rsquo;s first SLA policy based autoscaling API for Hadoop clusters, called <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> &ndash; and part of the project is based on schedulers, <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> and our contribution to Apache YARN.</p>
+
+<h2>The Fair Scheduler internals</h2>
+
+<p>The FairScheduler&rsquo;s purpose is to assign resources to applications such that all apps get &ndash; on average &ndash; an equal share of resources over time.
+By default the scheduler bases fairness decisions only on memory, but it can be configured otherwise. When only a single app is running
+in the cluster it can take all the resources. When new apps are submitted resources that free up are assigned to the new apps,
+so that each app eventually on gets roughly the same amount of resources. Queues can be weighted to determine the fraction of total
+resources that each app should get.</p>
+
+<h2>Configuration</h2>
+
+<p>Although the CapacityScheduler is the default we can easily tell YARN to use the FairScheduler. In yarn-site.xml
+```
+<property></p>
+
+<pre><code>  &lt;name&gt;yarn.resourcemanager.scheduler.class&lt;/name&gt;
+  &lt;value&gt;org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairScheduler&lt;/value&gt;
+</code></pre>
+
+<p></property>
+<property></p>
+
+<pre><code>  &lt;name&gt;yarn.scheduler.fair.allocation.file&lt;/name&gt;
+  &lt;value&gt;/etc/hadoop/conf.empty/fair-scheduler.xml&lt;/value&gt;
+</code></pre>
+
+<p></property>
+<code>``
+The FairScheduler consists of 2 configuration files: scheduler-wide options can be placed into</code>yarn-site.xml<code>and queue settings in the
+</code>allocation file` which must be in XML format. Click <a href="http://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-site/FairScheduler.html">here</a>
+for a more detailed reference.</p>
+
+<h3>Few things worth noting compared to CapacityScheduler regarding queues</h3>
+
+<ul>
+<li>Both CapacityScheduler and FairScheduler supports hierarchical queues and all queues descend from a queue named <code>root</code>.</li>
+<li>Both uses a queue called <code>default</code> as well.</li>
+<li>Applications can be submitted to leaf queues only.</li>
+<li>Both CapacityScheduler and FairScheduler can create new queues at run time, the only difference is the how. In case of the CapacityScheduler
+  the configuration file needed to be modified and we have to explicitly tell the ResourceManager to reload the configuration, while the
+  FairScheduler does the same based on the queue placement policies which is less painful.</li>
+<li>FairScheduler introduced scheduling policies which determines which job should get resources at each scheduling opportunity. The cool thing
+  about this that besides the default ones (&ldquo;fifo&rdquo; &ldquo;fair&rdquo; &ldquo;drf&rdquo;) anyone can create new scheduling policies by extending the
+  <code>org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.SchedulingPolicy</code> class and place it to the classpath.</li>
+<li>FairScheduler allows different queue placement policies as mentioned earlier. These policies tell the scheduler where to place the incoming app
+  among the queues. Placement can depend on users, groups or requested queue by the applications.</li>
+<li>In FairScheduler applications can be submitted to non-existing queues if the <code>create</code> flag is set and it will create that queue, while the
+  CapacityScheduler will instantly reject the submission.</li>
+<li>From Hadoop 2.6.0 (<a href="https://issues.apache.org/jira/browse/YARN-1495">YARN-1495</a>) both schedulers will let users to manually move
+  applications across queues.<br/>
+  <code>Side note:</code> This feature allows us to re-prioritize and define SLAs on applications and place them to queues where they get the enforced
+  resources. Our newly open sourced project <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> will add this
+  capability for static clusters besides dynamic ones in the near future.</li>
+</ul>
+
+
+<!-- more -->
+
+
+<h2>Messaging</h2>
+
+<p>The event mechanism is the same as with CapacityScheduler &ndash; thus I&rsquo;m not going to take account on the events &ndash; and if you check the handler methods
+(<a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/CapacityScheduler.java#L956">here</a>
+and <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/FairScheduler.java#L1134">here</a>)
+you can notice that they look fairly the same.
+```java
+@Override
+  public void handle(SchedulerEvent event) {</p>
+
+<pre><code>switch (event.getType()) {
+case NODE_ADDED:
+  if (!(event instanceof NodeAddedSchedulerEvent)) {
+    throw new RuntimeException("Unexpected event type: " + event);
+  }
+  NodeAddedSchedulerEvent nodeAddedEvent = (NodeAddedSchedulerEvent)event;
+  addNode(nodeAddedEvent.getAddedRMNode());
+  recoverContainersOnNode(nodeAddedEvent.getContainerReports(),
+      nodeAddedEvent.getAddedRMNode());
+  break;
+case NODE_REMOVED:
+  if (!(event instanceof NodeRemovedSchedulerEvent)) {
+    throw new RuntimeException("Unexpected event type: " + event);
+  }
+  NodeRemovedSchedulerEvent nodeRemovedEvent = (NodeRemovedSchedulerEvent)event;
+  removeNode(nodeRemovedEvent.getRemovedRMNode());
+  break;
+case NODE_UPDATE:
+  if (!(event instanceof NodeUpdateSchedulerEvent)) {
+    throw new RuntimeException("Unexpected event type: " + event);
+  }
+  NodeUpdateSchedulerEvent nodeUpdatedEvent = (NodeUpdateSchedulerEvent)event;
+  nodeUpdate(nodeUpdatedEvent.getRMNode());
+  break;
+case APP_ADDED:
+  if (!(event instanceof AppAddedSchedulerEvent)) {
+    throw new RuntimeException("Unexpected event type: " + event);
+  }
+  AppAddedSchedulerEvent appAddedEvent = (AppAddedSchedulerEvent) event;
+  addApplication(appAddedEvent.getApplicationId(),
+    appAddedEvent.getQueue(), appAddedEvent.getUser(),
+    appAddedEvent.getIsAppRecovering());
+  break;
+case APP_REMOVED:
+  if (!(event instanceof AppRemovedSchedulerEvent)) {
+    throw new RuntimeException("Unexpected event type: " + event);
+  }
+  AppRemovedSchedulerEvent appRemovedEvent = (AppRemovedSchedulerEvent)event;
+  removeApplication(appRemovedEvent.getApplicationID(),
+    appRemovedEvent.getFinalState());
+  break;
+case APP_ATTEMPT_ADDED:
+  if (!(event instanceof AppAttemptAddedSchedulerEvent)) {
+    throw new RuntimeException("Unexpected event type: " + event);
+  }
+  AppAttemptAddedSchedulerEvent appAttemptAddedEvent =
+      (AppAttemptAddedSchedulerEvent) event;
+  addApplicationAttempt(appAttemptAddedEvent.getApplicationAttemptId(),
+    appAttemptAddedEvent.getTransferStateFromPreviousAttempt(),
+    appAttemptAddedEvent.getIsAttemptRecovering());
+  break;
+case APP_ATTEMPT_REMOVED:
+  if (!(event instanceof AppAttemptRemovedSchedulerEvent)) {
+    throw new RuntimeException("Unexpected event type: " + event);
+  }
+  AppAttemptRemovedSchedulerEvent appAttemptRemovedEvent =
+      (AppAttemptRemovedSchedulerEvent) event;
+  removeApplicationAttempt(
+      appAttemptRemovedEvent.getApplicationAttemptID(),
+      appAttemptRemovedEvent.getFinalAttemptState(),
+      appAttemptRemovedEvent.getKeepContainersAcrossAppAttempts());
+  break;
+case CONTAINER_EXPIRED:
+  if (!(event instanceof ContainerExpiredSchedulerEvent)) {
+    throw new RuntimeException("Unexpected event type: " + event);
+  }
+  ContainerExpiredSchedulerEvent containerExpiredEvent =
+      (ContainerExpiredSchedulerEvent)event;
+  ContainerId containerId = containerExpiredEvent.getContainerId();
+  completedContainer(getRMContainer(containerId),
+      SchedulerUtils.createAbnormalContainerStatus(
+          containerId,
+          SchedulerUtils.EXPIRED_CONTAINER),
+      RMContainerEventType.EXPIRE);
+  break;
+default:
+  LOG.error("Unknown event arrived at FairScheduler: " + event.toString());
+}
+</code></pre>
+
+<p>  }
+```</p>
+
+<h3>NODE_ADDED &amp;&amp; NODE_REMOVED</h3>
+
+<p>It&rsquo;s the same as in CapacityScheduler, adjusts the global resources based on whether a node joined or left the cluster.</p>
+
+<h3>APP_ADDED</h3>
+
+<p>Application submission is slightly different from CapacityScheduler (well not on client side as it&rsquo;s the same there), but because of
+the queue placement policy. Administrators can define a <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementPolicy.java">QueuePlacementPolicy</a>
+which will determine where to place the submitted application. A QueuePlacementPolicy stands from a list of <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java">QueuePlacementRules</a>.
+These rules are ordered meaning that the first rule which can place the application into a queue will apply. If no rule can apply the
+application submission will be rejected. Each rule accept a <code>create</code> argument in which case it&rsquo;s true the rule can create a queue if it is missing.
+The following rules exist:</p>
+
+<ul>
+<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L124">User</a>:
+  places the application into a queue with user&rsquo;s name e.g: root.chris</li>
+<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L140">PrimaryGroup</a>:
+  places the application into a queue with the user&rsquo;s primary group name e.g: root.hdfs</li>
+<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L160">SecondaryGroupExistingQueue</a>:
+  places the application into a queue with the user&rsquo;s secondary group name</li>
+<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L188">NestedUserQueue</a>:
+  places the application into a queue with the user&rsquo;s name under the queue returned by the nested rule</li>
+<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L258">Specified</a>:
+  places the application into a queue which was requested when submitted</li>
+<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L282">Default</a>:
+  places the application into the default queue</li>
+<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L324">Reject</a>:
+  it is a termination rule in the sequence of rules, if no rule applied before then it will reject the submission</li>
+</ul>
+
+
+<p>ACLs are also checked before creating and adding the application to the list of <code>SchedulerApplications</code> and updating the metrics.</p>
+
+<h3>APP_REMOVED</h3>
+
+<p>Simply stops the application and sets it&rsquo;s final state.</p>
+
+<h3>APP_ATTEMPT_ADDED</h3>
+
+<p>The analogy is the same with the CapacityScheduler that application attempts trigger the application to actually run. Based on the
+allocation configuration mentioned above the <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/MaxRunningAppsEnforcer.java">MaxRunningAppsEnforcer</a>
+will decide whether the app is placed into the <code>runnableApps</code> or the <code>nonRunnableApps</code> inside of the queue. <code>MaxRunningAppsEnforcer</code> also
+keeps track of the runnable and non runnable apps per user. Attempt states are also transferred from one to another.</p>
+
+<h3>APP_ATTEMPT_REMOVED</h3>
+
+<p>Releases all the allocated, acquired, running containers (in case of <code>ApplicationMaster</code> restart the running containers won&rsquo;t get killed),
+releases all reserved containers, cleans up pending requests and informs the queues. <code>MaxRunningAppsEnforcer</code> gets updated as well.</p>
+
+<h3>NODE_UPDATE</h3>
+
+<p>As we learned from CapacityScheduler <code>NodeUpdateSchedulerEvents</code> arrive every second. FairScheduler support asynchronous scheduling on a
+different thread regardless of the <code>NodeManager's</code> <code>heartbeats</code> as well. We also learned the importance of the <code>Allocation</code> method which
+issues the <code>ResourceRequests</code> of an application and in this case it does exactly the same as in case of CapacityScheduler. You can read
+about the form of these requests there. At each node update the scheduler updates the capacities of the resources if it&rsquo;s changed, processes
+the completed and newly launched containers, updates the metrics and tries to allocate resources to applications. Just like with CapacityScheduler
+container reservation has the advantage thus it gets fulfilled first. If there is no reservation it tries to schedule in a queue which is
+farthest below fair share. The scheduler first orders the queues and then the applications inside the queues using the configured
+<a href="https://github.com/apache/hadoop-common/tree/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/policies">SchedulingPolicy</a>.
+As I mentioned in the configuration section there are 3 default policies available:</p>
+
+<ul>
+<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/policies/FifoPolicy.java">FifoPolicy</a>
+  (fifo) &ndash; Orders first by priorities and then by submission time.</li>
+<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/policies/DominantResourceFairnessPolicy.java">DominantResourceFairnessPolicy</a>
+  (drf) &ndash; Orders by trying to equalize dominant resource usage.
+  (dominant resource usage is the largest ratio of resource usage to capacity among the resource types it is using)</li>
+<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/policies/FairSharePolicy.java">FairSharePolicy</a>
+  (fair) &ndash; Orders via weighted fair sharing. In addition, Schedulables below their min share get priority over those whose
+  min share is met. Schedulables below their min share are compared by how far below it they are as a ratio. For example, if job A has 8
+  out of a min share of 10 tasks and job B has 50 out of a min share of 100, then job B is scheduled next, because B is at 50% of its
+  min share and A is at 80% of its min share. Schedulables above their min share are compared by (runningTasks / weight).</li>
+</ul>
+
+
+<p>SchedulingPolicies can be written and used by anyone without major investment to how to do it. All it takes is to extend a
+<a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/SchedulingPolicy.java">class</a>
+and place the implementation to the classpath and restart the <code>ResourceManager</code>. Even though it&rsquo;s easy to do and it&rsquo;s not a major investment
+the fairness will depend on it thus the effect will be major, so you should really consider it. After the decision of which application should
+get resources first the game is pretty much the same as with the CapacityScheduler. First it tries to allocate container on a data local node
+and after a delay on a rack local node and in the end falling back to an off switch node.</p>
+
+<h3>CONTAINER_EXPIRED</h3>
+
+<p>Cleans up the expired containers just like it would be a finished container.</p>
+
+<h2>What&rsquo;s next?</h2>
+
+<p>We might do a Part 3 post about the FIFOScheduler, though that&rsquo;s really straightforward &ndash; nevertheless, let us know if you&rsquo;d like to read about. As we have already mentioned, last week we released <a href="http://sequenceiq.com/periscope/">Periscope</a> &ndash; the industry’s first SLA policy based autoscaling API for Hadoop YARN &ndash; all these features we have blogged about are based on our contribution in Hadoop, YARN and Ambari -so stay tuned and follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a> for updates.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Ambari 1.7.0 early access]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/05/apache-ambari-1-7-0-ea/"/>
+    <updated>2014-09-05T16:37:37+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/05/apache-ambari-1-7-0-ea</id>
+    <content type="html"><![CDATA[<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we use <a href="http://ambari.apache.org/">Apache Ambari</a> every day &ndash; it’s our tool to provision Hadoop clusters.</p>
+
+<p>Beside that we are contributors to Ambari, we are so excited about the coming Apache Ambari 1.7.0 new <a href="https://cwiki.apache.org/confluence/pages/viewpage.action?pageId=30755705">features</a> that we could not help and put together an <strong>early access</strong> <a href="https://github.com/sequenceiq/docker-ambari/tree/1.7.0-ea">Ambari 1.7.0 Docker container</a>.</p>
+
+<p>Give it a try, and provision an arbitrary number of Hadoop cluster on your laptop (or production environment), using our container and Ambari shell. Let us know how it works for you. Enjoy.</p>
+
+<h3>Get the Docker container</h3>
+
+<p>In case you don’t have Docker browse among our previous posts &ndash; we have a few posts about howto’s, examples and best practices in general for Docker and in particular about how to run the full Hadoop stack on Docker.</p>
+
+<p><code>
+docker pull sequenceiq/ambari:1.7.0-ea
+</code></p>
+
+<!--more-->
+
+
+<p>Once you have the container you are almost ready to go &ndash; we always automate everything and <strong>over simplify</strong> Hadoop provisioning.</p>
+
+<h3>Get ambari-functions</h3>
+
+<p>Get the following <code>ambari-functions</code> <a href="https://github.com/sequenceiq/docker-ambari/blob/1.7.0-ea/ambari-functions">file</a> from our GitHub.</p>
+
+<p><code>
+curl -Lo .amb j.mp/docker-ambari-170ea &amp;&amp; . .amb
+</code></p>
+
+<h3>Create your cluster</h3>
+
+<p><code>
+amb-deploy-cluster 4
+</code></p>
+
+<p><strong>Whaaat?</strong> No really, that’s it &ndash; we have just provisioned you a 4 node Hadoop cluster in less than 2 minutes. Docker, Apache Ambari and Ambari Shell combined is quite powerful, isn&rsquo;t it? You can always start playing with your desired services by changing the <a href="https://github.com/sequenceiq/ambari-rest-client/tree/master/src/main/resources/blueprints">blueprints</a> &ndash; the full Hadoop stack is supported.</p>
+
+<p>If you’d like to play around and understand how this works check our previous blog posts &ndash; a good start is this first post about one of our contribution, the <a href="http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell/">Ambari Shell</a>.</p>
+
+<p>You have just seen how easy is to provision a Hadoop cluster on your laptop, if you’d like to see how we provision a Hadoop cluster in the cloud using the very same Docker image you can check our open source, cloud agnostic Hadoop as a Service API &ndash; <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a>. Last week we have released a project called <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> &ndash; the industry&rsquo;s first open source autoscaling API for Hadoop.</p>
+
+<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
+  
+</feed>

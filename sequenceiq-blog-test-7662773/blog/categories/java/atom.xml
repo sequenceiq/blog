@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Java | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com/blog/categories/java/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-10-02T17:35:55+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
+  <author>
+    <name><![CDATA[SequenceIQ]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Groovy and Java, the runtime bug]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/07/13/groovy-and-java-runtime-bug/"/>
+    <updated>2014-07-13T09:13:53+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/07/13/groovy-and-java-runtime-bug</id>
+    <content type="html"><![CDATA[<p>I can barely count how many languages we use at SequenceIQ <em>[based on our <a href="https://github.com/sequenceiq">GitHub</a> repository it&rsquo;s Java, Scala, Groovy, Go, CoffeeScript, JavaScript, R and Shell (Ansible, Dockerfile, AWS CLI, what not)]</em>. Groovy is one of them.
+Coding in Groovy is fast and fun, isn&rsquo;t it? Except when problems come up at runtime. This is one of those.</p>
+
+<p><img class="<a" src="href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/groovy-bug/src/main/resources/wtf.png">https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/groovy-bug/src/main/resources/wtf.png</a>"></p>
+
+<!-- more -->
+
+
+<p>The Ambari REST Client is written in Groovy and in this case used by a Java application. You can find the sample bug in our
+<a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/groovy-bug">repository</a>. The same thing could have been achieved with
+reflection as well. Do you know why this can happen? It&rsquo;s a good candidate for an interview question, isn&rsquo;t it &hellip;</p>
+]]></content>
+  </entry>
+  
+</feed>
