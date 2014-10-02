@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Scheduler | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com/blog/categories/scheduler/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-10-02T12:20:19+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
+  <author>
+    <name><![CDATA[SequenceIQ]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Re-prioritize running jobs with YARN schedulers]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues/"/>
+    <updated>2014-07-02T08:20:05+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues</id>
+    <content type="html"><![CDATA[<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we run different applications all within the same Hadoop YARN cluster. Often the deployed Hadoop stack is a multi-tenant and multi-application and runtime setup &ndash; and as usual for a scenario as such end users will try to use or book as much cluster capacity as possible. A great help for solving these problems are YARN schedulers &ndash; however in our case due to certain SLA and QoS requirements we needed to step further. We have invested a great effort to build custom YARN schedulers, learn about application insights (check our <a href="http://blog.sequenceiq.com/blog/2014/05/01/mapreduce-job-profiling-with-R/">blog post</a> about how we use R to profile running jobs) and we would like to share our experience with the community. Let&rsquo;s dig into technical details.</p>
+
+<p>In YARN, one of the ResourceManager&rsquo;s most important role is the scheduling (allocating available resources in the cluster) between competing applications. It doesn&rsquo;t care about per-application states nor internal flows and optimizations, but the overall resource requirements of
+each application. Currently there are 3 different scheduler implementations available: FIFO, Fair, Capacity.</p>
+
+<p>Going back a few weeks in time we blogged about how to configure the
+<a href="http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler/">CapacityScheduler</a> and use different queue
+setups. Based on the feedbacks we have received we realized that there is a lack of knowledge about how these schedulers work and many people have asked to fill that gap. Good news that we didn&rsquo;t
+forget about you. We&rsquo;re going to start a post series where we&rsquo;ll explain them a little bit detailed with fancy diagrams and code examples.</p>
+
+<p>But before doing that, let&rsquo;s visit a concrete problem we encountered while we were developing our product stack.
+We wanted to use the CapacityScheduler, but for different reasons (SLA and QoS) move the submitted applications between different queues to set a priority among them &ndash; at runtime (quick reminder: queues are either a composition of other queues or a collection of applications, forming a tree).
+Cross application priorites can&rsquo;t be configured yet, only priorities between tasks within the application. The only problem is if you check the code you&rsquo;ll find this:</p>
+
+<p>```java
+@Override
+  public String moveApplication(ApplicationId appId, String newQueue) throws YarnException {</p>
+
+<pre><code>throw new YarnException(getClass().getSimpleName()
+    + " does not support moving apps between queues");
+</code></pre>
+
+<p>  }
+```</p>
+
+<!-- more -->
+
+
+<p>Currently this operation is supported only by the FairScheduler. Why is it not implemented? Let us know in a comment and you might receive a surprise present from us :). In the meantime if we&rsquo;d like
+to implement it what would be the steps? Lets start with the following queue hierarchy and their capabilities taken from the integration tests:</p>
+
+<p><img class="<a" src="href="http://yuml.me/1fe68e90">http://yuml.me/1fe68e90</a>"></p>
+
+<p>Assume we&rsquo;ve submitted 2 applications, <strong>app1</strong> to <code>b2</code> and <strong>app2</strong> to <code>a2</code> (submitting applications is only allowed to leaf queues). What if <strong>app2</strong> is
+pending for so long because of the queue capacity and my friend&rsquo;s friend&rsquo;s dog cannot wait anymore to see his data clustering result? We could play with the queue capacities and max capacities, but then other apps might get scheduled as well and we don&rsquo;t want that.
+Then we could move the app to a queue where it can get resources with a much higher chance. To move an app to somewhere
+else in the hierarchy we have to consider and update a whole bunch of things. Let&rsquo;s move <strong>app1</strong> to queue <code>b1</code>.</p>
+
+<p>Obviously we have to check if the target queue is a leaf queue and moving the app there does not violate any constraints. But how to do that?
+The first part is easy (leaf or parent), but what about the other one? It has to do something with queue capacities, but checking only the target
+queue&rsquo;s capacity is not enough, we have to go up in the hierarchy (because the parent queues also keep track the number of applications
+and resource usages) but for how deep? The lowest common ancestor of the source and target is enough, because above that nothing changes. In our
+case it&rsquo;s the <code>b</code> (b1, b2). Finding it is not that hard since the queues are declared like this:</p>
+
+<ul>
+<li>root.a.a1</li>
+<li>root.a.a2</li>
+<li>root.b.b1</li>
+<li>root.b.b2</li>
+<li>root.b.b3</li>
+</ul>
+
+
+<p>Going back until <code>b</code> and check the capacities:
+```java</p>
+
+<pre><code>CSQueue currentQueue = targetQueue;
+while (currentQueue != lowestCommonAncestor) {
+  // maxApps
+  if (currentQueue.getNumApplications() == this.conf.getMaximumApplicationsPerQueue(currentQueue.getQueueName())) {
+    throw new YarnException("Moving app attempt " + appAttId + " to queue "
+      + queueName + " would violate queue maxApps constraints on"
+      + " queue " + currentQueue.getQueueName());
+  }
+
+  // maxCapacity
+  float potentialNewCapacity = Resources.divide(calculator, clusterResource, Resources.add(currentQueue.getUsedResources(), consumption), clusterResource);
+  if (potentialNewCapacity &gt;= currentQueue.getAbsoluteMaximumCapacity()) {
+    throw new YarnException("Moving app attempt " + appAttId + " to queue "
+      + queueName + " would violate queue maxCapacity constraints on"
+      + " queue " + currentQueue.getQueueName());
+  }
+  currentQueue = currentQueue.getParent();
+}
+</code></pre>
+
+<p>```</p>
+
+<p>If everything is fine we can execute the movement.
+```java
+private void executeMove(SchedulerApplication app, FiCaSchedulerApp attempt, LeafQueue oldQueue, LeafQueue newQueue) {</p>
+
+<pre><code>oldQueue.removeApplicationAttempt(attempt);
+attempt.move(newQueue); // This updates all the queue metrics 'til the parent
+app.setQueue(newQueue);
+newQueue.trackApplications(attempt.getApplicationId(), attempt.getUser());
+newQueue.submitApplicationAttempt(attempt, attempt.getUser());
+</code></pre>
+
+<p>}
+```</p>
+
+<p>There are so many things implemented in these method calls it wouldn&rsquo;t fit here, but it serves the purpose here as pseudo code.</p>
+
+<ul>
+<li><p>oldQueue.removeApplicationAttempt(attempt);<br/>
+Remove the application from the active and pending list. Notify the parents that an app has been removed.</p></li>
+<li><p>attempt.move(newQueue);<br/>
+Update the queue metrics upwards to root.</p></li>
+<li><p>app.setQueue(newQueue);<br/>
+Set the target queue in the app.</p></li>
+<li><p>newQueue.trackApplications(attempt.getApplicationId(), attempt.getUser());<br/>
+Notify the parents that a new application has been moved here.</p></li>
+<li><p>newQueue.submitApplicationAttempt(attempt, attempt.getUser());<br/>
+Finally submit the application attempt to the queue.</p></li>
+</ul>
+
+
+<p>As usual we always release the code as well &ndash; you can get the details from our <a href="https://github.com/sequenceiq">GitHub</a> page.</p>
+
+<ul>
+<li><p>Move applications between Capacity Scheduler queues <a href="https://github.com/sequenceiq/hadoop-common/blob/branch-2.4.1/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/a/ExtendedCapacityScheduler.java#L924">implementation</a>.</p></li>
+<li><p>Test case <a href="https://github.com/sequenceiq/hadoop-common/blob/branch-2.4.1/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/test/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/a/TestExtendedCapacitySchedulerAppMove.java">implementation</a>.</p></li>
+</ul>
+
+
+<p>In case you are interested on the YARN Scheduler series make sure to follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a> or <a href="https://twitter.com/sequenceiq">Twitter</a> for the upcoming posts.</p>
+]]></content>
+  </entry>
+  
+</feed>

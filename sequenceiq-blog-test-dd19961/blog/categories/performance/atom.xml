@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Performance | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com/blog/categories/performance/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-10-02T12:20:19+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
+  <author>
+    <name><![CDATA[SequenceIQ]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Tez cluster on Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/19/apache-tez-cluster/"/>
+    <updated>2014-09-19T07:42:58+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/19/apache-tez-cluster</id>
+    <content type="html"><![CDATA[<p>This week the <a href="http://tez.apache.org/">Apache Tez</a> community announced the release of the 0.5 version of the project. At <a href="http://sequenceiq.com/">SequenceIQ</a> first time we came across Tez was in 2013 &ndash; after <a href="http://hortonworks.com/">Hortonworks</a> launched the <code>Stinger Initiative</code>. Though we were not using Hive (that might change soon) we have quickly realized the <code>other</code> capabilities of Tez &ndash; the expressive data flow API, data movement patterns, dynamic graph reconfiguration, etc &ndash; to name a few.</p>
+
+<p>We quickly became <code>fans</code> of Tez &ndash; and have started to run internal PoC projects, rewrite ML algorithms and legacy MR2 code to run/leverage Tez. The new release comes with a stable developer API and a proven stability track, and this has triggered a <code>major</code> re-architecture/refactoring project at SequenceIQ. While I don’t want to enter into deep details, we are building a Platform as a Service API &ndash; with the first stages of the project already released, open sourced and in public beta:</p>
+
+<p><a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; our Docker based cloud agnostic Hadoop as a Service API (AWS, Azure, Google Cloud, DigitalOcean);
+<a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> &ndash; an SLA policy based autoscaling API for Hadoop YARN</p>
+
+<p>One of the unreleased component is a project called <a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> &ndash; a big data pipeline API (with 50+ pre-built data and job pipes), running on <strong>MR2, Tez and Spark</strong>.</p>
+
+<p>With all these said, we have put together a <code>Tez Ready</code> Docker based Hadoop cluster to share our excitement and allow you to quickly start and get familiar with the nice features of the Tez API. The cluster is built on our widely used Apache Ambari Docker <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">container</a>, with some additional features. The containers are <code>service discovery</code> aware. You don’t need to setup anything beforehand, configure IP addresses or DNS names &ndash; the only thing you will need to do is just specify the number of nodes desired in your cluster, and you are ready to go. If you are interested on the underlying architecture (using Docker, Serf and dnsmasq) you can check my slides/presentation from the <a href="http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning">Hadoop Summit</a>.</p>
+
+<p>I&rsquo;d like to highlight one important feature of Tez &ndash; us being crazy about automation/DevOps &ndash; the simplicity and the capability of running multiple versions of Tez on the same YARN cluster. We are contributors to many Apache projects (Hadoop, YARN, Ambari, etc) and since we have started to use Tez we consider to contribute there as well (at the end of the day will be a core part of our platform). Adding new features, changing code or fixing bugs always introduce undesired <code>features</code> &ndash; nevertheless, the Tez binaries built by different colleagues can be tested at scale, using the same cluster without affecting each others work. Check Gopal V&rsquo;s good <a href="http://bit.ly/tez-devops">introduction</a> about Tez and DevOps.</p>
+
+<h2>Apache Tez cluster on Docker</h2>
+
+<p>The container’s code is available on our <a href="https://github.com/sequenceiq/docker-ambari/tree/1.7.0-ea-tez">GitHub</a> repository.</p>
+
+<h3>Pull the image from the Docker Repository</h3>
+
+<p>We suggest to always pull the container from the official Docker repository &ndash; as this is always maintained and supported by us.</p>
+
+<p><code>
+docker pull sequenceiq/ambari:1.7.0-ea-tez
+</code></p>
+
+<!-- more -->
+
+
+<h3>Building the image</h3>
+
+<p>Alternatively you can always build your own container based on our Dockerfile.</p>
+
+<p><code>
+docker build --rm -t sequenceiq/ambari:1.7.0-ea-tez ambari-server/
+</code></p>
+
+<h2>Running the cluster</h2>
+
+<p>We have put together a few shell functions to simplify your work, so before you start make sure you get the following <code>ambari-functions</code> <a href="https://github.com/sequenceiq/docker-ambari/blob/1.7.0-ea-tez/ambari-functions">file</a>.</p>
+
+<p><code>
+curl -Lo .amb j.mp/docker-ambari-tez &amp;&amp; . .amb
+</code></p>
+
+<h3>Create your Apache Tez cluster</h3>
+
+<p>You are almost there. The only thing you will need to do is to specify the number of nodes you need in your cluster. We will launch the containers, they will dynamically join the cluster and apply the Tez specific configurations.</p>
+
+<p><code>
+amb-deploy-cluster 4
+</code></p>
+
+<p>Once the cluster is started you can <a href="http://blog.sequenceiq.com/blog/2014/07/05/docker-debug-with-nsenter-on-boot2docker/">enter</a> in the container and submit your custom Tez application or use one of the stock Tez examples.</p>
+
+<p>Check back next week, as we are releasing <code>real world</code> examples running on three different big data fabrics: Tez, MR2 and Spark.</p>
+
+<p>Should you have any questions let us know through our social channels using <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
+  
+</feed>

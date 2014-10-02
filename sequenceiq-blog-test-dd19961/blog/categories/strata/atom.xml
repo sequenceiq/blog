@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Strata | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com/blog/categories/strata/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-10-02T12:20:19+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
+  <author>
+    <name><![CDATA[SequenceIQ]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Strata + Hadoop World 2014 Startup Showcase]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/25/strata-hadoop-world-2014/"/>
+    <updated>2014-09-25T07:42:38+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/25/strata-hadoop-world-2014</id>
+    <content type="html"><![CDATA[<p><a href="http://sequenceiq.com">SequenceIQ</a> is happy to announce that it has been selected among the top 10 leading big data startups by a team of investors, entrepreneurs, and industry analysts and will present live at the Startup Showcase at <strong>Strata + Hadoop World 2014, New York.</strong></p>
+
+<p>We will have a space in the showcase to win over the judges, and pitch our company and innovative technology to the thousands of developers, founders, executives, investors and researchers that attend <a href="http://strataconf.com/stratany2014">Strata</a>.</p>
+
+<p>Come and watch our showcase on Wednesday, October 15 or catch up with us during the conference (@sequenceiq).</p>
+
+<p>Stay in touch with us through <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
+  
+</feed>

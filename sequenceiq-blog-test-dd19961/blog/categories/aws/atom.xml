@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: AWS | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com/blog/categories/aws/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-10-02T12:20:19+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
+  <author>
+    <name><![CDATA[SequenceIQ]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Infrastructure management with CloudFormation]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/08/29/aws-cloudformation-makes-everything-easier/"/>
+    <updated>2014-08-29T14:13:06+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/08/29/aws-cloudformation-makes-everything-easier</id>
+    <content type="html"><![CDATA[<p>Our Hadoop as a Service solution, <a href="https://cloudbreak.sequenceiq.com">Cloudbreak</a> integrates with multiple cloud providers to deploy Hadoop clusters in the cloud. It means that every time a cluster is requested, Cloudbreak goes to the selected cloud provider and creates a new, separated infrastructure through the provider’s API. Building this infrastructure can be a real pain and can cause a lot of problems &ndash; it involves a lot of API calls, the polling of created building blocks, the management of failures and the necessary rollbacks to name a few. With the help of <a href="http://aws.amazon.com/cloudformation/">AWS CloudFormation</a> we were able to avoid most of these problems when integrating AWS in Cloudbreak.</p>
+
+<h3>Problems with the traditional approach</h3>
+
+<p>When Cloudbreak creates a Hadoop cluster it should first create the underlying infrastructure on the cloud provider. The building blocks are a bit different on every provider, the following resources are created on AWS:</p>
+
+<ul>
+<li>a virtual private cloud (VPC)</li>
+<li>a subnet</li>
+<li>an internet gateway</li>
+<li>a route table</li>
+<li>an auto scaling group and its launch configuration</li>
+<li>a security group</li>
+</ul>
+
+
+<p>Although AWS has a pretty good API and great SDKs to communicate with it, we needed to deal with the above described problems if we would like to create all of these elements one by one through the Java SDK. The code would start with something like this with the creation of the VPC:</p>
+
+<p>```java
+AmazonEC2Client amazonEC2Client = new AmazonEC2Client(basicSessionCredentials);
+amazonEC2Client.setRegion(region);</p>
+
+<p>CreateVpcRequest vpcRequest = new CreateVpcRequest().withCidrBlock(10.0.0.0/24);
+CreateVpcResponse vpcResponse = amazonEC2Client.createVpc(createVpcRequest);</p>
+
+<p>//poll vpc creation until it’s state is available
+waitForVPC(amazonEC2Client, vpcResponse.getVpc());</p>
+
+<p>ModifyVpcAttributeRequest modifyVpcRequest = new ModifyVpcAttributeRequest().withEnableDnsHostnames(true).withEnableDnsSupport(true);
+amazonEC2Cient.modifyVpcAttribute(modifyVpcRequest);
+```</p>
+
+<!--more-->
+
+
+<p>The above code is only a taste of the whole thing. The VPC is one of the most simple resources with very few attributes to set. Also the polling of the creation process isn’t detailed here as well as failure handling. In addition the different resources would be scattered around the code making it impossible to have an overview of the whole stack and making it much harder to find bugs or to modify some attributes. With CloudFormation all of the above problems can be solved very easily.</p>
+
+<h3>Introduction to CloudFormation</h3>
+
+<p>According to the <a href="http://aws.amazon.com/cloudformation/">AWS CloudFormation documentation</a> it was designed to create and manage a collection of related AWS resources easily and provisioning and updating them in an orderly and predictable fashion. What it really means is that the resources can be described declaratively in a JSON document (a <em>template</em>) and the whole <em>stack</em> can be created/updated/deleted with a simple API call. AWS also handles failures, and rollbacks the whole stack if something goes wrong. Furthermore it is able to send notifications to <em>SNS topics</em> when some event occurs (e.g.: a resource creation started or the resource is completed), making the polling of resource creations unnecessary.</p>
+
+<h3>Template structure</h3>
+
+<p>We don’t want to give a detailed introduction on how the structure of a CloudFormation template look like, the <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html">AWS documentation</a> covers it really well and there are also a lot of <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/sample-templates-services-us-west-2.html">samples</a>.
+Instead we’re trying to focus on the advantages that CloudFormation gave us while using it, so let’s jump in the middle and start with a simple example. The declaration of a VPC in a template looks like this:</p>
+
+<p>```json
+&ldquo;Resources&rdquo; : {
+  &ldquo;MY_VPC&rdquo; : {</p>
+
+<pre><code>"Type" : "AWS::EC2::VPC",
+"Properties" : {
+  "CidrBlock" : { "10.0.0.0/16" },
+  "EnableDnsSupport" : "true",
+  "EnableDnsHostnames" : "true",
+  "Tags" : [
+    { "Key" : "Application", "Value" : { "Ref" : "AWS::StackId" } },
+    { "Key" : "Network", "Value" : "Public" }
+  ]
+}
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>The JSON syntax can be a bit complicated sometimes, especially when dealing with a lot of references to other properties with the <em>&ldquo;Ref&rdquo;</em> keyword or some other built-in CloudFormation <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html">functions</a>, but it is much clearer than the Java code above.
+Other than resources, there are other parts of a CloudFormation template (<em>Conditions</em>, <em>Mappings</em>, <em>Outputs</em>, <em>Intrinsic Functions</em>) but here we will cover only one more: <em>Parameters</em>.</p>
+
+<p>Declaring a parameter means that there is no hard-coded value for a given attribute, rather it is given to the template when creating the stack. If you’d like to have an EC2 Instance  in your template but you don’t want to hardcode its type, you can have a parameter like this:</p>
+
+<p>```json
+&ldquo;Parameters&rdquo; : {
+  &ldquo;InstanceType&rdquo; : {</p>
+
+<pre><code>"Description" : "EC2 instance type",
+"Type" : "String",
+"Default" : "m3.medium",
+"AllowedValues" : [ "m3.medium","m3.large","m3.xlarge","m3.2xlarge"],
+"ConstraintDescription" : "must be a valid EC2 instance type."
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>After it’s declared, you can reference it from a resource with the <em>Ref</em> keyword:</p>
+
+<p>```json
+&ldquo;EC2Instance&rdquo; : {
+  &ldquo;Type&rdquo; : &ldquo;AWS::EC2::Instance&rdquo;,
+  &ldquo;Properties&rdquo; : {</p>
+
+<pre><code>"SecurityGroups" : [ { "Ref" : "InstanceSecurityGroup" } ],
+"InstanceType" : { "Ref" : "InstanceType" },
+"KeyName" : { "Ref" : "KeyName" },
+"ImageId" : "ami-123456",
+"EbsOptimized" : "true"
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>You can reference not only parameters, but other resources as well. In the above code example there is a reference to <em>InstanceSecurityGroup</em> that is an <em>AWS::EC2::SecurityGroup</em> type resource and that is declared in an other part of the template.</p>
+
+<h3>Creating the stack</h3>
+
+<p>So we’ve declared a few resources, how can we tell AWS to create the stack? Let’s see how it looks like with the Java SDK (two parameters are passed to the template):</p>
+
+<p>```java
+CreateStackRequest createStackRequest = new CreateStackRequest()</p>
+
+<pre><code>.withStackName(“MyCFStack")
+.withTemplateBody(templateAsString)
+.withNotificationARNs(notificationTopicARN)
+.withParameters(
+    new Parameter().withParameterKey("InstanceCount").withParameterValue(“3"),
+    new Parameter().withParameterKey("InstanceType").withParameterValue(“m3.large"));
+</code></pre>
+
+<p>client.createStack(createStackRequest);
+```</p>
+
+<p>And that’s it. It’s every code that should written in Java to create the complete stack. It is pretty straightforward, the only thing that needs to be explained is the <em>notification ARN</em> part. It is the identifier of an <em>SNS topic</em> and it is detailed below.</p>
+
+<h3>Callbacks</h3>
+
+<p>CloudFormation is able to send notifications to SNS <em>topics</em> when an event occurs. An event is when a resource creation is started, finished or failed (and the same with delete). SNS is Amazon’s Simple Notification Service that enables endpoints to subscribe to a topic, and when a message is sent to a topic every subscriber receives that message. AWS supports a lot of endpoint types. It can send notifications by email or text message, to Amazon Simple Queue Service (SQS) queues, or to any HTTP/HTTPS endpoint. In the Cloudbreak project we’re using HTTP endpoints as callback URLs. We’re also creating topics and subscriptions from code but that could fill up another full blog post.</p>
+
+<p>If you just like to try SNS, you can create a topic and a subscription from the AWS Console. After you have a confirmed subscription of an HTTP endpoint (e.g.: <em>example.com/sns</em>), you can very easily create an HTTP endpoint in Java (with some help from <a href="http://spring.io/">Spring</a>):</p>
+
+<p><code>java
+@RequestMapping(value="sns", method = RequestMethod.POST)
+@ResponseBody
+public ResponseEntity&lt;String&gt; receiveSnsMessage(@RequestBody String request) {
+  // parse and handle request
+}
+</code></p>
+
+<p>For a more detailed example see the <a href="https://github.com/sequenceiq/cloudbreak/blob/master/src/main/java/com/sequenceiq/cloudbreak/controller/AmazonSnsController.java">controller class</a> in Cloudbreak.
+So every time a CloudFormation stack event occurs, Cloudbreak receives a message that is parsed and handled correctly &ndash; there is no need to poll the creation of resources and dealing with timeouts.</p>
+
+<h3>Failures and rollbacks</h3>
+
+<p>It is always possible that something will go wrong when creating a stack with a lot of resources. With the traditional approach you must keep track of the resources that were created and you will have to implement some rollback logic that gets called when something unexpected happens and that rolls back the already created elements somehow. With CloudFormation these things are completely done by AWS.</p>
+
+<p>The resources in the stack are tracked so the only thing you have to save is the identifier of the stack. If one of the resources fails to be created AWS rolls back every other resource and puts the stack in <em>ROLLBACK_COMPLETED</em> state. It also sends the failure message to the SNS topic with the exact cause of the failure.
+The same is true if you’d like to delete the stack. The only call that you will have to send to the AWS API is the deletion of the stack (very similar to the creation in Java). CloudFormation will delete every resource one by one and will take care of failures.</p>
+
+<h3>Notes</h3>
+
+<p>The template we used in Cloudbreak is available <a href="https://github.com/sequenceiq/cloudbreak/blob/master/src/main/resources/templates/aws-cf-stack.ftl">here</a>. It is not a pure CloudFormation template because of some limitations &ndash; the number of attached volumes cannot be specified dynamically and it is not possible to specify it as a parameter if spot priced instances are needed or not &ndash; we ended up generating the template with Freemarker.</p>
+
+<h3>Terraform</h3>
+
+<p>The <a href="http://www.hashicorp.com/products">company</a> that brought us <a href="http://www.vagrantup.com/">Vagrant</a>, <a href="http://www.packer.io/">Packer</a> and a few more useful things has recently announced a new project named <a href="http://www.terraform.io/intro/index.html">Terraform</a>. Terraform is inspired by tools like CloudFormation or <a href="https://wiki.openstack.org/wiki/Heat">OpenStack’s Heat</a>, but goes further as it supports multiple cloud platforms and their services can also be combined. If you’re interested in managing infrastructure from code and configuration you should check out that project too, we’ll keep an eye on it for sure.</p>
+
+<p>Stay tuned and make sure you follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
+  
+</feed>

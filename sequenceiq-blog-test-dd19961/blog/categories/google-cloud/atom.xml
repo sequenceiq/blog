@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Google Cloud | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com/blog/categories/google-cloud/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-10-02T12:20:19+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
+  <author>
+    <name><![CDATA[SequenceIQ]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Cloudbreak new provider implementation - Part I: Build your custom image]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/09/18/custom-image-on-gcc/"/>
+    <updated>2014-09-18T07:42:58+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/09/18/custom-image-on-gcc</id>
+    <content type="html"><![CDATA[<p>Not so long ago we have released <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; the cloud agnostic, open source and Docker based Hadoop as a Service API (with support for <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">autoscaling</a> Hadoop clusters). As we have <code>dockerized</code> the whole Hadoop ecosystem, we are shipping the containers to different cloud providers, such as Amazon AWS, Microsoft Azure and Google Cloud Compute. Also Cloudbreak has an <a href="http://sequenceiq.com/cloudbreak/#add-new-cloud-providers">SDK</a> which allows you to quickly add your favorite cloud provider. In this post (series) we’d like to guide you trough the process, and show you how to create a custom image &ndash; on Google Cloud. We have chose Google Cloud as this is the least documented and has the smallest amount on default images (there are thousand for Amazon, and hundreds for Azure). Nevertheless on all cloud provider usually you’d like to have a custom image with your preferred OS, configuration and potentially installed applications.</p>
+
+<!-- more -->
+
+
+<h3>Why do we need custom images on every cloud?</h3>
+
+<p>All the above are true for us as well &ndash; with some simplifications. We use Docker to run every process/application &ndash; for the benefits we have covered in other posts many times &ndash; and apart from Docker, our (or the customer’s) preferred OS and a few other helper/debugger things (such as <a href="https://registry.hub.docker.com/u/jpetazzo/nsenter/">nsenter</a>)
+we are almost fine. We have made some PAM related fixes/contributions for Docker &ndash; and until they are not in the upstream we have built/derive from our base layer/containers &ndash; so with this and the actual containers included this is pretty much how a cloud base image looks like for us.</p>
+
+<p>As usual we always automate everything &ndash; building custom cloud base images is part of the automation and our CI/CD process as well. For that we use <a href="http://www.ansible.com/home">Ansible</a> as the preferred IT automation tool. So the first step is to define your own <a href="http://docs.ansible.com/playbooks.html">playbook</a> to install everything on the virtual machine.</p>
+
+<p>A simple playbook looks like this:</p>
+
+<p>```
+  &ndash; name: Install Docker</p>
+
+<pre><code>shell: curl -sL https://get.docker.io/ | sh
+when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+</code></pre>
+
+<ul>
+<li><p>name: Pull sequenceiq/ambari image
+shell: docker pull sequenceiq/ambari:pam-fix</p></li>
+<li><p>name: Pull jpetazzo/nsenter image
+shell: docker pull jpetazzo/nsenter</p></li>
+<li><p>name: Install bridge-utils
+apt: name=bridge-utils state=latest
+when: ansible_distribution == &lsquo;Debian&rsquo; or ansible_distribution == &lsquo;Ubuntu&rsquo;</p></li>
+<li><p>name: install jq
+shell: curl -o /usr/bin/jq <a href="http://stedolan.github.io/jq/download/linux64/jq">http://stedolan.github.io/jq/download/linux64/jq</a> &amp;&amp; chmod +x /usr/bin/jq</p></li>
+</ul>
+
+
+<p>```</p>
+
+<p>Using Google cloud you have 2 choices:</p>
+
+<ol>
+<li> Create snapshots starting from a default image</li>
+<li> Create a custom image</li>
+</ol>
+
+
+<h3>Image creation using snapshots</h3>
+
+<p>We are using Debian as the host OS on Google Cloud, and have created a virtual machine using the default <a href="https://developers.google.com/compute/docs/operating-systems#backported_debian_7_wheezy">Debian</a> image. First thing first, you need to create a persistent disk:</p>
+
+<p><code>
+gcloud compute disks create temporary-disk --zone ZONE
+</code></p>
+
+<p>Then create a virtual machine with the temporary-disk:</p>
+
+<p><code>
+gcloud compute instances create example-instance \
+  --scopes storage-rw --image IMAGE \
+  --disk name=temporary-disk device-name=temporary-disk --zone ZONE
+</code></p>
+
+<p>And attach the disk to the google cloud instance:</p>
+
+<p><code>
+gcloud compute instances attach-disk example-instance
+  --disk temporary-disk --device-name temporary-disk --zone ZONE
+</code></p>
+
+<p>When this is finished then you can <code>shh</code> to the <code>sample-instance</code>. You can now check your mounted volumes with this command:</p>
+
+<p><code>
+ls -l /dev/disk/by-id/google-*
+</code></p>
+
+<p>Now you need to create a folder which will contain your custom built image:</p>
+
+<p><code>
+sudo mkdir /mnt/tmp
+</code></p>
+
+<p>You have to format your partition before the image creation:</p>
+
+<p><code>
+sudo /usr/share/google/safe_format_and_mount -m "mkfs.ext4 -F" /dev/sdb /mnt/tmp
+</code></p>
+
+<p>Now you can start building the image which will last about 10 minutes:</p>
+
+<p><code>
+sudo gcimagebundle -d /dev/sda -o /mnt/tmp/ --log_file=/tmp/imagecreation.log
+</code></p>
+
+<p>You have now an image in /tmp with a special hex number like <code>/tmp/HEX-NUMBER.image.tar.gz</code></p>
+
+<p>Once you uploaded it to a Google bucket you are done, and ready to use it.</p>
+
+<p><code>
+gsutil cp /mnt/tmp/IMAGE_NAME.image.tar.gz gs://BUCKET_NAME
+</code></p>
+
+<h3>Create a custom image &ndash; using your favorite OS</h3>
+
+<p><a href="http://www.ubuntu.com/download/server">Ubuntu server 14.04</a> is many’s preferred Linux distribution &ndash; unluckily there is no default image using Ubuntu as the OS in the Google Cloud](<a href="https://developers.google.com/compute/docs/operating-systems">https://developers.google.com/compute/docs/operating-systems</a>). Luckily this is not that complicated &ndash; the process below works with any other OS as well. In order to start you should have <a href="https://www.virtualbox.org/">Virtualbox</a> installed. Download an Ubuntu server from <a href="http://www.ubuntu.com/server">Ubuntu’s</a> web page.
+Install in into the <a href="https://www.virtualbox.org/">Virtualbox</a> box, start it and <code>ssh</code> into. Once you are inside you will have to install the <a href="https://developers.google.com/cloud/sdk/">Google Cloud SDK</a>. This is needed for the custom image, as contains some extra feature like <code>google-startup-scripts</code>. Remember that Ubuntu (and in general a few cloud providers) support <code>cloud-init</code> scripts, and this is why we need the Google Cloud SDK &ndash; as we ship these images to the <code>cloud</code>.</p>
+
+<p>After the installation add the following kernel options into the <code>/etc/default/grub</code>:</p>
+
+<p>```</p>
+
+<h1>to enable paravirtualization</h1>
+
+<p>CONFIG_KVM_GUEST=y</p>
+
+<h1>to enable the paravirtualized clock.</h1>
+
+<p>CONFIG_KVM_CLOCK=y</p>
+
+<h1>to enable paravirtualized PCI devices.</h1>
+
+<p>CONFIG_VIRTIO_PCI=y</p>
+
+<h1>to enable access to paravirtualized disks.</h1>
+
+<p>CONFIG_SCSI_VIRTIO=y</p>
+
+<h1>to enable access to the networking.</h1>
+
+<p>CONFIG_VIRTIO_NET=y
+```</p>
+
+<p>Now you are ready to prepare an <code>official</code> image into a tar file, by selecting the virtual box image file on your disk and convert it.
+You can convert your <code>vmdk</code> file into the supported raw type by using:</p>
+
+<p><code>
+qemu-img convert -f vmdk -O raw VMDK_FILE_NAME.vmdk disk.img
+</code></p>
+
+<p>The .img file name has to be <code>disk.img</code>. After you have converted the image, you have to make a tar file:</p>
+
+<p><code>
+tar -Szcf &lt;image-tar-name&gt;.tar.gz disk.raw
+</code></p>
+
+<p>Same as before, you have to upload in to a Google Cloud Bucket:</p>
+
+<p><code>
+gsutil cp &lt;image-tar-name&gt;.tar.gz gs://&lt;bucket-name&gt;
+</code></p>
+
+<p>Now you have an <code>official</code> image template but you have to create the image in Google Cloud:</p>
+
+<p><code>
+gcutil addimage my-ubuntu gs://&lt;bucket-name&gt;/ubuntu_image.tar.gz
+</code></p>
+
+<p>Once this is done you have created your custom built Google Cloud image, and you are ready to start cloud instances using it. Let us know how it works for you, and make sure you follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a> for updates.</p>
+]]></content>
+  </entry>
+  
+</feed>
