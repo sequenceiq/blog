@@ -2,252 +2,252 @@
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/02/07/hdp2-on-amazon/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/02/22/custom-flume-source/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/02/26/vote-for-us/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/02/28/etl-and-data-quality/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/03/05/access-hdp2-sandbox/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/03/07/read-from-hdfs/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>
             http://blog.sequenceiq.com/blog/2014/03/11/data-cleaning-with-mapreduce-and-morphlines/
         </loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/03/19/hadoop-2-dot-3-with-docker/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/03/24/hoya-at-sequenceiq/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/03/31/mahout-on-tez/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/04/04/hadoop-docker-introduction/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/04/14/mapreduce-with-scalding/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/04/17/apache-phoenix-sneak-peak/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/05/01/mapreduce-job-profiling-with-R/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>
             http://blog.sequenceiq.com/blog/2014/05/09/building-the-build-environment-with-ansible-and-docker/
         </loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/06/06/hadoop-summit-slides/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/06/23/scalding-correlation-example/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/06/25/hadoop-2-4-0-docker/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>
             http://blog.sequenceiq.com/blog/2014/07/05/docker-debug-with-nsenter-on-boot2docker/
         </loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/07/13/groovy-and-java-runtime-bug/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/07/25/cloudbreak-technology/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/07/31/spark-mllib/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/08/04/launch-docker-containers-on-azure/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/08/07/clodubreak-shell/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/08/12/docker-networking/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/08/16/fairplay/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/08/22/spark-submit-in-java/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>
             http://blog.sequenceiq.com/blog/2014/08/29/aws-cloudformation-makes-everything-easier/
         </loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/09/01/sla-samples-periscope/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/09/04/sql-on-hbase-with-apache-phoenix/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/09/05/apache-ambari-1-7-0-ea/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>
             http://blog.sequenceiq.com/blog/2014/09/09/yarn-schedulers-demystified-part-2-fair/
         </loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/09/11/apache-drill-docker/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/09/15/hadoop-2-5-1-docker/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/09/17/spark-1-1-0-docker/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/09/18/custom-image-on-gcc/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/09/19/apache-tez-cluster/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/09/23/topn-on-apache-tez/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/09/24/edit-files-docker/</loc>
-        <lastmod>2014-10-02T17:35:51+00:00</lastmod>
+        <lastmod>2014-10-02T20:29:50+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/09/25/euroventures-invests-in-sequenceiq/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/09/25/strata-hadoop-world-2014/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/09/26/database-upgrade-process/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/09/29/spark-correlation-and-testing/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/09/30/hortonworks-partnership/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/</loc>
-        <lastmod>2014-10-02T17:35:51+00:00</lastmod>
+        <lastmod>2014-10-02T20:29:50+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/categories/</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/archives/</loc>
-        <lastmod>2014-10-02T17:35:51+00:00</lastmod>
+        <lastmod>2014-10-02T20:29:50+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/404.html</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/robots.txt</loc>
-        <lastmod>2014-10-02T17:12:28+00:00</lastmod>
+        <lastmod>2014-10-02T19:02:00+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/archives/</loc>
-        <lastmod>2014-10-02T17:35:51+00:00</lastmod>
+        <lastmod>2014-10-02T20:29:50+00:00</lastmod>
     </url>
 </urlset>
