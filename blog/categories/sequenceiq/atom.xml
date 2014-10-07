@@ -4,7 +4,7 @@
   <title><![CDATA[Category: SequenceIQ | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/sequenceiq/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-10-07T11:54:43+00:00</updated>
+  <updated>2014-10-01T03:12:34+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,37 +12,6 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
-  
-  <entry>
-    <title type="html"><![CDATA[SequenceIQ Joins Hortonworks Technology Partner Program]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/09/30/hortonworks-partnership/"/>
-    <updated>2014-09-30T16:00:00+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/09/30/hortonworks-partnership</id>
-    <content type="html"><![CDATA[<p>Integration of Hortonworks Data Platform with Cloudbreak enables Hadoop to run in Docker containers &ndash; shipped to the cloud.</p>
-
-<p><strong>SAN FRANCISCO, September 30, 2014</strong> — <a href="http://sequenceiq.com/">SequenceIQ ,Inc.</a> today announced that it has joined the <a href="http://hortonworks.com/partners/become-a-partner/">Hortonworks® Technology Partner Program</a>. <a href="http://hortonworks.com/">Hortonworks</a> is the leading contributor to and provider of Apache™ Hadoop®. SequenceIQ will integrate <a href="http://hortonworks.com/hdp/">Hortonworks Data Platform</a> (HDP) with Cloudbreak to enable a cloud agnostic, autoscaling and <a href="https://www.docker.com/">Docker</a> container based provisioning of HDP.</p>
-
-<p>By joining the Hortonworks Technology Partner program, SequenceIQ will work to enable and accelerate the deployment of a modern data architecture, integrating with the Hortonworks Data Platform—the industry’s only 100 percent open source Hadoop distribution, explicitly architected, built, and tested for enterprise-grade deployments.</p>
-
-<p>SequenceIQ’s technology enables organizations to have a DevOps friendly way to ease and automate provisioning of on-demand Hadoop clusters and services using their favorite cloud provider. With the integration of HDP, users can now leverage all the available features of a 100 percent open source commercial Hadoop distribution.</p>
-
-<p>“SequenceIQ and Hortonworks share a common goal of making the provisioning of Apache Hadoop clusters easier on different cloud and Docker container based environments,” said Janos Matyas, chief technology officer of SequenceIQ. “Cloudbreak and HDP help enterprises to minimize the cost of their Hadoop deployments, and create on-demand autoscaling Hadoop clusters.”</p>
-
-<!-- more -->
-
-
-<p>Hortonworks Data Platform was built by the core architects, builders and operators of Apache Hadoop and includes all of the necessary components to manage a cluster at scale and uncover business insights from existing and new big data sources. With a <a href="http://hortonworks.com/hadoop/yarn/">YARN</a>-based architecture, HDP is an important component of the modern data architecture, helping organizations mine, process and analyze large batches of unstructured data sets to make more informed business decisions.</p>
-
-<p>“Hortonworks is dedicated to expanding and empowering the Apache Hadoop ecosystem, accelerating innovation and adoption of 100 percent open source enterprise Hadoop,” said John Kreisa, vice president of strategic marketing at Hortonworks. “We welcome SequenceIQ to the Hortonworks Technology Partner Program and look forward to working with them to strengthen Hadoop’s role as the foundation of the next-generation data architecture.”</p>
-
-<p>About SequenceIQ</p>
-
-<p>SequenceIQ is an innovative big data startup with the mission statement to simplify and automate provisioning of on-demand Hadoop clusters running on different environments. Leaders in “containerizing” Hadoop, SequenceIQ is the first company who provisions and runs the full Hadoop stack and components on Docker containers. The company has further plans to create the industry’s first cloud agnostic, autoscaling and use case driven Platform as a Service API, and break the common significant barriers of entry that exist with most big data projects through a series of As-a-Service API offerings.
-For more information follow up with us on @SequenceIQ and <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>.</p>
-
-<p><a href="&#x6d;&#x61;&#x69;&#x6c;&#116;&#111;&#x3a;&#x69;&#x6e;&#x66;&#x6f;&#x40;&#115;&#x65;&#113;&#x75;&#x65;&#x6e;&#x63;&#101;&#x69;&#113;&#x2e;&#99;&#x6f;&#109;">&#x69;&#x6e;&#x66;&#x6f;&#x40;&#115;&#x65;&#113;&#x75;&#x65;&#x6e;&#99;&#x65;&#105;&#x71;&#46;&#99;&#111;&#x6d;</a></p>
-]]></content>
-  </entry>
   
   <entry>
     <title type="html"><![CDATA[Euroventures invests in SequenceIQ]]></title>
