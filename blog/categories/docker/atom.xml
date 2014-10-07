@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Docker | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/docker/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-10-01T03:12:34+00:00</updated>
+  <updated>2014-10-07T11:53:55+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -361,9 +361,7 @@ considered bad practice.</p>
 <p>If you <strong>really</strong> need to edit files in a docker container, just use volumes.</p>
 
 <p>This process comes handy if you&rsquo;ve already started a container, and the file in
-question doesn&rsquo;t sits on a volume.</p>
-
-<p>If you have any questions or suggestions you can reach us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+question doesn&rsquo;t sits on a volume. [30]</p>
 ]]></content>
   </entry>
   
