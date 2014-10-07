@@ -130,6 +130,64 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">09 July 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/ambari/"><span class="label label-warning">Ambari</span></a>
+            
+            <a href="/blog/categories/configuration/"><span class="label label-warning">Configuration</span></a>
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+            <a href="/blog/categories/yarn/"><span class="label label-warning">YARN</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/07/09/ambari-configuration-service/">Apache Ambari configuration service</a>
+          <span class="badge name-badge">Laszlo Puskas</span>
+
+      </h1>
+      <p>At SequenceIQ we use Apache Ambari for provisioning, managing, and monitoring Apache Hadoop clusters on different environments. However Ambari has more useful features than these &ndash; especially for us who automate and frequently build on-demand Hadoop clusters in cloud environments and submit different applications into. These Hadoop clusters carry different components, configurations and services &ndash; think of dev->test->UAT->PROD cluster lifecycles, different settings, SLA&rsquo;s, etc).</p>
+
+<p>Configuration of applications that use dynamically built YARN clusters can be challenging. This is due to the huge amount of configuration properties, some of which needs to be kept in sync on YARN client application side. Think of <em>yarn.resourcemanager.address</em>, <em>fs.defaultFS</em>, <em>yarn.resourcemanager.scheduler.address</em> to name a few. Each time these cluster specific entries change, client applications needs to be reconfigured. Those who ever played with clusters where the default properties are overridden know what this means&hellip;</p>
+
+<p>At SequenceIQ we use Ambari for building on-demand YARN clusters (see the related <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/"> blog post</a>). In our case Ambari not only maintains the configuration of the cluster it manages but also provides access to them through a set of REST resources.</p>
+
+<p>To overcome the configuration maintenance problem in YARN client applications, we implemented an Ambari REST client application that embedded in client applications can dynamically retrieve configuration from an Ambari instance. Thus the only thing needed for an application to have the proper configuration is the access to the Ambari instance.</p>
+
+<p>The Ambari REST client is an open source project we developed and contributed to Apache Ambari &ndash; it&rsquo;s a Groovy REST client used by the <a href="https://github.com/sequenceiq/ambari-shell">Ambari Shell</a> and <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a>.</p>
+
+
+      
+       <a href="/blog/2014/07/09/ambari-configuration-service/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/07/05/docker-debug-with-nsenter-on-boot2docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -828,88 +886,6 @@ When we started to build our own process, we decided that we don&rsquo;t want to
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/05/01/mapreduce-job-profiling-with-R/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">01 May 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/ambari/"><span class="label label-warning">Ambari</span></a>
-            
-            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
-            
-            <a href="/blog/categories/profiling/"><span class="label label-warning">Profiling</span></a>
-            
-            <a href="/blog/categories/r/"><span class="label label-warning">R</span></a>
-            
-            <a href="/blog/categories/yarn/"><span class="label label-warning">YARN</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/05/01/mapreduce-job-profiling-with-R/">Job profiling with R</a>
-          <span class="badge name-badge">Janos Matyas</span>
-
-      </h1>
-      <p>Management of a large Hadoop cluster is not an easy task &ndash; however thanks to projects like <a href="http://ambari.apache.org/">Apache Ambari</a> these tasks are getting easier. Ambari provides an intuitive, easy-to-use Hadoop management web UI backed by its REST API to provision, manage and monitor a Hadoop cluster. While Ambari helps us a lot to monitor a cluster (leverages <a href="http://ganglia.sourceforge.net/">Ganglia</a> and <a href="http://www.nagios.org/">Nagios</a>), many times we have to profile our MapReduce jobs as well.</p>
-
-<p>At SequenceIQ in order to profile MapReduce jobs, understand (job)internal statistics and create usefull graphs many times we rely on <a href="http://www.r-project.org/">R</a>. The metrics are collected from Ambari and the <a href="http://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-site/HistoryServerRest.html">YARN History Server</a>.</p>
-
-<p>In this blog post we would like to explain and guide you through a simple process of collecting MapReduce job metrics, calculate different statistics and generate easy to understand charts.</p>
-
-<p>The MapReduce application is the following:</p>
-
-<ul>
-<li>The input set of data is 12 pieces of 1 GB size files. Each file containes the same line of 16 bytes (012345678998765 plus the new line character)</li>
-<li>The number of mappers running is 48, because the block size on HDFS is 256 MB and there are 12 files.</li>
-<li>We use TextInputFormat (line num, line content) pairs. The output of the mapper function is the same as the input <code>IdentityMapper</code></li>
-<li>The number of reducers is 20.</li>
-<li>For simplicity we use <code>IdentityReducer</code> as the reducer function.</li>
-<li>We use a special partitioner called <code>LinePartitoner</code>. The partitioning is based on line numbers (the key) and it makes sure that each reducer gets the same amount of data (line number <em>modulo</em> reducer number).</li>
-</ul>
-
-
-<h2>How to get the job results with R</h2>
-
-<p>The job id that we are analysing with R is job_1395530889914_0005 (<em>replace this with your job is</em>)</p>
-
-<p>First we load the R functions:</p>
-
-<p><code>source("JobHistory.r")</code></p>
-
-<p>Then we extract/read the job from the HistoryServer. It is actually using the Rest API of HistoryServer, parsing the JSON output.</p>
-
-<p><code>job&lt;-getJob("job_1395530889914_0005","node02:19888")</code></p>
-
-<p>The structure of the job follows the structure that is returned from the HistoryServer except that for example the parameters of all the tasks are converted into vectors so that can be easily handled in R.</p>
-
-
-      
-       <a href="/blog/2014/05/01/mapreduce-job-profiling-with-R/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -931,6 +907,10 @@ When we started to build our own process, we decided that we don&rsquo;t want to
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/10/07/hadoop-monitoring/">Real-time monitoring of Hadoop clusters</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/09/30/hortonworks-partnership/">SequenceIQ Joins Hortonworks Technology Partner Program</a>
