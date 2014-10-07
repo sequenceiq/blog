@@ -130,6 +130,89 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/10/07/hadoop-monitoring/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">07 October 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
+            
+            <a href="/blog/categories/elasticsearch/"><span class="label label-warning">Elasticsearch</span></a>
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+            <a href="/blog/categories/kibana/"><span class="label label-warning">Kibana</span></a>
+            
+            <a href="/blog/categories/yarn/"><span class="label label-warning">Yarn</span></a>
+            
+            <a href="/blog/categories/metrics/"><span class="label label-warning">metrics</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/10/07/hadoop-monitoring/">Real-time monitoring of Hadoop clusters</a>
+          <span class="badge name-badge">Attila Kanto</span>
+
+      </h1>
+      <p>At <a href="http://sequenceiq.com">SequenceIQ</a> we are running Hadoop clusters on different environments using <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> and apply <a href="http://sequenceiq.com/periscope/">SLA autoscaling</a> policies on the fly, thus monitoring the cluster is a key operation.</p>
+
+<p>Although various solutions have been created in the software industry for monitoring of activities taking place in a cluster, but it turned out that only a very few of them satisfies most of our needs. When we made the decision about which monitoring libraries and components to integrate in our stack we kept in mind that it needs to be:</p>
+
+<ul>
+<li><p><strong>scalable</strong> to be able to efficiently monitor small Hadoop clusters which are consisting of only a few nodes and also clusters which containing thousands of nodes</p></li>
+<li><p><strong>flexible</strong> to be able to provide overview about the health of the whole cluster or about the health of individual nodes or even dive deeper into the internals of Hadoop, e.g. shall be able to visualize how our autoscaling solution for Hadoop YARN called  <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope">Periscope</a> moves running applications between <a href="http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues">queues</a></p></li>
+<li><p><strong>extensible</strong> to be able to use the gathered and stored data by extensions written by 3rd parties, e.g. a module which processes the stored (metrics) data and does real-time anomaly detection</p></li>
+<li><p><strong>zero-configuration</strong> to be able to plug into any existing Hadoop cluster without additional configuration, component installation</p></li>
+</ul>
+
+
+<p>Based on the requirements above our choice were the followings:</p>
+
+<ul>
+<li><a href="http://logstash.net">Logstash</a> for log/metrics enrichment, parsing and transformation</li>
+<li><a href="http://www.elasticsearch.org">Elasticsearch</a> for data storage, indexing</li>
+<li><a href="http://www.elasticsearch.org/overview/kibana">Kibana</a> for data visualization</li>
+</ul>
+
+
+<h2>High Level Architecture</h2>
+
+<p>In our monitoring solution one of the design goal was to provide a <strong>generic, pluggable and isolated monitoring component</strong> to existing Hadoop deployments. We also wanted to make it non-invasive and avoid adding any monitoring related dependency to our Ambari, Hadoop or other Docker images. For that reason we have packaged the monitoring client component into its own Docker image which can be launched alongside with a Hadoop running in another container or even alongside a Hadoop which is not even containerized.</p>
+
+<p style="text-align:center;"> <img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/hadoop-monitoring/hadoop-monitoring-arch.png"></p>
+
+<p>In a nutshell the monitoring solution consist of client and server containers. The <code>server</code> contains the Elasticsearch and the Kibana module. The server container is horizontally scalable and it can be clustered trough the clustering capabilities of Elasticsearch.</p>
+
+<p>The <code>client</code> container &ndash; which is deployed on the machine what is needed to be monitored &ndash; contains the Logstash and the collectd module. The Logstash connects to Elasticsearch cluster as client and stores the processed and transformed metrics data there.</p>
+
+
+      
+       <a href="/blog/2014/10/07/hadoop-monitoring/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/09/30/hortonworks-partnership/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -692,109 +775,6 @@ from producers to consumers. The DAG itself defines the structure of the data pr
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/09/17/spark-1-1-0-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">17 September 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/apache-spark/"><span class="label label-warning">Apache Spark</span></a>
-            
-            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/09/17/spark-1-1-0-docker/">Apache Spark 1.1.0 on Docker</a>
-          <span class="badge name-badge">Janos Matyas</span>
-
-      </h1>
-      <p>As you might be already familiar, we have <code>dockerized</code> most of the Hadoop ecosystem &ndash; we are running MR2, Spark, Storm, Hive, HBase, Pig, Oozie, Drill etc in Docker containers &ndash; on bare metal and in the cloud as well. For details you can check these older posts/resources:</p>
-
-<table>
-<thead>
-<tr>
-<th></th>
-<th> Name                  </th>
-<th> Description </th>
-<th> Documentation </th>
-<th> GitHub</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td> Apache Hadoop  </td>
-<td> Pseudo distributed container </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/">http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/</a> </td>
-<td> <a href="https://github.com/sequenceiq/hadoop-docker">https://github.com/sequenceiq/hadoop-docker</a></td>
-</tr>
-<tr>
-<td></td>
-<td> Apache Ambari   </td>
-<td> Multi node &ndash; full Hadoop stack, blueprint based </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/</a> </td>
-<td> <a href="https://github.com/sequenceiq/docker-ambari">https://github.com/sequenceiq/docker-ambari</a></td>
-</tr>
-<tr>
-<td></td>
-<td> Cloudbreak         </td>
-<td> Cloud agnostic Hadoop as a Service </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/</a> </td>
-<td> <a href="https://github.com/sequenceiq/cloudbreak">https://github.com/sequenceiq/cloudbreak</a></td>
-</tr>
-<tr>
-<td></td>
-<td> Periscope          </td>
-<td> SLA policy based autoscaling for Hadoop clusters </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/</a> </td>
-<td> <a href="https://github.com/sequenceiq/periscope">https://github.com/sequenceiq/periscope</a></td>
-</tr>
-</tbody>
-</table>
-
-
-<p>In this current post we’d like to help you to start with the <code>latest - 1.1.0</code> Spark release in minutes &ndash; using Docker. Docker and Spark are two technologies which are very <code>hyped</code> these days. At <a href="http://sequenceiq.com/">SequenceIQ</a> we use both quite a lot, thus we put together a Docker container and sharing it with the community.</p>
-
-<p>The container’s code is available in our <a href="https://github.com/sequenceiq/docker-spark/blob/v1.1onHadoop-2.5.1/README.md">GitHub</a> repository.</p>
-
-<h3>Pull the image from Docker Repository</h3>
-
-<p>We suggest to always pull the container from the official Docker repository &ndash; as this is always maintained and supported by us.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/spark:1.1.0</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-
-      
-       <a href="/blog/2014/09/17/spark-1-1-0-docker/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -814,6 +794,10 @@ from producers to consumers. The DAG itself defines the structure of the data pr
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/10/07/hadoop-monitoring/">Real-time monitoring of Hadoop clusters</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/09/30/hortonworks-partnership/">SequenceIQ Joins Hortonworks Technology Partner Program</a>

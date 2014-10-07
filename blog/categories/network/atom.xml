@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Network | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/network/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-10-07T11:53:55+00:00</updated>
+  <updated>2014-10-07T11:54:43+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -224,7 +224,7 @@ sudo docker run -it &mdash;rm &mdash;name cont2  ubuntu /bin/bash</p>
 
 <h1>execute on vm1</h1>
 
-<p>sudo ssh -f -N -w 2:1 <a href="&#109;&#x61;&#x69;&#108;&#116;&#111;&#x3a;&#x72;&#x6f;&#111;&#116;&#x40;&#49;&#x39;&#50;&#46;&#x31;&#x36;&#56;&#x2e;&#x34;&#48;&#46;&#x31;&#50;">&#114;&#111;&#x6f;&#x74;&#x40;&#x31;&#x39;&#50;&#46;&#49;&#54;&#56;&#x2e;&#x34;&#x30;&#46;&#49;&#50;</a>
+<p>sudo ssh -f -N -w 2:1 <a href="&#109;&#97;&#105;&#108;&#x74;&#111;&#x3a;&#114;&#111;&#111;&#116;&#x40;&#x31;&#57;&#x32;&#x2e;&#x31;&#x36;&#56;&#46;&#x34;&#x30;&#x2e;&#49;&#50;">&#114;&#111;&#x6f;&#116;&#64;&#49;&#57;&#50;&#46;&#49;&#54;&#56;&#x2e;&#52;&#48;&#x2e;&#49;&#50;</a>
 sudo ifconfig tun2 up
 sudo route add -net 172.17.52.0 netmask 255.255.255.0 dev tun2
 sudo iptables -t nat -F POSTROUTING

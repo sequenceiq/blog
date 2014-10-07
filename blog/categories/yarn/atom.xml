@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: YARN | SequenceIQ Blog]]></title>
+  <title><![CDATA[Category: Yarn | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/yarn/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-10-07T11:53:55+00:00</updated>
+  <updated>2014-10-07T11:54:43+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -14,817 +14,86 @@
 
   
   <entry>
-    <title type="html"><![CDATA[YARN Schedulers demystified - Part 2: Fair]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/09/09/yarn-schedulers-demystified-part-2-fair/"/>
-    <updated>2014-09-09T16:00:00+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/09/09/yarn-schedulers-demystified-part-2-fair</id>
-    <content type="html"><![CDATA[<p>In our previous blog post we have been demystifying the <a href="http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1/">Capacity scheduler internals</a> &ndash; as promised in this post is the Fair scheduler’s turn. You can check also our previous post to find out how fair is the Fair scheduler in real life <a href="http://blog.sequenceiq.com/blog/2014/08/16/fairplay/">here</a>.</p>
+    <title type="html"><![CDATA[Real-time monitoring of Hadoop clusters]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/10/07/hadoop-monitoring/"/>
+    <updated>2014-10-07T18:00:00+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/10/07/hadoop-monitoring</id>
+    <content type="html"><![CDATA[<p>At <a href="http://sequenceiq.com">SequenceIQ</a> we are running Hadoop clusters on different environments using <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> and apply <a href="http://sequenceiq.com/periscope/">SLA autoscaling</a> policies on the fly, thus monitoring the cluster is a key operation.</p>
 
-<p>You might ask why YARN schedulers are so important for us? Recently we have released and open sourced the industry&rsquo;s first SLA policy based autoscaling API for Hadoop clusters, called <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> &ndash; and part of the project is based on schedulers, <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> and our contribution to Apache YARN.</p>
-
-<h2>The Fair Scheduler internals</h2>
-
-<p>The FairScheduler&rsquo;s purpose is to assign resources to applications such that all apps get &ndash; on average &ndash; an equal share of resources over time.
-By default the scheduler bases fairness decisions only on memory, but it can be configured otherwise. When only a single app is running
-in the cluster it can take all the resources. When new apps are submitted resources that free up are assigned to the new apps,
-so that each app eventually on gets roughly the same amount of resources. Queues can be weighted to determine the fraction of total
-resources that each app should get.</p>
-
-<h2>Configuration</h2>
-
-<p>Although the CapacityScheduler is the default we can easily tell YARN to use the FairScheduler. In yarn-site.xml
-```
-<property></p>
-
-<pre><code>  &lt;name&gt;yarn.resourcemanager.scheduler.class&lt;/name&gt;
-  &lt;value&gt;org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairScheduler&lt;/value&gt;
-</code></pre>
-
-<p></property>
-<property></p>
-
-<pre><code>  &lt;name&gt;yarn.scheduler.fair.allocation.file&lt;/name&gt;
-  &lt;value&gt;/etc/hadoop/conf.empty/fair-scheduler.xml&lt;/value&gt;
-</code></pre>
-
-<p></property>
-<code>``
-The FairScheduler consists of 2 configuration files: scheduler-wide options can be placed into</code>yarn-site.xml<code>and queue settings in the
-</code>allocation file` which must be in XML format. Click <a href="http://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-site/FairScheduler.html">here</a>
-for a more detailed reference.</p>
-
-<h3>Few things worth noting compared to CapacityScheduler regarding queues</h3>
+<p>Although various solutions have been created in the software industry for monitoring of activities taking place in a cluster, but it turned out that only a very few of them satisfies most of our needs. When we made the decision about which monitoring libraries and components to integrate in our stack we kept in mind that it needs to be:</p>
 
 <ul>
-<li>Both CapacityScheduler and FairScheduler supports hierarchical queues and all queues descend from a queue named <code>root</code>.</li>
-<li>Both uses a queue called <code>default</code> as well.</li>
-<li>Applications can be submitted to leaf queues only.</li>
-<li>Both CapacityScheduler and FairScheduler can create new queues at run time, the only difference is the how. In case of the CapacityScheduler
-  the configuration file needed to be modified and we have to explicitly tell the ResourceManager to reload the configuration, while the
-  FairScheduler does the same based on the queue placement policies which is less painful.</li>
-<li>FairScheduler introduced scheduling policies which determines which job should get resources at each scheduling opportunity. The cool thing
-  about this that besides the default ones (&ldquo;fifo&rdquo; &ldquo;fair&rdquo; &ldquo;drf&rdquo;) anyone can create new scheduling policies by extending the
-  <code>org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.SchedulingPolicy</code> class and place it to the classpath.</li>
-<li>FairScheduler allows different queue placement policies as mentioned earlier. These policies tell the scheduler where to place the incoming app
-  among the queues. Placement can depend on users, groups or requested queue by the applications.</li>
-<li>In FairScheduler applications can be submitted to non-existing queues if the <code>create</code> flag is set and it will create that queue, while the
-  CapacityScheduler will instantly reject the submission.</li>
-<li>From Hadoop 2.6.0 (<a href="https://issues.apache.org/jira/browse/YARN-1495">YARN-1495</a>) both schedulers will let users to manually move
-  applications across queues.<br/>
-  <code>Side note:</code> This feature allows us to re-prioritize and define SLAs on applications and place them to queues where they get the enforced
-  resources. Our newly open sourced project <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> will add this
-  capability for static clusters besides dynamic ones in the near future.</li>
+<li><p><strong>scalable</strong> to be able to efficiently monitor small Hadoop clusters which are consisting of only a few nodes and also clusters which containing thousands of nodes</p></li>
+<li><p><strong>flexible</strong> to be able to provide overview about the health of the whole cluster or about the health of individual nodes or even dive deeper into the internals of Hadoop, e.g. shall be able to visualize how our autoscaling solution for Hadoop YARN called  <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope">Periscope</a> moves running applications between <a href="http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues">queues</a></p></li>
+<li><p><strong>extensible</strong> to be able to use the gathered and stored data by extensions written by 3rd parties, e.g. a module which processes the stored (metrics) data and does real-time anomaly detection</p></li>
+<li><p><strong>zero-configuration</strong> to be able to plug into any existing Hadoop cluster without additional configuration, component installation</p></li>
 </ul>
 
+
+<p>Based on the requirements above our choice were the followings:</p>
+
+<ul>
+<li><a href="http://logstash.net">Logstash</a> for log/metrics enrichment, parsing and transformation</li>
+<li><a href="http://www.elasticsearch.org">Elasticsearch</a> for data storage, indexing</li>
+<li><a href="http://www.elasticsearch.org/overview/kibana">Kibana</a> for data visualization</li>
+</ul>
+
+
+<h2>High Level Architecture</h2>
+
+<p>In our monitoring solution one of the design goal was to provide a <strong>generic, pluggable and isolated monitoring component</strong> to existing Hadoop deployments. We also wanted to make it non-invasive and avoid adding any monitoring related dependency to our Ambari, Hadoop or other Docker images. For that reason we have packaged the monitoring client component into its own Docker image which can be launched alongside with a Hadoop running in another container or even alongside a Hadoop which is not even containerized.</p>
+
+<p style="text-align:center;"> <img class="<a" src="href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/hadoop-monitoring/hadoop-monitoring-arch.png">https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/hadoop-monitoring/hadoop-monitoring-arch.png</a>"></p>
+
+<p>In a nutshell the monitoring solution consist of client and server containers. The <code>server</code> contains the Elasticsearch and the Kibana module. The server container is horizontally scalable and it can be clustered trough the clustering capabilities of Elasticsearch.</p>
+
+<p>The <code>client</code> container &ndash; which is deployed on the machine what is needed to be monitored &ndash; contains the Logstash and the collectd module. The Logstash connects to Elasticsearch cluster as client and stores the processed and transformed metrics data there.</p>
 
 <!-- more -->
 
 
-<h2>Messaging</h2>
+<h2>Hadoop metrics</h2>
 
-<p>The event mechanism is the same as with CapacityScheduler &ndash; thus I&rsquo;m not going to take account on the events &ndash; and if you check the handler methods
-(<a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/CapacityScheduler.java#L956">here</a>
-and <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/FairScheduler.java#L1134">here</a>)
-you can notice that they look fairly the same.
-```java
-@Override
-  public void handle(SchedulerEvent event) {</p>
+<p>The metrics data what we are collecting and visualizing are provided by <a href="http://blog.cloudera.com/blog/2012/10/what-is-hadoop-metrics2">Hadoop metrics</a>, which is a collection of runtime information that are exposed by all Hadoop daemons. We have configured the Metrics subsystem in that way that it writes the valuable metrics information into the filesystem.</p>
 
-<pre><code>switch (event.getType()) {
-case NODE_ADDED:
-  if (!(event instanceof NodeAddedSchedulerEvent)) {
-    throw new RuntimeException("Unexpected event type: " + event);
-  }
-  NodeAddedSchedulerEvent nodeAddedEvent = (NodeAddedSchedulerEvent)event;
-  addNode(nodeAddedEvent.getAddedRMNode());
-  recoverContainersOnNode(nodeAddedEvent.getContainerReports(),
-      nodeAddedEvent.getAddedRMNode());
-  break;
-case NODE_REMOVED:
-  if (!(event instanceof NodeRemovedSchedulerEvent)) {
-    throw new RuntimeException("Unexpected event type: " + event);
-  }
-  NodeRemovedSchedulerEvent nodeRemovedEvent = (NodeRemovedSchedulerEvent)event;
-  removeNode(nodeRemovedEvent.getRemovedRMNode());
-  break;
-case NODE_UPDATE:
-  if (!(event instanceof NodeUpdateSchedulerEvent)) {
-    throw new RuntimeException("Unexpected event type: " + event);
-  }
-  NodeUpdateSchedulerEvent nodeUpdatedEvent = (NodeUpdateSchedulerEvent)event;
-  nodeUpdate(nodeUpdatedEvent.getRMNode());
-  break;
-case APP_ADDED:
-  if (!(event instanceof AppAddedSchedulerEvent)) {
-    throw new RuntimeException("Unexpected event type: " + event);
-  }
-  AppAddedSchedulerEvent appAddedEvent = (AppAddedSchedulerEvent) event;
-  addApplication(appAddedEvent.getApplicationId(),
-    appAddedEvent.getQueue(), appAddedEvent.getUser(),
-    appAddedEvent.getIsAppRecovering());
-  break;
-case APP_REMOVED:
-  if (!(event instanceof AppRemovedSchedulerEvent)) {
-    throw new RuntimeException("Unexpected event type: " + event);
-  }
-  AppRemovedSchedulerEvent appRemovedEvent = (AppRemovedSchedulerEvent)event;
-  removeApplication(appRemovedEvent.getApplicationID(),
-    appRemovedEvent.getFinalState());
-  break;
-case APP_ATTEMPT_ADDED:
-  if (!(event instanceof AppAttemptAddedSchedulerEvent)) {
-    throw new RuntimeException("Unexpected event type: " + event);
-  }
-  AppAttemptAddedSchedulerEvent appAttemptAddedEvent =
-      (AppAttemptAddedSchedulerEvent) event;
-  addApplicationAttempt(appAttemptAddedEvent.getApplicationAttemptId(),
-    appAttemptAddedEvent.getTransferStateFromPreviousAttempt(),
-    appAttemptAddedEvent.getIsAttemptRecovering());
-  break;
-case APP_ATTEMPT_REMOVED:
-  if (!(event instanceof AppAttemptRemovedSchedulerEvent)) {
-    throw new RuntimeException("Unexpected event type: " + event);
-  }
-  AppAttemptRemovedSchedulerEvent appAttemptRemovedEvent =
-      (AppAttemptRemovedSchedulerEvent) event;
-  removeApplicationAttempt(
-      appAttemptRemovedEvent.getApplicationAttemptID(),
-      appAttemptRemovedEvent.getFinalAttemptState(),
-      appAttemptRemovedEvent.getKeepContainersAcrossAppAttempts());
-  break;
-case CONTAINER_EXPIRED:
-  if (!(event instanceof ContainerExpiredSchedulerEvent)) {
-    throw new RuntimeException("Unexpected event type: " + event);
-  }
-  ContainerExpiredSchedulerEvent containerExpiredEvent =
-      (ContainerExpiredSchedulerEvent)event;
-  ContainerId containerId = containerExpiredEvent.getContainerId();
-  completedContainer(getRMContainer(containerId),
-      SchedulerUtils.createAbnormalContainerStatus(
-          containerId,
-          SchedulerUtils.EXPIRED_CONTAINER),
-      RMContainerEventType.EXPIRE);
-  break;
-default:
-  LOG.error("Unknown event arrived at FairScheduler: " + event.toString());
-}
-</code></pre>
+<p>In order to be able to access the metrics data from the monitoring client component &ndash; which is running inside a different Docker container &ndash; we used the capability of <a href="https://docs.docker.com/userguide/dockervolumes">Docker Volumes</a> which basically let&rsquo;s you access a directory within one container form other container or even access directories from host systems.</p>
 
-<p>  }
-```</p>
+<p>For example if you would like mount the <code>/var/log</code> from the container named <code>ambari-singlenode</code> under the <code>/amb/log</code> in the monitoring client container then the following sequence of commands needs to be executed:</p>
 
-<h3>NODE_ADDED &amp;&amp; NODE_REMOVED</h3>
+<p>
+<code>bash
+EXPOSED_LOG_DIR=$(docker inspect --format='{{index .Volumes "/var/log"}}' ambari-singlenode)
+docker run -i -t -v $EXPOSED_LOG_DIR:/amb/log  sequenceiq/docker-elk-client /etc/bootstrap.sh -bash
+</code>
+</p>
 
-<p>It&rsquo;s the same as in CapacityScheduler, adjusts the global resources based on whether a node joined or left the cluster.</p>
+<p>Hundreds of different metrics are gathered form Hadoop metrics subsystem and all data is transformed by Logstash to JSON and stored in ElasticSearch to make it ready for querying or displaying it with Kibana.</p>
 
-<h3>APP_ADDED</h3>
+<p>The screenshot below has been created from one of our sample dashboard which is displaying Hadoop metrics for a small cluster which was started on my notebook. In this cluster the Yarn&rsquo;s Capacity Scheduler is used and for demonstration purposes I have created a queue called <code>highprio</code> alongside the <code>default</code> queue. I have reduced the capacity of the <code>default</code> queue to 30 and defined the <code>highprio</code> queue with a capacity of 70.
+The red line in the screenshot belongs to the <code>highprio</code> queue, the yellow line belongs to the <code>default</code> queue and the green line is the <code>root</code> queue which is the common ancestor both of them.
+In the benchmark, the jobs were submitted to the <code>default</code> queue and a bit later (somewhere around 17:48) the same jobs were submitted to the <code>highprio</code> queue. As it is clearly observable for <code>highprio</code> queue the allocated Containers, Memory and VCores were higher and jobs were finished much more faster than those that were submitted to the default queue.</p>
 
-<p>Application submission is slightly different from CapacityScheduler (well not on client side as it&rsquo;s the same there), but because of
-the queue placement policy. Administrators can define a <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementPolicy.java">QueuePlacementPolicy</a>
-which will determine where to place the submitted application. A QueuePlacementPolicy stands from a list of <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java">QueuePlacementRules</a>.
-These rules are ordered meaning that the first rule which can place the application into a queue will apply. If no rule can apply the
-application submission will be rejected. Each rule accept a <code>create</code> argument in which case it&rsquo;s true the rule can create a queue if it is missing.
-The following rules exist:</p>
+<p>Such kind of dashboard is extremely useful when we are visualizing decisions made by <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope">Periscope</a> and check e.g. how the applications are moved across <a href="http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues">queues</a>, or additional nodes are added or removed dynamically from the cluster.</p>
 
-<ul>
-<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L124">User</a>:
-  places the application into a queue with user&rsquo;s name e.g: root.chris</li>
-<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L140">PrimaryGroup</a>:
-  places the application into a queue with the user&rsquo;s primary group name e.g: root.hdfs</li>
-<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L160">SecondaryGroupExistingQueue</a>:
-  places the application into a queue with the user&rsquo;s secondary group name</li>
-<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L188">NestedUserQueue</a>:
-  places the application into a queue with the user&rsquo;s name under the queue returned by the nested rule</li>
-<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L258">Specified</a>:
-  places the application into a queue which was requested when submitted</li>
-<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L282">Default</a>:
-  places the application into the default queue</li>
-<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L324">Reject</a>:
-  it is a termination rule in the sequence of rules, if no rule applied before then it will reject the submission</li>
-</ul>
+<p style="text-align:center;"> <img class="<a" src="href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/hadoop-monitoring/hadoop_metrics.png">https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/hadoop-monitoring/hadoop_metrics.png</a>"></p>
 
+<p>To see it in large, please <a href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/hadoop-monitoring/hadoop_metrics.png">click here</a>.</p>
 
-<p>ACLs are also checked before creating and adding the application to the list of <code>SchedulerApplications</code> and updating the metrics.</p>
+<p>Since all of the Hadoop metrics are stored in the Elasticsearch, therefore there are a lot of possibilities to create different dashboards using that particular parameter of the cluster which is interesting for the operator. The dashboards can be configured on the fly and the metrics are displayed in real-time.</p>
 
-<h3>APP_REMOVED</h3>
+<h2>System resources</h2>
 
-<p>Simply stops the application and sets it&rsquo;s final state.</p>
+<p>Beside Hadoop metrics, &ldquo;traditional&rdquo; system resource data (cpu, memory, io, network) are gathered with the aid of <a href="https://collectd.org">collectd</a>. This can also run inside the monitoring client container since due to the <a href="https://goldmann.pl/blog/2014/09/11/resource-management-in-docker/#_example_managing_the_cpu_shares_of_a_container">resource management</a> in Docker the containers can access and gather information about the whole system and a container can even &ldquo;steal&rdquo; the network of other container if you start with: <code>--net=container:id-of-other-container</code> which is very useful if cases when network traffic is monitored.</p>
 
-<h3>APP_ATTEMPT_ADDED</h3>
+<p style="text-align:center;"> <img class="<a" src="href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/hadoop-monitoring/system_resource_metrics.png">https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/hadoop-monitoring/system_resource_metrics.png</a>"></p>
 
-<p>The analogy is the same with the CapacityScheduler that application attempts trigger the application to actually run. Based on the
-allocation configuration mentioned above the <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/MaxRunningAppsEnforcer.java">MaxRunningAppsEnforcer</a>
-will decide whether the app is placed into the <code>runnableApps</code> or the <code>nonRunnableApps</code> inside of the queue. <code>MaxRunningAppsEnforcer</code> also
-keeps track of the runnable and non runnable apps per user. Attempt states are also transferred from one to another.</p>
+<h2>Summary</h2>
 
-<h3>APP_ATTEMPT_REMOVED</h3>
+<p>So far the Hadoop metrics and system resource metrics have been processed, but it is planned to use the information written into the history file (or fetch from History server) and make it also <code>queryable</code> trough Elasticsearch to be able to provide information about what is happening inside the jobs.</p>
 
-<p>Releases all the allocated, acquired, running containers (in case of <code>ApplicationMaster</code> restart the running containers won&rsquo;t get killed),
-releases all reserved containers, cleans up pending requests and informs the queues. <code>MaxRunningAppsEnforcer</code> gets updated as well.</p>
-
-<h3>NODE_UPDATE</h3>
-
-<p>As we learned from CapacityScheduler <code>NodeUpdateSchedulerEvents</code> arrive every second. FairScheduler support asynchronous scheduling on a
-different thread regardless of the <code>NodeManager's</code> <code>heartbeats</code> as well. We also learned the importance of the <code>Allocation</code> method which
-issues the <code>ResourceRequests</code> of an application and in this case it does exactly the same as in case of CapacityScheduler. You can read
-about the form of these requests there. At each node update the scheduler updates the capacities of the resources if it&rsquo;s changed, processes
-the completed and newly launched containers, updates the metrics and tries to allocate resources to applications. Just like with CapacityScheduler
-container reservation has the advantage thus it gets fulfilled first. If there is no reservation it tries to schedule in a queue which is
-farthest below fair share. The scheduler first orders the queues and then the applications inside the queues using the configured
-<a href="https://github.com/apache/hadoop-common/tree/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/policies">SchedulingPolicy</a>.
-As I mentioned in the configuration section there are 3 default policies available:</p>
-
-<ul>
-<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/policies/FifoPolicy.java">FifoPolicy</a>
-  (fifo) &ndash; Orders first by priorities and then by submission time.</li>
-<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/policies/DominantResourceFairnessPolicy.java">DominantResourceFairnessPolicy</a>
-  (drf) &ndash; Orders by trying to equalize dominant resource usage.
-  (dominant resource usage is the largest ratio of resource usage to capacity among the resource types it is using)</li>
-<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/policies/FairSharePolicy.java">FairSharePolicy</a>
-  (fair) &ndash; Orders via weighted fair sharing. In addition, Schedulables below their min share get priority over those whose
-  min share is met. Schedulables below their min share are compared by how far below it they are as a ratio. For example, if job A has 8
-  out of a min share of 10 tasks and job B has 50 out of a min share of 100, then job B is scheduled next, because B is at 50% of its
-  min share and A is at 80% of its min share. Schedulables above their min share are compared by (runningTasks / weight).</li>
-</ul>
-
-
-<p>SchedulingPolicies can be written and used by anyone without major investment to how to do it. All it takes is to extend a
-<a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/SchedulingPolicy.java">class</a>
-and place the implementation to the classpath and restart the <code>ResourceManager</code>. Even though it&rsquo;s easy to do and it&rsquo;s not a major investment
-the fairness will depend on it thus the effect will be major, so you should really consider it. After the decision of which application should
-get resources first the game is pretty much the same as with the CapacityScheduler. First it tries to allocate container on a data local node
-and after a delay on a rack local node and in the end falling back to an off switch node.</p>
-
-<h3>CONTAINER_EXPIRED</h3>
-
-<p>Cleans up the expired containers just like it would be a finished container.</p>
-
-<h2>What&rsquo;s next?</h2>
-
-<p>We might do a Part 3 post about the FIFOScheduler, though that&rsquo;s really straightforward &ndash; nevertheless, let us know if you&rsquo;d like to read about. As we have already mentioned, last week we released <a href="http://sequenceiq.com/periscope/">Periscope</a> &ndash; the industry’s first SLA policy based autoscaling API for Hadoop YARN &ndash; all these features we have blogged about are based on our contribution in Hadoop, YARN and Ambari -so stay tuned and follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a> for updates.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Submit a Spark job to YARN from code]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/08/22/spark-submit-in-java/"/>
-    <updated>2014-08-22T08:09:28+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/08/22/spark-submit-in-java</id>
-    <content type="html"><![CDATA[<p>In our previous Apache Spark related post we showed you how to write a simple machine learning job. In this post we’d like to show you how to submit a Spark job from code. At SequenceIQ we submit jobs to different clusters &ndash; based on load, customer profile, associated SLAs, etc. Doing this the <code>documented</code> way was cumbersome so we needed a way to submit Spark jobs (and in general all of our jobs running in a YARN cluster) from code. Also due to the <code>dynamic</code> clusters, and changing job configurations we can’t use hardcoded parameters &ndash; in a previous <a href="http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service/">blog post</a> we highlighted how are we doing all these.</p>
-
-<h2>Business as usual</h2>
-
-<p>Basically as you from the <a href="https://spark.apache.org/docs/1.0.1/submitting-applications.html">Spark documentation</a>, you have to use the <a href="https://github.com/apache/spark/blob/master/bin/spark-submit">spark-submit</a> script to submit a job. In nutshell SparkSubmit is called
-by the <a href="https://github.com/apache/spark/blob/master/bin/spark-class">spark-class</a> script with a lots of decorated arguments. In our example we examine only the YARN part of the submissions.
-As you can see in <a href="https://github.com/apache/spark/blob/master/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala">SparkSubmit.scala</a> the YARN <a href="https://github.com/apache/spark/blob/master/yarn/stable/src/main/scala/org/apache/spark/deploy/yarn/Client.scala">Client</a> is loaded and its main method invoked (based on the arguments of the script).</p>
-
-<p>```scala</p>
-
-<pre><code>// If we're deploying into YARN, use yarn.Client as a wrapper around the user class
-if (!deployOnCluster) {
-  childMainClass = args.mainClass
-  if (isUserJar(args.primaryResource)) {
-    childClasspath += args.primaryResource
-  }
-} else if (clusterManager == YARN) {
-  childMainClass = "org.apache.spark.deploy.yarn.Client"
-  childArgs += ("--jar", args.primaryResource)
-  childArgs += ("--class", args.mainClass)
-}
-
-...
-// Here we invoke the main method of the Client
-val mainClass = Class.forName(childMainClass, true, loader)
-val mainMethod = mainClass.getMethod("main", new Array[String](0).getClass)
-try {
-  mainMethod.invoke(null, childArgs.toArray)
-} catch {
-  case e: InvocationTargetException =&gt; e.getCause match {
-    case cause: Throwable =&gt; throw cause
-    case null =&gt; throw e
-}
-</code></pre>
-
-<p>```
-It’s a pretty straightforward way to submit a Spark job to a YARN cluster, though you will need to change manually the parameters which as passed as arguments.</p>
-
-<!--more-->
-
-
-<h2>Submitting the job from Java code</h2>
-
-<p>In case if you would like to submit a job to YARN from Java code, you can just simply use this Client class directly in your application.
-(but you have to make sure that every environment variable what you will need is set properly).</p>
-
-<h3>Passing Configuration object</h3>
-
-<p>In the main method the org.apache.hadoop.conf.Configuration object is not passed to the Client class. A <code>Configuration</code> is created explicitly in the constructor, which is actually okay (then client configurations are loaded from $HADOOP_CONF_DIR/core-site.xml and $HADOOP_CONF_DIR/yarn-site.xml).
-But what if you want to use (for example) an <a href="http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service/">Ambari Configuration Service</a> for retrieve your configuration, instead of using hardcoded ones?</p>
-
-<p>```scala</p>
-
-<pre><code>... // Client class - constructor
-  def this(clientArgs: ClientArguments, spConf: SparkConf) =
-    this(clientArgs, new Configuration(), spConf)
-
-... // Client object - main method
-System.setProperty("SPARK_YARN_MODE", "true")
-val sparkConf = new SparkConf()
-
-try {
-  val args = new ClientArguments(argStrings, sparkConf)
-  new Client(args, sparkConf).run()
-} catch {
-  case e: Exception =&gt; {
-    Console.err.println(e.getMessage)
-    System.exit(1)
-  }
-}
-
-System.exit(0)
-</code></pre>
-
-<p>```</p>
-
-<p>Fortunately, the configuration can be passed here (there is a <code>Configuration</code> field in the Client), but you have to write your own main method.</p>
-
-<h3>Code example</h3>
-
-<p>In our example we also use the 2 client XMLs as configuration (for demonstration purposes only), the main difference here is that we read the properties from the XMLs and filling them in the Configuration. Then we pass the Configuration object to the Client (which is directly invoked here).</p>
-
-<p>```scala
- def main(args: Array[String]) {</p>
-
-<pre><code>val config = new Configuration()
-fillProperties(config, getPropXmlAsMap("config/core-site.xml"))
-fillProperties(config, getPropXmlAsMap("config/yarn-site.xml"))
-
-System.setProperty("SPARK_YARN_MODE", "true")
-
-val sparkConf = new SparkConf()
-val cArgs = new ClientArguments(args, sparkConf)
-
-new Client(cArgs, config, sparkConf).run()
-</code></pre>
-
-<p>  }
-```</p>
-
-<p>To build the project use this command from the spark-submit directory:</p>
-
-<p><code>bash
-./gradlew clean build
-</code></p>
-
-<p>After building it you find the required jars in spark-submit-runner/build/libs (<code>uberjar</code> with all required dependencies) and spark-submit-app/build/libs. Put them in the same directory (do this also with this <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/spark-submit/spark-submit-runner/src/main/resources">config folder</a> too). After that run this command:</p>
-
-<p><code>bash
-java -cp spark-submit-runner-1.0.jar com.sequenceuq.spark.SparkRunner \
-  --jar spark-submit-app-1.0.jar \
-  --class com.sequenceiq.spark.Main \
-  --driver-memory 1g \
-  --executor-memory 1g \
-  --executor-cores 1 \
-  --arg hdfs://sandbox:9000/input/sample.txt \
-  --arg /output \
-  --arg 10 \
-  --arg 10
-</code></p>
-
-<p>During the submission note that: not just the app jar, but the spark-submit-runner jar is also uploaded (which is an <code>uberjar</code>) to the HDFS. To avoid this, you have to upload it to the HDFS manually and set the <strong>SPARK_JAR</strong> environment variable.</p>
-
-<p><code>bash
-export SPARK_JAR="hdfs:///spark/spark-submit-runner-1.0.jar"
-</code></p>
-
-<p>If you get &ldquo;Permission denied&rdquo; exception on submit, you should set the <strong>HADOOP_USER_NAME</strong> environment variable to root (or something with proper rights).</p>
-
-<p>As usual for us we ship the code &ndash; you can get it from our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/spark-submit">GitHub</a> samples repository; the sample input is available <a href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/spark-clustering/data/input.txt">here</a>.</p>
-
-<p>If you would like to play with Spark, you can use our <a href="https://registry.hub.docker.com/u/sequenceiq/spark/">Spark Docker container</a> available as a trusted build on Docker.io repository.</p>
+<p>The development preview of the monitoring server and client is already available on our GitHub <a href="https://github.com/sequenceiq/docker-elk">here</a> and <a href="https://github.com/sequenceiq/docker-elk-client">here</a>. In the next release this will be part of <strong>Periscope</strong> and <strong>Cloudbreak</strong>.</p>
 
 <p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Fair play]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/08/16/fairplay/"/>
-    <updated>2014-08-16T14:45:15+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/08/16/fairplay</id>
-    <content type="html"><![CDATA[<p>Recently we’ve been asked an interesting question &ndash; how fair is the YARN <a href="http://hadoop.apache.org/docs/r2.4.1/hadoop-yarn/hadoop-yarn-site/FairScheduler.html">FairScheduler</a> &ndash; while we never use internally the fair scheduler after a quick test the short answer is &ndash; <strong>very fair</strong>.</p>
-
-<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we always use the <a href="http://hadoop.apache.org/docs/r2.4.1/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html">CapacityScheduler</a> &ndash; actually an enhanced version of it (coming with the 2.6.0 release of Hadoop). Since the emergence of YARN and the new schedulers we were working on a solution to bring SLA to Hadoop &ndash; and part of this work was our contribution to <a href="https://issues.apache.org/jira/browse/YARN-1495">Apache YARN schedulers</a> and <a href="http://ambari.apache.org/">Apache Ambari</a>. Anyway, we decided to configure a FairScheduler in one of our 20 node test cluster and run a quick test.</p>
-
-<h3>Fair scheduler</h3>
-
-<p>Remember than before YARN only one resource represented a resource on a cluster &ndash; the <code>slot</code>. Every node had slots, and your MR job was taking up slots , regardless of their actual resource usage (CPU, memory). It worked but for sure it wasn’t a fair game &ndash; and caused lots of frustration between administrators of applications competing for <code>slots</code>. We have seen many over and undersubscribed nodes in terms of CPU and memory. YARN introduced the concept of containers and the ability to request/attach resources to them (vCores and memory).</p>
-
-<p>While this seams already a big step forward comparing with slots, it brought up other problems &ndash; with multiple resources as <code>vCores</code> and <code>memory</code> and <code>disk</code> and <code>network i/o</code> in the future it’s pretty challenging to share them fairly. With a single resource it would we pretty straightforward &ndash; nevertheless the community based on a <a href="http://static.usenix.org/event/nsdi11/tech/full_papers/Ghodsi.pdf">research paper</a> coming out from UC Berkeley (Ghodsi et al) managed to get this working through (again a community effort) this <a href="https://issues.apache.org/jira/browse/YARN-326">YARN ticket</a>.</p>
-
-<p>Now let’s battle test how fair is the scheduler when running two MR application with changing resource usage &ndash; how well the dominant resource fairness works.</p>
-
-<!--more-->
-
-
-<h3>The test</h3>
-
-<p>We decided to take a pretty easy MR job with 64 input files. In order to bring in some  variables, the input files are a multiple of 4MB, distributed as the smallest is 4MB and the largest is 256MB. The used <code>block size</code> is 256MB, and the number of nodes in the cluster is <strong>20</strong>. We are using and open sourced an <strong>R based</strong> <a href="https://github.com/sequenceiq/yarn-monitoring">YARN monitoring</a> project &ndash; feel free to use it and let us know if you have any feedback.</p>
-
-<p>We were running two jobs &ndash; and the task&rsquo;s input was descending e.g. <em>task_1398345200850_0079_m_000001</em> has a 252MB input file and <em>task_1398345200850_0079_m_000063</em> has a 4MB input. Obliviously the tasks were not necessarily executed in this order, because the order depends on when the nodemanager asks for task.</p>
-
-<p>See the <code>timeboxed</code> result of the two runs.</p>
-
-<p><strong>Run 61</strong></p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/run61.png" alt="" /></p>
-
-<p><strong>Run 62</strong></p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/run62.png" alt="" /></p>
-
-<p>While the <code>timeboxed</code> version will not really help to decide the resource usage and the elapsed time (which should be pretty much equal) it’s good to show the time spent on different nodes. Many times generating these charts helped us to identify hardware or other software/configuration issues on different nodes (for example when a run execution is outside of the standard deviation). You can use our R project and file to generate charts as such with the help of <a href="https://github.com/sequenceiq/yarn-monitoring/blob/master/RProjects/TimeBoxes.R">TimeBoxes.R</a> file.</p>
-
-<p>Now if we compare the two execution files and place it on the same chart we will actually see that the FairScheduler is <strong>fairly Fair</strong>.</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/test8_active_mapppers_num.png" alt="" /></p>
-
-<h3>Random ideas</h3>
-
-<p>While the purpose of these tests was to show that the fair scheduler distributes resources in a fair way &ndash; sorry I can’t help &ndash; we can see that the executions of the map tasks are not optimal, but at least stable. Also we can notice that the execution order depends also on the blocks locations; if you should know/consider the blocks location ahead the execution could be more optimal.</p>
-
-<p>Measured a few other things as well &ndash; will discuss this on a different post &ndash; and from those charts you can see that the elapsed time of a task grow even as there are free slots.  Also as the number of mappers come closer to the available free slots of the cluster the average elapsed times of the tasks grow &ndash; due to different reasons (which we will share on a forthcoming post).</p>
-
-<p>Since we are not really using the <strong>FairScheduler</strong> and we had one now configured we decided to run a few of our performance tests as well, and while submitting jobs like <code>crazy</code> using the fair scheduler we managed to <code>logjam</code> the cluster.
-We have never seen this before while using the <strong>CapacityScheduler</strong> &ndash; and digging into details we figured that the FairScheduler is missing the <code>yarn.scheduler.capacity.maximum-am-resource-percent</code> property. This <a href="https://issues.apache.org/jira/browse/YARN-1913">issue</a> appears to be a bug in the FairScheduler &ndash; fixed in the 2.5 release.</p>
-
-<p>While we don’t want to make any comparison between the two schedulers I think that the FairScheduler is a very viable and good option for those having a cluster and doesn’t want to bother with <strong>capacity planning ahead</strong>. Also I was impressed by the fine grain rules which you can use with the FairScheduler while deciding on the resource allocations.</p>
-
-<p>Note that we are working and open sourcing a project which brings SLA to Hadoop and allows auto-scaling using <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> &ndash; our open source, cloud agnostic Hadoop as a Service API. The project is called <strong>Periscope</strong> and will be open sourced very soon.</p>
-
-<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[YARN Schedulers demystified - Part 1: Capacity]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1/"/>
-    <updated>2014-07-22T12:56:39+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1</id>
-    <content type="html"><![CDATA[<p>After our first <a href="http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues/">post</a> about re-prioritizing already submitted and running jobs on different queues we have received many questions and feedbacks about the Capacity Scheduler internals. While there is <code>some</code> documentation available, there is no extensive and deep documentation about how it actually works internally. Since it&rsquo;s all event based it&rsquo;s pretty hard to understand the flow &ndash; let alone debugging it. At <a href="http://sequenceiq.com/">SequenceIQ</a> we are working on a heuristic cluster scheduler &ndash; and understanding how YARN schedulers work was essential. This is part of a larger piece of work &ndash; which will lead to a fully dynamic Hadoop cluster &ndash; orchestrating <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; the first open source and Docker based <strong>Hadoop as a Service API</strong>. As usual for us, this work and what we have already done around Capacity and Fair schedulers will be open sourced (or already contributed back to Apache YARN project).</p>
-
-<h2>The Capacity Scheduler internals</h2>
-
-<p>The CapacityScheduler is the default scheduler used with Hadoop 2.x. Its purpose is to allow multi-tenancy and share resources between multiple organizations and applications on the same cluster. You can read about the high level abstraction
-<a href="http://hadoop.apache.org/docs/r2.3.0/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html">here</a>. In this blog entry we&rsquo;ll examine it
-from a deep technical point of view (the implementation can be found <a href="https://github.com/apache/hadoop-common/tree/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity">here</a>
-as part of the ResourceManager). I&rsquo;ll try to keep it short and deal with the most important aspects, preventing to write a book about it (would be still better than twilight).</p>
-
-<p><img class="<a" src="href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-queue-tests/src/main/resources/event-flow.gif">https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-queue-tests/src/main/resources/event-flow.gif</a>"></p>
-
-<p>The animation shows a basic application submission event flow, but don&rsquo;t worry if you don&rsquo;t understand it yet, hopefully you will when you&rsquo;re done with the reading.</p>
-
-<!-- more -->
-
-
-<h2>Configuration</h2>
-
-<p>It all begins with the configuration. The scheduler consists of a queue hierarchy, something like this
-(except it’s xml ah.. capacity-scheduler.xml):
-<code>
-yarn.scheduler.capacity.maximum-am-resource-percent=0.2
-yarn.scheduler.capacity.maximum-applications=10000
-yarn.scheduler.capacity.node-locality-delay=40
-yarn.scheduler.capacity.root.acl_administer_queue=*
-yarn.scheduler.capacity.root.capacity=100
-yarn.scheduler.capacity.root.default.acl_administer_jobs=*
-yarn.scheduler.capacity.root.default.acl_submit_applications=*
-yarn.scheduler.capacity.root.default.capacity=80
-yarn.scheduler.capacity.root.default.maximum-capacity=80
-yarn.scheduler.capacity.root.default.state=RUNNING
-yarn.scheduler.capacity.root.default.user-limit-factor=1
-yarn.scheduler.capacity.root.low.acl_administer_jobs=*
-yarn.scheduler.capacity.root.low.acl_submit_applications=*
-yarn.scheduler.capacity.root.low.capacity=20
-yarn.scheduler.capacity.root.low.maximum-capacity=40
-yarn.scheduler.capacity.root.low.state=RUNNING
-yarn.scheduler.capacity.root.low.user-limit-factor=1
-yarn.scheduler.capacity.root.queues=default,low
-</code></p>
-
-<p><img class="<a" src="href="http://yuml.me/9d7e9977">http://yuml.me/9d7e9977</a>"></p>
-
-<p>Generally, queues are for to prevent applications to consume more resources then they should.
-Be careful when determining the capacities, because if you mess it up the <code>ResourceManager</code> won&rsquo;t start:
-<code>
-Service RMActiveServices failed in state INITED cause: java.lang.IllegalArgumentException: Illegal capacity of 1.1 for children of queue root.
-</code>
-The <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/CapacityScheduler.java#L255">initScheduler</a>
-will parse the configuration file and create either <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/ParentQueue.java">parent</a>
-or <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/LeafQueue.java">leaf</a>
-queues and compute their capabilities.</p>
-
-<p><code>
-capacity.LeafQueue (LeafQueue.java:setupQueueConfigs(312)) - Initializing default
-capacity = 0.8 [= (float) configuredCapacity / 100 ]
-asboluteCapacity = 0.8 [= parentAbsoluteCapacity * capacity ]
-maxCapacity = 0.8 [= configuredMaxCapacity ]
-absoluteMaxCapacity = 0.8 [= 1.0 maximumCapacity undefined, (parentAbsoluteMaxCapacity * maximumCapacity) / 100 otherwise ]
-userLimit = 100 [= configuredUserLimit ]
-userLimitFactor = 1.0 [= configuredUserLimitFactor ]
-maxApplications = 8000 [= configuredMaximumSystemApplicationsPerQueue or (int)(configuredMaximumSystemApplications * absoluteCapacity)]
-maxApplicationsPerUser = 8000 [= (int)(maxApplications * (userLimit / 100.0f) * userLimitFactor) ]
-maxActiveApplications = 1 [= max((int)ceil((clusterResourceMemory / minimumAllocation) * maxAMResourcePerQueuePercent * absoluteMaxCapacity),1) ]
-maxActiveAppsUsingAbsCap = 1 [= max((int)ceil((clusterResourceMemory / minimumAllocation) *maxAMResourcePercent * absoluteCapacity),1) ]
-maxActiveApplicationsPerUser = 1 [= max((int)(maxActiveApplications * (userLimit / 100.0f) * userLimitFactor),1) ]
-usedCapacity = 0.0 [= usedResourcesMemory / (clusterResourceMemory * absoluteCapacity)]
-absoluteUsedCapacity = 0.0 [= usedResourcesMemory / clusterResourceMemory]
-maxAMResourcePerQueuePercent = 0.2 [= configuredMaximumAMResourcePercent ]
-minimumAllocationFactor = 0.75 [= (float)(maximumAllocationMemory - minimumAllocationMemory) / maximumAllocationMemory ]
-numContainers = 0 [= currentNumContainers ]
-state = RUNNING [= configuredState ]
-acls = ADMINISTER_QUEUE: SUBMIT_APPLICATIONS:* [= configuredAcls ]
-nodeLocalityDelay = 40
-</code>
-Although it does not imply, but application submission is only allowed to leaf queues. By default all application is submitted to
-a queue called <code>default</code>. One interesting property is the <code>schedule-asynchronously</code> about which I&rsquo;ll talk later.</p>
-
-<h2>Messaging</h2>
-
-<p>Once the ResourceManager is up and running, the messaging starts. Mostly everything happens via events. These events are distributed with
-a <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-common/src/main/java/org/apache/hadoop/yarn/event/AsyncDispatcher.java">dispatcher</a>
-among the registered event handlers. The down side of the event driven architecture that it&rsquo;s hard to follow the flow because
-events can come from everywhere. The CapacityScheduler itself is registered for many events, and act based on these events.
-Code snippets are from branch <code>trunk</code> aka <code>3.0.0-SNAPSHOT</code>.
-```java
- @Override
-  public void handle(SchedulerEvent event) {</p>
-
-<pre><code>switch(event.getType()) {
-case NODE_ADDED:
-{
-  NodeAddedSchedulerEvent nodeAddedEvent = (NodeAddedSchedulerEvent)event;
-  addNode(nodeAddedEvent.getAddedRMNode());
-  recoverContainersOnNode(nodeAddedEvent.getContainerReports(),
-    nodeAddedEvent.getAddedRMNode());
-}
-break;
-case NODE_REMOVED:
-{
-  NodeRemovedSchedulerEvent nodeRemovedEvent = (NodeRemovedSchedulerEvent)event;
-  removeNode(nodeRemovedEvent.getRemovedRMNode());
-}
-break;
-case NODE_UPDATE:
-{
-  NodeUpdateSchedulerEvent nodeUpdatedEvent = (NodeUpdateSchedulerEvent)event;
-  RMNode node = nodeUpdatedEvent.getRMNode();
-  nodeUpdate(node);
-  if (!scheduleAsynchronously) {
-    allocateContainersToNode(getNode(node.getNodeID()));
-  }
-}
-break;
-case APP_ADDED:
-{
-  AppAddedSchedulerEvent appAddedEvent = (AppAddedSchedulerEvent) event;
-  addApplication(appAddedEvent.getApplicationId(),
-    appAddedEvent.getQueue(), appAddedEvent.getUser());
-}
-break;
-case APP_REMOVED:
-{
-  AppRemovedSchedulerEvent appRemovedEvent = (AppRemovedSchedulerEvent)event;
-  doneApplication(appRemovedEvent.getApplicationID(),
-    appRemovedEvent.getFinalState());
-}
-break;
-case APP_ATTEMPT_ADDED:
-{
-  AppAttemptAddedSchedulerEvent appAttemptAddedEvent =
-      (AppAttemptAddedSchedulerEvent) event;
-  addApplicationAttempt(appAttemptAddedEvent.getApplicationAttemptId(),
-    appAttemptAddedEvent.getTransferStateFromPreviousAttempt(),
-    appAttemptAddedEvent.getShouldNotifyAttemptAdded());
-}
-break;
-case APP_ATTEMPT_REMOVED:
-{
-  AppAttemptRemovedSchedulerEvent appAttemptRemovedEvent =
-      (AppAttemptRemovedSchedulerEvent) event;
-  doneApplicationAttempt(appAttemptRemovedEvent.getApplicationAttemptID(),
-    appAttemptRemovedEvent.getFinalAttemptState(),
-    appAttemptRemovedEvent.getKeepContainersAcrossAppAttempts());
-}
-break;
-case CONTAINER_EXPIRED:
-{
-  ContainerExpiredSchedulerEvent containerExpiredEvent =
-      (ContainerExpiredSchedulerEvent) event;
-  ContainerId containerId = containerExpiredEvent.getContainerId();
-  completedContainer(getRMContainer(containerId),
-      SchedulerUtils.createAbnormalContainerStatus(
-          containerId,
-          SchedulerUtils.EXPIRED_CONTAINER),
-      RMContainerEventType.EXPIRE);
-}
-break;
-default:
-  LOG.error("Invalid eventtype " + event.getType() + ". Ignoring!");
-}
-</code></pre>
-
-<p>  }
-```</p>
-
-<h3>NODE_ADDED</h3>
-
-<p>Each time a node joins the cluster the <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/ResourceTrackerService.java#L237">ResourceTrackerService</a>
-registers the <code>NodeManager</code> and as part of the transition sends a <code>NodeAddedSchedulerEvent</code>. The scheduler keeps track of
-the global cluster resources and adds the node&rsquo;s resources to the global.
-<code>
-Added node amb1.mycorp.kom:45454 clusterResource: &lt;memory:5120, vCores:8&gt;
-Added node amb2.mycorp.kom:45454 clusterResource: &lt;memory:10240, vCores:16&gt;
-</code>
-It is also needed to update all the queue metrics since the cluster got bigger, thus the queue capacities also change. More likely to happen
-that a new application can be scheduled. If the <code>isWorkPreservingRecoveryEnabled</code> is enabled on the <code>ResourceManager</code> it can recover
-containers on a re-joining node.</p>
-
-<h3>NODE_REMOVED</h3>
-
-<p>There can be many reasons that a node is being removed from the cluster, but the scenario is almost the same as adding one. A
-<code>NodeRemovedSchedulerEvent</code> is sent and the scheduler subtracts the node&rsquo;s resources from the global and updates all the queue metrics.
-Things can be a little bit complicated since the node was active part of the resource scheduling and can have running containers and
-reserved resources. The scheduler will kill these containers and notify the applications so they can request new containers and
-unreserve the resources.
-<code>
-rmnode.RMNodeImpl (RMNodeImpl.java:transition(569)) - Deactivating Node amb4.mycorp.kom:45454 as it is now DECOMMISSIONED
-rmnode.RMNodeImpl (RMNodeImpl.java:handle(385)) - amb4.mycorp.kom:45454 Node Transitioned from RUNNING to DECOMMISSIONED
-capacity.CapacityScheduler (CapacityScheduler.java:removeNode(980)) - Removed node amb4.mycorp.kom:45454 clusterResource: &lt;memory:15360, vCores:24&gt;
-</code></p>
-
-<h3>APP_ADDED</h3>
-
-<p>On application <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/RMAppManager.java#L266">submission</a>
-an <code>AppAddedSchedulerEvent</code> is made and the scheduler will decide to accept the application or not. It depends whether it
-was submitted to a leaf queue and the user have the appropriate rights (ACL) to submit to this queue and the queue can have more applications. If
-any of these fails the scheduler will reject the application by sending an <code>RMAppRejectedEvent</code>. Otherwise it will register a new
-<code>SchedulerApplication</code> and notify the target queue&rsquo;s parents about it and updates the queue metrics.
-<code>
-capacity.ParentQueue (ParentQueue.java:addApplication(495)) - Application added - appId: application_1405323437551_0001 user: hdfs leaf-queue of parent: root #applications: 1
-capacity.CapacityScheduler (CapacityScheduler.java:addApplication(544)) - Accepted application application_1405323437551_0001 from user: hdfs, in queue: default
-</code></p>
-
-<h3>APP_REMOVED</h3>
-
-<p>The analogy is the same as between <code>NODE_ADDED</code> and <code>NODE_REMOVED</code>. Updates the queue metrics and notifies the parent&rsquo;s that an application finished, removes the application and sets its final state.</p>
-
-<h3>APP_ATTEMPT_ADDED</h3>
-
-<p>After the <code>APP_ADDED</code> event the application is in <code>inactive</code> mode. It means it won<code>t get any resources scheduled for - only an attempt to run it. One application can have many attempts as it can fail for many reasons.
-```
-rmapp.RMAppImpl (RMAppImpl.java:handle(639)) - application_1405323437551_0001 State change from SUBMITTED to ACCEPTED
-resourcemanager.ApplicationMasterService (ApplicationMasterService.java:registerAppAttempt(611)) - Registering app attempt : appattempt_1405323437551_0001_000001
-attempt.RMAppAttemptImpl (RMAppAttemptImpl.java:handle(659)) - appattempt_1405323437551_0001_000001 State change from NEW to SUBMITTED
-capacity.LeafQueue (LeafQueue.java:activateApplications(763)) - Application application_1405323437551_0001 from user: hdfs activated in queue: default
-capacity.LeafQueue (LeafQueue.java:addApplicationAttempt(779)) - Application added - appId: application_1405323437551_0001 user: org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.LeafQueue$User@46a224a4, leaf-queue: default #user-pending-applications: 0 #user-active-applications: 1 #queue-pending-applications: 0 #queue-active-applications: 1
-capacity.CapacityScheduler (CapacityScheduler.java:addApplicationAttempt(567)) - Added Application Attempt appattempt_1405323437551_0001_000001 to scheduler from user hdfs in queue default
-```
-Attempt states are transferred from one to another. By sending an</code>AppAttemptAddedSchedulerEvent<code>the scheduler actually tries to allocate resources. First, the application goes into the pending applications list of the queue and if the queue limits allows it, it goes into the active applications list. This active application list is the one that the queue uses when trying to allocate resources.
-It works in FIFO order, but I'll elaborate on it in the</code>NODE_UPDATE` part.</p>
-
-<h3>APP_ATTEMPT_REMOVED</h3>
-
-<p>On <code>AppAttemptRemovedSchedulerEvent</code> the scheduler cleans up after the application. Releases all the allocated, acquired, running containers
-(in case of <code>ApplicationMaster</code> restart the running containers won&rsquo;t get killed), releases all reserved containers,
-cleans up pending requests and informs the queues.
-<code>
-rmapp.RMAppImpl (RMAppImpl.java:handle(639)) - application_1405323437551_0001 State change from FINISHING to FINISHED
-capacity.CapacityScheduler (CapacityScheduler.java:doneApplicationAttempt(598)) - Application Attempt appattempt_1405323437551_0001_000001 is done. finalState=FINISHED
-scheduler.AppSchedulingInfo (AppSchedulingInfo.java:clearRequests(108)) - Application application_1405323437551_0001 requests cleared
-capacity.LeafQueue (LeafQueue.java:removeApplicationAttempt(821)) - Application removed - appId: application_1405323437551_0001 user: hdfs queue: default #user-pending-applications: 0 #user-active-applications: 0 #queue-pending-applications: 0 #queue-active-applications: 0
-amlauncher.AMLauncher (AMLauncher.java:run(262)) - Cleaning master appattempt_1405323437551_0001_000001
-</code></p>
-
-<h3>NODE_UPDATE</h3>
-
-<p>Normally <code>NodeUpdateSchedulerEvents</code> arrive every second from every node. By setting the earlier mentioned <code>schedule-asynchronously</code> to true
-the behavior of this event handling can be altered in a way that container allocations happen asynchronously from these events. Meaning
-the CapacityScheduler tries to allocate new containers in every 100ms on a different <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/CapacityScheduler.java#L361">thread</a>.
-Before going into details let&rsquo;s discuss another important aspect.</p>
-
-<h4>Allocate</h4>
-
-<p>The <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/CapacityScheduler.java#L675">allocate</a>
-method is used as a heartbeat. This is the most important call between the <code>ApplicationMaster</code> and the scheduler. Instead of using a simple empty message, the heartbeat can contain resource requests of the application. The reason it is important here is that the scheduler, more precisely the queue &ndash; when tries to allocate resources &ndash; it will check the active applications in FIFO order and see their resource requests.
-<code>
-{Priority: 20, Capability: &lt;memory:1024, vCores:1&gt;, # Containers: 2, Location: *, Relax Locality: true}
-{Priority: 20, Capability: &lt;memory:1024, vCores:1&gt;, # Containers: 2, Location: /default-rack, Relax Locality: true}
-{Priority: 20, Capability: &lt;memory:1024, vCores:1&gt;, # Containers: 2, Location: amb1.mycorp.kom, Relax Locality: true}
-</code>
-Let&rsquo;s examine these requests:</p>
-
-<ul>
-<li>Priority: requests with higher priority gets served first (mappers got 20, reducer 10, AM 0)</li>
-<li>Capability: denotes the required container&rsquo;s size</li>
-<li>Location: where the AM would like to get the containers. There are 3 types of locations: node-local, rack-local, off-switch.
-The location is based on the location of the blocks of the data. It is the <code>ApplicationMaster</code>&rsquo;s duty to locate them. Off-switch means
-that any node in the cluster is good enough. Typically the <code>ApplicationMaster</code>&rsquo;s container request is an off-switch request.</li>
-<li>Relax locality: in case it is set to false, only node-local container can be allocated. By default it is set to true.</li>
-</ul>
-
-
-<h4>NODE_UPDATE</h4>
-
-<p>Let&rsquo;s get back to <code>NODE_UPDATE</code>. What happens at every node update and why it happens so frequently? First of all, nodes are running the containers. Containers start and stop all the time thus the scheduler needs an update about the state of the nodes. Also it updates their resource capabilities as well. After the updates are noted, the scheduler tries to allocate containers on the nodes. The same applies to every node in the cluster. At every <code>NODE_UPDATE</code> the scheduler checks if an application reserved a container on this node. If there is reservation then tries to fulfill it. Every node can have only one reserved container. After the reservation it tries to allocate more containers by going through all the queues starting from <code>root</code>. The node can have one more container if it has at least the minimum allocation&rsquo;s resource capability. Going through the child queues of <code>root</code> it checks the queue&rsquo;s active applications and its resource requests by priority order. If the application has request for this node it tries to allocate it. If the relax locality is set to true it could also allocate container even though there is no explicit request for this node, but that&rsquo;s not what&rsquo;s going to happen first. There is another term called delay scheduling. The scheduler tries to delay any non-data-local
-request, but cannot delay it for so long. The <code>localityWaitFactor</code> will determine how long to wait until fall back to rack-local then the end to off-switch requests. If everything works out it allocates a container and tracks its resource usage. If there is not enough resource capability one application can reserve a container on this node, and at the next update may can use this reservation. After the allocation is made the <code>ApplicationMaster</code> will submit a request to the node to launch this container and assign a task to it to run.
-The scheduler does not need to know what task the AM will run in the container.</p>
-
-<h3>CONTAINER_EXPIRED</h3>
-
-<p>The <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/rmcontainer/ContainerAllocationExpirer.java">ContainerAllocationExpirer&rsquo;s</a>
-responsibility to check if a container expires and when it does it sends an <code>ContainerExpiredSchedulerEvent</code> and the scheduler will notify the application to remove the container. The value of how long to wait until a container is considered dead can be configured.</p>
-
-<h2>Animation</h2>
-
-<p>The animation on top shows a basic event flow starting from adding 2 nodes and submitting 2 applications with attempts. Eventually the node updates tries to allocate resources to those applications. After reading this post I hope it makes sense now.</p>
-
-<h2>What&rsquo;s next?</h2>
-
-<p>In the next part of this series I&rsquo;ll compare it with FairScheduler, to see the differences.</p>
-
-<p>For updates and further blog posts follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-
-<p>Enjoy.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Apache Ambari configuration service]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service/"/>
-    <updated>2014-07-09T08:20:05+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service</id>
-    <content type="html"><![CDATA[<p>At SequenceIQ we use Apache Ambari for provisioning, managing, and monitoring Apache Hadoop clusters on different environments. However Ambari has more useful features than these &ndash; especially for us who automate and frequently build on-demand Hadoop clusters in cloud environments and submit different applications into. These Hadoop clusters carry different components, configurations and services &ndash; think of dev->test->UAT->PROD cluster lifecycles, different settings, SLA&rsquo;s, etc).</p>
-
-<p>Configuration of applications that use dynamically built YARN clusters can be challenging. This is due to the huge amount of configuration properties, some of which needs to be kept in sync on YARN client application side. Think of <em>yarn.resourcemanager.address</em>, <em>fs.defaultFS</em>, <em>yarn.resourcemanager.scheduler.address</em> to name a few. Each time these cluster specific entries change, client applications needs to be reconfigured. Those who ever played with clusters where the default properties are overridden know what this means&hellip;</p>
-
-<p>At SequenceIQ we use Ambari for building on-demand YARN clusters (see the related <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/"> blog post</a>). In our case Ambari not only maintains the configuration of the cluster it manages but also provides access to them through a set of REST resources.</p>
-
-<p>To overcome the configuration maintenance problem in YARN client applications, we implemented an Ambari REST client application that embedded in client applications can dynamically retrieve configuration from an Ambari instance. Thus the only thing needed for an application to have the proper configuration is the access to the Ambari instance.</p>
-
-<p>The Ambari REST client is an open source project we developed and contributed to Apache Ambari &ndash; it&rsquo;s a Groovy REST client used by the <a href="https://github.com/sequenceiq/ambari-shell">Ambari Shell</a> and <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a>.</p>
-
-<!-- more -->
-
-
-<p>Here is a short example on how to make use of the Ambari client in an arbitrary application:</p>
-
-<p>``` java
-public class AmbariConfigurationService {
-&hellip;
-private AmbariClient ambariClient;</p>
-
-<p>public AmbariConfigurationService(){
-  // inject / provide the service with the ambari related properties
-  ambariClient = new AmbariClient(ambariHost, ambariPort, ambariUser, ambariPass);
-}</p>
-
-<p>// list with the properties needed by the application
-private List<String> configList = Arrays.asList(&ldquo;mapreduce.framework.name&rdquo;, &ldquo;yarn.resourcemanager.address&rdquo;, &ldquo;hbase.zookeeper.quorum&rdquo; );</p>
-
-<p>// assembles a Configuration instance with the properties needed by the application
-public Configuration getConfiguration() {</p>
-
-<pre><code>    //  use this constructor to avoid loading of properties from the classpath!
-    Configuration configuration = new Configuration(false);
-
-    // Map with service specific configuration. The keys are service names: eg.: yarn-site, hbase-site, global ...
-    Map&lt;String, Map&lt;String, String&gt;&gt; serviceConfigMap = ambariClient.getServiceConfigMap();
-
-    for (Map.Entry&lt;String, Map&lt;String, String&gt;&gt; serviceEntry : serviceConfigMap.entrySet()) {
-        for (Map.Entry&lt;String, String&gt; configEntry : serviceEntry.getValue().entrySet()) {
-            if (configList.contains(configEntry.getKey())) {
-                configuration.set(configEntry.getKey(), configEntry.getValue());
-            }
-        }
-    }
-
-    // decorate the config with application specific entries, like "dfs.client.use.legacy.blockreader", "mapreduce.job.user.classpath.first"
-    decorateConfiguration(configuration);
-
-    return configuration;
-}
-</code></pre>
-
-<p>}
-<code>
-_Note: Apart from the</code>getServiceConfigMap() ``` method you&rsquo;ll find a few interesting and useful operations_</p>
-
-<p>You can get the Ambari client code from the <a href="https://github.com/sequenceiq/ambari-rest-client">SequenceIQ GitHub repository</a> &ndash; clone it, build it and add it as a dependency to your project.</p>
-
-<p>If you&rsquo;d like to play with a real multi-node Ambari managed cluster check out <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">this</a> older blog post &ndash; this will set you up with a Hadoop cluster in less than 2 minutes / one-click.</p>
-
-<p>Let us know how it works for you &ndash; for updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   

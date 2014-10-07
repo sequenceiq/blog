@@ -130,6 +130,88 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/05/01/mapreduce-job-profiling-with-R/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">01 May 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/ambari/"><span class="label label-warning">Ambari</span></a>
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+            <a href="/blog/categories/profiling/"><span class="label label-warning">Profiling</span></a>
+            
+            <a href="/blog/categories/r/"><span class="label label-warning">R</span></a>
+            
+            <a href="/blog/categories/yarn/"><span class="label label-warning">YARN</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/05/01/mapreduce-job-profiling-with-R/">Job profiling with R</a>
+          <span class="badge name-badge">Janos Matyas</span>
+
+      </h1>
+      <p>Management of a large Hadoop cluster is not an easy task &ndash; however thanks to projects like <a href="http://ambari.apache.org/">Apache Ambari</a> these tasks are getting easier. Ambari provides an intuitive, easy-to-use Hadoop management web UI backed by its REST API to provision, manage and monitor a Hadoop cluster. While Ambari helps us a lot to monitor a cluster (leverages <a href="http://ganglia.sourceforge.net/">Ganglia</a> and <a href="http://www.nagios.org/">Nagios</a>), many times we have to profile our MapReduce jobs as well.</p>
+
+<p>At SequenceIQ in order to profile MapReduce jobs, understand (job)internal statistics and create usefull graphs many times we rely on <a href="http://www.r-project.org/">R</a>. The metrics are collected from Ambari and the <a href="http://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-site/HistoryServerRest.html">YARN History Server</a>.</p>
+
+<p>In this blog post we would like to explain and guide you through a simple process of collecting MapReduce job metrics, calculate different statistics and generate easy to understand charts.</p>
+
+<p>The MapReduce application is the following:</p>
+
+<ul>
+<li>The input set of data is 12 pieces of 1 GB size files. Each file containes the same line of 16 bytes (012345678998765 plus the new line character)</li>
+<li>The number of mappers running is 48, because the block size on HDFS is 256 MB and there are 12 files.</li>
+<li>We use TextInputFormat (line num, line content) pairs. The output of the mapper function is the same as the input <code>IdentityMapper</code></li>
+<li>The number of reducers is 20.</li>
+<li>For simplicity we use <code>IdentityReducer</code> as the reducer function.</li>
+<li>We use a special partitioner called <code>LinePartitoner</code>. The partitioning is based on line numbers (the key) and it makes sure that each reducer gets the same amount of data (line number <em>modulo</em> reducer number).</li>
+</ul>
+
+
+<h2>How to get the job results with R</h2>
+
+<p>The job id that we are analysing with R is job_1395530889914_0005 (<em>replace this with your job is</em>)</p>
+
+<p>First we load the R functions:</p>
+
+<p><code>source("JobHistory.r")</code></p>
+
+<p>Then we extract/read the job from the HistoryServer. It is actually using the Rest API of HistoryServer, parsing the JSON output.</p>
+
+<p><code>job&lt;-getJob("job_1395530889914_0005","node02:19888")</code></p>
+
+<p>The structure of the job follows the structure that is returned from the HistoryServer except that for example the parameters of all the tasks are converted into vectors so that can be easily handled in R.</p>
+
+
+      
+       <a href="/blog/2014/05/01/mapreduce-job-profiling-with-R/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/04/17/apache-phoenix-sneak-peak/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -917,102 +999,6 @@ It is a simple tsv file &ndash; we are going to use the same column names as it 
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/03/05/access-hdp2-sandbox/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">05 March 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/hdp2/"><span class="label label-warning">HDP2</span></a>
-            
-            <a href="/blog/categories/hortonworks-sandbox/"><span class="label label-warning">Hortonworks sandbox</span></a>
-            
-            <a href="/blog/categories/socks-proxy/"><span class="label label-warning">SOCKS proxy</span></a>
-            
-            <a href="/blog/categories/ssl/"><span class="label label-warning">SSL</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/03/05/access-hdp2-sandbox/">Accessing HDP2 sandbox from the host</a>
-          <span class="badge name-badge">Laszlo Puskas</span>
-
-      </h1>
-      <p>During development of a Hadoop project people have many options of where and how to run Hadoop. We at SequenceIQ use different environments as well (cloud based, VM or host) &ndash; and different versions/vendor distributions. A very popular distribution among developers is the Hortonworks Sandbox &ndash; which contains the latest releases across Hadoop (2.2.0) and the key related projects into a single integrated and tested platform.
-While using the sandbox gets you going running a single node Hadoop (pseudo distributed) in less than 5 minutes, many developers find inconvenient to &lsquo;live&rsquo; and work inside the VM when deploying, debugging or submitting jobs into a Hadoop cluster.</p>
-
-<p>There is a well documented VM host file configuration on the <a href="http://docs.hortonworks.com/">Hortonworks site</a> describing how to start interacting with the VM sandbox from outside (e.g host machine), but quite soon this will turn into a port-forwarding saga (those who know how many ports does Hadoop and the ecosystem use will know what we mean). An easier and more elegant way is to use a SOCKS5 proxy (which comes with SSL by default).
-Check this short goal/problem/resolution and code example snippet if you&rsquo;d like to interact with the Hortonworks Sandbox from your host (outside the VM).</p>
-
-<h2>Goal</h2>
-
-<ul>
-<li>accessing the pseudo distributed hadoop cluster from the  host</li>
-<li>reading / writing to the  HDFS</li>
-<li>submitting  M/R jobs to the RM</li>
-</ul>
-
-
-<h2>Problem(s)</h2>
-
-<ul>
-<li>it&rsquo;s hard to reach resources inside the sandbox (e.g. interact with HDFS, or the DataNode)</li>
-<li>lots of ports need to be portforwarded</li>
-<li>entries to be added to the hosts file of the  host machine</li>
-<li>circumstantial configuration of clients  accessing the sandbox</li>
-</ul>
-
-
-<h2>Resolution</h2>
-
-<ul>
-<li>use an SSL socks proxy</li>
-</ul>
-
-
-<h2>Example</h2>
-
-<ul>
-<li>check the following sample from our <em><a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/hdp-sandbox-access">GitHub page</a></em></li>
-</ul>
-
-
-<p>Start the SOCKS proxy</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>ssh root@127.0.0.1 -p 2222 -D 1099
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-
-      
-       <a href="/blog/2014/03/05/access-hdp2-sandbox/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -1034,6 +1020,10 @@ Check this short goal/problem/resolution and code example snippet if you&rsquo;d
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/10/07/hadoop-monitoring/">Real-time monitoring of Hadoop clusters</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/09/30/hortonworks-partnership/">SequenceIQ Joins Hortonworks Technology Partner Program</a>

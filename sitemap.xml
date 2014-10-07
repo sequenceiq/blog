@@ -204,7 +204,7 @@
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/09/24/edit-files-docker/</loc>
-        <lastmod>2014-10-07T11:53:51+00:00</lastmod>
+        <lastmod>2014-10-07T11:54:38+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/09/25/euroventures-invests-in-sequenceiq/</loc>
@@ -227,8 +227,12 @@
         <lastmod>2014-10-05T07:32:05+00:00</lastmod>
     </url>
     <url>
+        <loc>http://blog.sequenceiq.com/blog/2014/10/07/hadoop-monitoring/</loc>
+        <lastmod>2014-10-07T11:54:38+00:00</lastmod>
+    </url>
+    <url>
         <loc>http://blog.sequenceiq.com/</loc>
-        <lastmod>2014-10-07T11:53:51+00:00</lastmod>
+        <lastmod>2014-10-07T11:54:38+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/categories/</loc>
@@ -236,7 +240,7 @@
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/archives/</loc>
-        <lastmod>2014-10-07T11:53:51+00:00</lastmod>
+        <lastmod>2014-10-07T11:54:38+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/404.html</loc>
@@ -248,6 +252,6 @@
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/archives/</loc>
-        <lastmod>2014-10-07T11:53:51+00:00</lastmod>
+        <lastmod>2014-10-07T11:54:38+00:00</lastmod>
     </url>
 </urlset>
