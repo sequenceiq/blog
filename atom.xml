@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-10-07T11:54:43+00:00</updated>
+  <updated>2014-10-09T12:30:27+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,178 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Self hosted ngrok server in Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/10/09/ngrok-docker/"/>
+    <updated>2014-10-09T08:00:00+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/10/09/ngrok-docker</id>
+    <content type="html"><![CDATA[<p><a href="vhttps://ngrok.com/">Ngrok</a> is used for <code>introspected</code> tunnels to localhost.
+In integration testing situations is really common that you want to bind some webhooks
+to localhost. For example you want AWS SNS deliver messages to your service,
+but is not reachable publicly, as it runs only on localhost.</p>
+
+<p>So its really 2 in 1: <strong>local tunnel</strong> and <strong>introspection</strong>. Sometimes you
+just want to use its <strong>introspection</strong> feature, to get insight about how a
+specific API works. It&rsquo;s like a local <a href="https://www.runscope.com/">runscope</a>.</p>
+
+<p>While you can always use the free hosted version: <a href="https://ngrok.com/">ngrok</a>,
+there are reasons to roll you own:</p>
+
+<ul>
+<li>Sometimes the free hosted version has <strong>availability</strong> issues,when it gets heavy traffic</li>
+<li>Yo don&rsquo;t want your messages/calls go through a public free service, for
+<strong>security</strong> concerns</li>
+<li>You just want to use its <strong>introspection</strong> feature, and want to avoid the
+extra <strong>network</strong> round trip to ngrok.com and back.</li>
+</ul>
+
+
+<p>There is documentation about <a href="https://github.com/inconshreveable/ngrok/blob/master/docs/SELFHOSTING.md">self hosting ngrok</a>
+But it include steps, like:</p>
+
+<ul>
+<li>create an SSL certificate</li>
+<li>build server/client binaries using the cert above</li>
+<li>configure, and install it on your server</li>
+</ul>
+
+
+<p>How about using a <strong>single click</strong> version of this? Easy: we have already containerized
+this process and made it available in the official Docker
+<a href="https://registry.hub.docker.com/u/sequenceiq/ngrokd/">repository</a>.</p>
+
+<!-- more -->
+
+
+<h2>Running</h2>
+
+<p>To launch the ngrok daemon, you just have to start the <code>sequenceiq/ngrokd</code> Docker image:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -d --name ngrokd \
+</span><span class='line'>  -p 4480:4480 \
+</span><span class='line'>  -p 4444:4444 \
+</span><span class='line'>  -p 4443:4443 \
+</span><span class='line'>  sequenceiq/ngrokd \
+</span><span class='line'>    -httpAddr=:4480 \
+</span><span class='line'>    -httpsAddr=:4444 \
+</span><span class='line'>    -domain=ngrok.mydomain.com</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It will expose 3 ports:</p>
+
+<ul>
+<li><strong>4444</strong>: that is the so called control port, ngrok clients connect there</li>
+<li><strong>4480/4443</strong>: this to port is used for the tunneled http/https connections</li>
+<li><strong>domain</strong>: this is the domain name, clients need to use to connect to the
+server, and the ngrok server will assign <code>&lt;SUBDOMAIN&gt;.ngrok.mydomain.com</code>
+addresses to each tunnel.</li>
+</ul>
+
+
+<h2>Install the custom <code>ngrok</code> client</h2>
+
+<p>You remember we have a custom ngrok daemon inside the Docker image. Based on the
+<a href="https://gist.github.com/lyoshenka/002b7fbd801d0fd21f2f">self hosting documentation</a></p>
+
+<blockquote><p>Since the client and server executables are paired, you won&rsquo;t be able to use
+  any other ngrok to connect to this ngrokd, and vice versa.</p></blockquote>
+
+<p>So we need the <em>paired</em> ngrok client</p>
+
+<h3>OSX</h3>
+
+<p>If you use brew:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>brew cask install https://raw.githubusercontent.com/sequenceiq/docker-ngrokd/master/ngrok.rb</span></code></pre></td></tr></table></div></figure>
+
+
+<p>otherwise:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -o /usr/local/bin/ngrok https://s3-eu-west-1.amazonaws.com/sequenceiq/ngrok_darwin
+</span><span class='line'>chmod +x /usr/local/bin/ngrok</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Linux</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -o /usr/local/bin/ngrok https://s3-eu-west-1.amazonaws.com/sequenceiq/ngrok_linux
+</span><span class='line'>chmod +x /usr/local/bin/ngrok</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Please make sure you check the ngrok version:</p>
+
+<p>You should see the <code>1.7.2</code> on client side:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&gt; ngrok version
+</span><span class='line'>
+</span><span class='line'>1.7.2</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Client configuration</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cat &gt; ~/.ngrok &lt;&lt;EOF
+</span><span class='line'>server_addr: ngrok.mydomain.com:4443
+</span><span class='line'>trust_host_root_certs: false
+</span><span class='line'>EOF</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Hostname workaround</h2>
+
+<p>If you want to run ngrokd internally just use a new entry
+in <code>/etc/hosts</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;NGROKD_IP&gt; ngrok.mydomain.com subdomain1.mydomain.com subdomain2.mydomain.com</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you want a proper subdomain you need an <code>A record</code> such as:
+<code>*.ngrok.mydomain.com 54.72.21.93</code></p>
+
+<h2>Usage</h2>
+
+<p>Starting ngrok is business as usual, just use <code>ngrok &lt;port&gt;</code>.
+Pretty much that’s it, you have a self-hosted ngrok server in Docker.
+Then you can introspect the tunnel on <a href="http://127.0.0.0:4444">http://127.0.0.0:4444</a></p>
+
+<h2>Sample use case</h2>
+
+<p>To fully understand how Docker works, sometimes it&rsquo;s useful to see how the
+Docker client communicates with the Docker server. You can just use ngrok
+to introspect the Docker API.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ngrok -subdomain=docker 127.0.0.1:2375</span></code></pre></td></tr></table></div></figure>
+
+
+<p>then if you want to record API calls you have to configure</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>alias docker='docker --host=tcp://docker.ngrok.mydomain.com:4480'</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Real-time monitoring of Hadoop clusters]]></title>
@@ -124,7 +296,7 @@ In the benchmark, the jobs were submitted to the <code>default</code> queue and 
 <p>SequenceIQ is an innovative big data startup with the mission statement to simplify and automate provisioning of on-demand Hadoop clusters running on different environments. Leaders in “containerizing” Hadoop, SequenceIQ is the first company who provisions and runs the full Hadoop stack and components on Docker containers. The company has further plans to create the industry’s first cloud agnostic, autoscaling and use case driven Platform as a Service API, and break the common significant barriers of entry that exist with most big data projects through a series of As-a-Service API offerings.
 For more information follow up with us on @SequenceIQ and <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>.</p>
 
-<p><a href="&#109;&#x61;&#105;&#x6c;&#x74;&#111;&#58;&#x69;&#x6e;&#102;&#x6f;&#x40;&#x73;&#101;&#113;&#x75;&#x65;&#x6e;&#99;&#101;&#105;&#x71;&#x2e;&#x63;&#111;&#x6d;">&#105;&#110;&#x66;&#111;&#x40;&#115;&#101;&#113;&#x75;&#x65;&#110;&#99;&#101;&#105;&#113;&#x2e;&#x63;&#111;&#109;</a></p>
+<p><a href="&#109;&#x61;&#105;&#x6c;&#x74;&#x6f;&#58;&#x69;&#x6e;&#x66;&#x6f;&#x40;&#x73;&#x65;&#113;&#117;&#x65;&#x6e;&#99;&#101;&#x69;&#x71;&#46;&#99;&#x6f;&#109;">&#105;&#x6e;&#x66;&#111;&#x40;&#x73;&#x65;&#x71;&#117;&#101;&#x6e;&#99;&#x65;&#105;&#x71;&#x2e;&#x63;&#x6f;&#109;</a></p>
 ]]></content>
   </entry>
   
@@ -2640,208 +2812,6 @@ At SequenceIQ we are 100% committed to open source &ndash; and releasing Perisco
 <p>Stay tuned and make sure you follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 
 <p>Enjoy.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Submit a Spark job to YARN from code]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/08/22/spark-submit-in-java/"/>
-    <updated>2014-08-22T08:09:28+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/08/22/spark-submit-in-java</id>
-    <content type="html"><![CDATA[<p>In our previous Apache Spark related post we showed you how to write a simple machine learning job. In this post we’d like to show you how to submit a Spark job from code. At SequenceIQ we submit jobs to different clusters &ndash; based on load, customer profile, associated SLAs, etc. Doing this the <code>documented</code> way was cumbersome so we needed a way to submit Spark jobs (and in general all of our jobs running in a YARN cluster) from code. Also due to the <code>dynamic</code> clusters, and changing job configurations we can’t use hardcoded parameters &ndash; in a previous <a href="http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service/">blog post</a> we highlighted how are we doing all these.</p>
-
-<h2>Business as usual</h2>
-
-<p>Basically as you from the <a href="https://spark.apache.org/docs/1.0.1/submitting-applications.html">Spark documentation</a>, you have to use the <a href="https://github.com/apache/spark/blob/master/bin/spark-submit">spark-submit</a> script to submit a job. In nutshell SparkSubmit is called
-by the <a href="https://github.com/apache/spark/blob/master/bin/spark-class">spark-class</a> script with a lots of decorated arguments. In our example we examine only the YARN part of the submissions.
-As you can see in <a href="https://github.com/apache/spark/blob/master/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala">SparkSubmit.scala</a> the YARN <a href="https://github.com/apache/spark/blob/master/yarn/stable/src/main/scala/org/apache/spark/deploy/yarn/Client.scala">Client</a> is loaded and its main method invoked (based on the arguments of the script).</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="c1">// If we&#39;re deploying into YARN, use yarn.Client as a wrapper around the user class</span>
-</span><span class='line'><span class="k">if</span> <span class="o">(!</span><span class="n">deployOnCluster</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">childMainClass</span> <span class="k">=</span> <span class="n">args</span><span class="o">.</span><span class="n">mainClass</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">isUserJar</span><span class="o">(</span><span class="n">args</span><span class="o">.</span><span class="n">primaryResource</span><span class="o">))</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">childClasspath</span> <span class="o">+=</span> <span class="n">args</span><span class="o">.</span><span class="n">primaryResource</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">clusterManager</span> <span class="o">==</span> <span class="nc">YARN</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">childMainClass</span> <span class="k">=</span> <span class="s">&quot;org.apache.spark.deploy.yarn.Client&quot;</span>
-</span><span class='line'>  <span class="n">childArgs</span> <span class="o">+=</span> <span class="o">(</span><span class="s">&quot;--jar&quot;</span><span class="o">,</span> <span class="n">args</span><span class="o">.</span><span class="n">primaryResource</span><span class="o">)</span>
-</span><span class='line'>  <span class="n">childArgs</span> <span class="o">+=</span> <span class="o">(</span><span class="s">&quot;--class&quot;</span><span class="o">,</span> <span class="n">args</span><span class="o">.</span><span class="n">mainClass</span><span class="o">)</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">...</span>
-</span><span class='line'><span class="c1">// Here we invoke the main method of the Client</span>
-</span><span class='line'><span class="k">val</span> <span class="n">mainClass</span> <span class="k">=</span> <span class="nc">Class</span><span class="o">.</span><span class="n">forName</span><span class="o">(</span><span class="n">childMainClass</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="n">loader</span><span class="o">)</span>
-</span><span class='line'><span class="k">val</span> <span class="n">mainMethod</span> <span class="k">=</span> <span class="n">mainClass</span><span class="o">.</span><span class="n">getMethod</span><span class="o">(</span><span class="s">&quot;main&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="nc">Array</span><span class="o">[</span><span class="kt">String</span><span class="o">](</span><span class="mi">0</span><span class="o">).</span><span class="n">getClass</span><span class="o">)</span>
-</span><span class='line'><span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">mainMethod</span><span class="o">.</span><span class="n">invoke</span><span class="o">(</span><span class="kc">null</span><span class="o">,</span> <span class="n">childArgs</span><span class="o">.</span><span class="n">toArray</span><span class="o">)</span>
-</span><span class='line'><span class="o">}</span> <span class="k">catch</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">case</span> <span class="n">e</span><span class="k">:</span> <span class="kt">InvocationTargetException</span> <span class="o">=&gt;</span> <span class="n">e</span><span class="o">.</span><span class="n">getCause</span> <span class="k">match</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">case</span> <span class="n">cause</span><span class="k">:</span> <span class="kt">Throwable</span> <span class="o">=&gt;</span> <span class="k">throw</span> <span class="n">cause</span>
-</span><span class='line'>    <span class="k">case</span> <span class="kc">null</span> <span class="k">=&gt;</span> <span class="k">throw</span> <span class="n">e</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>It’s a pretty straightforward way to submit a Spark job to a YARN cluster, though you will need to change manually the parameters which as passed as arguments.</p>
-
-<!--more-->
-
-
-<h2>Submitting the job from Java code</h2>
-
-<p>In case if you would like to submit a job to YARN from Java code, you can just simply use this Client class directly in your application.
-(but you have to make sure that every environment variable what you will need is set properly).</p>
-
-<h3>Passing Configuration object</h3>
-
-<p>In the main method the org.apache.hadoop.conf.Configuration object is not passed to the Client class. A <code>Configuration</code> is created explicitly in the constructor, which is actually okay (then client configurations are loaded from $HADOOP_CONF_DIR/core-site.xml and $HADOOP_CONF_DIR/yarn-site.xml).
-But what if you want to use (for example) an <a href="http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service/">Ambari Configuration Service</a> for retrieve your configuration, instead of using hardcoded ones?</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="o">...</span> <span class="c1">// Client class - constructor</span>
-</span><span class='line'>  <span class="k">def</span> <span class="k">this</span><span class="o">(</span><span class="n">clientArgs</span><span class="k">:</span> <span class="kt">ClientArguments</span><span class="o">,</span> <span class="n">spConf</span><span class="k">:</span> <span class="kt">SparkConf</span><span class="o">)</span> <span class="k">=</span>
-</span><span class='line'>    <span class="k">this</span><span class="o">(</span><span class="n">clientArgs</span><span class="o">,</span> <span class="k">new</span> <span class="nc">Configuration</span><span class="o">(),</span> <span class="n">spConf</span><span class="o">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">...</span> <span class="c1">// Client object - main method</span>
-</span><span class='line'><span class="nc">System</span><span class="o">.</span><span class="n">setProperty</span><span class="o">(</span><span class="s">&quot;SPARK_YARN_MODE&quot;</span><span class="o">,</span> <span class="s">&quot;true&quot;</span><span class="o">)</span>
-</span><span class='line'><span class="k">val</span> <span class="n">sparkConf</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">SparkConf</span><span class="o">()</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">val</span> <span class="n">args</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">ClientArguments</span><span class="o">(</span><span class="n">argStrings</span><span class="o">,</span> <span class="n">sparkConf</span><span class="o">)</span>
-</span><span class='line'>  <span class="k">new</span> <span class="nc">Client</span><span class="o">(</span><span class="n">args</span><span class="o">,</span> <span class="n">sparkConf</span><span class="o">).</span><span class="n">run</span><span class="o">()</span>
-</span><span class='line'><span class="o">}</span> <span class="k">catch</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">case</span> <span class="n">e</span><span class="k">:</span> <span class="kt">Exception</span> <span class="o">=&gt;</span> <span class="o">{</span>
-</span><span class='line'>    <span class="nc">Console</span><span class="o">.</span><span class="n">err</span><span class="o">.</span><span class="n">println</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="n">getMessage</span><span class="o">)</span>
-</span><span class='line'>    <span class="nc">System</span><span class="o">.</span><span class="n">exit</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="nc">System</span><span class="o">.</span><span class="n">exit</span><span class="o">(</span><span class="mi">0</span><span class="o">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Fortunately, the configuration can be passed here (there is a <code>Configuration</code> field in the Client), but you have to write your own main method.</p>
-
-<h3>Code example</h3>
-
-<p>In our example we also use the 2 client XMLs as configuration (for demonstration purposes only), the main difference here is that we read the properties from the XMLs and filling them in the Configuration. Then we pass the Configuration object to the Client (which is directly invoked here).</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'> <span class="k">def</span> <span class="n">main</span><span class="o">(</span><span class="n">args</span><span class="k">:</span> <span class="kt">Array</span><span class="o">[</span><span class="kt">String</span><span class="o">])</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">val</span> <span class="n">config</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Configuration</span><span class="o">()</span>
-</span><span class='line'>    <span class="n">fillProperties</span><span class="o">(</span><span class="n">config</span><span class="o">,</span> <span class="n">getPropXmlAsMap</span><span class="o">(</span><span class="s">&quot;config/core-site.xml&quot;</span><span class="o">))</span>
-</span><span class='line'>    <span class="n">fillProperties</span><span class="o">(</span><span class="n">config</span><span class="o">,</span> <span class="n">getPropXmlAsMap</span><span class="o">(</span><span class="s">&quot;config/yarn-site.xml&quot;</span><span class="o">))</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nc">System</span><span class="o">.</span><span class="n">setProperty</span><span class="o">(</span><span class="s">&quot;SPARK_YARN_MODE&quot;</span><span class="o">,</span> <span class="s">&quot;true&quot;</span><span class="o">)</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">val</span> <span class="n">sparkConf</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">SparkConf</span><span class="o">()</span>
-</span><span class='line'>    <span class="k">val</span> <span class="n">cArgs</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">ClientArguments</span><span class="o">(</span><span class="n">args</span><span class="o">,</span> <span class="n">sparkConf</span><span class="o">)</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">new</span> <span class="nc">Client</span><span class="o">(</span><span class="n">cArgs</span><span class="o">,</span> <span class="n">config</span><span class="o">,</span> <span class="n">sparkConf</span><span class="o">).</span><span class="n">run</span><span class="o">()</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>To build the project use this command from the spark-submit directory:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>./gradlew clean build
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>After building it you find the required jars in spark-submit-runner/build/libs (<code>uberjar</code> with all required dependencies) and spark-submit-app/build/libs. Put them in the same directory (do this also with this <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/spark-submit/spark-submit-runner/src/main/resources">config folder</a> too). After that run this command:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>java -cp spark-submit-runner-1.0.jar com.sequenceuq.spark.SparkRunner <span class="se">\</span>
-</span><span class='line'>  --jar spark-submit-app-1.0.jar <span class="se">\</span>
-</span><span class='line'>  --class com.sequenceiq.spark.Main <span class="se">\</span>
-</span><span class='line'>  --driver-memory 1g <span class="se">\</span>
-</span><span class='line'>  --executor-memory 1g <span class="se">\</span>
-</span><span class='line'>  --executor-cores 1 <span class="se">\</span>
-</span><span class='line'>  --arg hdfs://sandbox:9000/input/sample.txt <span class="se">\</span>
-</span><span class='line'>  --arg /output <span class="se">\</span>
-</span><span class='line'>  --arg 10 <span class="se">\</span>
-</span><span class='line'>  --arg 10
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>During the submission note that: not just the app jar, but the spark-submit-runner jar is also uploaded (which is an <code>uberjar</code>) to the HDFS. To avoid this, you have to upload it to the HDFS manually and set the <strong>SPARK_JAR</strong> environment variable.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nb">export </span><span class="nv">SPARK_JAR</span><span class="o">=</span><span class="s2">&quot;hdfs:///spark/spark-submit-runner-1.0.jar&quot;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If you get &ldquo;Permission denied&rdquo; exception on submit, you should set the <strong>HADOOP_USER_NAME</strong> environment variable to root (or something with proper rights).</p>
-
-<p>As usual for us we ship the code &ndash; you can get it from our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/spark-submit">GitHub</a> samples repository; the sample input is available <a href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/spark-clustering/data/input.txt">here</a>.</p>
-
-<p>If you would like to play with Spark, you can use our <a href="https://registry.hub.docker.com/u/sequenceiq/spark/">Spark Docker container</a> available as a trusted build on Docker.io repository.</p>
-
-<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   

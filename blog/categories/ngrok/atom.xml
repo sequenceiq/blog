@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: ngrok | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com/blog/categories/ngrok/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-10-09T12:30:27+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
+  <author>
+    <name><![CDATA[SequenceIQ]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Self hosted ngrok server in Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/10/09/ngrok-docker/"/>
+    <updated>2014-10-09T08:00:00+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/10/09/ngrok-docker</id>
+    <content type="html"><![CDATA[<p><a href="vhttps://ngrok.com/">Ngrok</a> is used for <code>introspected</code> tunnels to localhost.
+In integration testing situations is really common that you want to bind some webhooks
+to localhost. For example you want AWS SNS deliver messages to your service,
+but is not reachable publicly, as it runs only on localhost.</p>
+
+<p>So its really 2 in 1: <strong>local tunnel</strong> and <strong>introspection</strong>. Sometimes you
+just want to use its <strong>introspection</strong> feature, to get insight about how a
+specific API works. It&rsquo;s like a local <a href="https://www.runscope.com/">runscope</a>.</p>
+
+<p>While you can always use the free hosted version: <a href="https://ngrok.com/">ngrok</a>,
+there are reasons to roll you own:</p>
+
+<ul>
+<li>Sometimes the free hosted version has <strong>availability</strong> issues,when it gets heavy traffic</li>
+<li>Yo don&rsquo;t want your messages/calls go through a public free service, for
+<strong>security</strong> concerns</li>
+<li>You just want to use its <strong>introspection</strong> feature, and want to avoid the
+extra <strong>network</strong> round trip to ngrok.com and back.</li>
+</ul>
+
+
+<p>There is documentation about <a href="https://github.com/inconshreveable/ngrok/blob/master/docs/SELFHOSTING.md">self hosting ngrok</a>
+But it include steps, like:</p>
+
+<ul>
+<li>create an SSL certificate</li>
+<li>build server/client binaries using the cert above</li>
+<li>configure, and install it on your server</li>
+</ul>
+
+
+<p>How about using a <strong>single click</strong> version of this? Easy: we have already containerized
+this process and made it available in the official Docker
+<a href="https://registry.hub.docker.com/u/sequenceiq/ngrokd/">repository</a>.</p>
+
+<!-- more -->
+
+
+<h2>Running</h2>
+
+<p>To launch the ngrok daemon, you just have to start the <code>sequenceiq/ngrokd</code> Docker image:</p>
+
+<p>```
+docker run -d &mdash;name ngrokd \
+  -p 4480:4480 \
+  -p 4444:4444 \
+  -p 4443:4443 \
+  sequenceiq/ngrokd \</p>
+
+<pre><code>-httpAddr=:4480 \
+-httpsAddr=:4444 \
+-domain=ngrok.mydomain.com
+</code></pre>
+
+<p>```</p>
+
+<p>It will expose 3 ports:</p>
+
+<ul>
+<li><strong>4444</strong>: that is the so called control port, ngrok clients connect there</li>
+<li><strong>4480/4443</strong>: this to port is used for the tunneled http/https connections</li>
+<li><strong>domain</strong>: this is the domain name, clients need to use to connect to the
+server, and the ngrok server will assign <code>&lt;SUBDOMAIN&gt;.ngrok.mydomain.com</code>
+addresses to each tunnel.</li>
+</ul>
+
+
+<h2>Install the custom <code>ngrok</code> client</h2>
+
+<p>You remember we have a custom ngrok daemon inside the Docker image. Based on the
+<a href="https://gist.github.com/lyoshenka/002b7fbd801d0fd21f2f">self hosting documentation</a></p>
+
+<blockquote><p>Since the client and server executables are paired, you won&rsquo;t be able to use
+  any other ngrok to connect to this ngrokd, and vice versa.</p></blockquote>
+
+<p>So we need the <em>paired</em> ngrok client</p>
+
+<h3>OSX</h3>
+
+<p>If you use brew:
+<code>
+brew cask install https://raw.githubusercontent.com/sequenceiq/docker-ngrokd/master/ngrok.rb
+</code></p>
+
+<p>otherwise:
+<code>
+curl -o /usr/local/bin/ngrok https://s3-eu-west-1.amazonaws.com/sequenceiq/ngrok_darwin
+chmod +x /usr/local/bin/ngrok
+</code></p>
+
+<h3>Linux</h3>
+
+<p><code>
+curl -o /usr/local/bin/ngrok https://s3-eu-west-1.amazonaws.com/sequenceiq/ngrok_linux
+chmod +x /usr/local/bin/ngrok
+</code>
+Please make sure you check the ngrok version:</p>
+
+<p>You should see the <code>1.7.2</code> on client side:
+```</p>
+
+<blockquote><p>ngrok version</p></blockquote>
+
+<p>1.7.2
+```</p>
+
+<h2>Client configuration</h2>
+
+<p><code>
+cat &gt; ~/.ngrok &lt;&lt;EOF
+server_addr: ngrok.mydomain.com:4443
+trust_host_root_certs: false
+EOF
+</code></p>
+
+<h2>Hostname workaround</h2>
+
+<p>If you want to run ngrokd internally just use a new entry
+in <code>/etc/hosts</code></p>
+
+<p><code>
+&lt;NGROKD_IP&gt; ngrok.mydomain.com subdomain1.mydomain.com subdomain2.mydomain.com
+</code></p>
+
+<p>If you want a proper subdomain you need an <code>A record</code> such as:
+<code>*.ngrok.mydomain.com 54.72.21.93</code></p>
+
+<h2>Usage</h2>
+
+<p>Starting ngrok is business as usual, just use <code>ngrok &lt;port&gt;</code>.
+Pretty much that’s it, you have a self-hosted ngrok server in Docker.
+Then you can introspect the tunnel on <a href="http://127.0.0.0:4444">http://127.0.0.0:4444</a></p>
+
+<h2>Sample use case</h2>
+
+<p>To fully understand how Docker works, sometimes it&rsquo;s useful to see how the
+Docker client communicates with the Docker server. You can just use ngrok
+to introspect the Docker API.</p>
+
+<p><code>
+ngrok -subdomain=docker 127.0.0.1:2375
+</code></p>
+
+<p>then if you want to record API calls you have to configure</p>
+
+<p><code>
+alias docker='docker --host=tcp://docker.ngrok.mydomain.com:4480'
+</code></p>
+
+<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
+  
+</feed>
