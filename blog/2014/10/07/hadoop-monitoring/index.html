@@ -190,7 +190,7 @@
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">EXPOSED_LOG_DIR</span><span class="o">=</span><span class="k">$(</span>docker inspect --format<span class="o">=</span><span class="s1">&#39;{{index .Volumes &quot;/var/log&quot;}}&#39;</span> ambari-singlenode<span class="k">)</span>
-</span><span class='line'>docker run -i -t -v <span class="nv">$EXPOSED_LOG_DIR</span>:/amb/log  sequenceiq/docker-elk-client /etc/bootstrap.sh -bash
+</span><span class='line'>docker run -i -t -v <span class="nv">$EXPOSED_LOG_DIR</span>:/amb/log  sequenceiq/baywatch-client /etc/bootstrap.sh -bash
 </span></code></pre></td></tr></table></div></figure>
 
 

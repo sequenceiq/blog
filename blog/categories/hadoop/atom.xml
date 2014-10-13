@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-10-09T12:30:27+00:00</updated>
+  <updated>2014-10-13T15:19:58+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -63,7 +63,7 @@
 <p>
 <code>bash
 EXPOSED_LOG_DIR=$(docker inspect --format='{{index .Volumes "/var/log"}}' ambari-singlenode)
-docker run -i -t -v $EXPOSED_LOG_DIR:/amb/log  sequenceiq/docker-elk-client /etc/bootstrap.sh -bash
+docker run -i -t -v $EXPOSED_LOG_DIR:/amb/log  sequenceiq/baywatch-client /etc/bootstrap.sh -bash
 </code>
 </p>
 
