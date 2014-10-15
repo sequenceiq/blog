@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Baywatch | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/baywatch/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-10-15T14:08:57+00:00</updated>
+  <updated>2014-10-15T14:20:03+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -157,7 +157,7 @@ just like we did with Baywatch. To which to use depends on you&rsquo;re needs.</
 
 <h2>Summary and resources</h2>
 
-<p>As you see using <strong>Baywatch</strong> and <strong>Periscope</strong> yu can monitor and scale your cluster based on the configurted policies &ndash; all available open sources in our <a href="https://github.com/sequenceiq">GitHub</a> page.</p>
+<p>As you see using <strong>Baywatch</strong> and <strong>Periscope</strong> you can monitor and scale your cluster based on the configured policies &ndash; all available open sources in our <a href="https://github.com/sequenceiq">GitHub</a> page.</p>
 
 <ul>
 <li><a href="http://sequenceiq.com/periscope/">Periscope</a></li>
