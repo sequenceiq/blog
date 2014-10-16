@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Cloudbreak | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/cloudbreak/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-10-15T14:20:03+00:00</updated>
+  <updated>2014-10-16T14:59:00+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,144 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Securing Cloudbreak with OAuth2]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/10/16/using-uaa-as-an-identity-server/"/>
+    <updated>2014-10-16T14:23:59+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/10/16/using-uaa-as-an-identity-server</id>
+    <content type="html"><![CDATA[<p>When we first released <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> &ndash; our Hadoop as a Service API &ndash; it contained its own authentication and user management layer.
+We were using basic authentication for the API calls so every request had to contain a username and a password <em>Base64</em> encoded in the authorization header.
+Cloudbreak also had its own user representation and we were binding the resources &ndash; like clusters &ndash; to these users.</p>
+
+<p>This approach had multiple flaws. As we were starting to develop multiple <a href="http://sequenceiq.com/periscope/">projects</a> for our future Platform as a Service solution it became obvious that we will have to refactor our whole user management layer out from Cloudbreak and <strong>share it across our projects</strong>.
+Base64 encoding of usernames and passwords is not the best solution either even if transport layer security is working.</p>
+
+<p>What comes into play almost instantly when dealing with these kind of problems is <strong>OAuth2</strong> but it&rsquo;s not as trivial as it first sounds.</p>
+
+<h2>OAuth2</h2>
+
+<p>The main &ldquo;problem&rdquo; with OAuth2 is that its <a href="http://tools.ietf.org/html/rfc6749">specification</a> leaves a lot of decisions up to the implementations.
+First of all it does not speak at all about authentication, only authorization. It also leaves out details such as how to manage users, how scopes and tokens look like or how these tokens should be checked by a resource server.</p>
+
+<p>Because of all these reasons implementing a full OAuth2 solution from scratch means a <em>lot</em> of work and reinventing the wheel and of course we didn&rsquo;t want to do that.
+Luckily there are a few specifications that complement the original standard and there are also some solutions that implement not only the basic specification but these complementary specifications too.</p>
+
+<p><strong><a href="https://github.com/cloudfoundry/uaa">UAA</a> is CloudFoundry&rsquo;s fully open source identity management service.</strong>
+According to the documentation its primary role is as an OAuth2 provider that can issue tokens for client applications, but it can also authenticate users and can manage user accounts and OAuth2 clients through an HTTP API.
+To achieve these things it uses these specifications:</p>
+
+<ul>
+<li><p><a href="http://openid.net/connect/">OpenID Connect</a> for authentication</p></li>
+<li><p><a href="http://www.simplecloud.info/">SCIM</a> for user management</p></li>
+<li><p><a href="http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html">JWT</a> for token representation</p></li>
+</ul>
+
+
+<p>UAA adds a few more things on top of these like client management endpoints which makes it a complete solution as an identity server.
+And the best thing is that it is <strong>fully configurable through environment variables and a YAML file</strong>.</p>
+
+<!-- more -->
+
+
+<h2>Deploying the UAA server</h2>
+
+<p>UAA is a Spring-based Java web application that runs on Tomcat. The first thing we did was to create a <a href="https://registry.hub.docker.com/u/sequenceiq/uaa/">Docker image</a> that deploys a UAA server so it became this easy:
+<code>
+docker run -d --link uaa-db:db -e UAA_CONFIG_URL=https://raw.githubusercontent.com/sequenceiq/docker-uaa/master/uaa.yml sequenceiq/uaa:1.8.1
+</code>
+There are two ways to provide an UAA configuration file: you can specify an URL like above, or via volume sharing. You can simply put your configuration in the shared directory (<code>/tmp/uaa</code> in the example):
+<code>
+docker run -d --name uaa --link uaa-db:db -v /tmp/uaa:/uaa sequenceiq/uaa:1.8.1
+</code>
+Linking a database container is only necessary if you&rsquo;re using a configuration like we did <a href="https://github.com/sequenceiq/docker-uaa/blob/master/uaa.yml">in this example</a>.
+If you&rsquo;d like to create a postgresql database to try out the sample configuration on your local environment run the following command first that creates a default postgresql database:
+<code>
+docker run -d --name uaa-db postgres
+</code></p>
+
+<h2>UAA Configuration</h2>
+
+<p>The UAA <a href="https://github.com/cloudfoundry/uaa/blob/master/docs/Sysadmin-Guide.rst#configuration">documentation</a> covers the configuration part pretty well, but I&rsquo;ll share my own experiences through some examples.</p>
+
+<h3>Database</h3>
+
+<p>The first part of the configuration file describes where the data will be stored. Environment variables can be used inside the YAML file, they will be expanded when UAA processes the file.
+When linking Docker containers the address and the exposed ports of the linked container show up as environment variables in the other container so we can make use of it and provide the postgresql address like this:
+<code>
+database:
+  driverClassName: org.postgresql.Driver
+  url: jdbc:postgresql://${DB_PORT_5432_TCP_ADDR}:${DB_PORT_5432_TCP_PORT}/${DB_ENV_DB:postgres}
+  username: ${DB_ENV_USER:postgres}
+  password: ${DB_ENV_PASS:}
+</code></p>
+
+<h3>Default clients</h3>
+
+<p>Default clients and users can also be described in the configuration, but they can be added or modified later through the <a href="https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-APIs.rst#user-account-management-apis">User Management API</a> and the <a href="https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-APIs.rst#client-registration-administration-apis">Client Administration API</a>.</p>
+
+<p>```
+oauth:
+  clients:</p>
+
+<pre><code>mywebapp:
+  id: mywebapp
+  secret: changeme
+  authorized-grant-types: authorization_code
+  scope: myresourceserver.scope1,myresourceserver.scope2,openid,password.write
+  authorities: uaa.none
+  redirect-uri: http://localhost:3000/authorize
+</code></pre>
+
+<p><code>``
+Every client should have an</code>authorized-grant-types<code>attribute that tells which OAuth2 flow the client can use to obtain a token. The most common is the *authorization code flow* that is typically used by web applications. The other possible values are</code>implicit<code>,</code>password<code>and</code>client_credentials`.</p>
+
+<p>A <code>secret</code> is not needed for a client with an implicit grant type (implicit flow is typically used from client-side web apps where a secret cannot be used), and of course a <code>redirect-uri</code> is not needed for a client with a <code>client_credentials</code> grant type.</p>
+
+<p>The client can request the <code>scopes</code> described here from the user. These scopes are arbitrary strings that mean something only to the resource server, but UAA uses the base name (anything before the first dot) of the scopes as the <a href="http://tools.ietf.org/html/draft-ietf-oauth-json-web-token-25#section-4.1.3">audience field</a> in the JWT token, so it&rsquo;s recommended to use this kind of naming convention.</p>
+
+<p><code>authorities</code> are basically scopes but only used when the token represents the client itself. It can be useful for example when a client wants to use the SCIM endpoints of the UAA server &ndash; there are built-in scopes for that: <code>scim.read</code> and <code>scim.write</code>.</p>
+
+<p>There are some clients where the user should not be asked to approve a token grant explicitly (e.g.: a command line shell). To surpass the confirmation and accept the permission request automatically, add the following to the <code>oauth</code> section:
+```
+client:</p>
+
+<pre><code>override: true
+autoapprove:
+  - mycommandlineshell
+</code></pre>
+
+<p>```</p>
+
+<h3>Default users</h3>
+
+<p>The users defined in this section are populated in the database after startup.</p>
+
+<p>```
+scim:
+  username_pattern: &lsquo;[a-z0-9+-_.@]+&rsquo;
+  users:</p>
+
+<pre><code>- paul|wombat|paul@test.org|Paul|Smith|openid,myresourceserver.scope1,myresourceserver.scope2
+</code></pre>
+
+<p>```</p>
+
+<p>This one is quite straightforward. The users are added in the specified format:
+<code>
+username|password|email|given name|last name|groups
+</code>
+The SCIM specification does not speak about roles, scopes or accounts, it only knows <em><a href="http://www.simplecloud.info/specs/draft-scim-core-schema-01.html#group-resource">groups</a></em> besides <em>users</em> where users can be <em>members</em> of a group.
+UAA handles scopes as groups, but groups can also be used for other things like adding users to a company account.</p>
+
+<h2>Resources</h2>
+
+<p>If you&rsquo;d like to learn more about UAA, check out its <a href="https://github.com/cloudfoundry/uaa/tree/master/docs">documentation</a> or its <a href="https://github.com/cloudfoundry/uaa/tree/master/samples">sample applications</a>.
+We&rsquo;ll also have another blog post soon where I&rsquo;ll show some code examples of the OAuth2 flows we&rsquo;re using with UAA as an identity server so check back in a few days if you&rsquo;re interested.</p>
+
+<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Cloudbreak new provider implementation - Part I: Build your custom image]]></title>
@@ -613,7 +751,7 @@ sudo docker run -it &mdash;rm &mdash;name cont2  ubuntu /bin/bash</p>
 
 <h1>execute on vm1</h1>
 
-<p>sudo ssh -f -N -w 2:1 <a href="&#109;&#x61;&#105;&#108;&#x74;&#x6f;&#58;&#114;&#x6f;&#x6f;&#116;&#x40;&#49;&#57;&#50;&#x2e;&#x31;&#54;&#56;&#x2e;&#x34;&#48;&#46;&#49;&#x32;">&#114;&#x6f;&#111;&#x74;&#x40;&#x31;&#x39;&#50;&#x2e;&#49;&#54;&#56;&#46;&#52;&#x30;&#x2e;&#49;&#x32;</a>
+<p>sudo ssh -f -N -w 2:1 <a href="&#109;&#x61;&#105;&#108;&#x74;&#x6f;&#x3a;&#114;&#x6f;&#x6f;&#116;&#x40;&#x31;&#57;&#50;&#46;&#x31;&#x36;&#56;&#x2e;&#52;&#48;&#46;&#x31;&#50;">&#x72;&#x6f;&#111;&#116;&#x40;&#x31;&#57;&#x32;&#46;&#x31;&#54;&#x38;&#46;&#52;&#48;&#x2e;&#49;&#x32;</a>
 sudo ifconfig tun2 up
 sudo route add -net 172.17.52.0 netmask 255.255.255.0 dev tun2
 sudo iptables -t nat -F POSTROUTING
@@ -651,183 +789,6 @@ sudo docker run -it &mdash;rm &mdash;name cont2  ubuntu /bin/bash</p>
 <p>If you want to check how these methods are working in production environment you are just a few clicks from it, since under the hood these methods are responsible to solve the inter-container communication in our cloud agnostic Hadoop as a Service API called <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>.</p>
 
 <p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Create Hadoop clusters in the cloud using a CLI]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/08/07/clodubreak-shell/"/>
-    <updated>2014-08-07T19:43:01+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/08/07/clodubreak-shell</id>
-    <content type="html"><![CDATA[<p>Few weeks back we have announced <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; the open source Hadoop as a Service API. Included in the release we open sourced a REST API, REST client, UI and a CLI/shell. In this post we’d like to show you how easy is to use <a href="https://github.com/sequenceiq/cloudbreak-shell">Cloudbreak shell</a> in order to create on demand Hadoop clusters on your favorite cloud provider.</p>
-
-<p>While it’s up to everybody&rsquo;s personal preference whether to use a UI, a command line interface or the REST API directly, at SequenceIQ we prefer to use command line tools whenever it’s possible because it’s much faster than interacting with a web UI and it’s a better candidate for automation. Yeah &ndash; we have mentioned this many times &ndash; we are <code>obsessed with automation</code>; any step which is a candidate of doing it twice we script and automate it.</p>
-
-<p>This <code>thing</code> with the automation does not affect the effort and quality standards we put on building the UI &ndash; <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> has an extremely intuitive and clean <strong>responsive</strong> UI and it’s built on the latest and greatest web UI framework &ndash; <a href="https://angularjs.org/">Angular JS</a>. We will have a post about the UI, however we consider it so simple to use that we ask you to go ahead and give it a try. You are a signup and a few clicks away from your Hadoop cluster.</p>
-
-<p>Now back to the CLI. Remember one of our Apache contribution &ndash; the <a href="http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell/">Ambari shell and REST API</a>? Well, the Cloudbreak shell is built on the same technology &ndash; Spring Shell. It’s an interactive shell that can be easily extended using a Spring based programming model and battle tested in various projects like Spring Roo, Spring XD, and Spring REST Shell Combine these two projects to create a powerful tool.</p>
-
-<h2>Cloudbreak Shell</h2>
-
-<p>The goal with the CLI was to provide an interactive command line tool which supports:</p>
-
-<ul>
-<li>all functionality available through the REST API or Cloudbreak web UI</li>
-<li>makes possible complete automation of management task via <strong>scripts</strong></li>
-<li>context aware command availability</li>
-<li>tab completion</li>
-<li>required/optional parameter support</li>
-<li><strong>hint</strong> command to guide you on the usual path</li>
-</ul>
-
-
-<h2>Install Cloudbreak Shell</h2>
-
-<p>You have 3 options to give it a try:</p>
-
-<ul>
-<li>use our prepared <a href="https://registry.hub.docker.com/u/sequenceiq/cloudbreak/">docker image</a></li>
-<li>download the latest self-containing executable jar form our maven repo</li>
-<li>build it from source</li>
-</ul>
-
-
-<p>We will follow up with the first two, in this post we’d like to guide you through the third option.</p>
-
-<h3>Build from source</h3>
-
-<p>If want to use the code or extend it with new commands follow the steps below. You will need:
-&ndash; jdk 1.7
-&ndash; maven 3.x.x</p>
-
-<p><code>
-git clone https://github.com/sequenceiq/cloudbreak-shell.git
-cd cloudbreak-shell
-mvn clean package
-</code></p>
-
-<!--more-->
-
-
-<h2>Connect to Cloudbreak</h2>
-
-<p>In order to use the shell you will have to have a Cloudbreak account. You can get one by subscribing to our hosted and free <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> instance. Alternatively you can build your own Cloudbreak and deploy it within your organization &ndash; for that just follow up with the steps in the Cloudbreak <a href="http://sequenceiq.com/cloudbreak/#quickstart-and-installation">documentation</a>. We suggest to try our hosted solution as in case you have any issues we can always help you with. Please feel free to create bugs, ask for enhancements or just give us feedback by either using our <a href="https://github.com/sequenceiq/cloudbreak">GitHub repository</a> or the other channels highlighted in the product documentation (Google Groups, email or social channels).
-The shell is built as a single executable jar with the help of <a href="http://projects.spring.io/spring-boot/">Spring Boot</a>.</p>
-
-<p>```
-Usage:
-  java -jar cloudbreak-shell-0.1-SNAPSHOT.jar                  : Starts Cloudbreak Shell in interactive mode.
-  java -jar cloudbreak-shell-0.1-SNAPSHOT.jar &mdash;cmdfile=<FILE> : Cloudbreak executes commands read from the file.</p>
-
-<p>Options:
-  &mdash;cloudbreak.host=<HOSTNAME>       Hostname of the Cloudbreak REST API Server [use:cloudbreak-api.sequenceiq.com].
-  &mdash;cloudbreak.port=<PORT>           Port of the Cloudbreak REST API Server [use:80].
-  &mdash;cloudbreak.user=<USER>           Username of the Cloudbreak user [use:your user name ].
-  &mdash;cloudbreak.password=<PASSWORD>   Password of the Cloudbreak admin [use: your password].</p>
-
-<p>Note:
-  All options are mandatory.
-<code>``
-Once you are connected you can start to create a cluster. If you are lost and need guidance through the process you can use</code>hint<code>. You can always use</code>TAB<code>for completion. Note that all commands are</code>context aware` &ndash; they are available only when it makes sense &ndash; this way you are never confused and guided by the system on the right path.</p>
-
-<h3>Create a cloud credential</h3>
-
-<p>In order to start using Cloudbreak you will need to have a cloud user, for example an Amazon AWS account. Note that Cloudbreak <strong>does not</strong> store you cloud user details &ndash; we work around the concept of <a href="http://aws.amazon.com/iam/">IAM</a> &ndash; on Amazon (or other cloud providers) you will have to create an IAM role, a policy and associate that with your Cloudbreak account &ndash; for further documentation please refer to the <a href="http://sequenceiq.com/cloudbreak/#accounts">documentation</a>.</p>
-
-<p><code>
-credential createEC2 --description “description" --name “myCredentialName" --roleArn "arn:aws:iam::NUMBER:role/cloudbreak-ABC" --sshKeyUrl “URL towards your AWS public key"
-</code></p>
-
-<p>Alternatively you can upload your public key from a file as well, by using the <code>—sshKeyPath</code> switch. You can check whether the credential was creates successfully by using the <code>credential list</code> command. You can switch between your cloud credential &ndash; when you’d like to use one and act with that you will have to use:</p>
-
-<p><code>
-credential select --id #ID of the credential
-</code></p>
-
-<h3>Create a template</h3>
-
-<p>A template gives developers and systems administrators an easy way to create and manage a collection of cloud infrastructure related resources, maintaining and updating them in an orderly and predictable fashion. A template can be used repeatedly to create identical copies of the same stack (or to use as a foundation to start a new stack).</p>
-
-<p><code>
-template createEC2 --description "awstemplate" --name "awstemplate" --region EU_WEST_1 --instanceType M3Large --sshLocation 0.0.0.0/0
-</code>
-You can check whether the template was created successfully by using the <code>template list</code> command. Check the template with or select if you are happy with:</p>
-
-<p>```
-template show &mdash;id #ID of the template</p>
-
-<p>template select &mdash;id #ID of the template
-```</p>
-
-<h3>Create a stack</h3>
-
-<p>Stacks are template <code>instances</code> &ndash; a running cloud infrastructure created based on a template. Use the following command to create a stack to be used with your Hadoop cluster:</p>
-
-<p><code>
-stack create --name “myStackName" --nodeCount 20
-</code></p>
-
-<h3>Select a blueprint</h3>
-
-<p>We ship default Hadoop cluster blueprints with Cloudbreak. You can use these blueprints or add yours. To see the available blueprints and use one of them please use:</p>
-
-<p>```
-blueprint list</p>
-
-<p>blueprint select &mdash;id #ID of the blueprint
-```</p>
-
-<h3>Create a Hadoop cluster</h3>
-
-<p>You are almost done &ndash; one more command and this will create your Hadoop cluster on your favorite cloud provider. Same as the API, or UI this will use your <code>template</code>, and by using CloudFormation will launch a cloud <code>stack</code> &ndash; once the <code>stack</code> is up and running (cloud provisioning is done) it will use your selected <code>blueprint</code> and install your custom Hadoop cluster with the selected components and services. For the supported list of Hadoop components and services please check the <a href="http://sequenceiq.com/cloudbreak/#supported-components">documentation</a>.</p>
-
-<p><code>
-cluster create --description “my cluster desc"
-</code>
-You are done &ndash; you can check the progress through the Ambari UI. If you log back to <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak UI</a> you can check the progress over there as well, and learn the IP address of Ambari.</p>
-
-<h3>Automate the process</h3>
-
-<p>Each time you start the shell the executed commands are logged in a file line by line and later either with the <code>script</code> command or specifying an <code>—cmdfile</code> option the same commands can be executed again.</p>
-
-<h2>Commands</h2>
-
-<p>For the full list of available commands please check below. Please note that all commands are context aware, and you can always use <code>TAB</code> for command completion.</p>
-
-<pre><code>* blueprint add - Add a new blueprint with either --url or --file
-* blueprint defaults - Adds the default blueprints to Cloudbreak
-* blueprint list - Shows the currently available blueprints
-* blueprint select - Select the blueprint by its id
-* blueprint show - Shows the blueprint by its id
-* cluster create - Create a new cluster based on a blueprint and template
-* cluster show - Shows the cluster by stack id
-* credential createAzure - Create a new Azure credential
-* credential createEC2 - Create a new EC2 credential
-* credential defaults - Adds the default credentials to Cloudbreak
-* credential list - Shows all of your credentials
-* credential select - Select the credential by its id
-* credential show - Shows the credential by its id
-* exit - Exits the shell
-* help - List all commands usage
-* hint - Shows some hints
-* quit - Exits the shell
-* script - Parses the specified resource file and executes its commands
-* stack create - Create a new stack based on a template
-* stack list - Shows all of your stack
-* stack select - Select the stack by its id
-* stack show - Shows the stack by its id
-* stack terminate - Terminate the stack by its id
-* template create - Create a new cloud template
-* template createEC2 - Create a new EC2 template
-* template defaults - Adds the default templates to Cloudbreak
-* template list - Shows the currently available cloud templates
-* template select - Select the template by its id
-* template show - Shows the template by its id
-* version - Displays shell version
-</code></pre>
-
-<p>As usual for us &ndash; being committed to 100% open source &ndash; we are always open sourcing everything thus you can get the details on our <a href="https://github.com/sequenceiq/cloudbreak-shell">GitHub</a> repository.
-Should you have any questions feel free to engage with us on our <a href="http://blog.sequenceiq.com/">blog</a> or follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
 ]]></content>
   </entry>
   

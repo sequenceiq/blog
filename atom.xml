@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-10-15T14:20:03+00:00</updated>
+  <updated>2014-10-16T14:59:00+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,163 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Securing Cloudbreak with OAuth2]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/10/16/using-uaa-as-an-identity-server/"/>
+    <updated>2014-10-16T14:23:59+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/10/16/using-uaa-as-an-identity-server</id>
+    <content type="html"><![CDATA[<p>When we first released <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> &ndash; our Hadoop as a Service API &ndash; it contained its own authentication and user management layer.
+We were using basic authentication for the API calls so every request had to contain a username and a password <em>Base64</em> encoded in the authorization header.
+Cloudbreak also had its own user representation and we were binding the resources &ndash; like clusters &ndash; to these users.</p>
+
+<p>This approach had multiple flaws. As we were starting to develop multiple <a href="http://sequenceiq.com/periscope/">projects</a> for our future Platform as a Service solution it became obvious that we will have to refactor our whole user management layer out from Cloudbreak and <strong>share it across our projects</strong>.
+Base64 encoding of usernames and passwords is not the best solution either even if transport layer security is working.</p>
+
+<p>What comes into play almost instantly when dealing with these kind of problems is <strong>OAuth2</strong> but it&rsquo;s not as trivial as it first sounds.</p>
+
+<h2>OAuth2</h2>
+
+<p>The main &ldquo;problem&rdquo; with OAuth2 is that its <a href="http://tools.ietf.org/html/rfc6749">specification</a> leaves a lot of decisions up to the implementations.
+First of all it does not speak at all about authentication, only authorization. It also leaves out details such as how to manage users, how scopes and tokens look like or how these tokens should be checked by a resource server.</p>
+
+<p>Because of all these reasons implementing a full OAuth2 solution from scratch means a <em>lot</em> of work and reinventing the wheel and of course we didn&rsquo;t want to do that.
+Luckily there are a few specifications that complement the original standard and there are also some solutions that implement not only the basic specification but these complementary specifications too.</p>
+
+<p><strong><a href="https://github.com/cloudfoundry/uaa">UAA</a> is CloudFoundry&rsquo;s fully open source identity management service.</strong>
+According to the documentation its primary role is as an OAuth2 provider that can issue tokens for client applications, but it can also authenticate users and can manage user accounts and OAuth2 clients through an HTTP API.
+To achieve these things it uses these specifications:</p>
+
+<ul>
+<li><p><a href="http://openid.net/connect/">OpenID Connect</a> for authentication</p></li>
+<li><p><a href="http://www.simplecloud.info/">SCIM</a> for user management</p></li>
+<li><p><a href="http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html">JWT</a> for token representation</p></li>
+</ul>
+
+
+<p>UAA adds a few more things on top of these like client management endpoints which makes it a complete solution as an identity server.
+And the best thing is that it is <strong>fully configurable through environment variables and a YAML file</strong>.</p>
+
+<!-- more -->
+
+
+<h2>Deploying the UAA server</h2>
+
+<p>UAA is a Spring-based Java web application that runs on Tomcat. The first thing we did was to create a <a href="https://registry.hub.docker.com/u/sequenceiq/uaa/">Docker image</a> that deploys a UAA server so it became this easy:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -d --link uaa-db:db -e UAA_CONFIG_URL=https://raw.githubusercontent.com/sequenceiq/docker-uaa/master/uaa.yml sequenceiq/uaa:1.8.1</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There are two ways to provide an UAA configuration file: you can specify an URL like above, or via volume sharing. You can simply put your configuration in the shared directory (<code>/tmp/uaa</code> in the example):</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -d --name uaa --link uaa-db:db -v /tmp/uaa:/uaa sequenceiq/uaa:1.8.1</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Linking a database container is only necessary if you&rsquo;re using a configuration like we did <a href="https://github.com/sequenceiq/docker-uaa/blob/master/uaa.yml">in this example</a>.
+If you&rsquo;d like to create a postgresql database to try out the sample configuration on your local environment run the following command first that creates a default postgresql database:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -d --name uaa-db postgres</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>UAA Configuration</h2>
+
+<p>The UAA <a href="https://github.com/cloudfoundry/uaa/blob/master/docs/Sysadmin-Guide.rst#configuration">documentation</a> covers the configuration part pretty well, but I&rsquo;ll share my own experiences through some examples.</p>
+
+<h3>Database</h3>
+
+<p>The first part of the configuration file describes where the data will be stored. Environment variables can be used inside the YAML file, they will be expanded when UAA processes the file.
+When linking Docker containers the address and the exposed ports of the linked container show up as environment variables in the other container so we can make use of it and provide the postgresql address like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>database:
+</span><span class='line'>  driverClassName: org.postgresql.Driver
+</span><span class='line'>  url: jdbc:postgresql://${DB_PORT_5432_TCP_ADDR}:${DB_PORT_5432_TCP_PORT}/${DB_ENV_DB:postgres}
+</span><span class='line'>  username: ${DB_ENV_USER:postgres}
+</span><span class='line'>  password: ${DB_ENV_PASS:}</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Default clients</h3>
+
+<p>Default clients and users can also be described in the configuration, but they can be added or modified later through the <a href="https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-APIs.rst#user-account-management-apis">User Management API</a> and the <a href="https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-APIs.rst#client-registration-administration-apis">Client Administration API</a>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>oauth:
+</span><span class='line'>  clients:
+</span><span class='line'>    mywebapp:
+</span><span class='line'>      id: mywebapp
+</span><span class='line'>      secret: changeme
+</span><span class='line'>      authorized-grant-types: authorization_code
+</span><span class='line'>      scope: myresourceserver.scope1,myresourceserver.scope2,openid,password.write
+</span><span class='line'>      authorities: uaa.none
+</span><span class='line'>      redirect-uri: http://localhost:3000/authorize</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Every client should have an <code>authorized-grant-types</code> attribute that tells which OAuth2 flow the client can use to obtain a token. The most common is the <em>authorization code flow</em> that is typically used by web applications. The other possible values are <code>implicit</code>, <code>password</code> and <code>client_credentials</code>.</p>
+
+<p>A <code>secret</code> is not needed for a client with an implicit grant type (implicit flow is typically used from client-side web apps where a secret cannot be used), and of course a <code>redirect-uri</code> is not needed for a client with a <code>client_credentials</code> grant type.</p>
+
+<p>The client can request the <code>scopes</code> described here from the user. These scopes are arbitrary strings that mean something only to the resource server, but UAA uses the base name (anything before the first dot) of the scopes as the <a href="http://tools.ietf.org/html/draft-ietf-oauth-json-web-token-25#section-4.1.3">audience field</a> in the JWT token, so it&rsquo;s recommended to use this kind of naming convention.</p>
+
+<p><code>authorities</code> are basically scopes but only used when the token represents the client itself. It can be useful for example when a client wants to use the SCIM endpoints of the UAA server &ndash; there are built-in scopes for that: <code>scim.read</code> and <code>scim.write</code>.</p>
+
+<p>There are some clients where the user should not be asked to approve a token grant explicitly (e.g.: a command line shell). To surpass the confirmation and accept the permission request automatically, add the following to the <code>oauth</code> section:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>client:
+</span><span class='line'>    override: true
+</span><span class='line'>    autoapprove:
+</span><span class='line'>      - mycommandlineshell</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Default users</h3>
+
+<p>The users defined in this section are populated in the database after startup.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>scim:
+</span><span class='line'>  username_pattern: '[a-z0-9+\-_.@]+'
+</span><span class='line'>  users:
+</span><span class='line'>    - paul|wombat|paul@test.org|Paul|Smith|openid,myresourceserver.scope1,myresourceserver.scope2</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This one is quite straightforward. The users are added in the specified format:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>username|password|email|given name|last name|groups</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The SCIM specification does not speak about roles, scopes or accounts, it only knows <em><a href="http://www.simplecloud.info/specs/draft-scim-core-schema-01.html#group-resource">groups</a></em> besides <em>users</em> where users can be <em>members</em> of a group.
+UAA handles scopes as groups, but groups can also be used for other things like adding users to a company account.</p>
+
+<h2>Resources</h2>
+
+<p>If you&rsquo;d like to learn more about UAA, check out its <a href="https://github.com/cloudfoundry/uaa/tree/master/docs">documentation</a> or its <a href="https://github.com/cloudfoundry/uaa/tree/master/samples">sample applications</a>.
+We&rsquo;ll also have another blog post soon where I&rsquo;ll show some code examples of the OAuth2 flows we&rsquo;re using with UAA as an identity server so check back in a few days if you&rsquo;re interested.</p>
+
+<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Real-time adjustments with Hadoop metrics]]></title>
@@ -518,7 +675,7 @@ In the benchmark, the jobs were submitted to the <code>default</code> queue and 
 <p>SequenceIQ is an innovative big data startup with the mission statement to simplify and automate provisioning of on-demand Hadoop clusters running on different environments. Leaders in “containerizing” Hadoop, SequenceIQ is the first company who provisions and runs the full Hadoop stack and components on Docker containers. The company has further plans to create the industry’s first cloud agnostic, autoscaling and use case driven Platform as a Service API, and break the common significant barriers of entry that exist with most big data projects through a series of As-a-Service API offerings.
 For more information follow up with us on @SequenceIQ and <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>.</p>
 
-<p><a href="&#x6d;&#x61;&#105;&#x6c;&#x74;&#111;&#x3a;&#x69;&#110;&#x66;&#111;&#x40;&#x73;&#101;&#x71;&#x75;&#x65;&#110;&#99;&#x65;&#105;&#113;&#46;&#99;&#111;&#109;">&#x69;&#x6e;&#102;&#x6f;&#64;&#115;&#x65;&#113;&#x75;&#101;&#110;&#99;&#101;&#105;&#113;&#46;&#x63;&#x6f;&#109;</a></p>
+<p><a href="&#x6d;&#97;&#105;&#108;&#116;&#111;&#x3a;&#105;&#110;&#x66;&#111;&#64;&#115;&#x65;&#113;&#x75;&#101;&#110;&#x63;&#101;&#x69;&#113;&#x2e;&#x63;&#111;&#109;">&#x69;&#110;&#x66;&#111;&#64;&#115;&#x65;&#113;&#117;&#x65;&#110;&#x63;&#101;&#105;&#113;&#46;&#99;&#111;&#x6d;</a></p>
 ]]></content>
   </entry>
   
@@ -2707,222 +2864,6 @@ Periscope will do the heavy lifting and based on the alarms and the scaling poli
 <p>For the <code>policy</code> related REST operations you can check the <a href="http://docs.periscope.apiary.io/reference/scaling-policy">API</a> documentation.</p>
 
 <p>Let us know how Periscope works for you &ndash; and for updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Infrastructure management with CloudFormation]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/08/29/aws-cloudformation-makes-everything-easier/"/>
-    <updated>2014-08-29T14:13:06+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/08/29/aws-cloudformation-makes-everything-easier</id>
-    <content type="html"><![CDATA[<p>Our Hadoop as a Service solution, <a href="https://cloudbreak.sequenceiq.com">Cloudbreak</a> integrates with multiple cloud providers to deploy Hadoop clusters in the cloud. It means that every time a cluster is requested, Cloudbreak goes to the selected cloud provider and creates a new, separated infrastructure through the provider’s API. Building this infrastructure can be a real pain and can cause a lot of problems &ndash; it involves a lot of API calls, the polling of created building blocks, the management of failures and the necessary rollbacks to name a few. With the help of <a href="http://aws.amazon.com/cloudformation/">AWS CloudFormation</a> we were able to avoid most of these problems when integrating AWS in Cloudbreak.</p>
-
-<h3>Problems with the traditional approach</h3>
-
-<p>When Cloudbreak creates a Hadoop cluster it should first create the underlying infrastructure on the cloud provider. The building blocks are a bit different on every provider, the following resources are created on AWS:</p>
-
-<ul>
-<li>a virtual private cloud (VPC)</li>
-<li>a subnet</li>
-<li>an internet gateway</li>
-<li>a route table</li>
-<li>an auto scaling group and its launch configuration</li>
-<li>a security group</li>
-</ul>
-
-
-<p>Although AWS has a pretty good API and great SDKs to communicate with it, we needed to deal with the above described problems if we would like to create all of these elements one by one through the Java SDK. The code would start with something like this with the creation of the VPC:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">AmazonEC2Client</span> <span class="n">amazonEC2Client</span> <span class="o">=</span> <span class="k">new</span> <span class="n">AmazonEC2Client</span><span class="o">(</span><span class="n">basicSessionCredentials</span><span class="o">);</span>
-</span><span class='line'><span class="n">amazonEC2Client</span><span class="o">.</span><span class="na">setRegion</span><span class="o">(</span><span class="n">region</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">CreateVpcRequest</span> <span class="n">vpcRequest</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CreateVpcRequest</span><span class="o">().</span><span class="na">withCidrBlock</span><span class="o">(</span><span class="mf">10.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mi">24</span><span class="o">);</span>
-</span><span class='line'><span class="n">CreateVpcResponse</span> <span class="n">vpcResponse</span> <span class="o">=</span> <span class="n">amazonEC2Client</span><span class="o">.</span><span class="na">createVpc</span><span class="o">(</span><span class="n">createVpcRequest</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">//poll vpc creation until it’s state is available</span>
-</span><span class='line'><span class="n">waitForVPC</span><span class="o">(</span><span class="n">amazonEC2Client</span><span class="o">,</span> <span class="n">vpcResponse</span><span class="o">.</span><span class="na">getVpc</span><span class="o">());</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">ModifyVpcAttributeRequest</span> <span class="n">modifyVpcRequest</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ModifyVpcAttributeRequest</span><span class="o">().</span><span class="na">withEnableDnsHostnames</span><span class="o">(</span><span class="kc">true</span><span class="o">).</span><span class="na">withEnableDnsSupport</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
-</span><span class='line'><span class="n">amazonEC2Cient</span><span class="o">.</span><span class="na">modifyVpcAttribute</span><span class="o">(</span><span class="n">modifyVpcRequest</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<!--more-->
-
-
-<p>The above code is only a taste of the whole thing. The VPC is one of the most simple resources with very few attributes to set. Also the polling of the creation process isn’t detailed here as well as failure handling. In addition the different resources would be scattered around the code making it impossible to have an overview of the whole stack and making it much harder to find bugs or to modify some attributes. With CloudFormation all of the above problems can be solved very easily.</p>
-
-<h3>Introduction to CloudFormation</h3>
-
-<p>According to the <a href="http://aws.amazon.com/cloudformation/">AWS CloudFormation documentation</a> it was designed to create and manage a collection of related AWS resources easily and provisioning and updating them in an orderly and predictable fashion. What it really means is that the resources can be described declaratively in a JSON document (a <em>template</em>) and the whole <em>stack</em> can be created/updated/deleted with a simple API call. AWS also handles failures, and rollbacks the whole stack if something goes wrong. Furthermore it is able to send notifications to <em>SNS topics</em> when some event occurs (e.g.: a resource creation started or the resource is completed), making the polling of resource creations unnecessary.</p>
-
-<h3>Template structure</h3>
-
-<p>We don’t want to give a detailed introduction on how the structure of a CloudFormation template look like, the <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html">AWS documentation</a> covers it really well and there are also a lot of <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/sample-templates-services-us-west-2.html">samples</a>.
-Instead we’re trying to focus on the advantages that CloudFormation gave us while using it, so let’s jump in the middle and start with a simple example. The declaration of a VPC in a template looks like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="s2">&quot;Resources&quot;</span> <span class="err">:</span> <span class="p">{</span>
-</span><span class='line'>  <span class="nt">&quot;MY_VPC&quot;</span> <span class="p">:</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nt">&quot;Type&quot;</span> <span class="p">:</span> <span class="s2">&quot;AWS::EC2::VPC&quot;</span><span class="p">,</span>
-</span><span class='line'>    <span class="nt">&quot;Properties&quot;</span> <span class="p">:</span> <span class="p">{</span>
-</span><span class='line'>      <span class="nt">&quot;CidrBlock&quot;</span> <span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;10.0.0.0/16&quot;</span> <span class="p">},</span>
-</span><span class='line'>      <span class="nt">&quot;EnableDnsSupport&quot;</span> <span class="p">:</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span>
-</span><span class='line'>      <span class="nt">&quot;EnableDnsHostnames&quot;</span> <span class="p">:</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span>
-</span><span class='line'>      <span class="nt">&quot;Tags&quot;</span> <span class="p">:</span> <span class="p">[</span>
-</span><span class='line'>        <span class="p">{</span> <span class="nt">&quot;Key&quot;</span> <span class="p">:</span> <span class="s2">&quot;Application&quot;</span><span class="p">,</span> <span class="nt">&quot;Value&quot;</span> <span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;Ref&quot;</span> <span class="p">:</span> <span class="s2">&quot;AWS::StackId&quot;</span> <span class="p">}</span> <span class="p">},</span>
-</span><span class='line'>        <span class="p">{</span> <span class="nt">&quot;Key&quot;</span> <span class="p">:</span> <span class="s2">&quot;Network&quot;</span><span class="p">,</span> <span class="nt">&quot;Value&quot;</span> <span class="p">:</span> <span class="s2">&quot;Public&quot;</span> <span class="p">}</span>
-</span><span class='line'>      <span class="p">]</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The JSON syntax can be a bit complicated sometimes, especially when dealing with a lot of references to other properties with the <em>&ldquo;Ref&rdquo;</em> keyword or some other built-in CloudFormation <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference.html">functions</a>, but it is much clearer than the Java code above.
-Other than resources, there are other parts of a CloudFormation template (<em>Conditions</em>, <em>Mappings</em>, <em>Outputs</em>, <em>Intrinsic Functions</em>) but here we will cover only one more: <em>Parameters</em>.</p>
-
-<p>Declaring a parameter means that there is no hard-coded value for a given attribute, rather it is given to the template when creating the stack. If you’d like to have an EC2 Instance  in your template but you don’t want to hardcode its type, you can have a parameter like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="s2">&quot;Parameters&quot;</span> <span class="err">:</span> <span class="p">{</span>
-</span><span class='line'>  <span class="nt">&quot;InstanceType&quot;</span> <span class="p">:</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nt">&quot;Description&quot;</span> <span class="p">:</span> <span class="s2">&quot;EC2 instance type&quot;</span><span class="p">,</span>
-</span><span class='line'>    <span class="nt">&quot;Type&quot;</span> <span class="p">:</span> <span class="s2">&quot;String&quot;</span><span class="p">,</span>
-</span><span class='line'>    <span class="nt">&quot;Default&quot;</span> <span class="p">:</span> <span class="s2">&quot;m3.medium&quot;</span><span class="p">,</span>
-</span><span class='line'>    <span class="nt">&quot;AllowedValues&quot;</span> <span class="p">:</span> <span class="p">[</span> <span class="s2">&quot;m3.medium&quot;</span><span class="p">,</span><span class="s2">&quot;m3.large&quot;</span><span class="p">,</span><span class="s2">&quot;m3.xlarge&quot;</span><span class="p">,</span><span class="s2">&quot;m3.2xlarge&quot;</span><span class="p">],</span>
-</span><span class='line'>    <span class="nt">&quot;ConstraintDescription&quot;</span> <span class="p">:</span> <span class="s2">&quot;must be a valid EC2 instance type.&quot;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>After it’s declared, you can reference it from a resource with the <em>Ref</em> keyword:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="s2">&quot;EC2Instance&quot;</span> <span class="err">:</span> <span class="p">{</span>
-</span><span class='line'>  <span class="nt">&quot;Type&quot;</span> <span class="p">:</span> <span class="s2">&quot;AWS::EC2::Instance&quot;</span><span class="p">,</span>
-</span><span class='line'>  <span class="nt">&quot;Properties&quot;</span> <span class="p">:</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nt">&quot;SecurityGroups&quot;</span> <span class="p">:</span> <span class="p">[</span> <span class="p">{</span> <span class="nt">&quot;Ref&quot;</span> <span class="p">:</span> <span class="s2">&quot;InstanceSecurityGroup&quot;</span> <span class="p">}</span> <span class="p">],</span>
-</span><span class='line'>    <span class="nt">&quot;InstanceType&quot;</span> <span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;Ref&quot;</span> <span class="p">:</span> <span class="s2">&quot;InstanceType&quot;</span> <span class="p">},</span>
-</span><span class='line'>    <span class="nt">&quot;KeyName&quot;</span> <span class="p">:</span> <span class="p">{</span> <span class="nt">&quot;Ref&quot;</span> <span class="p">:</span> <span class="s2">&quot;KeyName&quot;</span> <span class="p">},</span>
-</span><span class='line'>    <span class="nt">&quot;ImageId&quot;</span> <span class="p">:</span> <span class="s2">&quot;ami-123456&quot;</span><span class="p">,</span>
-</span><span class='line'>    <span class="nt">&quot;EbsOptimized&quot;</span> <span class="p">:</span> <span class="s2">&quot;true&quot;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You can reference not only parameters, but other resources as well. In the above code example there is a reference to <em>InstanceSecurityGroup</em> that is an <em>AWS::EC2::SecurityGroup</em> type resource and that is declared in an other part of the template.</p>
-
-<h3>Creating the stack</h3>
-
-<p>So we’ve declared a few resources, how can we tell AWS to create the stack? Let’s see how it looks like with the Java SDK (two parameters are passed to the template):</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">CreateStackRequest</span> <span class="n">createStackRequest</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CreateStackRequest</span><span class="o">()</span>
-</span><span class='line'>    <span class="o">.</span><span class="na">withStackName</span><span class="o">(</span><span class="err">“</span><span class="n">MyCFStack</span><span class="s">&quot;)</span>
-</span><span class='line'><span class="s">    .withTemplateBody(templateAsString)</span>
-</span><span class='line'><span class="s">    .withNotificationARNs(notificationTopicARN)</span>
-</span><span class='line'><span class="s">    .withParameters(</span>
-</span><span class='line'><span class="s">        new Parameter().withParameterKey(&quot;</span><span class="n">InstanceCount</span><span class="s">&quot;).withParameterValue(“3&quot;</span><span class="o">),</span>
-</span><span class='line'>        <span class="k">new</span> <span class="nf">Parameter</span><span class="o">().</span><span class="na">withParameterKey</span><span class="o">(</span><span class="s">&quot;InstanceType&quot;</span><span class="o">).</span><span class="na">withParameterValue</span><span class="o">(</span><span class="err">“</span><span class="n">m3</span><span class="o">.</span><span class="na">large</span><span class="err">&quot;</span><span class="o">));</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">client</span><span class="o">.</span><span class="na">createStack</span><span class="o">(</span><span class="n">createStackRequest</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>And that’s it. It’s every code that should written in Java to create the complete stack. It is pretty straightforward, the only thing that needs to be explained is the <em>notification ARN</em> part. It is the identifier of an <em>SNS topic</em> and it is detailed below.</p>
-
-<h3>Callbacks</h3>
-
-<p>CloudFormation is able to send notifications to SNS <em>topics</em> when an event occurs. An event is when a resource creation is started, finished or failed (and the same with delete). SNS is Amazon’s Simple Notification Service that enables endpoints to subscribe to a topic, and when a message is sent to a topic every subscriber receives that message. AWS supports a lot of endpoint types. It can send notifications by email or text message, to Amazon Simple Queue Service (SQS) queues, or to any HTTP/HTTPS endpoint. In the Cloudbreak project we’re using HTTP endpoints as callback URLs. We’re also creating topics and subscriptions from code but that could fill up another full blog post.</p>
-
-<p>If you just like to try SNS, you can create a topic and a subscription from the AWS Console. After you have a confirmed subscription of an HTTP endpoint (e.g.: <em>example.com/sns</em>), you can very easily create an HTTP endpoint in Java (with some help from <a href="http://spring.io/">Spring</a>):</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span><span class="o">=</span><span class="s">&quot;sns&quot;</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">POST</span><span class="o">)</span>
-</span><span class='line'><span class="nd">@ResponseBody</span>
-</span><span class='line'><span class="kd">public</span> <span class="n">ResponseEntity</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="nf">receiveSnsMessage</span><span class="o">(</span><span class="nd">@RequestBody</span> <span class="n">String</span> <span class="n">request</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="c1">// parse and handle request</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>For a more detailed example see the <a href="https://github.com/sequenceiq/cloudbreak/blob/master/src/main/java/com/sequenceiq/cloudbreak/controller/AmazonSnsController.java">controller class</a> in Cloudbreak.
-So every time a CloudFormation stack event occurs, Cloudbreak receives a message that is parsed and handled correctly &ndash; there is no need to poll the creation of resources and dealing with timeouts.</p>
-
-<h3>Failures and rollbacks</h3>
-
-<p>It is always possible that something will go wrong when creating a stack with a lot of resources. With the traditional approach you must keep track of the resources that were created and you will have to implement some rollback logic that gets called when something unexpected happens and that rolls back the already created elements somehow. With CloudFormation these things are completely done by AWS.</p>
-
-<p>The resources in the stack are tracked so the only thing you have to save is the identifier of the stack. If one of the resources fails to be created AWS rolls back every other resource and puts the stack in <em>ROLLBACK_COMPLETED</em> state. It also sends the failure message to the SNS topic with the exact cause of the failure.
-The same is true if you’d like to delete the stack. The only call that you will have to send to the AWS API is the deletion of the stack (very similar to the creation in Java). CloudFormation will delete every resource one by one and will take care of failures.</p>
-
-<h3>Notes</h3>
-
-<p>The template we used in Cloudbreak is available <a href="https://github.com/sequenceiq/cloudbreak/blob/master/src/main/resources/templates/aws-cf-stack.ftl">here</a>. It is not a pure CloudFormation template because of some limitations &ndash; the number of attached volumes cannot be specified dynamically and it is not possible to specify it as a parameter if spot priced instances are needed or not &ndash; we ended up generating the template with Freemarker.</p>
-
-<h3>Terraform</h3>
-
-<p>The <a href="http://www.hashicorp.com/products">company</a> that brought us <a href="http://www.vagrantup.com/">Vagrant</a>, <a href="http://www.packer.io/">Packer</a> and a few more useful things has recently announced a new project named <a href="http://www.terraform.io/intro/index.html">Terraform</a>. Terraform is inspired by tools like CloudFormation or <a href="https://wiki.openstack.org/wiki/Heat">OpenStack’s Heat</a>, but goes further as it supports multiple cloud platforms and their services can also be combined. If you’re interested in managing infrastructure from code and configuration you should check out that project too, we’ll keep an eye on it for sure.</p>
-
-<p>Stay tuned and make sure you follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   
