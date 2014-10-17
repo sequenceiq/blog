@@ -130,6 +130,77 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/09/24/edit-files-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">24 September 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
+            
+            <a href="/blog/categories/zedapp/"><span class="label label-warning">Zedapp</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/09/24/edit-files-docker/">Edit files in Docker containers</a>
+          <span class="badge name-badge">Lajos Papp</span>
+
+      </h1>
+      <p>I wish I get 1 dollar each time I install vi in a docker container &hellip; I wanted
+an easier way to edit files in a running docker container. First of all try to
+<strong>avoid</strong> editing files at all, as it is against the container philosophy
+(see the last paragraph).</p>
+
+<p>But if you have a valid reason, here comes the how-to.</p>
+
+<h2>Why Zedapp</h2>
+
+<p>Most of the time I use either vi or <a href="https://atom.io/">Atom</a>, but a few months
+ago I stumbled upon <a href="http://zedapp.org/">Zedapp</a> an opinionated editor. It aims to
+reduce cognitive load while editing, by simplifying things, like deliberately
+not using tabs.</p>
+
+<p>It stands out with its <strong>first-class support of remote editing</strong> let it be a
+remote server, or even directly editing github repositories.</p>
+
+<p>Zedapp just reached version 1.0 and if you like it, consider help Zef Hemmel
+at <a href="https://gratipay.com/zefhemel/">gratipay</a>, who was brave enough to quit his
+regular job, and work full time on an open-source project!</p>
+
+<h2>Install Zedapp</h2>
+
+<p>You can use zedapp as a <em>chrome plugin</em> or a <em>standalone</em> app. Downloads are
+available at: <a href="http://zedapp.org/download/">zedapp.org</a>. I recommend to
+go for the <strong>standalone</strong> version.</p>
+
+
+      
+       <a href="/blog/2014/09/24/edit-files-docker/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/09/23/topn-on-apache-tez/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -849,78 +920,6 @@ Yes!</p>
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/09/01/sla-samples-periscope/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">01 September 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/autoscaling/"><span class="label label-warning">Autoscaling</span></a>
-            
-            <a href="/blog/categories/cloud/"><span class="label label-warning">Cloud</span></a>
-            
-            <a href="/blog/categories/periscope/"><span class="label label-warning">Periscope</span></a>
-            
-            <a href="/blog/categories/qos/"><span class="label label-warning">QoS</span></a>
-            
-            <a href="/blog/categories/sla/"><span class="label label-warning">SLA</span></a>
-            
-            <a href="/blog/categories/schedulers/"><span class="label label-warning">Schedulers</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/09/01/sla-samples-periscope/">SLA policies for autoscaling Hadoop clusters</a>
-          <span class="badge name-badge">Janos Matyas</span>
-
-      </h1>
-      <p>Last week we have <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">announced</a> and open sourced <a href="http://sequenceiq.com/periscope/">Periscope</a> &ndash; the industry’s first SLA policy based autoscaling API for Hadoop YARN clusters. In this post we’d like to come up with some examples, setting up alarms and attach scaling policies to your Hadoop cluster.</p>
-
-<p>Periscope is built on existing (and coming/contributed by us) features provided by Apache Hadoop, YARN, Ambari, Docker containers and SequenceIQ’s <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>. Just FYI, <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> is our open source and cloud agnostic Hadoop as a Service API, built on Docker containers. While Periscope can attach scaling policies to <code>static</code> and <code>dynamic</code> clusters &ndash; in this post we’d like to emphasize Periscope’s capabilities while working with &mdash; `dynamic &ndash; cloud based Hadoop deployments  &ndash; such as Hadoop clusters deployed with <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>.</p>
-
-<p>SLAs policies are configured based on <code>alarms</code>, whereas an alarm is created based on <code>metrics</code> &ndash; these entities are explained below.</p>
-
-<h2>Alarms</h2>
-
-<p>An alarm watches a <code>metric</code> over a specified time period, and used by one or more action or scaling policy based on the value of the metric relative to a given threshold over the time period. A few of the supported <code>metrics</code> are listed below:</p>
-
-<p>*<code>PENDING_CONTAINERS</code>&ndash; pending YARN containers</p>
-
-<p>*<code>PENDING_APPLICATIONS</code> &ndash; pending/queued YARN applications</p>
-
-<p>*<code>LOST_NODES</code> &ndash; cluster nodes lost</p>
-
-<p>*<code>UNHEALTHY_NODES</code> &ndash; unhealthy cluster nodes</p>
-
-<p>*<code>GLOBAL_RESOURCES</code> &ndash; global resources</p>
-
-
-      
-       <a href="/blog/2014/09/01/sla-samples-periscope/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -942,6 +941,10 @@ Yes!</p>
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/10/17/boot2docker-tls-workaround/">Boot2docker TLS workaround</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/10/16/using-uaa-as-an-identity-server/">Securing Cloudbreak with OAuth2</a>

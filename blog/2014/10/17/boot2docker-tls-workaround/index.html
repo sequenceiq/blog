@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: Hadoop Summit - SequenceIQ Blog</title>
+  <title>Boot2docker TLS workaround - SequenceIQ Blog</title>
   <meta name="author" content="SequenceIQ">
 
    
-  <meta name="description" content="Category: Hadoop Summit">
+  <meta name="description" content="">
   
   <meta name="keywords" content="">
 
@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.sequenceiq.comblog/categories/hadoop-summit">
+  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2014/10/17/boot2docker-tls-workaround">
   <link href="/favicon.png" rel="icon">
   <link href='http://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
@@ -117,59 +117,167 @@
               <div class="col-md-9" id="">
                   <div class="">
                    <!-- <div id="content">-->
-                      <article role="article">
-  
- <!-- <header>
+                      <div>
 
-    
-  </header>-->
-  
-  <div id="blog-archives" class="category">
+<div class="container-fluid">
+     <div class="row">
+       
+         
+       
+       
 
-  
-  <div class="row">
-    <div class="col-md-1">
-  	
-  	
-  	  
-  	    <h2>2014</h2>
-  	
-    </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-02-26T10:17:04+00:00" pubdate><span class='month'>Feb</span> <span class='day'>26</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/02/26/vote-for-us/">Vote for us - 2014 Hadoop Summit San Jose</a></h1>
-	</div>
+       
+         
+       
+       <h1 class="article-style"> Boot2docker TLS workaround
+
+       <span class="badge name-badge">Lajos Papp</span>
+       <span class="badge name-badge">17 October 2014</span>
+       </h1>
+
+
+
 </div>
-
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
-
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/hadoop-summit/'>Hadoop Summit</a>, <a class='category' href='/blog/categories/vote/'>Vote</a></span>
-		</footer>
-		
-	</div>
 </div>
+<article class="hentry" role="article">
+  
 
 
-  	</article>
+  <div class="row-fluid">
+    <div class="span12">
+      <p>Docker 1.3.0 has been released with the invaluable <code>docker exec</code>
+<a href="https://docs.docker.com/reference/commandline/cli/#exec">command</a>.</p>
+
+<p>Boot2docker 1.3.0 delivered also some really neat features such
+as <a href="https://github.com/boot2docker/boot2docker#virtualbox-guest-additions">Folder sharing</a>
+with virtualbox guest additions. So finally OSX users are able to for example serve local html files in a container:
+<code>docker run -v /Users/lalyos/webapp/:/usr/share/nginx/html:ro nginx</code></p>
+
+<h2>Issue</h2>
+
+<p>Boot2docker also changed Docker listening from <a href="http://0.0.0.0:2375">http://0.0.0.0:2375</a> to <a href="https://0.0.0.0:2376.">https://0.0.0.0:2376.</a>
+While switching on TLS is highly recommended, but its not backward compatible.
+Some tools or environments are relying to be able to connect to Docker
+via simple http. So after upgrading to 1.3.0 something might be broken.</p>
+
+<h2>Workaround</h2>
+
+<p>Downgrading is for the weak ;)
+One alternative solution is to start a container which uses <code>socat</code> to proxy the unix
+socket file <code>/var/run/docker.sock</code> as a tcp port. It is containerized for you:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$(docker run sequenceiq/socat)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you can reach Docker the <em>old</em> way:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl http://192.168.59.103:2375/_ping
+</span><span class='line'>OK</span></code></pre></td></tr></table></div></figure>
+
+
+<!-- more -->
+
+
+<h2>tl;dr</h2>
+
+<p>The one-liner <code>$(docker run sequenceiq/socat)</code> does the following trick under the hood:</p>
+
+<ul>
+<li>it start the <strong>sequenceiq/socat</strong> container without any volume/port or CMD specification</li>
+<li>so the default <code>/start</code> bash script takes command</li>
+<li>the <code>/start</code> script (<a href="https://github.com/sequenceiq/docker-socat/blob/master/start">see source</a>) recognizes that it didn&rsquo;t started the proper way, so it
+<strong>prints the correct docker command</strong> to stdout (see below)</li>
+<li>the <code>$( ... )</code> notation executes the correct docker command</li>
+</ul>
+
+
+<p>So for reference, or you want to start it by hand, here is the full command:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -d \
+</span><span class='line'>  -p 2375:2375
+</span><span class='line'>  --volume=/var/run/docker.sock:/var/run/docker.sock \
+</span><span class='line'>  --name=docker-http \
+</span><span class='line'>  sequenceiq/socat</span></code></pre></td></tr></table></div></figure>
+
+
     </div>
   </div>
 
+
+
+  <footer>
+    <hr>
+    
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Lajos Papp</span></span>
+
+    
+    <div class="row">
+      
+      <div class="col-md-6 span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/docker/"><span class="label label-warning">docker</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="col-md-5 social-sharing pull-right">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
+  
+  <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+  
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
 </div>
 
+      </div>
+      
+      
+    </div>
+    
+    <div class="row">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2014/10/16/using-uaa-as-an-identity-server/" title="Previous Post: Securing Cloudbreak with OAuth2">&laquo; Securing Cloudbreak with OAuth2</a>
+          
+          
+        </p>
+      </div>
+    </div>
+  </footer>
 </article>
 
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
+</div>
 
 
                     <!--</div>-->
@@ -473,7 +581,10 @@
       var disqus_shortname = 'sequenceiqblog';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2014/10/17/boot2docker-tls-workaround/';
+        var disqus_url = 'http://blog.sequenceiq.com/blog/2014/10/17/boot2docker-tls-workaround/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

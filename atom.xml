@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-10-16T14:59:00+00:00</updated>
+  <updated>2014-10-17T17:58:47+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,76 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Boot2docker TLS workaround]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/10/17/boot2docker-tls-workaround/"/>
+    <updated>2014-10-17T16:46:39+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/10/17/boot2docker-tls-workaround</id>
+    <content type="html"><![CDATA[<p>Docker 1.3.0 has been released with the invaluable <code>docker exec</code>
+<a href="https://docs.docker.com/reference/commandline/cli/#exec">command</a>.</p>
+
+<p>Boot2docker 1.3.0 delivered also some really neat features such
+as <a href="https://github.com/boot2docker/boot2docker#virtualbox-guest-additions">Folder sharing</a>
+with virtualbox guest additions. So finally OSX users are able to for example serve local html files in a container:
+<code>docker run -v /Users/lalyos/webapp/:/usr/share/nginx/html:ro nginx</code></p>
+
+<h2>Issue</h2>
+
+<p>Boot2docker also changed Docker listening from <a href="http://0.0.0.0:2375">http://0.0.0.0:2375</a> to <a href="https://0.0.0.0:2376.">https://0.0.0.0:2376.</a>
+While switching on TLS is highly recommended, but its not backward compatible.
+Some tools or environments are relying to be able to connect to Docker
+via simple http. So after upgrading to 1.3.0 something might be broken.</p>
+
+<h2>Workaround</h2>
+
+<p>Downgrading is for the weak ;)
+One alternative solution is to start a container which uses <code>socat</code> to proxy the unix
+socket file <code>/var/run/docker.sock</code> as a tcp port. It is containerized for you:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$(docker run sequenceiq/socat)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you can reach Docker the <em>old</em> way:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl http://192.168.59.103:2375/_ping
+</span><span class='line'>OK</span></code></pre></td></tr></table></div></figure>
+
+
+<!-- more -->
+
+
+<h2>tl;dr</h2>
+
+<p>The one-liner <code>$(docker run sequenceiq/socat)</code> does the following trick under the hood:</p>
+
+<ul>
+<li>it start the <strong>sequenceiq/socat</strong> container without any volume/port or CMD specification</li>
+<li>so the default <code>/start</code> bash script takes command</li>
+<li>the <code>/start</code> script (<a href="https://github.com/sequenceiq/docker-socat/blob/master/start">see source</a>) recognizes that it didn&rsquo;t started the proper way, so it
+<strong>prints the correct docker command</strong> to stdout (see below)</li>
+<li>the <code>$( ... )</code> notation executes the correct docker command</li>
+</ul>
+
+
+<p>So for reference, or you want to start it by hand, here is the full command:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -d \
+</span><span class='line'>  -p 2375:2375
+</span><span class='line'>  --volume=/var/run/docker.sock:/var/run/docker.sock \
+</span><span class='line'>  --name=docker-http \
+</span><span class='line'>  sequenceiq/socat</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Securing Cloudbreak with OAuth2]]></title>
@@ -675,7 +745,7 @@ In the benchmark, the jobs were submitted to the <code>default</code> queue and 
 <p>SequenceIQ is an innovative big data startup with the mission statement to simplify and automate provisioning of on-demand Hadoop clusters running on different environments. Leaders in “containerizing” Hadoop, SequenceIQ is the first company who provisions and runs the full Hadoop stack and components on Docker containers. The company has further plans to create the industry’s first cloud agnostic, autoscaling and use case driven Platform as a Service API, and break the common significant barriers of entry that exist with most big data projects through a series of As-a-Service API offerings.
 For more information follow up with us on @SequenceIQ and <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>.</p>
 
-<p><a href="&#x6d;&#97;&#105;&#108;&#116;&#111;&#x3a;&#105;&#110;&#x66;&#111;&#64;&#115;&#x65;&#113;&#x75;&#101;&#110;&#x63;&#101;&#x69;&#113;&#x2e;&#x63;&#111;&#109;">&#x69;&#110;&#x66;&#111;&#64;&#115;&#x65;&#113;&#117;&#x65;&#110;&#x63;&#101;&#105;&#113;&#46;&#99;&#111;&#x6d;</a></p>
+<p><a href="&#109;&#97;&#105;&#108;&#x74;&#x6f;&#x3a;&#x69;&#x6e;&#x66;&#x6f;&#x40;&#x73;&#101;&#x71;&#x75;&#x65;&#110;&#x63;&#101;&#105;&#113;&#46;&#x63;&#x6f;&#x6d;">&#x69;&#x6e;&#102;&#111;&#64;&#115;&#101;&#113;&#117;&#101;&#x6e;&#99;&#x65;&#105;&#x71;&#46;&#x63;&#111;&#109;</a></p>
 ]]></content>
   </entry>
   
@@ -2800,70 +2870,6 @@ the contributors are dedicated and working hard to make this project moving forw
 Don&rsquo;t hesitate to contact us should you have any questions.</p>
 
 <p><a href="http://sequenceiq.com/">SequenceIQ</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[SLA policies for autoscaling Hadoop clusters]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/09/01/sla-samples-periscope/"/>
-    <updated>2014-09-01T16:37:37+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/09/01/sla-samples-periscope</id>
-    <content type="html"><![CDATA[<p>Last week we have <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">announced</a> and open sourced <a href="http://sequenceiq.com/periscope/">Periscope</a> &ndash; the industry’s first SLA policy based autoscaling API for Hadoop YARN clusters. In this post we’d like to come up with some examples, setting up alarms and attach scaling policies to your Hadoop cluster.</p>
-
-<p>Periscope is built on existing (and coming/contributed by us) features provided by Apache Hadoop, YARN, Ambari, Docker containers and SequenceIQ’s <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>. Just FYI, <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> is our open source and cloud agnostic Hadoop as a Service API, built on Docker containers. While Periscope can attach scaling policies to <code>static</code> and <code>dynamic</code> clusters &ndash; in this post we’d like to emphasize Periscope’s capabilities while working with &mdash; `dynamic &ndash; cloud based Hadoop deployments  &ndash; such as Hadoop clusters deployed with <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>.</p>
-
-<p>SLAs policies are configured based on <code>alarms</code>, whereas an alarm is created based on <code>metrics</code> &ndash; these entities are explained below.</p>
-
-<h2>Alarms</h2>
-
-<p>An alarm watches a <code>metric</code> over a specified time period, and used by one or more action or scaling policy based on the value of the metric relative to a given threshold over the time period. A few of the supported <code>metrics</code> are listed below:</p>
-
-<p>*<code>PENDING_CONTAINERS</code>&ndash; pending YARN containers</p>
-
-<p>*<code>PENDING_APPLICATIONS</code> &ndash; pending/queued YARN applications</p>
-
-<p>*<code>LOST_NODES</code> &ndash; cluster nodes lost</p>
-
-<p>*<code>UNHEALTHY_NODES</code> &ndash; unhealthy cluster nodes</p>
-
-<p>*<code>GLOBAL_RESOURCES</code> &ndash; global resources</p>
-
-<!--more-->
-
-
-<p>Measured <code>metrics</code> are compared with pre-configured values using operators. The <code>comparison operators</code> are: <code>LESS_THAN</code>, <code>GREATER_THAN</code>, <code>LESS_OR_EQUAL_THAN</code>, <code>GREATER_OR_EQUAL_THAN</code>, <code>EQUALS</code>.
-In order to avoid reacting for sudden spikes in the system and apply policies only in case of a sustained system stress, <code>alarms</code> have to be sustained over a <code>period</code> of time.  The <code>period</code> specifies the time period in minutes during the alarm has to be sustained. Also a <code>threshold</code> can be configured, which specifies the variance applied by the operator for the selected <code>metric</code>.</p>
-
-<p>For the <code>alarm</code> related REST operations you can check the <a href="http://docs.periscope.apiary.io/reference/alarms">API</a> documentation. Alarms can issue <code>notifications</code> as well &ndash; for example if a metric is reached for the configured time and threshold a notification event is raised &ndash; in the given example below this notification is an email.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># set metric alarms
-</span><span class='line'>curl -X POST -H "Content-Type: application/json" -d '{"alarms":[{"alarmName":"pendingContainerHigh","description":"Number of pending containers is high","metric":"PENDING_CONTAINERS","threshold":10,"comparisonOperator":"GREATER_THAN","period":1},{"alarmName":"freeGlobalResourcesRateLow","description":"Low free global resource rate","metric":"GLOBAL_RESOURCES","threshold":1,"comparisonOperator":"EQUALS","period":1,"notifications":[{"target":[“mick.fanning@aspworldtour.com"],"notificationType":"EMAIL"}]}]}' localhost:8081/clusters/1/alarms | jq .
-</span><span class='line'>curl -X PUT -H "Content-Type: application/json" -d '{"alarmName":"unhealthyNodesHigh","description":"Number of unhealthy nodes is high","metric":"UNHEALTHY_NODES","threshold":5,"comparisonOperator":"GREATER_OR_EQUAL_THAN","period":5}' localhost:8081/clusters/1/alarms | jq .</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>SLA scaling policies</h2>
-
-<p>Scaling is the ability to increase or decrease the capacity of the Hadoop cluster or application.  When scaling policies are used, the capacity is automatically increased or decreased according to the conditions defined.
-Periscope will do the heavy lifting and based on the alarms and the scaling policy linked to them it executes the associated policy. By default a fully configured and running <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> cluster contains no SLA policies.  An SLA scaling policy can contain multiple <code>alarms</code>.</p>
-
-<p>As an alarm is triggered a <code>scalingAdjustment</code> is applied, however to keep the cluster size within boundaries a <code>minSize</code> and <code>maxSize</code> is attached to the cluster &ndash; thus a scaling policy can never over or undersize a cluster. Also in order to avoid stressing the cluster we have introduced a <code>cooldown</code> period (minutes) &ndash; though an alarm is raised and there is an associated scaling policy, the system will not apply the policy within the configured timeframe. In an SLA scaling policy the triggered policies are applied in order.</p>
-
-<p>Hosts can be added or removed from specific <code>hostgroups</code>. Periscope and Cloudbreak uses Apache Ambari to provision a Hadoop cluster. Ambari host groups are a set of machines with the same Hadoop “components” installed. You can set up a cluster having different hostgroups &ndash; and run different services, thus having a heterogenous cluster.</p>
-
-<p>In the following example we downscale a cluster when the unused resources are high.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># set scaling policy
-</span><span class='line'>curl -X POST -H "Content-Type: application/json" -d '{"minSize":2,"maxSize":10,"cooldown":30,"scalingPolicies":[{"name":"downScaleWhenHighResource","adjustmentType":"NODE_COUNT","scalingAdjustment":2,"hostGroup":"slave_1","alarmId":"101"},{"name":"upScaleWhenHighPendingContainers","adjustmentType":"PERCENTAGE","scalingAdjustment":40,"hostGroup":"slave_1","alarmId":"100"}]}' localhost:8081/clusters/1/policies | jq .</span></code></pre></td></tr></table></div></figure>
-
-
-<p>For the <code>policy</code> related REST operations you can check the <a href="http://docs.periscope.apiary.io/reference/scaling-policy">API</a> documentation.</p>
-
-<p>Let us know how Periscope works for you &ndash; and for updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   
