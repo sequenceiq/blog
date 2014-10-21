@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Apache Tez | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/apache-tez/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-10-17T17:58:47+00:00</updated>
+  <updated>2014-10-20T08:29:59+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,105 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Cascading on Apache Tez]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/10/20/cascading-on-tez/"/>
+    <updated>2014-10-20T16:00:00+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/10/20/cascading-on-tez</id>
+    <content type="html"><![CDATA[<p>In one of our previous <a href="http://blog.sequenceiq.com/blog/2014/09/23/topn-on-apache-tez/">posts</a> we showed how to do a TopK using directly the Apache Tez API. In this post we’d like to show how to do a similarly complex algorithm with Cascading &ndash; running on Apache Tez.
+At <a href="http://sequenceiq.com">SequenceIQ</a> we use Scalding, Cascading and Spark to write most of our jobs. For a while our big data pipeline API called <a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> offers a unified API over different runtimes: MR2, Spark and Tez; recently Cascading has announced support for Apache Tez and we’d like to show you that by writing a detailed example.</p>
+
+<h2>Cascading Application &ndash; GroupBy, Each, Every</h2>
+
+<p>Cascading data flows are to be constructed from Source taps (input), Sink taps (output) and Pipes.
+At first, we have to setup our properties for the Cascading flow.</p>
+
+<p>``` java</p>
+
+<pre><code>    Properties properties = AppProps.appProps()
+            .setJarClass(Main.class)
+            .buildProperties();
+
+    properties = FlowRuntimeProps.flowRuntimeProps()
+            .setGatherPartitions(1)
+            .buildProperties(properties);
+</code></pre>
+
+<p>```</p>
+
+<p>Then in order to use Apache Tez, setup the Tez specific <code>Flow Connector</code>.</p>
+
+<!-- more -->
+
+
+<p><code>java
+FlowConnector flowConnector = new Hadoop2TezFlowConnector(properties);
+</code></p>
+
+<p>After that we do the algorithm part of the flow. We need an input and output which comes as command-line arguments.
+We are going to work on CSV files for the sake of simplicity, so we will use the <code>TextDelimited</code> scheme. Also we need to define our input pipe and taps (<code>source/sink</code>).
+Suppose that we want to count the occurrences of users and keep them only if they occur more than once. We can compute this with 2 <a href="http://docs.cascading.org/cascading/2.5/userguide/html/ch03s03.html#N205A3">GroupBy</a>, 1 <a href="http://docs.cascading.org/cascading/2.5/userguide/html/ch03s03.html#N20438">Every</a> and 1 <a href="http://docs.cascading.org/cascading/2.5/userguide/html/ch03s03.html#N20438">Each</a> operation.
+First, we group by user ids (count them with every operation), then in the second grouping we need to sort on the whole data set (by <code>count</code>) and use the <a href="http://docs.cascading.org/cascading/2.5/javadoc/cascading/operation/Filter.html">Filter</a> operation to remove the unneeded lines. (here we grouping by <code>Fields.NONE</code>, that means we take all data into 1 group, in other words we force to use 1 reducer)</p>
+
+<p>``` java</p>
+
+<pre><code>    final String inputPath = args[0];
+    final String outputPath = args[1];
+
+    final Fields fields = new Fields("userId", "data1", "data2", "data3");
+    final Scheme scheme = new TextDelimited(fields, false, true, ",");
+
+    final Pipe inPipe = new Pipe("inPipe");
+    final Tap inTap = new Hfs(scheme, inputPath);
+    final Fields groupFields = new Fields("userId");
+
+    Pipe usersPipe = new GroupBy("usersWithCount", inPipe, groupFields);
+    usersPipe = new Every(usersPipe, groupFields, new Count(), Fields.ALL);
+    usersPipe = new GroupBy(usersPipe, Fields.NONE, new Fields("count", "userId"), true);
+    usersPipe = new Each(usersPipe, new Fields("count"), new RegexFilter( "^(?:[2-9]|(?:[1-9][0-9]+))" ));
+
+    final Fields resultFields = new Fields("userId", "count");
+    final Scheme outputScheme = new TextDelimited(resultFields, false, true, ",");
+    Tap sinkTap = new Hfs(outputScheme, outputPath);
+</code></pre>
+
+<p>```</p>
+
+<p>Finally, setup the flow:</p>
+
+<p>``` java</p>
+
+<pre><code>    FlowDef flowDef = FlowDef.flowDef()
+            .setName("Cascading-TEZ")
+            .addSource(inPipe, inTap)
+            .addTailSink(usersPipe, sinkTap);
+
+    Flow flow = flowConnector.connect(flowDef);
+    flow.complete();
+</code></pre>
+
+<p>```</p>
+
+<p>As you can see the codebase is a bit simpler than using directly the Apache Tez API, however you loose the low level features of the expressive data flow API. Basically it&rsquo;s up to the personal preference of a developer whether to use and build directly on top of the Tez API or use Cascading (we have our own internal debate among colleagues) &ndash; as Apache Tez improves the performance by multiple times.</p>
+
+<p>Get the code from our GitHub repository <a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub examples</a> and build the project inside the <code>cascading-tez-sample</code> directory:</p>
+
+<p><code>bash
+./gradlew clean build
+</code>
+Once your jar is ready upload it onto a Tez cluster and run the following command:
+<code>bash
+hadoop jar cascading-tez-sample-1.0.jar /input /output
+</code></p>
+
+<p>Sample data can be generated in the same way as in <a href="http://blog.sequenceiq.com/blog/2014/09/23/topn-on-apache-tez">this</a> example.</p>
+
+<p>We have put together a Tez enabled Docker container, you can get it from <a href="https://github.com/sequenceiq/docker-tez">here</a>. Pull the container, and follow the instructions.</p>
+
+<p>If you have any questions or suggestions you can reach us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[TopK on Apache Tez]]></title>

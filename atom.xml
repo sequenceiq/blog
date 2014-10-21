@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-10-17T17:58:47+00:00</updated>
+  <updated>2014-10-20T08:29:59+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,135 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Cascading on Apache Tez]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/10/20/cascading-on-tez/"/>
+    <updated>2014-10-20T16:00:00+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/10/20/cascading-on-tez</id>
+    <content type="html"><![CDATA[<p>In one of our previous <a href="http://blog.sequenceiq.com/blog/2014/09/23/topn-on-apache-tez/">posts</a> we showed how to do a TopK using directly the Apache Tez API. In this post we’d like to show how to do a similarly complex algorithm with Cascading &ndash; running on Apache Tez.
+At <a href="http://sequenceiq.com">SequenceIQ</a> we use Scalding, Cascading and Spark to write most of our jobs. For a while our big data pipeline API called <a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> offers a unified API over different runtimes: MR2, Spark and Tez; recently Cascading has announced support for Apache Tez and we’d like to show you that by writing a detailed example.</p>
+
+<h2>Cascading Application &ndash; GroupBy, Each, Every</h2>
+
+<p>Cascading data flows are to be constructed from Source taps (input), Sink taps (output) and Pipes.
+At first, we have to setup our properties for the Cascading flow.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="n">Properties</span> <span class="n">properties</span> <span class="o">=</span> <span class="n">AppProps</span><span class="o">.</span><span class="na">appProps</span><span class="o">()</span>
+</span><span class='line'>            <span class="o">.</span><span class="na">setJarClass</span><span class="o">(</span><span class="n">Main</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+</span><span class='line'>            <span class="o">.</span><span class="na">buildProperties</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">properties</span> <span class="o">=</span> <span class="n">FlowRuntimeProps</span><span class="o">.</span><span class="na">flowRuntimeProps</span><span class="o">()</span>
+</span><span class='line'>            <span class="o">.</span><span class="na">setGatherPartitions</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span>
+</span><span class='line'>            <span class="o">.</span><span class="na">buildProperties</span><span class="o">(</span><span class="n">properties</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then in order to use Apache Tez, setup the Tez specific <code>Flow Connector</code>.</p>
+
+<!-- more -->
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">FlowConnector</span> <span class="n">flowConnector</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Hadoop2TezFlowConnector</span><span class="o">(</span><span class="n">properties</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After that we do the algorithm part of the flow. We need an input and output which comes as command-line arguments.
+We are going to work on CSV files for the sake of simplicity, so we will use the <code>TextDelimited</code> scheme. Also we need to define our input pipe and taps (<code>source/sink</code>).
+Suppose that we want to count the occurrences of users and keep them only if they occur more than once. We can compute this with 2 <a href="http://docs.cascading.org/cascading/2.5/userguide/html/ch03s03.html#N205A3">GroupBy</a>, 1 <a href="http://docs.cascading.org/cascading/2.5/userguide/html/ch03s03.html#N20438">Every</a> and 1 <a href="http://docs.cascading.org/cascading/2.5/userguide/html/ch03s03.html#N20438">Each</a> operation.
+First, we group by user ids (count them with every operation), then in the second grouping we need to sort on the whole data set (by <code>count</code>) and use the <a href="http://docs.cascading.org/cascading/2.5/javadoc/cascading/operation/Filter.html">Filter</a> operation to remove the unneeded lines. (here we grouping by <code>Fields.NONE</code>, that means we take all data into 1 group, in other words we force to use 1 reducer)</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="kd">final</span> <span class="n">String</span> <span class="n">inputPath</span> <span class="o">=</span> <span class="n">args</span><span class="o">[</span><span class="mi">0</span><span class="o">];</span>
+</span><span class='line'>    <span class="kd">final</span> <span class="n">String</span> <span class="n">outputPath</span> <span class="o">=</span> <span class="n">args</span><span class="o">[</span><span class="mi">1</span><span class="o">];</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">final</span> <span class="n">Fields</span> <span class="n">fields</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;userId&quot;</span><span class="o">,</span> <span class="s">&quot;data1&quot;</span><span class="o">,</span> <span class="s">&quot;data2&quot;</span><span class="o">,</span> <span class="s">&quot;data3&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="kd">final</span> <span class="n">Scheme</span> <span class="n">scheme</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TextDelimited</span><span class="o">(</span><span class="n">fields</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="s">&quot;,&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">final</span> <span class="n">Pipe</span> <span class="n">inPipe</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Pipe</span><span class="o">(</span><span class="s">&quot;inPipe&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="kd">final</span> <span class="n">Tap</span> <span class="n">inTap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Hfs</span><span class="o">(</span><span class="n">scheme</span><span class="o">,</span> <span class="n">inputPath</span><span class="o">);</span>
+</span><span class='line'>    <span class="kd">final</span> <span class="n">Fields</span> <span class="n">groupFields</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;userId&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">Pipe</span> <span class="n">usersPipe</span> <span class="o">=</span> <span class="k">new</span> <span class="n">GroupBy</span><span class="o">(</span><span class="s">&quot;usersWithCount&quot;</span><span class="o">,</span> <span class="n">inPipe</span><span class="o">,</span> <span class="n">groupFields</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">usersPipe</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Every</span><span class="o">(</span><span class="n">usersPipe</span><span class="o">,</span> <span class="n">groupFields</span><span class="o">,</span> <span class="k">new</span> <span class="n">Count</span><span class="o">(),</span> <span class="n">Fields</span><span class="o">.</span><span class="na">ALL</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">usersPipe</span> <span class="o">=</span> <span class="k">new</span> <span class="n">GroupBy</span><span class="o">(</span><span class="n">usersPipe</span><span class="o">,</span> <span class="n">Fields</span><span class="o">.</span><span class="na">NONE</span><span class="o">,</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;count&quot;</span><span class="o">,</span> <span class="s">&quot;userId&quot;</span><span class="o">),</span> <span class="kc">true</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">usersPipe</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Each</span><span class="o">(</span><span class="n">usersPipe</span><span class="o">,</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;count&quot;</span><span class="o">),</span> <span class="k">new</span> <span class="n">RegexFilter</span><span class="o">(</span> <span class="s">&quot;^(?:[2-9]|(?:[1-9][0-9]+))&quot;</span> <span class="o">));</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">final</span> <span class="n">Fields</span> <span class="n">resultFields</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;userId&quot;</span><span class="o">,</span> <span class="s">&quot;count&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="kd">final</span> <span class="n">Scheme</span> <span class="n">outputScheme</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TextDelimited</span><span class="o">(</span><span class="n">resultFields</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="s">&quot;,&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">Tap</span> <span class="n">sinkTap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Hfs</span><span class="o">(</span><span class="n">outputScheme</span><span class="o">,</span> <span class="n">outputPath</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, setup the flow:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="n">FlowDef</span> <span class="n">flowDef</span> <span class="o">=</span> <span class="n">FlowDef</span><span class="o">.</span><span class="na">flowDef</span><span class="o">()</span>
+</span><span class='line'>            <span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">&quot;Cascading-TEZ&quot;</span><span class="o">)</span>
+</span><span class='line'>            <span class="o">.</span><span class="na">addSource</span><span class="o">(</span><span class="n">inPipe</span><span class="o">,</span> <span class="n">inTap</span><span class="o">)</span>
+</span><span class='line'>            <span class="o">.</span><span class="na">addTailSink</span><span class="o">(</span><span class="n">usersPipe</span><span class="o">,</span> <span class="n">sinkTap</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">Flow</span> <span class="n">flow</span> <span class="o">=</span> <span class="n">flowConnector</span><span class="o">.</span><span class="na">connect</span><span class="o">(</span><span class="n">flowDef</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">flow</span><span class="o">.</span><span class="na">complete</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see the codebase is a bit simpler than using directly the Apache Tez API, however you loose the low level features of the expressive data flow API. Basically it&rsquo;s up to the personal preference of a developer whether to use and build directly on top of the Tez API or use Cascading (we have our own internal debate among colleagues) &ndash; as Apache Tez improves the performance by multiple times.</p>
+
+<p>Get the code from our GitHub repository <a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub examples</a> and build the project inside the <code>cascading-tez-sample</code> directory:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>./gradlew clean build
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once your jar is ready upload it onto a Tez cluster and run the following command:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>hadoop jar cascading-tez-sample-1.0.jar /input /output
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Sample data can be generated in the same way as in <a href="http://blog.sequenceiq.com/blog/2014/09/23/topn-on-apache-tez">this</a> example.</p>
+
+<p>We have put together a Tez enabled Docker container, you can get it from <a href="https://github.com/sequenceiq/docker-tez">here</a>. Pull the container, and follow the instructions.</p>
+
+<p>If you have any questions or suggestions you can reach us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Boot2docker TLS workaround]]></title>
@@ -745,7 +874,7 @@ In the benchmark, the jobs were submitted to the <code>default</code> queue and 
 <p>SequenceIQ is an innovative big data startup with the mission statement to simplify and automate provisioning of on-demand Hadoop clusters running on different environments. Leaders in “containerizing” Hadoop, SequenceIQ is the first company who provisions and runs the full Hadoop stack and components on Docker containers. The company has further plans to create the industry’s first cloud agnostic, autoscaling and use case driven Platform as a Service API, and break the common significant barriers of entry that exist with most big data projects through a series of As-a-Service API offerings.
 For more information follow up with us on @SequenceIQ and <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>.</p>
 
-<p><a href="&#109;&#97;&#105;&#108;&#x74;&#x6f;&#x3a;&#x69;&#x6e;&#x66;&#x6f;&#x40;&#x73;&#101;&#x71;&#x75;&#x65;&#110;&#x63;&#101;&#105;&#113;&#46;&#x63;&#x6f;&#x6d;">&#x69;&#x6e;&#102;&#111;&#64;&#115;&#101;&#113;&#117;&#101;&#x6e;&#99;&#x65;&#105;&#x71;&#46;&#x63;&#111;&#109;</a></p>
+<p><a href="&#x6d;&#x61;&#105;&#108;&#x74;&#x6f;&#58;&#105;&#x6e;&#x66;&#x6f;&#64;&#115;&#101;&#x71;&#117;&#101;&#110;&#99;&#x65;&#x69;&#113;&#46;&#99;&#111;&#109;">&#x69;&#110;&#102;&#x6f;&#x40;&#x73;&#x65;&#x71;&#x75;&#101;&#110;&#x63;&#101;&#105;&#x71;&#46;&#99;&#x6f;&#109;</a></p>
 ]]></content>
   </entry>
   
@@ -2677,199 +2806,6 @@ and after a delay on a rack local node and in the end falling back to an off swi
 <p>You have just seen how easy is to provision a Hadoop cluster on your laptop, if you’d like to see how we provision a Hadoop cluster in the cloud using the very same Docker image you can check our open source, cloud agnostic Hadoop as a Service API &ndash; <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a>. Last week we have released a project called <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> &ndash; the industry&rsquo;s first open source autoscaling API for Hadoop.</p>
 
 <p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[SQL on HBase with Apache Phoenix]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/09/04/sql-on-hbase-with-apache-phoenix/"/>
-    <updated>2014-09-04T12:24:11+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/09/04/sql-on-hbase-with-apache-phoenix</id>
-    <content type="html"><![CDATA[<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we use HBase to store large amounts of high velocity data and interact with them &ndash; many times we use native HBase interfaces but recently there was a need (internal and external) to access the data through an SQL interface.</p>
-
-<h2>Introduction</h2>
-
-<p>HBase is an open-source, distributed, versioned, non-relational database modeled after Google&rsquo;s Bigtable. It&rsquo;s designed to handle
-billions of rows and millions of columns. However, using it as a relational database where you would store your data normalized,
-split into multiple tables is not easy and most likely you will struggle with it as you would do in any other non-relational database.
-Here comes <a href="http://phoenix.apache.org/">Apache Phoenix</a> in the picture. It&rsquo;s an SQL skin over HBase delivered as a
-client-embedded JDBC driver targeting low latency queries. The project is in incubating state and under heavy development, but you
-can already start embracing it.</p>
-
-<h2>Installation</h2>
-
-<p>Download the appropriate distribution from <a href="http://xenia.sote.hu/ftp/mirrors/www.apache.org/phoenix/">here</a>:</p>
-
-<ul>
-<li>Phoenix 3.x &ndash; HBase 0.94.x</li>
-<li>Phoenix 4.x &ndash; HBase 0.98.1+</li>
-</ul>
-
-
-<p><em>Note the compatibilities between the HBase and Phoenix versions</em></p>
-
-<p>Alternatively you can clone the <a href="https://github.com/apache/phoenix/tree/4.0">repository</a> and build it yourself (mvn clean install -DskipTests).
-It should produce a jar file like this: phoenix-<code>version</code>-client.jar. Copy it to HBase&rsquo;s classpath (easiest way is to copy into
-HBASE_HOME/lib). If you have multiple nodes it has to be there on every node. Restart the RegionServers and you are good to go. That&rsquo;s it?
-Yes!</p>
-
-<h2>Sample</h2>
-
-<p>We&rsquo;ve pre-cooked a <a href="https://github.com/sequenceiq/phoenix-docker">Docker</a> image for you so you can follow this sample and play with it (the image is based on Hadoop 2.5, HBase 0.98.5, Phoenix 4.1.0):</p>
-
-<h3>Normal launch</h3>
-
-<p><code>docker run -it sequenceiq/phoenix:v4.1onHbase-0.98.5</code></p>
-
-<h3>Alternative launch with sqlline</h3>
-
-<p><code>docker run -it sequenceiq/phoenix:v4.1onHbase-0.98.5 /etc/bootstrap-phoenix.sh -sqlline</code></p>
-
-<!-- more -->
-
-
-<h3>Create tables</h3>
-
-<p>The downloaded or built distribution&rsquo;s bin directory contains a pure-Java console based utility called sqlline.py. You can use this
-to connect to HBase via the Phoenix JDBC driver. You need to specify the Zookeeper&rsquo;s QuorumPeer&rsquo;s address. If the default (2181) port is
-used then type <em>sqlline.py localhost</em> (to quit type: !quit). Let&rsquo;s create two different tables:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='mysql'><span class='line'><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="nf">CUSTOMERS</span> <span class="p">(</span><span class="n">ID</span> <span class="kt">INTEGER</span> <span class="k">NOT</span> <span class="no">NULL</span> <span class="k">PRIMARY</span> <span class="k">KEY</span><span class="p">,</span> <span class="n">NAME</span> <span class="kt">VARCHAR</span><span class="p">(</span><span class="mi">40</span><span class="p">)</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span> <span class="n">AGE</span> <span class="kt">INTEGER</span> <span class="k">NOT</span> <span class="no">NULL</span><span class="p">,</span> <span class="n">CITY</span> <span class="kt">CHAR</span><span class="p">(</span><span class="mi">25</span><span class="p">));</span>
-</span><span class='line'><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="nf">ORDERS</span> <span class="p">(</span><span class="n">ID</span> <span class="kt">INTEGER</span> <span class="k">NOT</span> <span class="no">NULL</span> <span class="k">PRIMARY</span> <span class="k">KEY</span><span class="p">,</span> <span class="kt">DATE</span> <span class="kt">DATE</span><span class="p">,</span> <span class="n">CUSTOMER_ID</span> <span class="kt">INTEGER</span><span class="p">,</span> <span class="n">AMOUNT</span> <span class="kt">DOUBLE</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>It&rsquo;s worth checking which <a href="http://phoenix.apache.org/language/datatypes.html">datatypes</a> and
-<a href="http://phoenix.apache.org/language/functions.html">functions</a> are currently supported. These tables will be translated into
-HBase tables and the metadata is stored along with it and versioned, such that snapshot queries over prior versions will automatically
-use the correct schema. You can check with HBase shell as <code>describe 'CUSTOMERS'</code></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='mysql'><span class='line'><span class="n">DESCRIPTION</span>                                                                                                                         <span class="n">ENABLED</span>
-</span><span class='line'> <span class="s1">&#39;CUSTOMERS&#39;</span><span class="p">,</span> <span class="err">{</span><span class="n">TABLE_ATTRIBUTES</span> <span class="o">=&gt;</span> <span class="err">{</span><span class="n">coprocessor</span><span class="err">$</span><span class="mi">1</span> <span class="o">=&gt;</span> <span class="s1">&#39;|org.apache.phoenix.coprocessor.ScanRegionObserver|1|&#39;</span><span class="p">,</span> <span class="n">coprocessor</span><span class="err">$</span><span class="mi">2</span> <span class="o">=&gt;</span> <span class="s1">&#39;|or true</span>
-</span><span class='line'><span class="s1"> g.apache.phoenix.coprocessor.UngroupedAggregateRegionObserver|1|&#39;</span><span class="p">,</span> <span class="n">coprocessor</span><span class="err">$</span><span class="mi">3</span> <span class="o">=&gt;</span> <span class="s1">&#39;|org.apache.phoenix.coprocessor.GroupedAggreg</span>
-</span><span class='line'><span class="s1"> ateRegionObserver|1|&#39;</span><span class="p">,</span> <span class="n">coprocessor</span><span class="err">$</span><span class="mi">4</span> <span class="o">=&gt;</span> <span class="s1">&#39;|org.apache.phoenix.coprocessor.ServerCachingEndpointImpl|1|&#39;</span><span class="p">,</span> <span class="n">coprocessor</span><span class="err">$</span><span class="mi">5</span> <span class="o">=&gt;</span> <span class="s1">&#39;|org.apa</span>
-</span><span class='line'><span class="s1"> che.phoenix.hbase.index.Indexer|1073741823|index.builder=org.apache.phoenix.index.PhoenixIndexBuilder,org.apache.hadoop.hbase.inde</span>
-</span><span class='line'><span class="s1"> x.codec.class=org.apache.phoenix.index.PhoenixIndexCodec&#39;</span><span class="err">}</span><span class="p">,</span> <span class="err">{</span><span class="n">NAME</span> <span class="o">=&gt;</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="n">DATA_BLOCK_ENCODING</span> <span class="o">=&gt;</span> <span class="s1">&#39;FAST_DIFF&#39;</span><span class="p">,</span> <span class="n">BLOOMFILTER</span> <span class="o">=&gt;</span> <span class="s1">&#39;ROW&#39;</span>
-</span><span class='line'> <span class="p">,</span> <span class="n">REPLICATION_SCOPE</span> <span class="o">=&gt;</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="n">VERSIONS</span> <span class="o">=&gt;</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="n">COMPRESSION</span> <span class="o">=&gt;</span> <span class="s1">&#39;NONE&#39;</span><span class="p">,</span> <span class="n">MIN_VERSIONS</span> <span class="o">=&gt;</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="n">TTL</span> <span class="o">=&gt;</span> <span class="s1">&#39;2147483647&#39;</span><span class="p">,</span> <span class="n">KEEP_DELETED_CELLS</span> <span class="o">=</span>
-</span><span class='line'> <span class="o">&gt;</span> <span class="s1">&#39;true&#39;</span><span class="p">,</span> <span class="n">BLOCKSIZE</span> <span class="o">=&gt;</span> <span class="s1">&#39;65536&#39;</span><span class="p">,</span> <span class="n">IN_MEMORY</span> <span class="o">=&gt;</span> <span class="s1">&#39;false&#39;</span><span class="p">,</span> <span class="n">BLOCKCACHE</span> <span class="o">=&gt;</span> <span class="s1">&#39;true&#39;</span><span class="err">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>As you can see there are bunch of co-processors. Co-processors were introduced in version 0.92.0 to push arbitrary computation out
-to the HBase nodes and run in parallel across all the RegionServers. There are two types of them: <code>observers</code> and <code>endpoints</code>.
-Observers allow the cluster to behave differently during normal client operations. Endpoints allow you to extend the cluster’s
-capabilities, exposing new operations to client applications. Phoenix uses them to translate the SQL queries to scans and that&rsquo;s
-why it can operate so quickly. It is also possible to map an existing HBase table to a Phoenix table. In this case the binary
-representation of the row key and key values must match one of the Phoenix data types.</p>
-
-<h3>Load data</h3>
-
-<p>After the tables are created fill them with data. For this purpose we&rsquo;ll use the <a href="http://www.jooq.org/">Jooq</a> library&rsquo;s fluent API.
-The related sample project (Spring based) can be found in our
-<a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/phoenix-jooq">GitHub</a> repository. To connect you&rsquo;ll need Phoenix&rsquo;s
-JDBC driver on your classpath (org.apache.phoenix.jdbc.PhoenixDriver). The url to connect to should be familiar as it uses the same Zookeeper QuorumPeer&rsquo;s address:
-<code>jdbc:phoenix:localhost:2181</code>. Unfortunately Jooq&rsquo;s insert statement is not suitable for us since the JDBC driver only supports the
-upsert statement so we cannot make use of the fluent API here.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">String</span> <span class="n">userSql</span> <span class="o">=</span> <span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;upsert into customers values (%d, &#39;%s&#39;, %d, &#39;%s&#39;)&quot;</span><span class="o">,</span>
-</span><span class='line'>                    <span class="n">i</span><span class="o">,</span>
-</span><span class='line'>                    <span class="n">escapeSql</span><span class="o">(</span><span class="n">names</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">random</span><span class="o">.</span><span class="na">nextInt</span><span class="o">(</span><span class="n">names</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">-</span> <span class="mi">1</span><span class="o">))),</span>
-</span><span class='line'>                    <span class="n">random</span><span class="o">.</span><span class="na">nextInt</span><span class="o">(</span><span class="mi">40</span><span class="o">)</span> <span class="o">+</span> <span class="mi">18</span><span class="o">,</span>
-</span><span class='line'>                    <span class="n">escapeSql</span><span class="o">(</span><span class="n">locales</span><span class="o">[</span><span class="n">random</span><span class="o">.</span><span class="na">nextInt</span><span class="o">(</span><span class="n">locales</span><span class="o">.</span><span class="na">length</span> <span class="o">-</span> <span class="mi">1</span><span class="o">)].</span><span class="na">getDisplayCountry</span><span class="o">()));</span>
-</span><span class='line'><span class="n">String</span> <span class="n">orderSql</span> <span class="o">=</span> <span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;upsert into orders values (%d, CURRENT_DATE(), %d, %d)&quot;</span><span class="o">,</span>
-</span><span class='line'>                    <span class="n">i</span><span class="o">,</span>
-</span><span class='line'>                    <span class="n">i</span><span class="o">,</span>
-</span><span class='line'>                    <span class="n">random</span><span class="o">.</span><span class="na">nextInt</span><span class="o">(</span><span class="mi">1</span><span class="n">_000_000</span><span class="o">));</span>
-</span><span class='line'><span class="n">dslContext</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">userSql</span><span class="o">);</span>
-</span><span class='line'><span class="n">dslContext</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">orderSql</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Query</h3>
-
-<p>On the generated data let&rsquo;s create queries:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">dslContext</span>
-</span><span class='line'>          <span class="o">.</span><span class="na">select</span><span class="o">()</span>
-</span><span class='line'>          <span class="o">.</span><span class="na">from</span><span class="o">(</span><span class="n">tableByName</span><span class="o">(</span><span class="s">&quot;customers&quot;</span><span class="o">).</span><span class="na">as</span><span class="o">(</span><span class="s">&quot;c&quot;</span><span class="o">))</span>
-</span><span class='line'>          <span class="o">.</span><span class="na">join</span><span class="o">(</span><span class="n">tableByName</span><span class="o">(</span><span class="s">&quot;orders&quot;</span><span class="o">).</span><span class="na">as</span><span class="o">(</span><span class="s">&quot;o&quot;</span><span class="o">)).</span><span class="na">on</span><span class="o">(</span><span class="s">&quot;o.customer_id = c.id&quot;</span><span class="o">)</span>
-</span><span class='line'>          <span class="o">.</span><span class="na">where</span><span class="o">(</span><span class="n">fieldByName</span><span class="o">(</span><span class="s">&quot;o.amount&quot;</span><span class="o">).</span><span class="na">lessThan</span><span class="o">(</span><span class="n">amount</span><span class="o">))</span>
-</span><span class='line'>          <span class="o">.</span><span class="na">orderBy</span><span class="o">(</span><span class="n">fieldByName</span><span class="o">(</span><span class="s">&quot;c.name&quot;</span><span class="o">).</span><span class="na">asc</span><span class="o">())</span>
-</span><span class='line'>          <span class="o">.</span><span class="na">fetch</span><span class="o">();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This query resulted the following:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="o">+----+------------+-----+-----------+----+----------+-------------+--------+</span>
-</span><span class='line'><span class="o">|</span><span class="n">C</span><span class="o">.</span><span class="na">ID</span><span class="o">|</span><span class="n">C</span><span class="o">.</span><span class="na">NAME</span>      <span class="o">|</span><span class="n">C</span><span class="o">.</span><span class="na">AGE</span><span class="o">|</span><span class="n">C</span><span class="o">.</span><span class="na">CITY</span>     <span class="o">|</span><span class="n">O</span><span class="o">.</span><span class="na">ID</span><span class="o">|</span><span class="n">O</span><span class="o">.</span><span class="na">DATE</span>    <span class="o">|</span><span class="n">O</span><span class="o">.</span><span class="na">CUSTOMER_ID</span><span class="o">|</span><span class="n">O</span><span class="o">.</span><span class="na">AMOUNT</span><span class="o">|</span>
-</span><span class='line'><span class="o">+----+------------+-----+-----------+----+----------+-------------+--------+</span>
-</span><span class='line'><span class="o">|</span> <span class="mi">976</span><span class="o">|</span><span class="n">Bogan</span><span class="o">,</span> <span class="n">Elias</span><span class="o">|</span>   <span class="mi">26</span><span class="o">|</span><span class="n">Japan</span>      <span class="o">|</span> <span class="mi">976</span><span class="o">|</span><span class="mi">2014</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">20</span><span class="o">|</span>          <span class="mi">976</span><span class="o">|</span>  <span class="mf">8664.0</span><span class="o">|</span>
-</span><span class='line'><span class="o">|</span> <span class="mi">827</span><span class="o">|</span><span class="n">Constrictor</span> <span class="o">|</span>   <span class="mi">29</span><span class="o">|{</span><span class="kc">null</span><span class="o">}</span>     <span class="o">|</span> <span class="mi">827</span><span class="o">|</span><span class="mi">2014</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">20</span><span class="o">|</span>          <span class="mi">827</span><span class="o">|</span>  <span class="mf">7856.0</span><span class="o">|</span>
-</span><span class='line'><span class="o">|</span> <span class="mi">672</span><span class="o">|</span><span class="n">Hardwire</span>    <span class="o">|</span>   <span class="mi">31</span><span class="o">|</span><span class="n">Tunisia</span>    <span class="o">|</span> <span class="mi">672</span><span class="o">|</span><span class="mi">2014</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">20</span><span class="o">|</span>          <span class="mi">672</span><span class="o">|</span>  <span class="mf">9292.0</span><span class="o">|</span>
-</span><span class='line'><span class="o">|</span> <span class="mi">746</span><span class="o">|</span><span class="n">Lady</span> <span class="n">Killer</span> <span class="o">|</span>   <span class="mi">37</span><span class="o">|</span><span class="n">Cyprus</span>     <span class="o">|</span> <span class="mi">746</span><span class="o">|</span><span class="mi">2014</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">20</span><span class="o">|</span>          <span class="mi">746</span><span class="o">|</span>  <span class="mf">1784.0</span><span class="o">|</span>
-</span><span class='line'><span class="o">|</span> <span class="mi">242</span><span class="o">|</span><span class="n">Lifeforce</span>   <span class="o">|</span>   <span class="mi">35</span><span class="o">|</span><span class="n">Switzerland</span><span class="o">|</span> <span class="mi">242</span><span class="o">|</span><span class="mi">2014</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">20</span><span class="o">|</span>          <span class="mi">242</span><span class="o">|</span>  <span class="mf">5406.0</span><span class="o">|</span>
-</span><span class='line'><span class="o">|</span> <span class="mi">487</span><span class="o">|</span><span class="n">Topspin</span>     <span class="o">|</span>   <span class="mi">48</span><span class="o">|{</span><span class="kc">null</span><span class="o">}</span>     <span class="o">|</span> <span class="mi">487</span><span class="o">|</span><span class="mi">2014</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">20</span><span class="o">|</span>          <span class="mi">487</span><span class="o">|</span>  <span class="mf">6512.0</span><span class="o">|</span>
-</span><span class='line'><span class="o">+----+------------+-----+-----------+----+----------+-------------+--------+</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The same thing could&rsquo;ve been achieved with sqlline also.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='mysql'><span class='line'><span class="k">select</span> <span class="n">c</span><span class="p">.</span><span class="n">name</span> <span class="k">as</span> <span class="n">name</span><span class="p">,</span> <span class="n">o</span><span class="p">.</span><span class="n">amount</span> <span class="k">as</span> <span class="n">amount</span><span class="p">,</span> <span class="n">o</span><span class="p">.</span><span class="kt">date</span> <span class="k">as</span> <span class="kt">date</span> <span class="k">from</span> <span class="n">customers</span> <span class="k">as</span> <span class="n">c</span> <span class="k">inner</span> <span class="k">join</span> <span class="n">orders</span> <span class="k">as</span> <span class="n">o</span> <span class="k">on</span> <span class="n">o</span><span class="p">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">c</span><span class="p">.</span><span class="n">id</span> <span class="k">where</span> <span class="n">o</span><span class="p">.</span><span class="n">amount</span> <span class="o">&lt;</span> <span class="mi">10000</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Nested queries are not supported yet, but it will come soon.</p>
-
-<h2>Summary</h2>
-
-<p>As you saw it is pretty easy to get started with Phoenix both command line and programmatically. There are lots of lacking features, but
-the contributors are dedicated and working hard to make this project moving forward. Next step? ORM for HBase? It is also ongoing.. :)</p>
-
-<p>Follow up with <a href="https://www.linkedin.com/company/sequenceiq/">us</a> if you are interested in HBase and building an SQL interface on top.
-Don&rsquo;t hesitate to contact us should you have any questions.</p>
-
-<p><a href="http://sequenceiq.com/">SequenceIQ</a></p>
 ]]></content>
   </entry>
   
