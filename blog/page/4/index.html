@@ -130,6 +130,70 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/08/04/launch-docker-containers-on-azure/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">04 August 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/azure/"><span class="label label-warning">Azure</span></a>
+            
+            <a href="/blog/categories/cloud/"><span class="label label-warning">Cloud</span></a>
+            
+            <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
+            
+            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+            <a href="/blog/categories/hadoop-as-a-service/"><span class="label label-warning">Hadoop as a Service</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/08/04/launch-docker-containers-on-azure/">Launch Docker containers on Azure</a>
+          <span class="badge name-badge">Richard Doktorics</span>
+
+      </h1>
+      <p>Two weeks ago we have open sourced our cloud agnostic and Docker based Hadoop as a Service API &ndash; called <a href="http://sequenceiq.com/cloudbreak">Cloudbreak</a>.
+The first public beta version supports Amazon’s AWS and Microsoft’s Azure, while we are already wrapping up a few new cloud provider integrations.</p>
+
+<p>While there is some documentation about running Docker containers on Amazon, there is no detailed description about running Docker on the Azure cloud.
+With this blog post we would like to shed some light on it &ndash; recently there have been lots of announcements from Microsoft about Docker support (Azure CLI, Kubernetes, libswarm) but they are either not finished yet or are not ready to build a robust platform on top.
+We are eagerly waiting for the <a href="http://azure.microsoft.com/blog/2014/07/10/azure-collaboration-with-google-and-docker/">Kubernetes integration</a>.</p>
+
+<p>In the meantime, if you are interested in running a <code>cluster</code> of Docker container, or do some more complex stuff then read on.</p>
+
+<p>Just to briefly recap &ndash; with Cloudbreak we are launching on demand Hadoop clusters (check our <a href="http://blog.sequenceiq.com/blog/2014/07/25/cloudbreak-technology/">blog</a> for further technical details) in Docker containers. These containers are <code>shipped</code> to different cloud VMsm and dynamically find and join each other &ndash; they form a fully functional Hadoop cluster without the need to do anything manually on the host, or apply any manual pre-configuration.
+So how are we doing this?</p>
+
+
+      
+       <a href="/blog/2014/08/04/launch-docker-containers-on-azure/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/07/31/spark-mllib/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -726,89 +790,6 @@ Cross application priorites can&rsquo;t be configured yet, only priorities betwe
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/06/23/scalding-correlation-example/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">23 June 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/correlation/"><span class="label label-warning">Correlation</span></a>
-            
-            <a href="/blog/categories/hbase/"><span class="label label-warning">HBase</span></a>
-            
-            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
-            
-            <a href="/blog/categories/scala/"><span class="label label-warning">Scala</span></a>
-            
-            <a href="/blog/categories/scalding/"><span class="label label-warning">Scalding</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/06/23/scalding-correlation-example/">Pearson correlation with Scalding</a>
-          <span class="badge name-badge">Oliver Szabo</span>
-
-      </h1>
-      <h2>Introduction</h2>
-
-<p>At SequenceIQ we are processing data in batch and streaming &ndash; for both we use Scala as our prefered language; for batch processing in particular we use Scalding to build our job and data pipelines. Actually there is <code>Babylon</code> at SequenceIQ as we use Java, Scala, Go, R, Groovy, Ansible, shell, JavaScript and what not &ndash; follow up with us for a post talking about the language heterogeneity.</p>
-
-<p>Scalding is a powerful tool and great choice to simplify the writing and abstracting MapReduce jobs &ndash; an open source project originally developed by Twitter and recently the community.
-In the following detailed example we&rsquo;d like show you an example of how to write and test Scalding jobs, running on Hadoop.</p>
-
-<h2>Writing a Pearson correlation job</h2>
-
-<p>In this example, we&rsquo;d like to calculate a Pearson&rsquo;s product-moment coefficient on 2 columns of a given <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/scalding-correlation/data">input</a>.
-This is a simple computation and the easiest way to find any dependency between two datasets.
-First of all we need all the parameters for the given <a href="http://www.statisticshowto.com/what-is-the-correlation-coefficient-formula/">formula</a>.
-In Scala the code would look like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">CorrelationOp</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">def</span> <span class="n">calculateCorrelation</span><span class="o">(</span><span class="n">size</span><span class="k">:</span> <span class="kt">Long</span><span class="o">,</span> <span class="n">su1</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">su2</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">sq1</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">sq2</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">dotProd</span><span class="k">:</span> <span class="kt">Double</span><span class="o">)</span> <span class="k">:</span> <span class="kt">Double</span> <span class="o">=</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">val</span> <span class="n">dividend</span> <span class="k">=</span> <span class="o">(</span><span class="n">size</span> <span class="o">*</span> <span class="n">dotProd</span><span class="o">)</span> <span class="o">-</span> <span class="o">(</span><span class="n">su1</span> <span class="o">*</span> <span class="n">su2</span><span class="o">)</span>
-</span><span class='line'>    <span class="k">val</span> <span class="n">divisor</span> <span class="k">=</span> <span class="n">scala</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="o">(</span><span class="n">size</span> <span class="o">*</span> <span class="n">sq1</span> <span class="o">-</span> <span class="n">su1</span> <span class="o">*</span> <span class="n">su1</span><span class="o">)</span> <span class="o">*</span> <span class="n">scala</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="o">(</span><span class="n">size</span> <span class="o">*</span> <span class="n">sq2</span> <span class="o">-</span> <span class="n">su2</span> <span class="o">*</span> <span class="n">su2</span><span class="o">)</span>
-</span><span class='line'>    <span class="n">dividend</span> <span class="o">/</span> <span class="n">divisor</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-
-      
-       <a href="/blog/2014/06/23/scalding-correlation-example/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -830,6 +811,10 @@ In Scala the code would look like this:</p>
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/10/23/spark-operations-overview/">Apache Spark RDD operation examples</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/10/20/cascading-on-tez/">Cascading on Apache Tez</a>

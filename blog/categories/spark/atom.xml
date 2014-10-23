@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Spark | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/spark/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-10-20T08:29:59+00:00</updated>
+  <updated>2014-10-23T12:09:32+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,61 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Spark RDD operation examples]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/10/23/spark-operations-overview/"/>
+    <updated>2014-10-23T14:00:00+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/10/23/spark-operations-overview</id>
+    <content type="html"><![CDATA[<p>Recently we blogged about how you can write simple Apache Spark jobs and how to test them. Now we&rsquo;d like to introduce all basic RDD operations with easy examples (our goal is to come up with examples as simply as possible). The Spark <a href="http://spark.apache.org/docs/latest/programming-guide.html#rdd-operations">documentation</a> explains well what each operations is doing in detail. We made tests for most of the RDD operations with good ol' <code>TestNG</code>. e.g.:</p>
+
+<p>```scala
+ @Test
+  def testRightOuterJoin() {</p>
+
+<pre><code>val input1 = sc.makeRDD(Seq((1, 4)))
+val input2 = sc.makeRDD(Seq((1, '1'), (2, '2')))
+val expectedOutput = Array((1, (Some(4), '1')), (2, (None, '2')))
+
+val output = input1.rightOuterJoin(input2)
+
+Assert.assertEquals(output.collect(), expectedOutput)
+</code></pre>
+
+<p>  }
+```</p>
+
+<!-- more -->
+
+
+<h2>Sample</h2>
+
+<p>Get the code from our GitHub repository <a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub examples</a> and build the project inside the <code>spark-samples</code> directory. For running the examples, you do not need any pre-installed Hadoop/Spark clusters or anything else.</p>
+
+<p><code>bash
+git clone https://github.com/sequenceiq/sequenceiq-samples.git
+cd sequenceiq-samples/spark-samples/
+./gradlew clean build
+</code></p>
+
+<p>All the other RDD operations are covered in the example (makes no sense listing them here).</p>
+
+<h2>Spark on YARN</h2>
+
+<p>Should you want to run your Spark code on a YARN cluster you have several options.</p>
+
+<ul>
+<li>Use our Spark Docker <a href="https://github.com/sequenceiq/docker-spark">container</a></li>
+<li>Use our multi-node Hadoop <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">cluster</a></li>
+<li>Use <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> to provision a YARN cluster on your favorite cloud provider</li>
+</ul>
+
+
+<p>In order to help you get on going with Spark on YARN read our previous blog post about how to <a href="http://blog.sequenceiq.com/blog/2014/08/22/spark-submit-in-java/">submit a Spark</a> job into a cluster.</p>
+
+<p>If you have any questions or suggestions you can reach us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Apache Spark - create and test jobs]]></title>

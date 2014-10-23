@@ -130,6 +130,70 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/03/31/mahout-on-tez/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">31 March 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/hortonworks/"><span class="label label-warning">Hortonworks</span></a>
+            
+            <a href="/blog/categories/mahout/"><span class="label label-warning">Mahout</span></a>
+            
+            <a href="/blog/categories/tez/"><span class="label label-warning">Tez</span></a>
+            
+            <a href="/blog/categories/yarn/"><span class="label label-warning">YARN</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/03/31/mahout-on-tez/">Using Mahout with Tez</a>
+          <span class="badge name-badge">Marton Sereg</span>
+
+      </h1>
+      <p>At SequenceIQ we are always open to the latest innovations in Hadoop, and trying to find a way to offer a better performance and cluster utilization to our customers. We came in close touch with the <a href="http://hortonworks.com/labs/stinger/">Stinger initiative</a> last year at the Hadoop Summit in Amsterdam &ndash; and ever since we have followed up with the project progress (latest <a href="http://hortonworks.com/blog/apache-tez-0-3-released/">release</a> is 0.3). The project was initiated by Hortonworks with the goal of a 100x performance improvement of Hive.
+Although Hive is not part of our product stack (we use other ways for SQL on Hadoop), there is one particular key component of the Stinger initiative which was very interesting to us: <a href="https://github.com/apache/incubator-tez">Apache Tez</a>.</p>
+
+<p><a href="http://incubator.apache.org/projects/tez.html">Apache Tez</a> is a new application framework built on top of Hadoop Yarn that can execute complex directed acyclic graphs (DAGs) of general data processing tasks. In many ways it can be thought of as a more flexible and powerful successor of the map-reduce framework. This was exactly what draw our attention and made us start thinking about using Tez as our runtime for map-reduce jobs.</p>
+
+<h2>Tez and MapReduce</h2>
+
+<p>At SequenceIQ we have chains of map-reduce jobs which are scheduled individually and read the output of previous jobs from HBase or HDFS. Many times our map-reduce job flow can be represented as a map-reduce-reduce pattern, however building complex job chains with the current map-reduce framework is not that easy (nor saves on performance) &ndash; we combined the ChainMapper/ChainReducer and IdentityMapper trying to build MRR like DAG job flows.</p>
+
+<p>In Tez data coming from reducers&#8217; output can be pipelined together and eliminates IO/sync barriers, as no temporary HDFS write is required. Jobs can also be chained and represented as MRR steps with no restriction.
+In MapReduce disregarding the data size, the shuffle (internal step between the map and reducer) phase writes the sorted partitions to disk, merge-sorts them and feed into the reducers. All these steps are done <em>in memory</em> with Tez and saves on this I/O heavy step, avoiding unnecessary temporary writes and reads.</p>
+
+<h2>Tez and Mahout</h2>
+
+<p>Part of our system is running machine learning algorithms in batch, using Mahout (we do ML on streaming data using Scala, MLlib and Apache Spark as well). To improve the runtime performance of these Mahout algorithms, and decrease the cluster execution time we started to experiment with combining Tez and Mahout, and rewrite a few Mahout drivers in order to build DAGs of MR jobs (MRR in particular where applicable) and submit the jobs in a Tez runtime on a YARN cluster.</p>
+
+
+      
+       <a href="/blog/2014/03/31/mahout-on-tez/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/03/24/hoya-at-sequenceiq/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -931,71 +995,10 @@ There are two types of sources: event driven and pollable. In case of a pollable
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/02/07/hdp2-on-amazon/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">07 February 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/ec2/"><span class="label label-warning">EC2</span></a>
-            
-            <a href="/blog/categories/hdp2/"><span class="label label-warning">HDP2</span></a>
-            
-            <a href="/blog/categories/hortonworks/"><span class="label label-warning">Hortonworks</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/02/07/hdp2-on-amazon/">Set up HDP2 on Amazon EC2</a>
-          <span class="badge name-badge">Janos Matyas</span>
-
-      </h1>
-      <p>During the last years we have seen many blog entries and articles about how to set up Hadoop on Amazon EC2. All these tutorials and articles had one thing in common &ndash; you had to go through a large number of manual (and painful) steps, read screenshots and redo the whole thing all over again, in case you needed a new cluster.</p>
-
-<p>Since we use Amazon EC2 quite a lot, and Hadoop as well (Hortonworks distribution) we have gone through these steps many times &ndash; and have scripted the whole process from the first steps up to launching an N node Hadoop/HDP2 cluster in less then five minutes.</p>
-
-<p>Moreover, the cluster is a &lsquo;production ready&rsquo; setup from infrastructural point of view &ndash; it is provisioned in a logically isolated section of the cloud (Virtual Private Cloud), with his own IP address range, creation of subnets, and configuration of route tables and network gateways.</p>
-
-<p>Once the instances are provisoned, the HDP2 setup is done by Apache Ambari &ndash; for more advanced users we will provide the setup thorugh Ambari&rsquo;s RESTful API &ndash; watch this space or our GitHub page.</p>
-
-<p>All the EC2 instances are tagged with the user name &ndash; thus you can create different clusters for different employees, all under the same AWS account (with IAM).</p>
-
-<p>We believe that this is the right way to provision Hadoop in the cloud &ndash; during development and testing we had to provision Hadoop clusters of different sizes, and going through these steps manually would take lots of time.
-This way we are able to provision clusters in the cloud in the matter of minutes &ndash; independently of the size.</p>
-
-<p>The script is available at: <a href="https://github.com/sequenceiq/hadoop-cloud-scripts">https://github.com/sequenceiq/hadoop-cloud-scripts</a></p>
-
-<p>Enjoy,
-SequenceIQ</p>
-
-      
-      
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
+    
+    <a class="prev" href="/blog/page/7/">&larr; Older</a>
     
 
     
@@ -1013,6 +1016,10 @@ SequenceIQ</p>
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/10/23/spark-operations-overview/">Apache Spark RDD operation examples</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/10/20/cascading-on-tez/">Cascading on Apache Tez</a>
