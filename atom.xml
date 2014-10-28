@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-10-23T12:09:32+00:00</updated>
+  <updated>2014-10-28T15:47:58+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,119 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Building the data lake in the cloud - Part1]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/10/28/datalake-cloudbreak/"/>
+    <updated>2014-10-28T13:56:32+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/10/28/datalake-cloudbreak</id>
+    <content type="html"><![CDATA[<p>A while ago we have released our cloud agnostic and Docker container based Hadoop as a Service API &ndash; <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>. Though the purpose of <a href="https://cloudbreak.sequenceiq.com">Cloudbreak</a> is to quickly provision arbitrary sized Hadoop clusters in the cloud, the project emerged from bare metal Hadoop provisioning in Docker containers. We were (still doing it) <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">provisioning</a> Hadoop on bare metal using Docker &ndash; and because of this legacy the data was always stored in HDFS. Recently we have been asked to run a proof-of-concept project and build an <code>always on</code> data lake using a cloud <code>object storage</code>.</p>
+
+<p>This post is the first in this series and will cover the connectivity, interoperability and access of data from an <code>object storage</code> and work with that in Hadoop. For this post we choose to create a <code>data lake</code> on Google Cloud Compute and guide you through the steps, run performance tests and understand the benefits/drawbacks of such a setup.</p>
+
+<p><em>Next post will be about sharing the <code>data lake</code> among multiple clusters, using <a href="http://hortonworks.com/hadoop/hcatalog/">Apache HCatalog</a>.</em></p>
+
+<h2>Object storage</h2>
+
+<p>An object storage usually is an <code>internet service</code> to store data in the cloud and comes with a programming interface which allows to retrieve data in a secure, durable and highly-scalable way. The most well know object storage is <strong>Amazon S3</strong> &ndash; with a pretty well covered literature, thus in this example we will use the <strong>Google Cloud Storage</strong>. Google Cloud Storage enables application developers to store their data on Google’s infrastructure with very high reliability, performance and availability, and can be used to distribute large data objects &ndash; like HDFS. In many occasions companies stores their data in objects storages &ndash; but for analytics they would like to access it from their Hadoop cluster. There are several options available:</p>
+
+<ul>
+<li>replicate the full dataset in HDFS</li>
+<li>read and write from <code>object storage</code> at start/stop of the flow and use HDFS for intermediary data</li>
+<li>use a connector such as Google Cloud Storage Connector for Hadoop</li>
+</ul>
+
+
+<h2>Google Cloud Storage Connector for Hadoop</h2>
+
+<p>Using <a href="https://cloud.google.com/hadoop/google-cloud-storage-connector">this</a> connector developed by Google allows you to choose <code>Google Cloud Storage</code> as the default file system for Hadoop, and run all your jobs on top (we will come up with MR2 and Spark examples). Using the connector can have several benefits, to name a few:</p>
+
+<ul>
+<li>Direct data access &ndash; data is stored in GCS, no need to transfer it into HDFS</li>
+<li>HDFS compatibility &ndash; data stored in HDFS can be accessed through the connector</li>
+<li>Data accessibility &ndash; data is always accessible, even when the Hadoop cluster is shut down</li>
+<li>High data availability &ndash; data is highly available and globally replicated</li>
+</ul>
+
+
+<!-- more -->
+
+
+<h2>DIY &ndash; build your data lake</h2>
+
+<p>Follow these steps in order to create your own <code>data lake</code>.</p>
+
+<ol>
+<li>Create your <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak account</a></li>
+<li>Configure your Google Cloud account following these <a href="http://sequenceiq.com/cloudbreak/#accounts">steps</a></li>
+<li>Copy the appropriate version of the <a href="https://cloud.google.com/hadoop/google-cloud-storage-connector">connector jar</a> to the Hadoop classpath and the key file for auth on every node of the cluster &ndash; use this <a href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/data-lake/copyscripts.sh">script</a> to automate the process</li>
+<li>Use this Ambari <a href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/data-lake/gcs-con-multi-node-hdfs-yarn.blueprint">blueprint</a> to configure the connector</li>
+<li>Restart the following services: HDFS, YARN and MapReduce2</li>
+</ol>
+
+
+<p>That&rsquo;s it &ndash; you are done, you can work on your data stored in Google Storage. The next release of <a href="https://github.com/sequenceiq/cloudbreak">Cloudbreak</a> will incorporate and automate these steps for you &ndash; and will use HCatalog to allow you to configure an <code>always on</code> data store using object storages.</p>
+
+<h2>Performance results</h2>
+
+<p>We configured two identical clusters with <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> on Google Cloud with the following parameters</p>
+
+<ul>
+<li>Number of nodes: 1 master node + 10 slave nodes</li>
+<li>2 * 200 GB rotating HDD (where appropriate)</li>
+<li>2 Virtual CPU</li>
+<li>7.5 GB of memory</li>
+</ul>
+
+
+<p>First of all we run all the Hadoop and the certification tests in order to validate the correctness of the setups. For the tests we have provisioned an <strong>Hortonwork&rsquo;s HDP 2.1</strong> cluster.</p>
+
+<p>After these steps we have switched to the <code>standard</code> performance test &ndash; <strong>TeraGen, TeraSort and TeraValidate</strong>. Please see the results below.</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th> File System           </th>
+<th> TeraGen </th>
+<th> TeraSort </th>
+<th> TeraValidate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td> HDFS                  </td>
+<td>58mins, 58sec</td>
+<td>4hrs, 59mins, 6sec</td>
+<td>35mins, 58sec</td>
+</tr>
+<tr>
+<td></td>
+<td> Google Cloud Storage  </td>
+<td>34mins, 36sec</td>
+<td>4hrs, 34mins, 52sec</td>
+<td> 29mins, 22sec</td>
+</tr>
+</tbody>
+</table>
+
+
+<h2>Summary</h2>
+
+<p>There is a pretty good literature about HDFS and object storages and lots of debates around. At <a href="http://sequenceiq.com">SequenceIQ</a> we support both &ndash; and we also believe that each and every company or use case has his own rationale behind choosing one of them. When we came up with the mission statement of simplifying how people work with Hadoop and stated that we&rsquo;d like to give the broadest available options to developers we were pretty serious about.</p>
+
+<p><a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> was designed around being cloud agnostic &ndash; running on Docker and being able to ship those containers to bare metal or any cloud provider with a very easy integration process: currently we support <strong>Amazon AWS, Microsoft Azure and Google Cloud</strong> in public beta and <strong>OpenStack, Digital Ocean</strong> integration in progress/private beta.
+As for the supported Hadoop distribution we provision <strong>Apache Hadoop and Hortonworks HDP</strong> in public and <strong>Cloudera CDH</strong> in private beta.</p>
+
+<p>All the private betas will emerge into public programs and will be in GA &ndash; and open sourced under an Apache2 license during Q4.</p>
+
+<p><a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> will be released quite soon &ndash; stay tuned &ndash; will support one API/representation of your big data pipeline and running on multiple runtimes: <strong>MR2, Spark and Tez</strong>.</p>
+
+<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or
+<a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Apache Spark RDD operation examples]]></title>
@@ -939,7 +1052,7 @@ In the benchmark, the jobs were submitted to the <code>default</code> queue and 
 <p>SequenceIQ is an innovative big data startup with the mission statement to simplify and automate provisioning of on-demand Hadoop clusters running on different environments. Leaders in “containerizing” Hadoop, SequenceIQ is the first company who provisions and runs the full Hadoop stack and components on Docker containers. The company has further plans to create the industry’s first cloud agnostic, autoscaling and use case driven Platform as a Service API, and break the common significant barriers of entry that exist with most big data projects through a series of As-a-Service API offerings.
 For more information follow up with us on @SequenceIQ and <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>.</p>
 
-<p><a href="&#x6d;&#x61;&#105;&#108;&#x74;&#x6f;&#x3a;&#x69;&#110;&#x66;&#111;&#x40;&#x73;&#x65;&#x71;&#x75;&#x65;&#x6e;&#x63;&#x65;&#x69;&#x71;&#x2e;&#99;&#x6f;&#x6d;">&#x69;&#110;&#x66;&#x6f;&#64;&#115;&#x65;&#x71;&#117;&#101;&#110;&#x63;&#101;&#105;&#113;&#46;&#x63;&#111;&#x6d;</a></p>
+<p><a href="&#x6d;&#x61;&#105;&#108;&#x74;&#x6f;&#x3a;&#x69;&#x6e;&#102;&#x6f;&#64;&#115;&#101;&#x71;&#117;&#x65;&#110;&#x63;&#101;&#105;&#x71;&#x2e;&#x63;&#x6f;&#x6d;">&#x69;&#x6e;&#102;&#111;&#64;&#x73;&#x65;&#113;&#x75;&#x65;&#x6e;&#x63;&#101;&#105;&#x71;&#x2e;&#99;&#x6f;&#x6d;</a></p>
 ]]></content>
   </entry>
   
@@ -2487,340 +2600,6 @@ Get all submitted queries: <code>http://localhost:8047/queries</code>
 Get status of a given query:<code>http://localhost:8047/query/{QUERY_ID}</code></p>
 
 <p>The next version of the container will be a fully distributed (based on our Hadoop container and Hazelcast) Apache Drill Docker container. Until then feel free to let us know how you <code>drill</code> and follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[YARN Schedulers demystified - Part 2: Fair]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/09/09/yarn-schedulers-demystified-part-2-fair/"/>
-    <updated>2014-09-09T16:00:00+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/09/09/yarn-schedulers-demystified-part-2-fair</id>
-    <content type="html"><![CDATA[<p>In our previous blog post we have been demystifying the <a href="http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1/">Capacity scheduler internals</a> &ndash; as promised in this post is the Fair scheduler’s turn. You can check also our previous post to find out how fair is the Fair scheduler in real life <a href="http://blog.sequenceiq.com/blog/2014/08/16/fairplay/">here</a>.</p>
-
-<p>You might ask why YARN schedulers are so important for us? Recently we have released and open sourced the industry&rsquo;s first SLA policy based autoscaling API for Hadoop clusters, called <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> &ndash; and part of the project is based on schedulers, <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> and our contribution to Apache YARN.</p>
-
-<h2>The Fair Scheduler internals</h2>
-
-<p>The FairScheduler&rsquo;s purpose is to assign resources to applications such that all apps get &ndash; on average &ndash; an equal share of resources over time.
-By default the scheduler bases fairness decisions only on memory, but it can be configured otherwise. When only a single app is running
-in the cluster it can take all the resources. When new apps are submitted resources that free up are assigned to the new apps,
-so that each app eventually on gets roughly the same amount of resources. Queues can be weighted to determine the fraction of total
-resources that each app should get.</p>
-
-<h2>Configuration</h2>
-
-<p>Although the CapacityScheduler is the default we can easily tell YARN to use the FairScheduler. In yarn-site.xml</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;property&gt;
-</span><span class='line'>      &lt;name&gt;yarn.resourcemanager.scheduler.class&lt;/name&gt;
-</span><span class='line'>      &lt;value&gt;org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairScheduler&lt;/value&gt;
-</span><span class='line'>&lt;/property&gt;
-</span><span class='line'>&lt;property&gt;
-</span><span class='line'>      &lt;name&gt;yarn.scheduler.fair.allocation.file&lt;/name&gt;
-</span><span class='line'>      &lt;value&gt;/etc/hadoop/conf.empty/fair-scheduler.xml&lt;/value&gt;
-</span><span class='line'>&lt;/property&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The FairScheduler consists of 2 configuration files: scheduler-wide options can be placed into <code>yarn-site.xml</code> and queue settings in the
-<code>allocation file</code> which must be in XML format. Click <a href="http://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-site/FairScheduler.html">here</a>
-for a more detailed reference.</p>
-
-<h3>Few things worth noting compared to CapacityScheduler regarding queues</h3>
-
-<ul>
-<li>Both CapacityScheduler and FairScheduler supports hierarchical queues and all queues descend from a queue named <code>root</code>.</li>
-<li>Both uses a queue called <code>default</code> as well.</li>
-<li>Applications can be submitted to leaf queues only.</li>
-<li>Both CapacityScheduler and FairScheduler can create new queues at run time, the only difference is the how. In case of the CapacityScheduler
-  the configuration file needed to be modified and we have to explicitly tell the ResourceManager to reload the configuration, while the
-  FairScheduler does the same based on the queue placement policies which is less painful.</li>
-<li>FairScheduler introduced scheduling policies which determines which job should get resources at each scheduling opportunity. The cool thing
-  about this that besides the default ones (&ldquo;fifo&rdquo; &ldquo;fair&rdquo; &ldquo;drf&rdquo;) anyone can create new scheduling policies by extending the
-  <code>org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.SchedulingPolicy</code> class and place it to the classpath.</li>
-<li>FairScheduler allows different queue placement policies as mentioned earlier. These policies tell the scheduler where to place the incoming app
-  among the queues. Placement can depend on users, groups or requested queue by the applications.</li>
-<li>In FairScheduler applications can be submitted to non-existing queues if the <code>create</code> flag is set and it will create that queue, while the
-  CapacityScheduler will instantly reject the submission.</li>
-<li>From Hadoop 2.6.0 (<a href="https://issues.apache.org/jira/browse/YARN-1495">YARN-1495</a>) both schedulers will let users to manually move
-  applications across queues.<br/>
-  <code>Side note:</code> This feature allows us to re-prioritize and define SLAs on applications and place them to queues where they get the enforced
-  resources. Our newly open sourced project <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> will add this
-  capability for static clusters besides dynamic ones in the near future.</li>
-</ul>
-
-
-<!-- more -->
-
-
-<h2>Messaging</h2>
-
-<p>The event mechanism is the same as with CapacityScheduler &ndash; thus I&rsquo;m not going to take account on the events &ndash; and if you check the handler methods
-(<a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity/CapacityScheduler.java#L956">here</a>
-and <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/FairScheduler.java#L1134">here</a>)
-you can notice that they look fairly the same.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">handle</span><span class="o">(</span><span class="n">SchedulerEvent</span> <span class="n">event</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">switch</span> <span class="o">(</span><span class="n">event</span><span class="o">.</span><span class="na">getType</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">case</span> <span class="nl">NODE_ADDED:</span>
-</span><span class='line'>      <span class="k">if</span> <span class="o">(!(</span><span class="n">event</span> <span class="k">instanceof</span> <span class="n">NodeAddedSchedulerEvent</span><span class="o">))</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">throw</span> <span class="k">new</span> <span class="nf">RuntimeException</span><span class="o">(</span><span class="s">&quot;Unexpected event type: &quot;</span> <span class="o">+</span> <span class="n">event</span><span class="o">);</span>
-</span><span class='line'>      <span class="o">}</span>
-</span><span class='line'>      <span class="n">NodeAddedSchedulerEvent</span> <span class="n">nodeAddedEvent</span> <span class="o">=</span> <span class="o">(</span><span class="n">NodeAddedSchedulerEvent</span><span class="o">)</span><span class="n">event</span><span class="o">;</span>
-</span><span class='line'>      <span class="n">addNode</span><span class="o">(</span><span class="n">nodeAddedEvent</span><span class="o">.</span><span class="na">getAddedRMNode</span><span class="o">());</span>
-</span><span class='line'>      <span class="n">recoverContainersOnNode</span><span class="o">(</span><span class="n">nodeAddedEvent</span><span class="o">.</span><span class="na">getContainerReports</span><span class="o">(),</span>
-</span><span class='line'>          <span class="n">nodeAddedEvent</span><span class="o">.</span><span class="na">getAddedRMNode</span><span class="o">());</span>
-</span><span class='line'>      <span class="k">break</span><span class="o">;</span>
-</span><span class='line'>    <span class="k">case</span> <span class="nl">NODE_REMOVED:</span>
-</span><span class='line'>      <span class="k">if</span> <span class="o">(!(</span><span class="n">event</span> <span class="k">instanceof</span> <span class="n">NodeRemovedSchedulerEvent</span><span class="o">))</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">throw</span> <span class="k">new</span> <span class="nf">RuntimeException</span><span class="o">(</span><span class="s">&quot;Unexpected event type: &quot;</span> <span class="o">+</span> <span class="n">event</span><span class="o">);</span>
-</span><span class='line'>      <span class="o">}</span>
-</span><span class='line'>      <span class="n">NodeRemovedSchedulerEvent</span> <span class="n">nodeRemovedEvent</span> <span class="o">=</span> <span class="o">(</span><span class="n">NodeRemovedSchedulerEvent</span><span class="o">)</span><span class="n">event</span><span class="o">;</span>
-</span><span class='line'>      <span class="n">removeNode</span><span class="o">(</span><span class="n">nodeRemovedEvent</span><span class="o">.</span><span class="na">getRemovedRMNode</span><span class="o">());</span>
-</span><span class='line'>      <span class="k">break</span><span class="o">;</span>
-</span><span class='line'>    <span class="k">case</span> <span class="nl">NODE_UPDATE:</span>
-</span><span class='line'>      <span class="k">if</span> <span class="o">(!(</span><span class="n">event</span> <span class="k">instanceof</span> <span class="n">NodeUpdateSchedulerEvent</span><span class="o">))</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">throw</span> <span class="k">new</span> <span class="nf">RuntimeException</span><span class="o">(</span><span class="s">&quot;Unexpected event type: &quot;</span> <span class="o">+</span> <span class="n">event</span><span class="o">);</span>
-</span><span class='line'>      <span class="o">}</span>
-</span><span class='line'>      <span class="n">NodeUpdateSchedulerEvent</span> <span class="n">nodeUpdatedEvent</span> <span class="o">=</span> <span class="o">(</span><span class="n">NodeUpdateSchedulerEvent</span><span class="o">)</span><span class="n">event</span><span class="o">;</span>
-</span><span class='line'>      <span class="n">nodeUpdate</span><span class="o">(</span><span class="n">nodeUpdatedEvent</span><span class="o">.</span><span class="na">getRMNode</span><span class="o">());</span>
-</span><span class='line'>      <span class="k">break</span><span class="o">;</span>
-</span><span class='line'>    <span class="k">case</span> <span class="nl">APP_ADDED:</span>
-</span><span class='line'>      <span class="k">if</span> <span class="o">(!(</span><span class="n">event</span> <span class="k">instanceof</span> <span class="n">AppAddedSchedulerEvent</span><span class="o">))</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">throw</span> <span class="k">new</span> <span class="nf">RuntimeException</span><span class="o">(</span><span class="s">&quot;Unexpected event type: &quot;</span> <span class="o">+</span> <span class="n">event</span><span class="o">);</span>
-</span><span class='line'>      <span class="o">}</span>
-</span><span class='line'>      <span class="n">AppAddedSchedulerEvent</span> <span class="n">appAddedEvent</span> <span class="o">=</span> <span class="o">(</span><span class="n">AppAddedSchedulerEvent</span><span class="o">)</span> <span class="n">event</span><span class="o">;</span>
-</span><span class='line'>      <span class="n">addApplication</span><span class="o">(</span><span class="n">appAddedEvent</span><span class="o">.</span><span class="na">getApplicationId</span><span class="o">(),</span>
-</span><span class='line'>        <span class="n">appAddedEvent</span><span class="o">.</span><span class="na">getQueue</span><span class="o">(),</span> <span class="n">appAddedEvent</span><span class="o">.</span><span class="na">getUser</span><span class="o">(),</span>
-</span><span class='line'>        <span class="n">appAddedEvent</span><span class="o">.</span><span class="na">getIsAppRecovering</span><span class="o">());</span>
-</span><span class='line'>      <span class="k">break</span><span class="o">;</span>
-</span><span class='line'>    <span class="k">case</span> <span class="nl">APP_REMOVED:</span>
-</span><span class='line'>      <span class="k">if</span> <span class="o">(!(</span><span class="n">event</span> <span class="k">instanceof</span> <span class="n">AppRemovedSchedulerEvent</span><span class="o">))</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">throw</span> <span class="k">new</span> <span class="nf">RuntimeException</span><span class="o">(</span><span class="s">&quot;Unexpected event type: &quot;</span> <span class="o">+</span> <span class="n">event</span><span class="o">);</span>
-</span><span class='line'>      <span class="o">}</span>
-</span><span class='line'>      <span class="n">AppRemovedSchedulerEvent</span> <span class="n">appRemovedEvent</span> <span class="o">=</span> <span class="o">(</span><span class="n">AppRemovedSchedulerEvent</span><span class="o">)</span><span class="n">event</span><span class="o">;</span>
-</span><span class='line'>      <span class="n">removeApplication</span><span class="o">(</span><span class="n">appRemovedEvent</span><span class="o">.</span><span class="na">getApplicationID</span><span class="o">(),</span>
-</span><span class='line'>        <span class="n">appRemovedEvent</span><span class="o">.</span><span class="na">getFinalState</span><span class="o">());</span>
-</span><span class='line'>      <span class="k">break</span><span class="o">;</span>
-</span><span class='line'>    <span class="k">case</span> <span class="nl">APP_ATTEMPT_ADDED:</span>
-</span><span class='line'>      <span class="k">if</span> <span class="o">(!(</span><span class="n">event</span> <span class="k">instanceof</span> <span class="n">AppAttemptAddedSchedulerEvent</span><span class="o">))</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">throw</span> <span class="k">new</span> <span class="nf">RuntimeException</span><span class="o">(</span><span class="s">&quot;Unexpected event type: &quot;</span> <span class="o">+</span> <span class="n">event</span><span class="o">);</span>
-</span><span class='line'>      <span class="o">}</span>
-</span><span class='line'>      <span class="n">AppAttemptAddedSchedulerEvent</span> <span class="n">appAttemptAddedEvent</span> <span class="o">=</span>
-</span><span class='line'>          <span class="o">(</span><span class="n">AppAttemptAddedSchedulerEvent</span><span class="o">)</span> <span class="n">event</span><span class="o">;</span>
-</span><span class='line'>      <span class="n">addApplicationAttempt</span><span class="o">(</span><span class="n">appAttemptAddedEvent</span><span class="o">.</span><span class="na">getApplicationAttemptId</span><span class="o">(),</span>
-</span><span class='line'>        <span class="n">appAttemptAddedEvent</span><span class="o">.</span><span class="na">getTransferStateFromPreviousAttempt</span><span class="o">(),</span>
-</span><span class='line'>        <span class="n">appAttemptAddedEvent</span><span class="o">.</span><span class="na">getIsAttemptRecovering</span><span class="o">());</span>
-</span><span class='line'>      <span class="k">break</span><span class="o">;</span>
-</span><span class='line'>    <span class="k">case</span> <span class="nl">APP_ATTEMPT_REMOVED:</span>
-</span><span class='line'>      <span class="k">if</span> <span class="o">(!(</span><span class="n">event</span> <span class="k">instanceof</span> <span class="n">AppAttemptRemovedSchedulerEvent</span><span class="o">))</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">throw</span> <span class="k">new</span> <span class="nf">RuntimeException</span><span class="o">(</span><span class="s">&quot;Unexpected event type: &quot;</span> <span class="o">+</span> <span class="n">event</span><span class="o">);</span>
-</span><span class='line'>      <span class="o">}</span>
-</span><span class='line'>      <span class="n">AppAttemptRemovedSchedulerEvent</span> <span class="n">appAttemptRemovedEvent</span> <span class="o">=</span>
-</span><span class='line'>          <span class="o">(</span><span class="n">AppAttemptRemovedSchedulerEvent</span><span class="o">)</span> <span class="n">event</span><span class="o">;</span>
-</span><span class='line'>      <span class="n">removeApplicationAttempt</span><span class="o">(</span>
-</span><span class='line'>          <span class="n">appAttemptRemovedEvent</span><span class="o">.</span><span class="na">getApplicationAttemptID</span><span class="o">(),</span>
-</span><span class='line'>          <span class="n">appAttemptRemovedEvent</span><span class="o">.</span><span class="na">getFinalAttemptState</span><span class="o">(),</span>
-</span><span class='line'>          <span class="n">appAttemptRemovedEvent</span><span class="o">.</span><span class="na">getKeepContainersAcrossAppAttempts</span><span class="o">());</span>
-</span><span class='line'>      <span class="k">break</span><span class="o">;</span>
-</span><span class='line'>    <span class="k">case</span> <span class="nl">CONTAINER_EXPIRED:</span>
-</span><span class='line'>      <span class="k">if</span> <span class="o">(!(</span><span class="n">event</span> <span class="k">instanceof</span> <span class="n">ContainerExpiredSchedulerEvent</span><span class="o">))</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">throw</span> <span class="k">new</span> <span class="nf">RuntimeException</span><span class="o">(</span><span class="s">&quot;Unexpected event type: &quot;</span> <span class="o">+</span> <span class="n">event</span><span class="o">);</span>
-</span><span class='line'>      <span class="o">}</span>
-</span><span class='line'>      <span class="n">ContainerExpiredSchedulerEvent</span> <span class="n">containerExpiredEvent</span> <span class="o">=</span>
-</span><span class='line'>          <span class="o">(</span><span class="n">ContainerExpiredSchedulerEvent</span><span class="o">)</span><span class="n">event</span><span class="o">;</span>
-</span><span class='line'>      <span class="n">ContainerId</span> <span class="n">containerId</span> <span class="o">=</span> <span class="n">containerExpiredEvent</span><span class="o">.</span><span class="na">getContainerId</span><span class="o">();</span>
-</span><span class='line'>      <span class="n">completedContainer</span><span class="o">(</span><span class="n">getRMContainer</span><span class="o">(</span><span class="n">containerId</span><span class="o">),</span>
-</span><span class='line'>          <span class="n">SchedulerUtils</span><span class="o">.</span><span class="na">createAbnormalContainerStatus</span><span class="o">(</span>
-</span><span class='line'>              <span class="n">containerId</span><span class="o">,</span>
-</span><span class='line'>              <span class="n">SchedulerUtils</span><span class="o">.</span><span class="na">EXPIRED_CONTAINER</span><span class="o">),</span>
-</span><span class='line'>          <span class="n">RMContainerEventType</span><span class="o">.</span><span class="na">EXPIRE</span><span class="o">);</span>
-</span><span class='line'>      <span class="k">break</span><span class="o">;</span>
-</span><span class='line'>    <span class="k">default</span><span class="o">:</span>
-</span><span class='line'>      <span class="n">LOG</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">&quot;Unknown event arrived at FairScheduler: &quot;</span> <span class="o">+</span> <span class="n">event</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>  <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>NODE_ADDED &amp;&amp; NODE_REMOVED</h3>
-
-<p>It&rsquo;s the same as in CapacityScheduler, adjusts the global resources based on whether a node joined or left the cluster.</p>
-
-<h3>APP_ADDED</h3>
-
-<p>Application submission is slightly different from CapacityScheduler (well not on client side as it&rsquo;s the same there), but because of
-the queue placement policy. Administrators can define a <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementPolicy.java">QueuePlacementPolicy</a>
-which will determine where to place the submitted application. A QueuePlacementPolicy stands from a list of <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java">QueuePlacementRules</a>.
-These rules are ordered meaning that the first rule which can place the application into a queue will apply. If no rule can apply the
-application submission will be rejected. Each rule accept a <code>create</code> argument in which case it&rsquo;s true the rule can create a queue if it is missing.
-The following rules exist:</p>
-
-<ul>
-<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L124">User</a>:
-  places the application into a queue with user&rsquo;s name e.g: root.chris</li>
-<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L140">PrimaryGroup</a>:
-  places the application into a queue with the user&rsquo;s primary group name e.g: root.hdfs</li>
-<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L160">SecondaryGroupExistingQueue</a>:
-  places the application into a queue with the user&rsquo;s secondary group name</li>
-<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L188">NestedUserQueue</a>:
-  places the application into a queue with the user&rsquo;s name under the queue returned by the nested rule</li>
-<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L258">Specified</a>:
-  places the application into a queue which was requested when submitted</li>
-<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L282">Default</a>:
-  places the application into the default queue</li>
-<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/QueuePlacementRule.java#L324">Reject</a>:
-  it is a termination rule in the sequence of rules, if no rule applied before then it will reject the submission</li>
-</ul>
-
-
-<p>ACLs are also checked before creating and adding the application to the list of <code>SchedulerApplications</code> and updating the metrics.</p>
-
-<h3>APP_REMOVED</h3>
-
-<p>Simply stops the application and sets it&rsquo;s final state.</p>
-
-<h3>APP_ATTEMPT_ADDED</h3>
-
-<p>The analogy is the same with the CapacityScheduler that application attempts trigger the application to actually run. Based on the
-allocation configuration mentioned above the <a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/MaxRunningAppsEnforcer.java">MaxRunningAppsEnforcer</a>
-will decide whether the app is placed into the <code>runnableApps</code> or the <code>nonRunnableApps</code> inside of the queue. <code>MaxRunningAppsEnforcer</code> also
-keeps track of the runnable and non runnable apps per user. Attempt states are also transferred from one to another.</p>
-
-<h3>APP_ATTEMPT_REMOVED</h3>
-
-<p>Releases all the allocated, acquired, running containers (in case of <code>ApplicationMaster</code> restart the running containers won&rsquo;t get killed),
-releases all reserved containers, cleans up pending requests and informs the queues. <code>MaxRunningAppsEnforcer</code> gets updated as well.</p>
-
-<h3>NODE_UPDATE</h3>
-
-<p>As we learned from CapacityScheduler <code>NodeUpdateSchedulerEvents</code> arrive every second. FairScheduler support asynchronous scheduling on a
-different thread regardless of the <code>NodeManager's</code> <code>heartbeats</code> as well. We also learned the importance of the <code>Allocation</code> method which
-issues the <code>ResourceRequests</code> of an application and in this case it does exactly the same as in case of CapacityScheduler. You can read
-about the form of these requests there. At each node update the scheduler updates the capacities of the resources if it&rsquo;s changed, processes
-the completed and newly launched containers, updates the metrics and tries to allocate resources to applications. Just like with CapacityScheduler
-container reservation has the advantage thus it gets fulfilled first. If there is no reservation it tries to schedule in a queue which is
-farthest below fair share. The scheduler first orders the queues and then the applications inside the queues using the configured
-<a href="https://github.com/apache/hadoop-common/tree/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/policies">SchedulingPolicy</a>.
-As I mentioned in the configuration section there are 3 default policies available:</p>
-
-<ul>
-<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/policies/FifoPolicy.java">FifoPolicy</a>
-  (fifo) &ndash; Orders first by priorities and then by submission time.</li>
-<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/policies/DominantResourceFairnessPolicy.java">DominantResourceFairnessPolicy</a>
-  (drf) &ndash; Orders by trying to equalize dominant resource usage.
-  (dominant resource usage is the largest ratio of resource usage to capacity among the resource types it is using)</li>
-<li><a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/policies/FairSharePolicy.java">FairSharePolicy</a>
-  (fair) &ndash; Orders via weighted fair sharing. In addition, Schedulables below their min share get priority over those whose
-  min share is met. Schedulables below their min share are compared by how far below it they are as a ratio. For example, if job A has 8
-  out of a min share of 10 tasks and job B has 50 out of a min share of 100, then job B is scheduled next, because B is at 50% of its
-  min share and A is at 80% of its min share. Schedulables above their min share are compared by (runningTasks / weight).</li>
-</ul>
-
-
-<p>SchedulingPolicies can be written and used by anyone without major investment to how to do it. All it takes is to extend a
-<a href="https://github.com/apache/hadoop-common/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/fair/SchedulingPolicy.java">class</a>
-and place the implementation to the classpath and restart the <code>ResourceManager</code>. Even though it&rsquo;s easy to do and it&rsquo;s not a major investment
-the fairness will depend on it thus the effect will be major, so you should really consider it. After the decision of which application should
-get resources first the game is pretty much the same as with the CapacityScheduler. First it tries to allocate container on a data local node
-and after a delay on a rack local node and in the end falling back to an off switch node.</p>
-
-<h3>CONTAINER_EXPIRED</h3>
-
-<p>Cleans up the expired containers just like it would be a finished container.</p>
-
-<h2>What&rsquo;s next?</h2>
-
-<p>We might do a Part 3 post about the FIFOScheduler, though that&rsquo;s really straightforward &ndash; nevertheless, let us know if you&rsquo;d like to read about. As we have already mentioned, last week we released <a href="http://sequenceiq.com/periscope/">Periscope</a> &ndash; the industry’s first SLA policy based autoscaling API for Hadoop YARN &ndash; all these features we have blogged about are based on our contribution in Hadoop, YARN and Ambari -so stay tuned and follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a> for updates.</p>
 ]]></content>
   </entry>
   

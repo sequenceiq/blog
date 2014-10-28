@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: ETL - SequenceIQ Blog</title>
+  <title>Building the data lake in the cloud - Part1 - SequenceIQ Blog</title>
   <meta name="author" content="SequenceIQ">
 
    
-  <meta name="description" content="Category: ETL">
+  <meta name="description" content="">
   
   <meta name="keywords" content="">
 
@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.sequenceiq.comblog/categories/etl">
+  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2014/10/28/datalake-cloudbreak">
   <link href="/favicon.png" rel="icon">
   <link href='http://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
@@ -117,95 +117,210 @@
               <div class="col-md-9" id="">
                   <div class="">
                    <!-- <div id="content">-->
-                      <article role="article">
+                      <div>
+
+<div class="container-fluid">
+     <div class="row">
+       
+         
+       
+       
+
+       
+         
+       
+       <h1 class="article-style"> Building the data lake in the cloud - Part1
+
+       <span class="badge name-badge">Tamas Bihari</span>
+       <span class="badge name-badge">28 October 2014</span>
+       </h1>
+
+
+
+</div>
+</div>
+<article class="hentry" role="article">
   
- <!-- <header>
+
+
+  <div class="row-fluid">
+    <div class="span12">
+      <p>A while ago we have released our cloud agnostic and Docker container based Hadoop as a Service API &ndash; <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>. Though the purpose of <a href="https://cloudbreak.sequenceiq.com">Cloudbreak</a> is to quickly provision arbitrary sized Hadoop clusters in the cloud, the project emerged from bare metal Hadoop provisioning in Docker containers. We were (still doing it) <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">provisioning</a> Hadoop on bare metal using Docker &ndash; and because of this legacy the data was always stored in HDFS. Recently we have been asked to run a proof-of-concept project and build an <code>always on</code> data lake using a cloud <code>object storage</code>.</p>
+
+<p>This post is the first in this series and will cover the connectivity, interoperability and access of data from an <code>object storage</code> and work with that in Hadoop. For this post we choose to create a <code>data lake</code> on Google Cloud Compute and guide you through the steps, run performance tests and understand the benefits/drawbacks of such a setup.</p>
+
+<p><em>Next post will be about sharing the <code>data lake</code> among multiple clusters, using <a href="http://hortonworks.com/hadoop/hcatalog/">Apache HCatalog</a>.</em></p>
+
+<h2>Object storage</h2>
+
+<p>An object storage usually is an <code>internet service</code> to store data in the cloud and comes with a programming interface which allows to retrieve data in a secure, durable and highly-scalable way. The most well know object storage is <strong>Amazon S3</strong> &ndash; with a pretty well covered literature, thus in this example we will use the <strong>Google Cloud Storage</strong>. Google Cloud Storage enables application developers to store their data on Google’s infrastructure with very high reliability, performance and availability, and can be used to distribute large data objects &ndash; like HDFS. In many occasions companies stores their data in objects storages &ndash; but for analytics they would like to access it from their Hadoop cluster. There are several options available:</p>
+
+<ul>
+<li>replicate the full dataset in HDFS</li>
+<li>read and write from <code>object storage</code> at start/stop of the flow and use HDFS for intermediary data</li>
+<li>use a connector such as Google Cloud Storage Connector for Hadoop</li>
+</ul>
+
+
+<h2>Google Cloud Storage Connector for Hadoop</h2>
+
+<p>Using <a href="https://cloud.google.com/hadoop/google-cloud-storage-connector">this</a> connector developed by Google allows you to choose <code>Google Cloud Storage</code> as the default file system for Hadoop, and run all your jobs on top (we will come up with MR2 and Spark examples). Using the connector can have several benefits, to name a few:</p>
+
+<ul>
+<li>Direct data access &ndash; data is stored in GCS, no need to transfer it into HDFS</li>
+<li>HDFS compatibility &ndash; data stored in HDFS can be accessed through the connector</li>
+<li>Data accessibility &ndash; data is always accessible, even when the Hadoop cluster is shut down</li>
+<li>High data availability &ndash; data is highly available and globally replicated</li>
+</ul>
+
+
+<!-- more -->
+
+
+<h2>DIY &ndash; build your data lake</h2>
+
+<p>Follow these steps in order to create your own <code>data lake</code>.</p>
+
+<ol>
+<li>Create your <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak account</a></li>
+<li>Configure your Google Cloud account following these <a href="http://sequenceiq.com/cloudbreak/#accounts">steps</a></li>
+<li>Copy the appropriate version of the <a href="https://cloud.google.com/hadoop/google-cloud-storage-connector">connector jar</a> to the Hadoop classpath and the key file for auth on every node of the cluster &ndash; use this <a href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/data-lake/copyscripts.sh">script</a> to automate the process</li>
+<li>Use this Ambari <a href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/data-lake/gcs-con-multi-node-hdfs-yarn.blueprint">blueprint</a> to configure the connector</li>
+<li>Restart the following services: HDFS, YARN and MapReduce2</li>
+</ol>
+
+
+<p>That&rsquo;s it &ndash; you are done, you can work on your data stored in Google Storage. The next release of <a href="https://github.com/sequenceiq/cloudbreak">Cloudbreak</a> will incorporate and automate these steps for you &ndash; and will use HCatalog to allow you to configure an <code>always on</code> data store using object storages.</p>
+
+<h2>Performance results</h2>
+
+<p>We configured two identical clusters with <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> on Google Cloud with the following parameters</p>
+
+<ul>
+<li>Number of nodes: 1 master node + 10 slave nodes</li>
+<li>2 * 200 GB rotating HDD (where appropriate)</li>
+<li>2 Virtual CPU</li>
+<li>7.5 GB of memory</li>
+</ul>
+
+
+<p>First of all we run all the Hadoop and the certification tests in order to validate the correctness of the setups. For the tests we have provisioned an <strong>Hortonwork&rsquo;s HDP 2.1</strong> cluster.</p>
+
+<p>After these steps we have switched to the <code>standard</code> performance test &ndash; <strong>TeraGen, TeraSort and TeraValidate</strong>. Please see the results below.</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th> File System           </th>
+<th> TeraGen </th>
+<th> TeraSort </th>
+<th> TeraValidate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td> HDFS                  </td>
+<td>58mins, 58sec</td>
+<td>4hrs, 59mins, 6sec</td>
+<td>35mins, 58sec</td>
+</tr>
+<tr>
+<td></td>
+<td> Google Cloud Storage  </td>
+<td>34mins, 36sec</td>
+<td>4hrs, 34mins, 52sec</td>
+<td> 29mins, 22sec</td>
+</tr>
+</tbody>
+</table>
+
+
+<h2>Summary</h2>
+
+<p>There is a pretty good literature about HDFS and object storages and lots of debates around. At <a href="http://sequenceiq.com">SequenceIQ</a> we support both &ndash; and we also believe that each and every company or use case has his own rationale behind choosing one of them. When we came up with the mission statement of simplifying how people work with Hadoop and stated that we&rsquo;d like to give the broadest available options to developers we were pretty serious about.</p>
+
+<p><a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> was designed around being cloud agnostic &ndash; running on Docker and being able to ship those containers to bare metal or any cloud provider with a very easy integration process: currently we support <strong>Amazon AWS, Microsoft Azure and Google Cloud</strong> in public beta and <strong>OpenStack, Digital Ocean</strong> integration in progress/private beta.
+As for the supported Hadoop distribution we provision <strong>Apache Hadoop and Hortonworks HDP</strong> in public and <strong>Cloudera CDH</strong> in private beta.</p>
+
+<p>All the private betas will emerge into public programs and will be in GA &ndash; and open sourced under an Apache2 license during Q4.</p>
+
+<p><a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> will be released quite soon &ndash; stay tuned &ndash; will support one API/representation of your big data pipeline and running on multiple runtimes: <strong>MR2, Spark and Tez</strong>.</p>
+
+<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or
+<a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+
+    </div>
+  </div>
+
+
+
+  <footer>
+    <hr>
+    
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Tamas Bihari</span></span>
 
     
-  </header>-->
+    <div class="row">
+      
+      <div class="col-md-6 span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="col-md-5 social-sharing pull-right">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
   
-  <div id="blog-archives" class="category">
-
+  <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
   
-  <div class="row">
-    <div class="col-md-1">
-  	
-  	
-  	  
-  	    <h2>2014</h2>
-  	
-    </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-03-11T09:21:07+00:00" pubdate><span class='month'>Mar</span> <span class='day'>11</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/03/11/data-cleaning-with-mapreduce-and-morphlines/">Data cleaning with MapReduce and Morphlines</a></h1>
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
-
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/data-cleaning/'>Data cleaning</a>, <a class='category' href='/blog/categories/etl/'>ETL</a>, <a class='category' href='/blog/categories/hdfs/'>HDFS</a>, <a class='category' href='/blog/categories/mapreduce/'>MapReduce</a>, <a class='category' href='/blog/categories/morphline/'>Morphline</a></span>
-		</footer>
-		
-	</div>
-</div>
-
-
-  	</article>
-    </div>
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
   </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
 
-  
-  <div class="row">
-    <div class="col-md-1">
-  	
-  	
+      </div>
+      
+      
     </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-02-28T08:12:44+00:00" pubdate><span class='month'>Feb</span> <span class='day'>28</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/02/28/etl-and-data-quality/">ETL - producing better quality data</a></h1>
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
-
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/data-cleaning/'>Data cleaning</a>, <a class='category' href='/blog/categories/etl/'>ETL</a></span>
-		</footer>
-		
-	</div>
-</div>
-
-
-  	</article>
+    
+    <div class="row">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2014/10/23/spark-operations-overview/" title="Previous Post: Apache Spark RDD operation examples">&laquo; Apache Spark RDD operation examples</a>
+          
+          
+        </p>
+      </div>
     </div>
-  </div>
-
-</div>
-
+  </footer>
 </article>
 
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
+</div>
 
 
                     <!--</div>-->
@@ -521,7 +636,10 @@
       var disqus_shortname = 'sequenceiqblog';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2014/10/28/datalake-cloudbreak/';
+        var disqus_url = 'http://blog.sequenceiq.com/blog/2014/10/28/datalake-cloudbreak/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

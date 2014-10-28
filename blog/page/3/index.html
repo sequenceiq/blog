@@ -130,6 +130,116 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/09/09/yarn-schedulers-demystified-part-2-fair/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">09 September 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/fair/"><span class="label label-warning">Fair</span></a>
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+            <a href="/blog/categories/schedulers/"><span class="label label-warning">Schedulers</span></a>
+            
+            <a href="/blog/categories/yarn/"><span class="label label-warning">YARN</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/09/09/yarn-schedulers-demystified-part-2-fair/">YARN Schedulers demystified - Part 2: Fair</a>
+          <span class="badge name-badge">Krisztian Horvath</span>
+
+      </h1>
+      <p>In our previous blog post we have been demystifying the <a href="http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1/">Capacity scheduler internals</a> &ndash; as promised in this post is the Fair scheduler’s turn. You can check also our previous post to find out how fair is the Fair scheduler in real life <a href="http://blog.sequenceiq.com/blog/2014/08/16/fairplay/">here</a>.</p>
+
+<p>You might ask why YARN schedulers are so important for us? Recently we have released and open sourced the industry&rsquo;s first SLA policy based autoscaling API for Hadoop clusters, called <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> &ndash; and part of the project is based on schedulers, <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> and our contribution to Apache YARN.</p>
+
+<h2>The Fair Scheduler internals</h2>
+
+<p>The FairScheduler&rsquo;s purpose is to assign resources to applications such that all apps get &ndash; on average &ndash; an equal share of resources over time.
+By default the scheduler bases fairness decisions only on memory, but it can be configured otherwise. When only a single app is running
+in the cluster it can take all the resources. When new apps are submitted resources that free up are assigned to the new apps,
+so that each app eventually on gets roughly the same amount of resources. Queues can be weighted to determine the fraction of total
+resources that each app should get.</p>
+
+<h2>Configuration</h2>
+
+<p>Although the CapacityScheduler is the default we can easily tell YARN to use the FairScheduler. In yarn-site.xml</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;property&gt;
+</span><span class='line'>      &lt;name&gt;yarn.resourcemanager.scheduler.class&lt;/name&gt;
+</span><span class='line'>      &lt;value&gt;org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairScheduler&lt;/value&gt;
+</span><span class='line'>&lt;/property&gt;
+</span><span class='line'>&lt;property&gt;
+</span><span class='line'>      &lt;name&gt;yarn.scheduler.fair.allocation.file&lt;/name&gt;
+</span><span class='line'>      &lt;value&gt;/etc/hadoop/conf.empty/fair-scheduler.xml&lt;/value&gt;
+</span><span class='line'>&lt;/property&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The FairScheduler consists of 2 configuration files: scheduler-wide options can be placed into <code>yarn-site.xml</code> and queue settings in the
+<code>allocation file</code> which must be in XML format. Click <a href="http://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-site/FairScheduler.html">here</a>
+for a more detailed reference.</p>
+
+<h3>Few things worth noting compared to CapacityScheduler regarding queues</h3>
+
+<ul>
+<li>Both CapacityScheduler and FairScheduler supports hierarchical queues and all queues descend from a queue named <code>root</code>.</li>
+<li>Both uses a queue called <code>default</code> as well.</li>
+<li>Applications can be submitted to leaf queues only.</li>
+<li>Both CapacityScheduler and FairScheduler can create new queues at run time, the only difference is the how. In case of the CapacityScheduler
+  the configuration file needed to be modified and we have to explicitly tell the ResourceManager to reload the configuration, while the
+  FairScheduler does the same based on the queue placement policies which is less painful.</li>
+<li>FairScheduler introduced scheduling policies which determines which job should get resources at each scheduling opportunity. The cool thing
+  about this that besides the default ones (&ldquo;fifo&rdquo; &ldquo;fair&rdquo; &ldquo;drf&rdquo;) anyone can create new scheduling policies by extending the
+  <code>org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.SchedulingPolicy</code> class and place it to the classpath.</li>
+<li>FairScheduler allows different queue placement policies as mentioned earlier. These policies tell the scheduler where to place the incoming app
+  among the queues. Placement can depend on users, groups or requested queue by the applications.</li>
+<li>In FairScheduler applications can be submitted to non-existing queues if the <code>create</code> flag is set and it will create that queue, while the
+  CapacityScheduler will instantly reject the submission.</li>
+<li>From Hadoop 2.6.0 (<a href="https://issues.apache.org/jira/browse/YARN-1495">YARN-1495</a>) both schedulers will let users to manually move
+  applications across queues.<br/>
+  <code>Side note:</code> This feature allows us to re-prioritize and define SLAs on applications and place them to queues where they get the enforced
+  resources. Our newly open sourced project <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> will add this
+  capability for static clusters besides dynamic ones in the near future.</li>
+</ul>
+
+
+
+      
+       <a href="/blog/2014/09/09/yarn-schedulers-demystified-part-2-fair/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/09/05/apache-ambari-1-7-0-ea/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -820,109 +930,6 @@ For the demonstration we are using VMs on <a href="https://www.virtualbox.org/">
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/08/07/clodubreak-shell/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">07 August 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/cli/"><span class="label label-warning">CLI</span></a>
-            
-            <a href="/blog/categories/cloud/"><span class="label label-warning">Cloud</span></a>
-            
-            <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
-            
-            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
-            
-            <a href="/blog/categories/hadoop-as-a-service/"><span class="label label-warning">Hadoop as a Service</span></a>
-            
-            <a href="/blog/categories/shell/"><span class="label label-warning">Shell</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/08/07/clodubreak-shell/">Create Hadoop clusters in the cloud using a CLI</a>
-          <span class="badge name-badge">Janos Matyas</span>
-
-      </h1>
-      <p>Few weeks back we have announced <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; the open source Hadoop as a Service API. Included in the release we open sourced a REST API, REST client, UI and a CLI/shell. In this post we’d like to show you how easy is to use <a href="https://github.com/sequenceiq/cloudbreak-shell">Cloudbreak shell</a> in order to create on demand Hadoop clusters on your favorite cloud provider.</p>
-
-<p>While it’s up to everybody&rsquo;s personal preference whether to use a UI, a command line interface or the REST API directly, at SequenceIQ we prefer to use command line tools whenever it’s possible because it’s much faster than interacting with a web UI and it’s a better candidate for automation. Yeah &ndash; we have mentioned this many times &ndash; we are <code>obsessed with automation</code>; any step which is a candidate of doing it twice we script and automate it.</p>
-
-<p>This <code>thing</code> with the automation does not affect the effort and quality standards we put on building the UI &ndash; <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> has an extremely intuitive and clean <strong>responsive</strong> UI and it’s built on the latest and greatest web UI framework &ndash; <a href="https://angularjs.org/">Angular JS</a>. We will have a post about the UI, however we consider it so simple to use that we ask you to go ahead and give it a try. You are a signup and a few clicks away from your Hadoop cluster.</p>
-
-<p>Now back to the CLI. Remember one of our Apache contribution &ndash; the <a href="http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell/">Ambari shell and REST API</a>? Well, the Cloudbreak shell is built on the same technology &ndash; Spring Shell. It’s an interactive shell that can be easily extended using a Spring based programming model and battle tested in various projects like Spring Roo, Spring XD, and Spring REST Shell Combine these two projects to create a powerful tool.</p>
-
-<h2>Cloudbreak Shell</h2>
-
-<p>The goal with the CLI was to provide an interactive command line tool which supports:</p>
-
-<ul>
-<li>all functionality available through the REST API or Cloudbreak web UI</li>
-<li>makes possible complete automation of management task via <strong>scripts</strong></li>
-<li>context aware command availability</li>
-<li>tab completion</li>
-<li>required/optional parameter support</li>
-<li><strong>hint</strong> command to guide you on the usual path</li>
-</ul>
-
-
-<h2>Install Cloudbreak Shell</h2>
-
-<p>You have 3 options to give it a try:</p>
-
-<ul>
-<li>use our prepared <a href="https://registry.hub.docker.com/u/sequenceiq/cloudbreak/">docker image</a></li>
-<li>download the latest self-containing executable jar form our maven repo</li>
-<li>build it from source</li>
-</ul>
-
-
-<p>We will follow up with the first two, in this post we’d like to guide you through the third option.</p>
-
-<h3>Build from source</h3>
-
-<p>If want to use the code or extend it with new commands follow the steps below. You will need:
-&ndash; jdk 1.7
-&ndash; maven 3.x.x</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>git clone https://github.com/sequenceiq/cloudbreak-shell.git
-</span><span class='line'>cd cloudbreak-shell
-</span><span class='line'>mvn clean package</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-
-      
-       <a href="/blog/2014/08/07/clodubreak-shell/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -944,6 +951,10 @@ For the demonstration we are using VMs on <a href="https://www.virtualbox.org/">
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/10/28/datalake-cloudbreak/">Building the data lake in the cloud - Part1</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/10/23/spark-operations-overview/">Apache Spark RDD operation examples</a>

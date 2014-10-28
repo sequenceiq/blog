@@ -130,6 +130,83 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/04/04/hadoop-docker-introduction/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">04 April 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+            <a href="/blog/categories/hadoop-vm/"><span class="label label-warning">Hadoop VM</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/04/04/hadoop-docker-introduction/">Hadoop on Docker introduction</a>
+          <span class="badge name-badge">Krisztian Horvath</span>
+
+      </h1>
+      <p>In the last few weeks we&rsquo;ve created and published several Docker images (<a href="https://github.com/sequenceiq/hadoop-docker">Hadoop</a>, <a href="https://github.com/sequenceiq/hoya-docker">Hoya</a>, <a href="https://github.com/sequenceiq/tez-docker">Tez</a>) to help you to quick-start with Hadoop and the latest innovations using YARN.
+While many people have downloaded and started to use these preconfigured images we&rsquo;ve been asked to give a short introduction of what Docker is, and how one can build Docker images. Also during the Hadoop Summit in Amsterdem we have been inquired in particular about running Hadoop on Docker, so this post is our answer for all the requests we received.</p>
+
+<p>Docker is an open-source engine that automates the deployment of any application as a lightweight, portable, self-sufficient container that will run virtually anywhere.</p>
+
+<h2>Installation</h2>
+
+<p>First install Docker with a package manager. On Ubuntu there is an easy way to start with by running a simple curl script which will do it for you:
+<code>curl -s https://get.docker.io/ubuntu/ | sudo sh</code>.
+Unfortunately Mac, Windows and some Linux distributions cannot natively run Docker (yet). At <a href="http://sequenceiq.com/">SequenceIQ</a> we develop on OSX and run a 3-6 node Hadoop mini cluster on our laptops. To overcome the limitation of running Docker natively
+you will have to install <code>boot2docker</code>. It is a Tiny Core Linux made specifically to run Docker containers and weights less than 24MB memory.
+Initialize <em>(boot2docker init)</em> and start <em>(boot2docker up)</em> and you can SSH into the VM <em>(boot2docker ssh, pass: tcuser)</em>.</p>
+
+<p>To verify the installation let&rsquo;s test it: <code>docker run ubuntu /bin/echo hello docker</code>. Docker did a bunch of things within seconds:</p>
+
+<ul>
+<li>Downloaded the base image from the docker.io index</li>
+<li>Created a new LXC container</li>
+<li>Allocated a filesystem for it</li>
+<li>Mounted a read-write layer</li>
+<li>Allocated a network interface</li>
+<li>Setup an IP for it, with network address translation</li>
+<li>Executed a process inside the container</li>
+<li>Captured the output and printed it</li>
+</ul>
+
+
+<p>You can run an interactive shell as well <code>docker run -i -t ubuntu /bin/bash</code> and use this shell as you would use any other shell.</p>
+
+<p>While there are lots of different Docker images available we would like to share how to create your own images.</p>
+
+
+      
+       <a href="/blog/2014/04/04/hadoop-docker-introduction/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/03/31/mahout-on-tez/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -907,94 +984,6 @@ As a startup, cost savings is important for us &ndash; switching to Hadoop 2.0 h
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/02/22/custom-flume-source/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">22 February 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/apache-flume/"><span class="label label-warning">Apache Flume</span></a>
-            
-            <a href="/blog/categories/custom-source/"><span class="label label-warning">Custom source</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/02/22/custom-flume-source/">Custom Apache Flume source</a>
-          <span class="badge name-badge">Krisztian Horvath</span>
-
-      </h1>
-      <p>The process of data analytics starts with collecting the data into a common system, in our case a Hadoop cluster. Flume is an Apache project aiming to help us solve this problem in a very efficient and elegant way.</p>
-
-<p>In Flume terminology a source is responsible to listen and consume events coming from many distributed clients and forwards them to one or more channels. Events can have any arbitrary format, it all depends on what source do we use. Flume provides many sources, but only a few of them is capable to collect data through network.</p>
-
-<p>In this article I will discuss how you can implement your own that meets your demands through creating a websocket source.
-There are two types of sources: event driven and pollable. In case of a pollable source, Flume will start a thread to periodically call the following method to check whether there is new data available or not:</p>
-
-<figure class='code'><figcaption><span>PollableSource interface</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Status</span> <span class="nf">process</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">EventDeliveryException</span><span class="o">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>With event driven source you will have to take care yourself of receiving the data from the clients. For our websocket example we will use embedded Jetty 9.1. Extend the AbstractEventDrivenSource class and override the mandatory methods to bootstrap the source. In the doConfigure method you can ask the properties you need from the context. These properties are coming from your agent’s configuration file. More on this later..</p>
-
-<figure class='code'><figcaption><span>protected void doConfigure(Context context)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">host</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">HOST_KEY</span><span class="o">);</span>
-</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">port</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getInteger</span><span class="o">(</span><span class="n">PORT_KEY</span><span class="o">);</span>
-</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">path</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">PATH_KEY</span><span class="o">);</span>
-</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">enableSsl</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getBoolean</span><span class="o">(</span><span class="n">SSL_KEY</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Eventually the doStart will kick off the embedded Jetty as shown:</p>
-
-<figure class='code'><figcaption><span>protected void doStart()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">JettyWebSocketServer</span> <span class="n">server</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JettyWebSocketServer</span><span class="o">(</span><span class="n">host</span><span class="o">,</span> <span class="n">port</span><span class="o">,</span> <span class="n">path</span><span class="o">,</span> <span class="n">getChannelProcessor</span><span class="o">());</span>
-</span><span class='line'>    <span class="n">server</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
-</span><span class='line'><span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">LOGGER</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">&quot;Error starting jetty server&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
-</span><span class='line'>    <span class="k">throw</span> <span class="k">new</span> <span class="nf">FlumeException</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-      
-       <a href="/blog/2014/02/22/custom-flume-source/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -1016,6 +1005,10 @@ There are two types of sources: event driven and pollable. In case of a pollable
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/10/28/datalake-cloudbreak/">Building the data lake in the cloud - Part1</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/10/23/spark-operations-overview/">Apache Spark RDD operation examples</a>
