@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: CLI/Shell | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com/blog/categories/cli-slash-shell/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-10-30T13:38:29+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
+  <author>
+    <name><![CDATA[SequenceIQ]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Deploying a Hadoop Cluster - DevOps way]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/10/30/cloudbreak-devops/"/>
+    <updated>2014-10-30T12:43:01+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/10/30/cloudbreak-devops</id>
+    <content type="html"><![CDATA[<p>A while ago we have announced <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; the open source Hadoop as a Service API. Included in the release we open sourced a REST API, REST client, UI and a CLI/shell. In this post we’d like to show you how easy is to use <a href="https://github.com/sequenceiq/cloudbreak-shell">Cloudbreak shell</a> in order to create on demand Hadoop clusters on your favorite cloud provider &ndash; record the process and automate it.</p>
+
+<p>While it’s up to everybody&rsquo;s personal preference whether to use a UI, a command line interface or the REST API directly, at SequenceIQ we prefer to use command line tools whenever it’s possible because it’s much faster than interacting with a web UI and it’s a better candidate for automation. Are we <code>obsessed with automation</code>? Definitely yes &ndash; all the step which are candidates of doing it twice we script or automate it.</p>
+
+<p>This <code>thing</code> with the automation does not affect the effort and quality standards we put on building the UI &ndash; <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> has an extremely intuitive and clean <strong>responsive</strong> UI and it’s built on the latest and greatest web UI framework &ndash; <a href="https://angularjs.org/">Angular JS</a>. We will have a post about the UI, however we consider it so simple to use that we ask you to go ahead and give it a try. You are a signup and a few clicks away from your Hadoop cluster.</p>
+
+<p>Now back to the CLI. Remember one of our Apache contribution &ndash; the <a href="http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell/">Ambari shell and REST API</a>? Well, the Cloudbreak shell is built on the same technology &ndash; Spring Shell. It’s an interactive shell that can be easily extended using a Spring based programming model and battle tested in various projects like Spring Roo, Spring XD, and Spring REST Shell Combine these two projects to create a powerful tool.</p>
+
+<h2>Cloudbreak Shell</h2>
+
+<p>The goal with the CLI was to provide an interactive command line tool which supports:</p>
+
+<ul>
+<li>all functionality available through the REST API or Cloudbreak web UI</li>
+<li>makes possible complete automation of management task via <strong>scripts</strong></li>
+<li>context aware command availability</li>
+<li>tab completion</li>
+<li>required/optional parameter support</li>
+<li><strong>hint</strong> command to guide you on the usual path</li>
+</ul>
+
+
+<h2>Install Cloudbreak Shell</h2>
+
+<p>You have 3 options to give it a try:</p>
+
+<ul>
+<li>use our prepared <a href="https://registry.hub.docker.com/u/sequenceiq/cloudbreak/">docker image</a></li>
+<li>download the latest self-containing executable jar form our maven repo</li>
+<li>build it from source</li>
+</ul>
+
+
+<h3>Build from source</h3>
+
+<p>If want to use the code or extend it with new commands follow the steps below. You will need:
+&ndash; jdk 1.7
+&ndash; maven 3.x.x</p>
+
+<p><code>
+git clone https://github.com/sequenceiq/cloudbreak-shell.git
+cd cloudbreak-shell
+mvn clean package
+</code></p>
+
+<!--more-->
+
+
+<p><em>Note: In case you use the hosted version of Cloudbreak you should use the <code>latest-release.sh</code> to get the right version of the CLI.
+In case you build your own Cloudbreak from the <code>master</code> branch you should use the <code>latest-snap.sh</code> to get the right version of the CLI.</em></p>
+
+<!--more-->
+
+
+<h2>Sign in and connect to Cloudbreak</h2>
+
+<p>There are several different ways to use the shell. First of all you&rsquo;ll need a Cloudbreak instance you can connect to. The easiest way is to use our hosted solution &ndash; you can access it with your SequenceIQ credentials. If you don&rsquo;t have an account, you can subscribe <a href="https://accounts.sequenceiq.com/register">here</a>.</p>
+
+<p>Alternatively you can host your own Cloudbreak instance &ndash; for that just follow up with the steps in the Cloudbreak <a href="http://sequenceiq.com/cloudbreak/#quickstart-and-installation">documentation</a>. If you&rsquo;re hosting your own Cloudbreak server you can still use your SequenceIQ credentials and our identity server, but then you&rsquo;ll have to configure your Cloudbreak installation with proper client credentials that will be accepted by our identity server. It is currently not supported to register your Cloudbreak application through an API (but it is planned), so contact us if you&rsquo;d like to use this solution.</p>
+
+<p>The third alternative is to deploy our whole stack locally in your organization along with <a href="http://sequenceiq.com/cloudbreak/#quickstart-and-installation">Cloudbreak</a>, our OAuth2 based <a href="http://blog.sequenceiq.com/blog/2014/10/16/using-uaa-as-an-identity-server/">Identity Server</a>, and our user management application, <a href="https://github.com/sequenceiq/sultans">Sultans</a>.</p>
+
+<p>We suggest to try our hosted solution as in case you have any issues we can always help you. Please feel free to create bugs, ask for enhancements or just give us feedback by either using our <a href="https://github.com/sequenceiq/cloudbreak">GitHub repository</a> or the other channels highlighted in the product documentation (Google Groups, email or social channels).</p>
+
+<p>The shell is built as a single executable jar with the help of <a href="http://projects.spring.io/spring-boot/">Spring Boot</a>.</p>
+
+<p>```
+Usage:
+  java -jar cloudbreak-shell-0.2-SNAPSHOT.jar                  : Starts Cloudbreak Shell in interactive mode.
+  java -jar cloudbreak-shell-0.2-SNAPSHOT.jar &mdash;cmdfile=<FILE> : Cloudbreak executes commands read from the file.</p>
+
+<p>Options:
+  &mdash;cloudbreak.address=&lt;http[s]://HOSTNAME:PORT>  Address of the Cloudbreak Server [default: <a href="https://cloudbreak-api.sequenceiq.com">https://cloudbreak-api.sequenceiq.com</a>].
+  &mdash;identity.address=&lt;http[s]://HOSTNAME:PORT>    Address of the SequenceIQ identity server [default: <a href="https://identity.sequenceiq.com">https://identity.sequenceiq.com</a>].
+  &mdash;sequenceiq.user=<USER>                        Username of the SequenceIQ user [default: <a href="&#109;&#x61;&#105;&#108;&#116;&#x6f;&#x3a;&#117;&#115;&#x65;&#114;&#x40;&#115;&#101;&#x71;&#x75;&#101;&#110;&#x63;&#101;&#x69;&#113;&#46;&#x63;&#111;&#x6d;">&#x75;&#x73;&#101;&#114;&#x40;&#x73;&#x65;&#113;&#x75;&#x65;&#x6e;&#x63;&#101;&#105;&#113;&#46;&#x63;&#x6f;&#109;</a>].
+  &mdash;sequenceiq.password=<PASSWORD>                Password of the SequenceIQ user [default: password].</p>
+
+<p>Note:
+  You should specify at least your username and password.
+<code>``
+Once you are connected you can start to create a cluster. If you are lost and need guidance through the process you can use</code>hint<code>. You can always use</code>TAB<code>for completion. Note that all commands are</code>context aware` &ndash; they are available only when it makes sense &ndash; this way you are never confused and guided by the system on the right path.</p>
+
+<h3>Create a cloud credential</h3>
+
+<p>In order to start using Cloudbreak you will need to have a cloud user, for example an Amazon AWS account. Note that Cloudbreak <strong>does not</strong> store you cloud user details &ndash; we work around the concept of <a href="http://aws.amazon.com/iam/">IAM</a> &ndash; on Amazon (or other cloud providers) you will have to create an IAM role, a policy and associate that with your Cloudbreak account &ndash; for further documentation please refer to the <a href="http://sequenceiq.com/cloudbreak/#accounts">documentation</a>.</p>
+
+<p><code>
+credential createEC2 --description “description" --name “myCredentialName" --roleArn "arn:aws:iam::NUMBER:role/cloudbreak-ABC" --sshKeyUrl “URL towards your AWS public key"
+</code></p>
+
+<p>Alternatively you can upload your public key from a file as well, by using the <code>—sshKeyPath</code> switch. You can check whether the credential was creates successfully by using the <code>credential list</code> command. You can switch between your cloud credential &ndash; when you’d like to use one and act with that you will have to use:</p>
+
+<p><code>
+credential select --id #ID of the credential
+</code></p>
+
+<h3>Create a template</h3>
+
+<p>A template gives developers and systems administrators an easy way to create and manage a collection of cloud infrastructure related resources, maintaining and updating them in an orderly and predictable fashion. A template can be used repeatedly to create identical copies of the same stack (or to use as a foundation to start a new stack).</p>
+
+<p><code>
+template createEC2 --name awstemplate --description aws-template  --region EU_WEST_1 --instanceType M3Xlarge --volumeSize 100 --volumeCount 2
+</code>
+You can check whether the template was created successfully by using the <code>template list</code> command. Check the template and select it if you are happy with it:</p>
+
+<p>```
+template show &mdash;id #ID of the template</p>
+
+<p>template select &mdash;id #ID of the template
+```</p>
+
+<h3>Create a stack</h3>
+
+<p>Stacks are template <code>instances</code> &ndash; a running cloud infrastructure created based on a template. Use the following command to create a stack to be used with your Hadoop cluster:</p>
+
+<p><code>
+stack create --name “myStackName" --nodeCount 10
+</code></p>
+
+<h3>Select a blueprint</h3>
+
+<p>We ship default Hadoop cluster blueprints with Cloudbreak. You can use these blueprints or add yours. To see the available blueprints and use one of them please use:</p>
+
+<p>```
+blueprint list</p>
+
+<p>blueprint select &mdash;id #ID of the blueprint
+```</p>
+
+<h3>Create a Hadoop cluster</h3>
+
+<p>You are almost done &ndash; one more command and this will create your Hadoop cluster on your favorite cloud provider. Same as the API, or UI this will use your <code>template</code>, and by using CloudFormation will launch a cloud <code>stack</code> &ndash; once the <code>stack</code> is up and running (cloud provisioning is done) it will use your selected <code>blueprint</code> and install your custom Hadoop cluster with the selected components and services. For the supported list of Hadoop components and services please check the <a href="http://sequenceiq.com/cloudbreak/#supported-components">documentation</a>.</p>
+
+<p><code>
+cluster create --description “my cluster desc"
+</code>
+You are done &ndash; you can check the progress through the Ambari UI. If you log back to <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak UI</a> you can check the progress over there as well, and learn the IP address of Ambari.</p>
+
+<h3>Automate the process</h3>
+
+<p>Each time you start the shell the executed commands are logged in a file line by line and later either with the <code>script</code> command or specifying an <code>—cmdfile</code> option the same commands can be executed again.</p>
+
+<h2>Commands</h2>
+
+<p>For the full list of available commands please check below. Please note that all commands are context aware, and you can always use <code>TAB</code> for command completion.</p>
+
+<pre><code>* blueprint add - Add a new blueprint with either --url or --file
+* blueprint defaults - Adds the default blueprints to Cloudbreak
+* blueprint list - Shows the currently available blueprints
+* blueprint select - Select the blueprint by its id
+* blueprint show - Shows the blueprint by its id
+* cluster create - Create a new cluster based on a blueprint and template
+* cluster show - Shows the cluster by stack id
+* credential createAzure - Create a new Azure credential
+* credential createEC2 - Create a new EC2 credential
+* credential defaults - Adds the default credentials to Cloudbreak
+* credential list - Shows all of your credentials
+* credential select - Select the credential by its id
+* credential show - Shows the credential by its id
+* exit - Exits the shell
+* help - List all commands usage
+* hint - Shows some hints
+* quit - Exits the shell
+* script - Parses the specified resource file and executes its commands
+* stack create - Create a new stack based on a template
+* stack list - Shows all of your stack
+* stack select - Select the stack by its id
+* stack show - Shows the stack by its id
+* stack terminate - Terminate the stack by its id
+* template create - Create a new cloud template
+* template createEC2 - Create a new EC2 template
+* template defaults - Adds the default templates to Cloudbreak
+* template list - Shows the currently available cloud templates
+* template select - Select the template by its id
+* template show - Shows the template by its id
+* version - Displays shell version
+</code></pre>
+
+<p>As usual for us &ndash; being committed to 100% open source &ndash; we are always open sourcing everything thus you can get the details on our <a href="https://github.com/sequenceiq/cloudbreak-shell">GitHub</a> repository.
+Should you have any questions feel free to engage with us on our <a href="http://blog.sequenceiq.com/">blog</a> or follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
+]]></content>
+  </entry>
+  
+</feed>

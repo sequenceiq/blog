@@ -130,6 +130,86 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/09/29/spark-correlation-and-testing/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">29 September 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/correlation/"><span class="label label-warning">Correlation</span></a>
+            
+            <a href="/blog/categories/mllib/"><span class="label label-warning">MLlib</span></a>
+            
+            <a href="/blog/categories/spark/"><span class="label label-warning">Spark</span></a>
+            
+            <a href="/blog/categories/testing/"><span class="label label-warning">Testing</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/09/29/spark-correlation-and-testing/">Apache Spark - create and test jobs</a>
+          <span class="badge name-badge">Oliver Szabo</span>
+
+      </h1>
+      <p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we use different runtimes (MR2, Spark, Tez) when submitting jobs from <a href="http://docs.banzai.apiary.io/reference">Banzai</a> to a YARN clusters.
+Some of these jobs are quite simple (filtering, sorting, projection etc.), but most of them can be complicated or not so oblivious at first (e.g.: complex machine learning algorithms).
+From Banzai’s perspective/looking from outside a YARN cluster, what only matters is the input and the output dataset &ndash; as we have abstracted all the pipeline steps &ndash;  so testing of this steps properly is a must.
+In this post we’d like to show such an example that &ndash; a correlation job on vectors with <a href="https://spark.apache.org/">Apache Spark</a> and how we test it.</p>
+
+<h2>Correlation example (on vectors) with Apache Spark</h2>
+
+<p>Suppose that we have an input dataset (CSV file for the sake of simplicity of the sample code) and we want to reveal the dependency between all of the columns. (all data is vectorized, if not you will have to vectorize your data first).
+If we want to build a <code>testable</code> job, we have to focus only on the algorithm part. Our goal here is to work only on the Resilient Distributed Dataset and take the context creation outside of the job.
+This way you cab run and create your <code>SparkContext</code>locally and substitute an HDFS data source (or something else) with simple objects.</p>
+
+<p>Interface: (output: vector index pairs with their correlation coefficient)</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">abstract</span> <span class="k">class</span> <span class="nc">CorrelationJob</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="n">computeCorrelation</span><span class="o">(</span><span class="n">input</span><span class="k">:</span> <span class="kt">RDD</span><span class="o">[</span><span class="kt">String</span><span class="o">])</span> <span class="k">:</span> <span class="kt">Array</span><span class="o">[(</span><span class="kt">Int</span>, <span class="kt">Int</span>, <span class="kt">Double</span><span class="o">)]</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="n">d2d</span><span class="o">(</span><span class="n">d</span><span class="k">:</span> <span class="kt">Double</span><span class="o">)</span> <span class="k">:</span> <span class="kt">Double</span> <span class="o">=</span> <span class="k">new</span> <span class="n">java</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="nc">DecimalFormat</span><span class="o">(</span><span class="s">&quot;#.######&quot;</span><span class="o">).</span><span class="n">format</span><span class="o">(</span><span class="n">d</span><span class="o">).</span><span class="n">toDouble</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+
+      
+       <a href="/blog/2014/09/29/spark-correlation-and-testing/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/09/26/database-upgrade-process/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -723,103 +803,6 @@ from producers to consumers. The DAG itself defines the structure of the data pr
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/09/11/apache-drill-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">11 September 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/apache-drill/"><span class="label label-warning">Apache Drill</span></a>
-            
-            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
-            
-            <a href="/blog/categories/sql/"><span class="label label-warning">SQL</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/09/11/apache-drill-docker/">Apache Drill on Docker - query as a service </a>
-          <span class="badge name-badge">Janos Matyas</span>
-
-      </h1>
-      <p>As you might be already familiar, we have <code>dockerized</code> most of the Hadoop ecosystem &ndash; we are running MR2, Spark, Storm, Hive, HBase, Pig, Oozie, etc in Docker containers &ndash; on bare metal and in the cloud as well. We have started to use (and contribute) to Docker quite a while ago, and beside the <code>mainstream</code> benefits of containers one feature was extremely appealing to us &ndash; <strong>the SOA way of DevOps</strong>. Before I go on and explore what we mean under this allow me to collect a few links for your reference (all open sourced under an <strong>Apache 2 license</strong>), in case you plan to use Hadoop in Docker containers.</p>
-
-<table>
-<thead>
-<tr>
-<th></th>
-<th> Name                  </th>
-<th> Description </th>
-<th> Documentation </th>
-<th> GitHub</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td> Apache Hadoop  </td>
-<td> Pseudo dist. container </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/">http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/</a> </td>
-<td> <a href="https://github.com/sequenceiq/hadoop-docker">https://github.com/sequenceiq/hadoop-docker</a></td>
-</tr>
-<tr>
-<td></td>
-<td> Apache Ambari   </td>
-<td> Multi node &ndash; full Hadoop stack, blueprint based </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/</a> </td>
-<td> <a href="https://github.com/sequenceiq/docker-ambari">https://github.com/sequenceiq/docker-ambari</a></td>
-</tr>
-<tr>
-<td></td>
-<td> Cloudbreak         </td>
-<td> Cloud agnostic Hadoop as a Service </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/</a> </td>
-<td> <a href="https://github.com/sequenceiq/cloudbreak">https://github.com/sequenceiq/cloudbreak</a></td>
-</tr>
-<tr>
-<td></td>
-<td> Periscope          </td>
-<td> SLA policy based autoscaling for Hadoop clusters </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/</a> </td>
-<td> <a href="https://github.com/sequenceiq/periscope">https://github.com/sequenceiq/periscope</a> </td>
-</tr>
-</tbody>
-</table>
-
-
-<h2>Apache Drill at SequenceIQ</h2>
-
-<p><a href="http://incubator.apache.org/drill/">Apache Drill</a> is an open source, low latency SQL query engine for Hadoop and NoSQL. It has many nice and interesting features, but one of the most interesting one (at least for us) is the <a href="https://cwiki.apache.org/confluence/display/DRILL/Storage+Plugin+Registration">storage plugin</a> and the tolerance/support for dynamic schemas. At <a href="http://sequenceiq.com/">SequenceIQ</a> the pre and post processed data ends up in different storage systems/layers. Obliviously we use HDFS, for low latency queries we use HBase and recently (with the emergence of Tez &ndash; which we consider the next big thing) we started to use Hive as well. Quite often there is a need to access the data from <code>legacy</code> systems &ndash; and more often we see <code>SQL</code> coming back in the picture. Just FYI, for SQL on HBase we are using <a href="http://phoenix.apache.org/">Apache Phoenix</a>, and of course we have released and open sourced a <a href="http://blog.sequenceiq.com/blog/2014/09/04/sql-on-hbase-with-apache-phoenix/">Docker container</a>.</p>
-
-<p>As you see there are many storage systems use &ndash; and Drill helps us with aggregating these under one common <code>ANSI SQL syntax</code>. You can query data from HDFS, HBase, Hive, local or remote distributed file system &ndash; or write your own custom storage plugin.</p>
-
-
-      
-       <a href="/blog/2014/09/11/apache-drill-docker/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -841,6 +824,10 @@ from producers to consumers. The DAG itself defines the structure of the data pr
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/10/30/cloudbreak-devops/">Deploying a Hadoop Cluster - DevOps way</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/10/28/datalake-cloudbreak/">Building the data lake in the cloud - Part1</a>

@@ -130,6 +130,87 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/08/12/docker-networking/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">12 August 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
+            
+            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+            <a href="/blog/categories/linux/"><span class="label label-warning">Linux</span></a>
+            
+            <a href="/blog/categories/network/"><span class="label label-warning">Network</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/08/12/docker-networking/">Docker intercontainer networking explained</a>
+          <span class="badge name-badge">Attila Kanto</span>
+
+      </h1>
+      <p>The purpose of this blog entry is to cover advanced topics regarding Docker networking and explain different concepts to inter-connect Docker containers when the containers are running on different host machines.
+For the demonstration we are using VMs on <a href="https://www.virtualbox.org/">VirtualBox</a> launched with <a href="http://www.vagrantup.com/">Vagrant</a>, but the explained networking concepts work also on Amazon EC2 (with VPC) and Azure unless stated otherwise.</p>
+
+<p>To set up the the test environment clone the <a href="https://github.com/sequenceiq/sequenceiq-samples">SequenceIQ&rsquo;s samples repository</a> and follow the instructions.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git clone git@github.com:sequenceiq/sequenceiq-samples.git
+</span><span class='line'>cd sequenceiq-samples/docker-networking
+</span><span class='line'>vagrant up</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>vagrant up</code> command launches the test setup, which conatins two Ubuntu 14.04 VMs with the network configuration:</p>
+
+<ul>
+<li><a href="https://www.virtualbox.org/manual/ch06.html#network_nat">NAT</a></li>
+<li><a href="https://docs.vagrantup.com/v2/networking/private_network.html">Private networking</a></li>
+</ul>
+
+
+<p>The NAT (related to eth0 interface on VMs) is used only for access the external network from VMs e.g. download files from debian repository, but it is not used for inter-container communication. The Vagrant sets up a properly configured Host Only Networking in VirtualBox therefore the VMs can communicate with each other on the defined IP addresses:</p>
+
+<ul>
+<li>vm1: 192.168.40.11</li>
+<li>vm2: 192.168.40.12</li>
+</ul>
+
+
+<p>Let&rsquo;s see how Docker containers running on these VMs can send IP packets to each other.</p>
+
+
+      
+       <a href="/blog/2014/08/12/docker-networking/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/08/07/clodubreak-shell/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -758,79 +839,6 @@ does the actual call.</p>
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">02 July 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
-            
-            <a href="/blog/categories/scheduler/"><span class="label label-warning">Scheduler</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/07/02/move-applications-between-queues/">Re-prioritize running jobs with YARN schedulers</a>
-          <span class="badge name-badge">Krisztian Horvath</span>
-
-      </h1>
-      <p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we run different applications all within the same Hadoop YARN cluster. Often the deployed Hadoop stack is a multi-tenant and multi-application and runtime setup &ndash; and as usual for a scenario as such end users will try to use or book as much cluster capacity as possible. A great help for solving these problems are YARN schedulers &ndash; however in our case due to certain SLA and QoS requirements we needed to step further. We have invested a great effort to build custom YARN schedulers, learn about application insights (check our <a href="http://blog.sequenceiq.com/blog/2014/05/01/mapreduce-job-profiling-with-R/">blog post</a> about how we use R to profile running jobs) and we would like to share our experience with the community. Let&rsquo;s dig into technical details.</p>
-
-<p>In YARN, one of the ResourceManager&rsquo;s most important role is the scheduling (allocating available resources in the cluster) between competing applications. It doesn&rsquo;t care about per-application states nor internal flows and optimizations, but the overall resource requirements of
-each application. Currently there are 3 different scheduler implementations available: FIFO, Fair, Capacity.</p>
-
-<p>Going back a few weeks in time we blogged about how to configure the
-<a href="http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler/">CapacityScheduler</a> and use different queue
-setups. Based on the feedbacks we have received we realized that there is a lack of knowledge about how these schedulers work and many people have asked to fill that gap. Good news that we didn&rsquo;t
-forget about you. We&rsquo;re going to start a post series where we&rsquo;ll explain them a little bit detailed with fancy diagrams and code examples.</p>
-
-<p>But before doing that, let&rsquo;s visit a concrete problem we encountered while we were developing our product stack.
-We wanted to use the CapacityScheduler, but for different reasons (SLA and QoS) move the submitted applications between different queues to set a priority among them &ndash; at runtime (quick reminder: queues are either a composition of other queues or a collection of applications, forming a tree).
-Cross application priorites can&rsquo;t be configured yet, only priorities between tasks within the application. The only problem is if you check the code you&rsquo;ll find this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">moveApplication</span><span class="o">(</span><span class="n">ApplicationId</span> <span class="n">appId</span><span class="o">,</span> <span class="n">String</span> <span class="n">newQueue</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">YarnException</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">throw</span> <span class="k">new</span> <span class="nf">YarnException</span><span class="o">(</span><span class="n">getClass</span><span class="o">().</span><span class="na">getSimpleName</span><span class="o">()</span>
-</span><span class='line'>        <span class="o">+</span> <span class="s">&quot; does not support moving apps between queues&quot;</span><span class="o">);</span>
-</span><span class='line'>  <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-
-      
-       <a href="/blog/2014/07/02/move-applications-between-queues/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -852,6 +860,10 @@ Cross application priorites can&rsquo;t be configured yet, only priorities betwe
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/10/30/cloudbreak-devops/">Deploying a Hadoop Cluster - DevOps way</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/10/28/datalake-cloudbreak/">Building the data lake in the cloud - Part1</a>

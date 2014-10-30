@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-10-28T15:47:58+00:00</updated>
+  <updated>2014-10-30T13:38:29+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,216 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Deploying a Hadoop Cluster - DevOps way]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/10/30/cloudbreak-devops/"/>
+    <updated>2014-10-30T12:43:01+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/10/30/cloudbreak-devops</id>
+    <content type="html"><![CDATA[<p>A while ago we have announced <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; the open source Hadoop as a Service API. Included in the release we open sourced a REST API, REST client, UI and a CLI/shell. In this post we’d like to show you how easy is to use <a href="https://github.com/sequenceiq/cloudbreak-shell">Cloudbreak shell</a> in order to create on demand Hadoop clusters on your favorite cloud provider &ndash; record the process and automate it.</p>
+
+<p>While it’s up to everybody&rsquo;s personal preference whether to use a UI, a command line interface or the REST API directly, at SequenceIQ we prefer to use command line tools whenever it’s possible because it’s much faster than interacting with a web UI and it’s a better candidate for automation. Are we <code>obsessed with automation</code>? Definitely yes &ndash; all the step which are candidates of doing it twice we script or automate it.</p>
+
+<p>This <code>thing</code> with the automation does not affect the effort and quality standards we put on building the UI &ndash; <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> has an extremely intuitive and clean <strong>responsive</strong> UI and it’s built on the latest and greatest web UI framework &ndash; <a href="https://angularjs.org/">Angular JS</a>. We will have a post about the UI, however we consider it so simple to use that we ask you to go ahead and give it a try. You are a signup and a few clicks away from your Hadoop cluster.</p>
+
+<p>Now back to the CLI. Remember one of our Apache contribution &ndash; the <a href="http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell/">Ambari shell and REST API</a>? Well, the Cloudbreak shell is built on the same technology &ndash; Spring Shell. It’s an interactive shell that can be easily extended using a Spring based programming model and battle tested in various projects like Spring Roo, Spring XD, and Spring REST Shell Combine these two projects to create a powerful tool.</p>
+
+<h2>Cloudbreak Shell</h2>
+
+<p>The goal with the CLI was to provide an interactive command line tool which supports:</p>
+
+<ul>
+<li>all functionality available through the REST API or Cloudbreak web UI</li>
+<li>makes possible complete automation of management task via <strong>scripts</strong></li>
+<li>context aware command availability</li>
+<li>tab completion</li>
+<li>required/optional parameter support</li>
+<li><strong>hint</strong> command to guide you on the usual path</li>
+</ul>
+
+
+<h2>Install Cloudbreak Shell</h2>
+
+<p>You have 3 options to give it a try:</p>
+
+<ul>
+<li>use our prepared <a href="https://registry.hub.docker.com/u/sequenceiq/cloudbreak/">docker image</a></li>
+<li>download the latest self-containing executable jar form our maven repo</li>
+<li>build it from source</li>
+</ul>
+
+
+<h3>Build from source</h3>
+
+<p>If want to use the code or extend it with new commands follow the steps below. You will need:
+&ndash; jdk 1.7
+&ndash; maven 3.x.x</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>git clone https://github.com/sequenceiq/cloudbreak-shell.git
+</span><span class='line'>cd cloudbreak-shell
+</span><span class='line'>mvn clean package</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!--more-->
+
+
+<p><em>Note: In case you use the hosted version of Cloudbreak you should use the <code>latest-release.sh</code> to get the right version of the CLI.
+In case you build your own Cloudbreak from the <code>master</code> branch you should use the <code>latest-snap.sh</code> to get the right version of the CLI.</em></p>
+
+<!--more-->
+
+
+<h2>Sign in and connect to Cloudbreak</h2>
+
+<p>There are several different ways to use the shell. First of all you&rsquo;ll need a Cloudbreak instance you can connect to. The easiest way is to use our hosted solution &ndash; you can access it with your SequenceIQ credentials. If you don&rsquo;t have an account, you can subscribe <a href="https://accounts.sequenceiq.com/register">here</a>.</p>
+
+<p>Alternatively you can host your own Cloudbreak instance &ndash; for that just follow up with the steps in the Cloudbreak <a href="http://sequenceiq.com/cloudbreak/#quickstart-and-installation">documentation</a>. If you&rsquo;re hosting your own Cloudbreak server you can still use your SequenceIQ credentials and our identity server, but then you&rsquo;ll have to configure your Cloudbreak installation with proper client credentials that will be accepted by our identity server. It is currently not supported to register your Cloudbreak application through an API (but it is planned), so contact us if you&rsquo;d like to use this solution.</p>
+
+<p>The third alternative is to deploy our whole stack locally in your organization along with <a href="http://sequenceiq.com/cloudbreak/#quickstart-and-installation">Cloudbreak</a>, our OAuth2 based <a href="http://blog.sequenceiq.com/blog/2014/10/16/using-uaa-as-an-identity-server/">Identity Server</a>, and our user management application, <a href="https://github.com/sequenceiq/sultans">Sultans</a>.</p>
+
+<p>We suggest to try our hosted solution as in case you have any issues we can always help you. Please feel free to create bugs, ask for enhancements or just give us feedback by either using our <a href="https://github.com/sequenceiq/cloudbreak">GitHub repository</a> or the other channels highlighted in the product documentation (Google Groups, email or social channels).</p>
+
+<p>The shell is built as a single executable jar with the help of <a href="http://projects.spring.io/spring-boot/">Spring Boot</a>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Usage:
+</span><span class='line'>  java -jar cloudbreak-shell-0.2-SNAPSHOT.jar                  : Starts Cloudbreak Shell in interactive mode.
+</span><span class='line'>  java -jar cloudbreak-shell-0.2-SNAPSHOT.jar --cmdfile=&lt;FILE&gt; : Cloudbreak executes commands read from the file.
+</span><span class='line'>
+</span><span class='line'>Options:
+</span><span class='line'>  --cloudbreak.address=&lt;http[s]://HOSTNAME:PORT&gt;  Address of the Cloudbreak Server [default: https://cloudbreak-api.sequenceiq.com].
+</span><span class='line'>  --identity.address=&lt;http[s]://HOSTNAME:PORT&gt;    Address of the SequenceIQ identity server [default: https://identity.sequenceiq.com].
+</span><span class='line'>  --sequenceiq.user=&lt;USER&gt;                        Username of the SequenceIQ user [default: user@sequenceiq.com].
+</span><span class='line'>  --sequenceiq.password=&lt;PASSWORD&gt;                Password of the SequenceIQ user [default: password].
+</span><span class='line'>
+</span><span class='line'>Note:
+</span><span class='line'>  You should specify at least your username and password.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once you are connected you can start to create a cluster. If you are lost and need guidance through the process you can use <code>hint</code>. You can always use <code>TAB</code> for completion. Note that all commands are <code>context aware</code> &ndash; they are available only when it makes sense &ndash; this way you are never confused and guided by the system on the right path.</p>
+
+<h3>Create a cloud credential</h3>
+
+<p>In order to start using Cloudbreak you will need to have a cloud user, for example an Amazon AWS account. Note that Cloudbreak <strong>does not</strong> store you cloud user details &ndash; we work around the concept of <a href="http://aws.amazon.com/iam/">IAM</a> &ndash; on Amazon (or other cloud providers) you will have to create an IAM role, a policy and associate that with your Cloudbreak account &ndash; for further documentation please refer to the <a href="http://sequenceiq.com/cloudbreak/#accounts">documentation</a>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>credential createEC2 --description “description" --name “myCredentialName" --roleArn "arn:aws:iam::NUMBER:role/cloudbreak-ABC" --sshKeyUrl “URL towards your AWS public key"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Alternatively you can upload your public key from a file as well, by using the <code>—sshKeyPath</code> switch. You can check whether the credential was creates successfully by using the <code>credential list</code> command. You can switch between your cloud credential &ndash; when you’d like to use one and act with that you will have to use:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>credential select --id #ID of the credential</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Create a template</h3>
+
+<p>A template gives developers and systems administrators an easy way to create and manage a collection of cloud infrastructure related resources, maintaining and updating them in an orderly and predictable fashion. A template can be used repeatedly to create identical copies of the same stack (or to use as a foundation to start a new stack).</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>template createEC2 --name awstemplate --description aws-template  --region EU_WEST_1 --instanceType M3Xlarge --volumeSize 100 --volumeCount 2</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can check whether the template was created successfully by using the <code>template list</code> command. Check the template and select it if you are happy with it:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>template show --id #ID of the template
+</span><span class='line'>
+</span><span class='line'>template select --id #ID of the template</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Create a stack</h3>
+
+<p>Stacks are template <code>instances</code> &ndash; a running cloud infrastructure created based on a template. Use the following command to create a stack to be used with your Hadoop cluster:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>stack create --name “myStackName" --nodeCount 10</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Select a blueprint</h3>
+
+<p>We ship default Hadoop cluster blueprints with Cloudbreak. You can use these blueprints or add yours. To see the available blueprints and use one of them please use:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>blueprint list
+</span><span class='line'>
+</span><span class='line'>blueprint select --id #ID of the blueprint</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Create a Hadoop cluster</h3>
+
+<p>You are almost done &ndash; one more command and this will create your Hadoop cluster on your favorite cloud provider. Same as the API, or UI this will use your <code>template</code>, and by using CloudFormation will launch a cloud <code>stack</code> &ndash; once the <code>stack</code> is up and running (cloud provisioning is done) it will use your selected <code>blueprint</code> and install your custom Hadoop cluster with the selected components and services. For the supported list of Hadoop components and services please check the <a href="http://sequenceiq.com/cloudbreak/#supported-components">documentation</a>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cluster create --description “my cluster desc"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You are done &ndash; you can check the progress through the Ambari UI. If you log back to <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak UI</a> you can check the progress over there as well, and learn the IP address of Ambari.</p>
+
+<h3>Automate the process</h3>
+
+<p>Each time you start the shell the executed commands are logged in a file line by line and later either with the <code>script</code> command or specifying an <code>—cmdfile</code> option the same commands can be executed again.</p>
+
+<h2>Commands</h2>
+
+<p>For the full list of available commands please check below. Please note that all commands are context aware, and you can always use <code>TAB</code> for command completion.</p>
+
+<pre><code>* blueprint add - Add a new blueprint with either --url or --file
+* blueprint defaults - Adds the default blueprints to Cloudbreak
+* blueprint list - Shows the currently available blueprints
+* blueprint select - Select the blueprint by its id
+* blueprint show - Shows the blueprint by its id
+* cluster create - Create a new cluster based on a blueprint and template
+* cluster show - Shows the cluster by stack id
+* credential createAzure - Create a new Azure credential
+* credential createEC2 - Create a new EC2 credential
+* credential defaults - Adds the default credentials to Cloudbreak
+* credential list - Shows all of your credentials
+* credential select - Select the credential by its id
+* credential show - Shows the credential by its id
+* exit - Exits the shell
+* help - List all commands usage
+* hint - Shows some hints
+* quit - Exits the shell
+* script - Parses the specified resource file and executes its commands
+* stack create - Create a new stack based on a template
+* stack list - Shows all of your stack
+* stack select - Select the stack by its id
+* stack show - Shows the stack by its id
+* stack terminate - Terminate the stack by its id
+* template create - Create a new cloud template
+* template createEC2 - Create a new EC2 template
+* template defaults - Adds the default templates to Cloudbreak
+* template list - Shows the currently available cloud templates
+* template select - Select the template by its id
+* template show - Shows the template by its id
+* version - Displays shell version
+</code></pre>
+
+<p>As usual for us &ndash; being committed to 100% open source &ndash; we are always open sourcing everything thus you can get the details on our <a href="https://github.com/sequenceiq/cloudbreak-shell">GitHub</a> repository.
+Should you have any questions feel free to engage with us on our <a href="http://blog.sequenceiq.com/">blog</a> or follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Building the data lake in the cloud - Part1]]></title>
@@ -1052,7 +1262,7 @@ In the benchmark, the jobs were submitted to the <code>default</code> queue and 
 <p>SequenceIQ is an innovative big data startup with the mission statement to simplify and automate provisioning of on-demand Hadoop clusters running on different environments. Leaders in “containerizing” Hadoop, SequenceIQ is the first company who provisions and runs the full Hadoop stack and components on Docker containers. The company has further plans to create the industry’s first cloud agnostic, autoscaling and use case driven Platform as a Service API, and break the common significant barriers of entry that exist with most big data projects through a series of As-a-Service API offerings.
 For more information follow up with us on @SequenceIQ and <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>.</p>
 
-<p><a href="&#x6d;&#x61;&#105;&#108;&#x74;&#x6f;&#x3a;&#x69;&#x6e;&#102;&#x6f;&#64;&#115;&#101;&#x71;&#117;&#x65;&#110;&#x63;&#101;&#105;&#x71;&#x2e;&#x63;&#x6f;&#x6d;">&#x69;&#x6e;&#102;&#111;&#64;&#x73;&#x65;&#113;&#x75;&#x65;&#x6e;&#x63;&#101;&#105;&#x71;&#x2e;&#99;&#x6f;&#x6d;</a></p>
+<p><a href="&#109;&#97;&#105;&#x6c;&#x74;&#111;&#x3a;&#x69;&#x6e;&#102;&#x6f;&#64;&#115;&#101;&#113;&#117;&#101;&#110;&#x63;&#x65;&#x69;&#113;&#x2e;&#x63;&#111;&#x6d;">&#105;&#110;&#x66;&#111;&#x40;&#x73;&#101;&#113;&#117;&#101;&#110;&#x63;&#x65;&#x69;&#x71;&#46;&#x63;&#x6f;&#109;</a></p>
 ]]></content>
   </entry>
   
@@ -2502,104 +2712,6 @@ You can convert your <code>vmdk</code> file into the supported raw type by using
 <p>The Hadoop build process is no easy task &ndash; requires lots of libraries and their right version, protobuf, etc and takes some time &ndash; we have simplified all these, made the build and released a 64b version of Hadoop nativelibs on our <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.5.0/view/files">Bintray repo</a>. Enjoy.</p>
 
 <p>Should you have any questions let us know through our social channels as <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Apache Drill on Docker - query as a service ]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/09/11/apache-drill-docker/"/>
-    <updated>2014-09-11T16:00:00+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/09/11/apache-drill-docker</id>
-    <content type="html"><![CDATA[<p>As you might be already familiar, we have <code>dockerized</code> most of the Hadoop ecosystem &ndash; we are running MR2, Spark, Storm, Hive, HBase, Pig, Oozie, etc in Docker containers &ndash; on bare metal and in the cloud as well. We have started to use (and contribute) to Docker quite a while ago, and beside the <code>mainstream</code> benefits of containers one feature was extremely appealing to us &ndash; <strong>the SOA way of DevOps</strong>. Before I go on and explore what we mean under this allow me to collect a few links for your reference (all open sourced under an <strong>Apache 2 license</strong>), in case you plan to use Hadoop in Docker containers.</p>
-
-<table>
-<thead>
-<tr>
-<th></th>
-<th> Name                  </th>
-<th> Description </th>
-<th> Documentation </th>
-<th> GitHub</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td> Apache Hadoop  </td>
-<td> Pseudo dist. container </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/">http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/</a> </td>
-<td> <a href="https://github.com/sequenceiq/hadoop-docker">https://github.com/sequenceiq/hadoop-docker</a></td>
-</tr>
-<tr>
-<td></td>
-<td> Apache Ambari   </td>
-<td> Multi node &ndash; full Hadoop stack, blueprint based </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/</a> </td>
-<td> <a href="https://github.com/sequenceiq/docker-ambari">https://github.com/sequenceiq/docker-ambari</a></td>
-</tr>
-<tr>
-<td></td>
-<td> Cloudbreak         </td>
-<td> Cloud agnostic Hadoop as a Service </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/</a> </td>
-<td> <a href="https://github.com/sequenceiq/cloudbreak">https://github.com/sequenceiq/cloudbreak</a></td>
-</tr>
-<tr>
-<td></td>
-<td> Periscope          </td>
-<td> SLA policy based autoscaling for Hadoop clusters </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/</a> </td>
-<td> <a href="https://github.com/sequenceiq/periscope">https://github.com/sequenceiq/periscope</a> </td>
-</tr>
-</tbody>
-</table>
-
-
-<h2>Apache Drill at SequenceIQ</h2>
-
-<p><a href="http://incubator.apache.org/drill/">Apache Drill</a> is an open source, low latency SQL query engine for Hadoop and NoSQL. It has many nice and interesting features, but one of the most interesting one (at least for us) is the <a href="https://cwiki.apache.org/confluence/display/DRILL/Storage+Plugin+Registration">storage plugin</a> and the tolerance/support for dynamic schemas. At <a href="http://sequenceiq.com/">SequenceIQ</a> the pre and post processed data ends up in different storage systems/layers. Obliviously we use HDFS, for low latency queries we use HBase and recently (with the emergence of Tez &ndash; which we consider the next big thing) we started to use Hive as well. Quite often there is a need to access the data from <code>legacy</code> systems &ndash; and more often we see <code>SQL</code> coming back in the picture. Just FYI, for SQL on HBase we are using <a href="http://phoenix.apache.org/">Apache Phoenix</a>, and of course we have released and open sourced a <a href="http://blog.sequenceiq.com/blog/2014/09/04/sql-on-hbase-with-apache-phoenix/">Docker container</a>.</p>
-
-<p>As you see there are many storage systems use &ndash; and Drill helps us with aggregating these under one common <code>ANSI SQL syntax</code>. You can query data from HDFS, HBase, Hive, local or remote distributed file system &ndash; or write your own custom storage plugin.</p>
-
-<!-- more -->
-
-
-<h3>Lifecycle of a Drill query</h3>
-
-<p>Let’s take a simple example (from the Drill samples), where we query a file, with a <code>WHERE</code> clause. Your statement is submitted in <code>Sqlline</code> &ndash; a very popular (used with our Phoenix container as well) Java interface which can talk to a JDBC driver. The <code>SELECT</code> statement is passed into <a href="http://optiq.incubator.apache.org/">Optiq</a>. Optiq is a library for query parsing and planning, and allows pluggable transformation rules. Optiq also has a cost-based query optimizer. At high level, based on the above the statements are converted into Drill <code>logical operators</code>, and form a Drill logical plan. This plan is then submitted into one <code>DrillBit service</code> &ndash; usually running on each datanode, to benefit on the data locality, during query execution. This logical plan is then transformed into a physical plan &ndash; a simple DAG  of physical operators &ndash; using a Drill’s <code>optimizer</code>. This physical plan is broken into a multi-level execution tree (hello MPP) that is executed by multiple DrillBits. The story goes on as there are statistics collected, endpoint affinities are checked (metadata based preferred endpoint selection) and the plan is broken in fragments, but at a high level this is the execution flow.
-There are some interesting things going on under the hood which we can cover it one of the following posts &ndash; about writing our custom storage plugin.</p>
-
-<h2>Apache Drill on Docker</h2>
-
-<p>Now as you have a good overview about the capabilities of Drill, we’d like to expand on what we mean under <strong>SOA way of DevOps</strong>. Though Drill is a complex piece of software, essentially the provided service is extremely simple: <em>queries data</em>. We have created a <a href="https://registry.hub.docker.com/u/sequenceiq/drill/">Drill Docker</a> container and wrapped the <code>query</code> service inside. If you’d like to use Drill, the only thing you will have to do is to launch our Drill container &ndash; the <code>query service</code> is available <em>as a Service</em>. We have built the container in such a way that the data layer is separated from the <code>query service</code> &ndash; you can launch the container when and where you’d like to do, and attach the data using volumes. Once the data layer is attached, the only remaining thing is to let Drill know where to query &ndash; by either using one of the existing, or creating a new storage configuration.</p>
-
-<h3>Pull the container</h3>
-
-<p>The Drill container is available as a trusted build on Docker.io. You can get and start using it &ndash; the only prerequisite is to have Docker installed.</p>
-
-<p><code>docker pull sequenceiq/drill</code></p>
-
-<h3>Use the container</h3>
-
-<p>Once the container is pulled you are ready to query your data by running:</p>
-
-<p><code>docker run -it -v /data:/data sequenceiq/drill /etc/bootstrap.sh</code></p>
-
-<p>Note that the <code>-v /data:/data</code> flag specifies that you are mounting your <code>/data</code> directory on the host into a <code>/data</code> directory inside the container. The files inside the directory will be available for Drill to query, by either using the default <code>dfs</code> storage plugin, or by a custom one. To check, or create a storage plugin or to access the Drill UI you should go to <code>http://CONTAINER_IP:8047</code>. You can find your container IP by using <code>docker inspect ID</code>.</p>
-
-<p>In case you don&rsquo;t have any data, but would still like to explore Drill, start the contaier as:</p>
-
-<p><code>docker run -it sequenceiq/drill /etc/bootstrap.sh</code></p>
-
-<p>The sample data installed by default with Drill is available inside the container, thus you&rsquo;d be able to run all the Drill examples/tutorials.</p>
-
-<h3>Drill Rest API</h3>
-
-<p>Get Drillbit status: <code>http://localhost:8047/status</code>
-Get all submitted queries: <code>http://localhost:8047/queries</code>
-Get status of a given query:<code>http://localhost:8047/query/{QUERY_ID}</code></p>
-
-<p>The next version of the container will be a fully distributed (based on our Hadoop container and Hazelcast) Apache Drill Docker container. Until then feel free to let us know how you <code>drill</code> and follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   

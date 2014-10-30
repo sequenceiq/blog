@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Cloudbreak | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/cloudbreak/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-10-28T15:47:58+00:00</updated>
+  <updated>2014-10-30T13:38:29+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,194 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Deploying a Hadoop Cluster - DevOps way]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/10/30/cloudbreak-devops/"/>
+    <updated>2014-10-30T12:43:01+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/10/30/cloudbreak-devops</id>
+    <content type="html"><![CDATA[<p>A while ago we have announced <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; the open source Hadoop as a Service API. Included in the release we open sourced a REST API, REST client, UI and a CLI/shell. In this post we’d like to show you how easy is to use <a href="https://github.com/sequenceiq/cloudbreak-shell">Cloudbreak shell</a> in order to create on demand Hadoop clusters on your favorite cloud provider &ndash; record the process and automate it.</p>
+
+<p>While it’s up to everybody&rsquo;s personal preference whether to use a UI, a command line interface or the REST API directly, at SequenceIQ we prefer to use command line tools whenever it’s possible because it’s much faster than interacting with a web UI and it’s a better candidate for automation. Are we <code>obsessed with automation</code>? Definitely yes &ndash; all the step which are candidates of doing it twice we script or automate it.</p>
+
+<p>This <code>thing</code> with the automation does not affect the effort and quality standards we put on building the UI &ndash; <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> has an extremely intuitive and clean <strong>responsive</strong> UI and it’s built on the latest and greatest web UI framework &ndash; <a href="https://angularjs.org/">Angular JS</a>. We will have a post about the UI, however we consider it so simple to use that we ask you to go ahead and give it a try. You are a signup and a few clicks away from your Hadoop cluster.</p>
+
+<p>Now back to the CLI. Remember one of our Apache contribution &ndash; the <a href="http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell/">Ambari shell and REST API</a>? Well, the Cloudbreak shell is built on the same technology &ndash; Spring Shell. It’s an interactive shell that can be easily extended using a Spring based programming model and battle tested in various projects like Spring Roo, Spring XD, and Spring REST Shell Combine these two projects to create a powerful tool.</p>
+
+<h2>Cloudbreak Shell</h2>
+
+<p>The goal with the CLI was to provide an interactive command line tool which supports:</p>
+
+<ul>
+<li>all functionality available through the REST API or Cloudbreak web UI</li>
+<li>makes possible complete automation of management task via <strong>scripts</strong></li>
+<li>context aware command availability</li>
+<li>tab completion</li>
+<li>required/optional parameter support</li>
+<li><strong>hint</strong> command to guide you on the usual path</li>
+</ul>
+
+
+<h2>Install Cloudbreak Shell</h2>
+
+<p>You have 3 options to give it a try:</p>
+
+<ul>
+<li>use our prepared <a href="https://registry.hub.docker.com/u/sequenceiq/cloudbreak/">docker image</a></li>
+<li>download the latest self-containing executable jar form our maven repo</li>
+<li>build it from source</li>
+</ul>
+
+
+<h3>Build from source</h3>
+
+<p>If want to use the code or extend it with new commands follow the steps below. You will need:
+&ndash; jdk 1.7
+&ndash; maven 3.x.x</p>
+
+<p><code>
+git clone https://github.com/sequenceiq/cloudbreak-shell.git
+cd cloudbreak-shell
+mvn clean package
+</code></p>
+
+<!--more-->
+
+
+<p><em>Note: In case you use the hosted version of Cloudbreak you should use the <code>latest-release.sh</code> to get the right version of the CLI.
+In case you build your own Cloudbreak from the <code>master</code> branch you should use the <code>latest-snap.sh</code> to get the right version of the CLI.</em></p>
+
+<!--more-->
+
+
+<h2>Sign in and connect to Cloudbreak</h2>
+
+<p>There are several different ways to use the shell. First of all you&rsquo;ll need a Cloudbreak instance you can connect to. The easiest way is to use our hosted solution &ndash; you can access it with your SequenceIQ credentials. If you don&rsquo;t have an account, you can subscribe <a href="https://accounts.sequenceiq.com/register">here</a>.</p>
+
+<p>Alternatively you can host your own Cloudbreak instance &ndash; for that just follow up with the steps in the Cloudbreak <a href="http://sequenceiq.com/cloudbreak/#quickstart-and-installation">documentation</a>. If you&rsquo;re hosting your own Cloudbreak server you can still use your SequenceIQ credentials and our identity server, but then you&rsquo;ll have to configure your Cloudbreak installation with proper client credentials that will be accepted by our identity server. It is currently not supported to register your Cloudbreak application through an API (but it is planned), so contact us if you&rsquo;d like to use this solution.</p>
+
+<p>The third alternative is to deploy our whole stack locally in your organization along with <a href="http://sequenceiq.com/cloudbreak/#quickstart-and-installation">Cloudbreak</a>, our OAuth2 based <a href="http://blog.sequenceiq.com/blog/2014/10/16/using-uaa-as-an-identity-server/">Identity Server</a>, and our user management application, <a href="https://github.com/sequenceiq/sultans">Sultans</a>.</p>
+
+<p>We suggest to try our hosted solution as in case you have any issues we can always help you. Please feel free to create bugs, ask for enhancements or just give us feedback by either using our <a href="https://github.com/sequenceiq/cloudbreak">GitHub repository</a> or the other channels highlighted in the product documentation (Google Groups, email or social channels).</p>
+
+<p>The shell is built as a single executable jar with the help of <a href="http://projects.spring.io/spring-boot/">Spring Boot</a>.</p>
+
+<p>```
+Usage:
+  java -jar cloudbreak-shell-0.2-SNAPSHOT.jar                  : Starts Cloudbreak Shell in interactive mode.
+  java -jar cloudbreak-shell-0.2-SNAPSHOT.jar &mdash;cmdfile=<FILE> : Cloudbreak executes commands read from the file.</p>
+
+<p>Options:
+  &mdash;cloudbreak.address=&lt;http[s]://HOSTNAME:PORT>  Address of the Cloudbreak Server [default: <a href="https://cloudbreak-api.sequenceiq.com">https://cloudbreak-api.sequenceiq.com</a>].
+  &mdash;identity.address=&lt;http[s]://HOSTNAME:PORT>    Address of the SequenceIQ identity server [default: <a href="https://identity.sequenceiq.com">https://identity.sequenceiq.com</a>].
+  &mdash;sequenceiq.user=<USER>                        Username of the SequenceIQ user [default: <a href="&#109;&#97;&#105;&#108;&#x74;&#111;&#58;&#117;&#x73;&#101;&#x72;&#x40;&#115;&#x65;&#113;&#x75;&#x65;&#110;&#x63;&#101;&#105;&#x71;&#x2e;&#x63;&#x6f;&#x6d;">&#x75;&#x73;&#101;&#114;&#x40;&#115;&#x65;&#x71;&#x75;&#101;&#x6e;&#x63;&#101;&#x69;&#x71;&#46;&#99;&#x6f;&#x6d;</a>].
+  &mdash;sequenceiq.password=<PASSWORD>                Password of the SequenceIQ user [default: password].</p>
+
+<p>Note:
+  You should specify at least your username and password.
+<code>``
+Once you are connected you can start to create a cluster. If you are lost and need guidance through the process you can use</code>hint<code>. You can always use</code>TAB<code>for completion. Note that all commands are</code>context aware` &ndash; they are available only when it makes sense &ndash; this way you are never confused and guided by the system on the right path.</p>
+
+<h3>Create a cloud credential</h3>
+
+<p>In order to start using Cloudbreak you will need to have a cloud user, for example an Amazon AWS account. Note that Cloudbreak <strong>does not</strong> store you cloud user details &ndash; we work around the concept of <a href="http://aws.amazon.com/iam/">IAM</a> &ndash; on Amazon (or other cloud providers) you will have to create an IAM role, a policy and associate that with your Cloudbreak account &ndash; for further documentation please refer to the <a href="http://sequenceiq.com/cloudbreak/#accounts">documentation</a>.</p>
+
+<p><code>
+credential createEC2 --description “description" --name “myCredentialName" --roleArn "arn:aws:iam::NUMBER:role/cloudbreak-ABC" --sshKeyUrl “URL towards your AWS public key"
+</code></p>
+
+<p>Alternatively you can upload your public key from a file as well, by using the <code>—sshKeyPath</code> switch. You can check whether the credential was creates successfully by using the <code>credential list</code> command. You can switch between your cloud credential &ndash; when you’d like to use one and act with that you will have to use:</p>
+
+<p><code>
+credential select --id #ID of the credential
+</code></p>
+
+<h3>Create a template</h3>
+
+<p>A template gives developers and systems administrators an easy way to create and manage a collection of cloud infrastructure related resources, maintaining and updating them in an orderly and predictable fashion. A template can be used repeatedly to create identical copies of the same stack (or to use as a foundation to start a new stack).</p>
+
+<p><code>
+template createEC2 --name awstemplate --description aws-template  --region EU_WEST_1 --instanceType M3Xlarge --volumeSize 100 --volumeCount 2
+</code>
+You can check whether the template was created successfully by using the <code>template list</code> command. Check the template and select it if you are happy with it:</p>
+
+<p>```
+template show &mdash;id #ID of the template</p>
+
+<p>template select &mdash;id #ID of the template
+```</p>
+
+<h3>Create a stack</h3>
+
+<p>Stacks are template <code>instances</code> &ndash; a running cloud infrastructure created based on a template. Use the following command to create a stack to be used with your Hadoop cluster:</p>
+
+<p><code>
+stack create --name “myStackName" --nodeCount 10
+</code></p>
+
+<h3>Select a blueprint</h3>
+
+<p>We ship default Hadoop cluster blueprints with Cloudbreak. You can use these blueprints or add yours. To see the available blueprints and use one of them please use:</p>
+
+<p>```
+blueprint list</p>
+
+<p>blueprint select &mdash;id #ID of the blueprint
+```</p>
+
+<h3>Create a Hadoop cluster</h3>
+
+<p>You are almost done &ndash; one more command and this will create your Hadoop cluster on your favorite cloud provider. Same as the API, or UI this will use your <code>template</code>, and by using CloudFormation will launch a cloud <code>stack</code> &ndash; once the <code>stack</code> is up and running (cloud provisioning is done) it will use your selected <code>blueprint</code> and install your custom Hadoop cluster with the selected components and services. For the supported list of Hadoop components and services please check the <a href="http://sequenceiq.com/cloudbreak/#supported-components">documentation</a>.</p>
+
+<p><code>
+cluster create --description “my cluster desc"
+</code>
+You are done &ndash; you can check the progress through the Ambari UI. If you log back to <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak UI</a> you can check the progress over there as well, and learn the IP address of Ambari.</p>
+
+<h3>Automate the process</h3>
+
+<p>Each time you start the shell the executed commands are logged in a file line by line and later either with the <code>script</code> command or specifying an <code>—cmdfile</code> option the same commands can be executed again.</p>
+
+<h2>Commands</h2>
+
+<p>For the full list of available commands please check below. Please note that all commands are context aware, and you can always use <code>TAB</code> for command completion.</p>
+
+<pre><code>* blueprint add - Add a new blueprint with either --url or --file
+* blueprint defaults - Adds the default blueprints to Cloudbreak
+* blueprint list - Shows the currently available blueprints
+* blueprint select - Select the blueprint by its id
+* blueprint show - Shows the blueprint by its id
+* cluster create - Create a new cluster based on a blueprint and template
+* cluster show - Shows the cluster by stack id
+* credential createAzure - Create a new Azure credential
+* credential createEC2 - Create a new EC2 credential
+* credential defaults - Adds the default credentials to Cloudbreak
+* credential list - Shows all of your credentials
+* credential select - Select the credential by its id
+* credential show - Shows the credential by its id
+* exit - Exits the shell
+* help - List all commands usage
+* hint - Shows some hints
+* quit - Exits the shell
+* script - Parses the specified resource file and executes its commands
+* stack create - Create a new stack based on a template
+* stack list - Shows all of your stack
+* stack select - Select the stack by its id
+* stack show - Shows the stack by its id
+* stack terminate - Terminate the stack by its id
+* template create - Create a new cloud template
+* template createEC2 - Create a new EC2 template
+* template defaults - Adds the default templates to Cloudbreak
+* template list - Shows the currently available cloud templates
+* template select - Select the template by its id
+* template show - Shows the template by its id
+* version - Displays shell version
+</code></pre>
+
+<p>As usual for us &ndash; being committed to 100% open source &ndash; we are always open sourcing everything thus you can get the details on our <a href="https://github.com/sequenceiq/cloudbreak-shell">GitHub</a> repository.
+Should you have any questions feel free to engage with us on our <a href="http://blog.sequenceiq.com/">blog</a> or follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Building the data lake in the cloud - Part1]]></title>
@@ -591,65 +779,6 @@ The same is true if you’d like to delete the stack. The only call that you wil
 <p>The <a href="http://www.hashicorp.com/products">company</a> that brought us <a href="http://www.vagrantup.com/">Vagrant</a>, <a href="http://www.packer.io/">Packer</a> and a few more useful things has recently announced a new project named <a href="http://www.terraform.io/intro/index.html">Terraform</a>. Terraform is inspired by tools like CloudFormation or <a href="https://wiki.openstack.org/wiki/Heat">OpenStack’s Heat</a>, but goes further as it supports multiple cloud platforms and their services can also be combined. If you’re interested in managing infrastructure from code and configuration you should check out that project too, we’ll keep an eye on it for sure.</p>
 
 <p>Stay tuned and make sure you follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Fair play]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/08/16/fairplay/"/>
-    <updated>2014-08-16T14:45:15+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/08/16/fairplay</id>
-    <content type="html"><![CDATA[<p>Recently we’ve been asked an interesting question &ndash; how fair is the YARN <a href="http://hadoop.apache.org/docs/r2.4.1/hadoop-yarn/hadoop-yarn-site/FairScheduler.html">FairScheduler</a> &ndash; while we never use internally the fair scheduler after a quick test the short answer is &ndash; <strong>very fair</strong>.</p>
-
-<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we always use the <a href="http://hadoop.apache.org/docs/r2.4.1/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html">CapacityScheduler</a> &ndash; actually an enhanced version of it (coming with the 2.6.0 release of Hadoop). Since the emergence of YARN and the new schedulers we were working on a solution to bring SLA to Hadoop &ndash; and part of this work was our contribution to <a href="https://issues.apache.org/jira/browse/YARN-1495">Apache YARN schedulers</a> and <a href="http://ambari.apache.org/">Apache Ambari</a>. Anyway, we decided to configure a FairScheduler in one of our 20 node test cluster and run a quick test.</p>
-
-<h3>Fair scheduler</h3>
-
-<p>Remember than before YARN only one resource represented a resource on a cluster &ndash; the <code>slot</code>. Every node had slots, and your MR job was taking up slots , regardless of their actual resource usage (CPU, memory). It worked but for sure it wasn’t a fair game &ndash; and caused lots of frustration between administrators of applications competing for <code>slots</code>. We have seen many over and undersubscribed nodes in terms of CPU and memory. YARN introduced the concept of containers and the ability to request/attach resources to them (vCores and memory).</p>
-
-<p>While this seams already a big step forward comparing with slots, it brought up other problems &ndash; with multiple resources as <code>vCores</code> and <code>memory</code> and <code>disk</code> and <code>network i/o</code> in the future it’s pretty challenging to share them fairly. With a single resource it would we pretty straightforward &ndash; nevertheless the community based on a <a href="http://static.usenix.org/event/nsdi11/tech/full_papers/Ghodsi.pdf">research paper</a> coming out from UC Berkeley (Ghodsi et al) managed to get this working through (again a community effort) this <a href="https://issues.apache.org/jira/browse/YARN-326">YARN ticket</a>.</p>
-
-<p>Now let’s battle test how fair is the scheduler when running two MR application with changing resource usage &ndash; how well the dominant resource fairness works.</p>
-
-<!--more-->
-
-
-<h3>The test</h3>
-
-<p>We decided to take a pretty easy MR job with 64 input files. In order to bring in some  variables, the input files are a multiple of 4MB, distributed as the smallest is 4MB and the largest is 256MB. The used <code>block size</code> is 256MB, and the number of nodes in the cluster is <strong>20</strong>. We are using and open sourced an <strong>R based</strong> <a href="https://github.com/sequenceiq/yarn-monitoring">YARN monitoring</a> project &ndash; feel free to use it and let us know if you have any feedback.</p>
-
-<p>We were running two jobs &ndash; and the task&rsquo;s input was descending e.g. <em>task_1398345200850_0079_m_000001</em> has a 252MB input file and <em>task_1398345200850_0079_m_000063</em> has a 4MB input. Obliviously the tasks were not necessarily executed in this order, because the order depends on when the nodemanager asks for task.</p>
-
-<p>See the <code>timeboxed</code> result of the two runs.</p>
-
-<p><strong>Run 61</strong></p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/run61.png" alt="" /></p>
-
-<p><strong>Run 62</strong></p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/run62.png" alt="" /></p>
-
-<p>While the <code>timeboxed</code> version will not really help to decide the resource usage and the elapsed time (which should be pretty much equal) it’s good to show the time spent on different nodes. Many times generating these charts helped us to identify hardware or other software/configuration issues on different nodes (for example when a run execution is outside of the standard deviation). You can use our R project and file to generate charts as such with the help of <a href="https://github.com/sequenceiq/yarn-monitoring/blob/master/RProjects/TimeBoxes.R">TimeBoxes.R</a> file.</p>
-
-<p>Now if we compare the two execution files and place it on the same chart we will actually see that the FairScheduler is <strong>fairly Fair</strong>.</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-monitoring-R/images/test8_active_mapppers_num.png" alt="" /></p>
-
-<h3>Random ideas</h3>
-
-<p>While the purpose of these tests was to show that the fair scheduler distributes resources in a fair way &ndash; sorry I can’t help &ndash; we can see that the executions of the map tasks are not optimal, but at least stable. Also we can notice that the execution order depends also on the blocks locations; if you should know/consider the blocks location ahead the execution could be more optimal.</p>
-
-<p>Measured a few other things as well &ndash; will discuss this on a different post &ndash; and from those charts you can see that the elapsed time of a task grow even as there are free slots.  Also as the number of mappers come closer to the available free slots of the cluster the average elapsed times of the tasks grow &ndash; due to different reasons (which we will share on a forthcoming post).</p>
-
-<p>Since we are not really using the <strong>FairScheduler</strong> and we had one now configured we decided to run a few of our performance tests as well, and while submitting jobs like <code>crazy</code> using the fair scheduler we managed to <code>logjam</code> the cluster.
-We have never seen this before while using the <strong>CapacityScheduler</strong> &ndash; and digging into details we figured that the FairScheduler is missing the <code>yarn.scheduler.capacity.maximum-am-resource-percent</code> property. This <a href="https://issues.apache.org/jira/browse/YARN-1913">issue</a> appears to be a bug in the FairScheduler &ndash; fixed in the 2.5 release.</p>
-
-<p>While we don’t want to make any comparison between the two schedulers I think that the FairScheduler is a very viable and good option for those having a cluster and doesn’t want to bother with <strong>capacity planning ahead</strong>. Also I was impressed by the fine grain rules which you can use with the FairScheduler while deciding on the resource allocations.</p>
-
-<p>Note that we are working and open sourcing a project which brings SLA to Hadoop and allows auto-scaling using <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> &ndash; our open source, cloud agnostic Hadoop as a Service API. The project is called <strong>Periscope</strong> and will be open sourced very soon.</p>
-
-<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   
