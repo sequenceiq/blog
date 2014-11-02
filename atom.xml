@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-11-02T18:57:21+00:00</updated>
+  <updated>2014-11-02T19:10:01+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -20,7 +20,7 @@
     <id>http://blog.sequenceiq.com/blog/2014/11/02/spark-on-tez</id>
     <content type="html"><![CDATA[<p>Last week Hortonworks <a href="http://hortonworks.com/blog/improving-spark-data-pipelines-native-yarn-integration/">announced</a> improvements for running Apache Spark at scale by introducing a new pluggable <code>execution context</code> and has <a href="https://github.com/hortonworks/spark-native-yarn-samples">open sourced</a> it.</p>
 
-<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we are always trying to work and offer the latest technology solutions for our clients and help them to choose their favorite technology/option. We are running a project called <a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> &ndash; to be open sourced soon &ndash; with the goal (among many others) to abstract and allow our customers to use their favorite big data runtime: MR1, Spark or Tez. Along this process we have <code>dockerized</code> most of the Hadoop ecosystem &ndash; we are running MR2, Spark, Storm, Hive, HBase, Pig, Oozie, Drill etc in Docker containers &ndash; on bare metal and in the cloud as well (all of these containers have made <strong>top</strong> downloads on the official Docker repository). For details you can check these older posts/resources:</p>
+<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we are always trying to work and offer the latest technology solutions for our clients and help them to choose their favorite technology/option. We are running a project called <a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> &ndash; to be open sourced soon &ndash; with the goal (among many others) to abstract and allow our customers to use their favorite big data runtime: MR2, Spark or Tez. Along this process we have <code>dockerized</code> most of the Hadoop ecosystem &ndash; we are running MR2, Spark, Storm, Hive, HBase, Pig, Oozie, Drill etc in Docker containers &ndash; on bare metal and in the cloud as well (all of these containers have made <strong>top</strong> downloads on the official Docker repository). For details you can check these older posts/resources:</p>
 
 <table>
 <thead>
@@ -1425,7 +1425,7 @@ In the benchmark, the jobs were submitted to the <code>default</code> queue and 
 <p>SequenceIQ is an innovative big data startup with the mission statement to simplify and automate provisioning of on-demand Hadoop clusters running on different environments. Leaders in “containerizing” Hadoop, SequenceIQ is the first company who provisions and runs the full Hadoop stack and components on Docker containers. The company has further plans to create the industry’s first cloud agnostic, autoscaling and use case driven Platform as a Service API, and break the common significant barriers of entry that exist with most big data projects through a series of As-a-Service API offerings.
 For more information follow up with us on @SequenceIQ and <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>.</p>
 
-<p><a href="&#x6d;&#x61;&#x69;&#x6c;&#x74;&#x6f;&#58;&#105;&#110;&#x66;&#111;&#x40;&#x73;&#x65;&#x71;&#x75;&#101;&#110;&#x63;&#x65;&#x69;&#x71;&#46;&#99;&#111;&#109;">&#x69;&#x6e;&#102;&#x6f;&#64;&#x73;&#101;&#113;&#117;&#101;&#x6e;&#x63;&#101;&#105;&#113;&#x2e;&#x63;&#111;&#109;</a></p>
+<p><a href="&#109;&#97;&#x69;&#x6c;&#116;&#x6f;&#58;&#x69;&#x6e;&#x66;&#x6f;&#x40;&#115;&#101;&#113;&#x75;&#101;&#x6e;&#99;&#x65;&#105;&#x71;&#x2e;&#x63;&#111;&#x6d;">&#x69;&#110;&#x66;&#x6f;&#64;&#x73;&#x65;&#x71;&#117;&#x65;&#110;&#x63;&#x65;&#105;&#113;&#46;&#x63;&#111;&#109;</a></p>
 ]]></content>
   </entry>
   
