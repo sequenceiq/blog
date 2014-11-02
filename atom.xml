@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-10-30T13:38:29+00:00</updated>
+  <updated>2014-11-02T18:57:21+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,169 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Spark on Tez execution context - running in Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/11/02/spark-on-tez/"/>
+    <updated>2014-11-02T18:07:18+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/11/02/spark-on-tez</id>
+    <content type="html"><![CDATA[<p>Last week Hortonworks <a href="http://hortonworks.com/blog/improving-spark-data-pipelines-native-yarn-integration/">announced</a> improvements for running Apache Spark at scale by introducing a new pluggable <code>execution context</code> and has <a href="https://github.com/hortonworks/spark-native-yarn-samples">open sourced</a> it.</p>
+
+<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we are always trying to work and offer the latest technology solutions for our clients and help them to choose their favorite technology/option. We are running a project called <a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> &ndash; to be open sourced soon &ndash; with the goal (among many others) to abstract and allow our customers to use their favorite big data runtime: MR1, Spark or Tez. Along this process we have <code>dockerized</code> most of the Hadoop ecosystem &ndash; we are running MR2, Spark, Storm, Hive, HBase, Pig, Oozie, Drill etc in Docker containers &ndash; on bare metal and in the cloud as well (all of these containers have made <strong>top</strong> downloads on the official Docker repository). For details you can check these older posts/resources:</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th> Name                  </th>
+<th> Description </th>
+<th> Documentation </th>
+<th> GitHub</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td> Apache Hadoop  </td>
+<td> Pseudo distributed container </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/">http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/</a> </td>
+<td> <a href="https://github.com/sequenceiq/hadoop-docker">https://github.com/sequenceiq/hadoop-docker</a></td>
+</tr>
+<tr>
+<td></td>
+<td> Apache Ambari   </td>
+<td> Multi node &ndash; full Hadoop stack, blueprint based </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/</a> </td>
+<td> <a href="https://github.com/sequenceiq/docker-ambari">https://github.com/sequenceiq/docker-ambari</a></td>
+</tr>
+<tr>
+<td></td>
+<td> Cloudbreak         </td>
+<td> Cloud agnostic Hadoop as a Service </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/</a> </td>
+<td> <a href="https://github.com/sequenceiq/cloudbreak">https://github.com/sequenceiq/cloudbreak</a></td>
+</tr>
+<tr>
+<td></td>
+<td> Periscope          </td>
+<td> SLA policy based autoscaling for Hadoop clusters </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/</a> </td>
+<td> <a href="https://github.com/sequenceiq/periscope">https://github.com/sequenceiq/periscope</a></td>
+</tr>
+</tbody>
+</table>
+
+
+<p>We have always been big fans on Apache Spark &ndash; due to the simplicity of development and at the same time we are big fans of Apache Tez, for reasons we have <a href="http://blog.sequenceiq.com/blog/2014/09/23/topn-on-apache-tez/">blogged before</a>.</p>
+
+<p>When the <a href="https://issues.apache.org/jira/browse/SPARK-3561">SPARK-3561</a> has been submitted we were eager to get our hands on the WIP and early implementation &ndash; and this time we&rsquo;d like to help you with a quick ramp-up and easy solution to have a Spark Docker <a href="https://github.com/sequenceiq/docker-spark-native-yarn">container</a> where the <code>execution context</code> has been changed to <a href="http://tez.apache.org/">Apache Tez</a> and everything is preconfigured. The only thing you will need to do is to follow these easy steps.</p>
+
+<h3>Pull the image from the Docker Repository</h3>
+
+<p>We suggest to always pull the container from the official Docker repository &ndash; as this is always maintained and supported by us.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/spark-native-yarn</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once you have pulled the container you are ready to run the image.</p>
+
+<h3>Run the image</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -i -t -h sandbox sequenceiq/spark-native-yarn /etc/bootstrap.sh -bash</span></code></pre></td></tr></table></div></figure>
+
+
+<!-- more -->
+
+
+<p>You have now a fully configured Apache Spark, where the <code>execution context</code> is <a href="http://tez.apache.org/">Apache Tez</a>.</p>
+
+<h3>Test the container</h3>
+
+<p>We have pushed sample data and tests from the <a href="https://github.com/hortonworks/spark-native-yarn-samples">code repository</a> into the Docker container, thus you can start experimenting right away without writing one line of code.</p>
+
+<h4>Calculate PI</h4>
+
+<p>Simplest example to test with is the <code>PI calculation</code>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cd /usr/local/spark
+</span><span class='line'>./bin/spark-submit --class org.apache.spark.examples.SparkPi --master execution-context:org.apache.spark.tez.TezJobExecutionContext --conf update-classpath=true ./lib/spark-examples-1.1.0.2.1.5.0-702-hadoop2.4.0.2.1.5.0-695.jar</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You should expect something like the following as the result:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Pi is roughly 3.14668</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Run a KMeans example</h4>
+
+<p>Run the <code>KMeans</code> example using the sample dataset.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>./bin/spark-submit --class sample.KMeans --master execution-context:org.apache.spark.tez.TezJobExecutionContext --conf update-classpath=true ./lib/spark-native-yarn-samples-1.0.jar /sample-data/kmeans_data.txt</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You should expect something like the following as the result:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Finished iteration (delta = 0.0)
+</span><span class='line'>Final centers:
+</span><span class='line'>DenseVector(0.15000000000000002, 0.15000000000000002, 0.15000000000000002)
+</span><span class='line'>DenseVector(9.2, 9.2, 9.2)
+</span><span class='line'>DenseVector(0.0, 0.0, 0.0)
+</span><span class='line'>DenseVector(9.05, 9.05, 9.05)</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Other examples (Join, Partition By, Source count, Word count)</h4>
+
+<p>Join</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>./bin/spark-submit --class sample.Join --master execution-context:org.apache.spark.tez.TezJobExecutionContext --conf update-classpath=true ./lib/spark-native-yarn-samples-1.0.jar /sample-data/join1.txt /sample-data/join2.txt</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Partition By</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>./bin/spark-submit --class sample.PartitionBy --master execution-context:org.apache.spark.tez.TezJobExecutionContext --conf update-classpath=true ./lib/spark-native-yarn-samples-1.0.jar /sample-data/partitioning.txt</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Source count</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>./bin/spark-submit --class sample.SourceCount --master execution-context:org.apache.spark.tez.TezJobExecutionContext --conf update-classpath=true ./lib/spark-native-yarn-samples-1.0.jar /sample-data/wordcount.txt</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Word count</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>./bin/spark-submit --class sample.WordCount --master execution-context:org.apache.spark.tez.TezJobExecutionContext --conf update-classpath=true ./lib/spark-native-yarn-samples-1.0.jar /sample-data/wordcount.txt 1</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note that the last argument (1) is the number of <code>reducers</code>.</p>
+
+<h3>Using the Spark Shell</h3>
+
+<p>The Spark shell works out of the box with the new Tez <code>executor context</code>, the only thing you will need to do is run:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>./bin/spark-shell --master execution-context:org.apache.spark.tez.TezJobExecutionContext</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Summary</h3>
+
+<p>Right after the next day that <a href="https://github.com/hortonworks/spark-native-yarn-samples">SPARK-3561</a> has been made available we have started to test at scale using <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> and run performance tests by using the same Spark jobs developed in Banzai (over 50 individual jobs) using the same input sets, cluster size and Scala code &ndash; but changing the default <code>Spark context</code> to a <code>Tez context</code>. Follow up with us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a> as we will release these test results and the lessons we have learned in the coming weeks.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Deploying a Hadoop Cluster - DevOps way]]></title>
@@ -1262,7 +1425,7 @@ In the benchmark, the jobs were submitted to the <code>default</code> queue and 
 <p>SequenceIQ is an innovative big data startup with the mission statement to simplify and automate provisioning of on-demand Hadoop clusters running on different environments. Leaders in “containerizing” Hadoop, SequenceIQ is the first company who provisions and runs the full Hadoop stack and components on Docker containers. The company has further plans to create the industry’s first cloud agnostic, autoscaling and use case driven Platform as a Service API, and break the common significant barriers of entry that exist with most big data projects through a series of As-a-Service API offerings.
 For more information follow up with us on @SequenceIQ and <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>.</p>
 
-<p><a href="&#109;&#97;&#105;&#x6c;&#x74;&#111;&#x3a;&#x69;&#x6e;&#102;&#x6f;&#64;&#115;&#101;&#113;&#117;&#101;&#110;&#x63;&#x65;&#x69;&#113;&#x2e;&#x63;&#111;&#x6d;">&#105;&#110;&#x66;&#111;&#x40;&#x73;&#101;&#113;&#117;&#101;&#110;&#x63;&#x65;&#x69;&#x71;&#46;&#x63;&#x6f;&#109;</a></p>
+<p><a href="&#x6d;&#x61;&#x69;&#x6c;&#x74;&#x6f;&#58;&#105;&#110;&#x66;&#111;&#x40;&#x73;&#x65;&#x71;&#x75;&#101;&#110;&#x63;&#x65;&#x69;&#x71;&#46;&#99;&#111;&#109;">&#x69;&#x6e;&#102;&#x6f;&#64;&#x73;&#101;&#113;&#117;&#101;&#x6e;&#x63;&#101;&#105;&#113;&#x2e;&#x63;&#111;&#109;</a></p>
 ]]></content>
   </entry>
   
@@ -2621,97 +2784,6 @@ You can convert your <code>vmdk</code> file into the supported raw type by using
 
 
 <p>Should you have any questions let us know through our social channels using <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Apache Hadoop 2.5.1 on Docker]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/09/15/hadoop-2-5-1-docker/"/>
-    <updated>2014-09-15T18:07:18+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/09/15/hadoop-2-5-1-docker</id>
-    <content type="html"><![CDATA[<p>Following the release cycle of Hadoop, today we are releasing a new <code>2.5.1</code> version of our <a href="https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/">Hadoop Docker container</a>. Up until today the container was only <code>CentOS</code> based, but during the last few months we got lots of requests to release a Hadoop container on <code>Ubuntu</code> as well. From now on we will have both released, supported and published to the official Docker repository. Enjoy.</p>
-
-<h2>Centos</h2>
-
-<h3>Build the image</h3>
-
-<p>In case you&rsquo;d like to try directly from the <a href="https://github.com/sequenceiq/hadoop-docker/tree/2.5.1">Dockerfile</a> you can build the image as:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker build  -t sequenceiq/hadoop-docker:2.5.1 .</span></code></pre></td></tr></table></div></figure>
-
-
-<!-- more -->
-
-
-<h3>Pull the image</h3>
-
-<p>As it is also released as an official Docker image from Docker&rsquo;s automated build repository &ndash; you can always pull or refer the image when launching containers.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/hadoop-docker:2.5.1</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Start a container</h3>
-
-<p>In order to use the Docker image you have just build or pulled use:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -i -t sequenceiq/hadoop-docker:2.5.1 /etc/bootstrap.sh -bash</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Ubuntu</h2>
-
-<h3>Build the image</h3>
-
-<p>In case you&rsquo;d like to try directly from the <a href="https://github.com/sequenceiq/docker-hadoop-ubuntu/tree/2.5.1">Dockerfile</a> you can build the image as:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker build  -t sequenceiq/hadoop-ubuntu:2.5.1 .</span></code></pre></td></tr></table></div></figure>
-
-
-<!-- more -->
-
-
-<h3>Pull the image</h3>
-
-<p>As it is also released as an official Docker image from Docker&rsquo;s automated build repository &ndash; you can always pull or refer the image when launching containers.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/hadoop-ubuntu:2.5.1</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Start a container</h3>
-
-<p>In order to use the Docker image you have just build or pulled use:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -i -t sequenceiq/hadoop-ubuntu:2.5.1 /etc/bootstrap.sh -bash</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Testing</h2>
-
-<p>You can run one of the stock examples:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>cd $HADOOP_PREFIX
-</span><span class='line'># run the mapreduce
-</span><span class='line'>bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.5.1.jar grep input output 'dfs[a-z.]+'
-</span><span class='line'>
-</span><span class='line'># check the output
-</span><span class='line'>bin/hdfs dfs -cat output/*</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Hadoop native libraries, build, Bintray, etc</h2>
-
-<p>The Hadoop build process is no easy task &ndash; requires lots of libraries and their right version, protobuf, etc and takes some time &ndash; we have simplified all these, made the build and released a 64b version of Hadoop nativelibs on our <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.5.0/view/files">Bintray repo</a>. Enjoy.</p>
-
-<p>Should you have any questions let us know through our social channels as <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   
