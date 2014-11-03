@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Spark | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/spark/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-11-02T19:10:01+00:00</updated>
+  <updated>2014-11-03T08:41:43+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -373,7 +373,7 @@ new Client(cArgs, config, sparkConf).run()
 <p>After building it you find the required jars in spark-submit-runner/build/libs (<code>uberjar</code> with all required dependencies) and spark-submit-app/build/libs. Put them in the same directory (do this also with this <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/spark-submit/spark-submit-runner/src/main/resources">config folder</a> too). After that run this command:</p>
 
 <p><code>bash
-java -cp spark-submit-runner-1.0.jar com.sequenceuq.spark.SparkRunner \
+java -cp spark-submit-runner-1.0.jar com.sequenceiq.spark.SparkRunner \
   --jar spark-submit-app-1.0.jar \
   --class com.sequenceiq.spark.Main \
   --driver-memory 1g \

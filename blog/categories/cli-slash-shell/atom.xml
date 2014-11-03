@@ -4,7 +4,7 @@
   <title><![CDATA[Category: CLI/Shell | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/cli-slash-shell/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-11-02T19:10:01+00:00</updated>
+  <updated>2014-11-03T08:41:43+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -92,7 +92,7 @@ Usage:
 <p>Options:
   &mdash;cloudbreak.address=&lt;http[s]://HOSTNAME:PORT>  Address of the Cloudbreak Server [default: <a href="https://cloudbreak-api.sequenceiq.com">https://cloudbreak-api.sequenceiq.com</a>].
   &mdash;identity.address=&lt;http[s]://HOSTNAME:PORT>    Address of the SequenceIQ identity server [default: <a href="https://identity.sequenceiq.com">https://identity.sequenceiq.com</a>].
-  &mdash;sequenceiq.user=<USER>                        Username of the SequenceIQ user [default: <a href="&#x6d;&#x61;&#105;&#108;&#x74;&#111;&#58;&#x75;&#x73;&#x65;&#114;&#64;&#x73;&#x65;&#x71;&#x75;&#101;&#x6e;&#99;&#101;&#x69;&#x71;&#x2e;&#x63;&#x6f;&#109;">&#x75;&#115;&#101;&#x72;&#64;&#x73;&#101;&#113;&#x75;&#101;&#x6e;&#x63;&#x65;&#105;&#x71;&#x2e;&#99;&#111;&#109;</a>].
+  &mdash;sequenceiq.user=<USER>                        Username of the SequenceIQ user [default: <a href="&#109;&#x61;&#x69;&#108;&#x74;&#111;&#58;&#117;&#115;&#101;&#114;&#64;&#115;&#101;&#x71;&#117;&#101;&#x6e;&#x63;&#101;&#x69;&#x71;&#x2e;&#99;&#x6f;&#109;">&#x75;&#115;&#101;&#x72;&#64;&#115;&#101;&#113;&#117;&#x65;&#110;&#99;&#x65;&#105;&#x71;&#x2e;&#99;&#x6f;&#x6d;</a>].
   &mdash;sequenceiq.password=<PASSWORD>                Password of the SequenceIQ user [default: password].</p>
 
 <p>Note:
