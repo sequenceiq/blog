@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-11-03T10:36:49+00:00</updated>
+  <updated>2014-11-04T18:23:03+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,107 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[YARN Timeline Service]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/11/04/yarn-timeline-service-tez/"/>
+    <updated>2014-11-04T18:07:18+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/11/04/yarn-timeline-service-tez</id>
+    <content type="html"><![CDATA[<p>As you may know from our earlier <a href="http://blog.sequenceiq.com/blog/2014/10/07/hadoop-monitoring/">blogposts</a> we are continuously monitoring and trying to find out what happens inside our YARN clusters, let it be MapReduce jobs, TEZ DAGs, etc&hellip; We&rsquo;ve analyzed our clusters from various aspects so far; now it&rsquo;s the time to take a look at the information provided by the built YARN <code>timeline</code> service.</p>
+
+<p>This post is about how to set up a YARN cluster so that the Timeline Server is available and how to configure applications running in the cluster to report information to it. As an example we&rsquo;ve chosen to run a simple TEZ example. (MapReduce2 also reports to the <code>timeline</code> service)</p>
+
+<p>As a playground we will use a multinode cluster set up on the local machine; alternatively one could do the same on a cluster provisioned with <a href="http://sequenceiq.com/cloudbreak">Cloudbreak</a>. Cluster nodes run in Docker containers, YARN / TEZ provisioning and configuration is done with <a href="http://ambari.apache.org/">Apache Ambari</a>.</p>
+
+<h2>Building a multinode cluster</h2>
+
+<p>To build a multinode cluster we use a set of commodity functions that you can install by running the following in a terminal:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -Lo .amb j.mp/docker-ambari && . .amb</span></code></pre></td></tr></table></div></figure>
+
+
+<p>(The commodity functions use our docker-ambari image: sequenceiq/ambari:1.6.0)</p>
+
+<!-- more -->
+
+
+<p>With the functions installed, you can start your cluster by running:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>amb-start-cluster 3</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After a couple of seconds you&rsquo;ll have a running 3-node Ambari cluster.</p>
+
+<h2>Create an Ambari blueprint with the Timeline Server configuration entries</h2>
+
+<p>To provision and configure Hadoop services we use Ambari and Ambari blueprints. Check this <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">blogpost</a> about how to setup an multi-node Hadoop cluster.</p>
+
+<p>To enable the Timeline Server in the cluster, we&rsquo;ve created a blueprint which contains a few overrides of the related configuration properties. A detailed description of the configuration settings for the Timeline Server are described <a href="http://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/TimelineServer.html">here</a> and <a href="http://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.1.5/bk_system-admin-guide/content/ch_application-timeline-server.html">here</a>.</p>
+
+<p>We used <a href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/timeline-server/blueprints/multi-node-hdfs-yarn-tez-timeline-service.json">this</a> blueprint for the experiment.</p>
+
+<p>Please note, that the blueprint here only contains those configuration entries that differ from the defaults; the assumption is that the other defaults are similar to those described in the documentation. It&rsquo;s always possible to override any of the defaults by adding them to the blueprint, or using the Ambari UI.</p>
+
+<h1>Create the YARN cluster with ambari-shell</h1>
+
+<p>Now it&rsquo;s time to provision our cluster with YARN, TEZ and the Timeline Server enabled. For this let&rsquo;s start the <code>ambari-shell</code>, which, surprisingly runs in a docker container as well.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>amb-shell</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Following the instructions below you can provision the Timeline Server enabled cluster:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#add the blueprint
+</span><span class='line'>blueprint add --url https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/timeline-server/blueprints/multi-node-hdfs-yarn-tez-timeline-service.json
+</span><span class='line'>#build the cluster
+</span><span class='line'>cluster build --blueprint multi-node-hdfs-yarn-tez-timeline-service
+</span><span class='line'>#auto assign nodes
+</span><span class='line'>cluster autoAssign
+</span><span class='line'>#create the cluster
+</span><span class='line'>cluster create</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After services start, you can reach the Timeline Server on the port 8188 of the ambari host.</p>
+
+<p>There is some more configuration needed for the Timeline Server to work properly, we have to set the following entries to the address where the timeline service is running. You can get the proper value from Ambari &ndash;  the Timeline Server runs where the resource manager is.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>yarn.timeline-service.webapp.address
+</span><span class='line'>yarn.timeline-service.webapp.https.address
+</span><span class='line'>yarn.timeline-service.address</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This can be done from the Ambari web UI; a restart of the YARN services is needed after the values are saved.</p>
+
+<h1>Check the information in the Timeline Server</h1>
+
+<p>With the cluster and the Timeline Server set up every MR2 and TEZ application starts reporting to the <code>timeline</code> service. Information is made available at <code>http://&lt;ambari-host:8188&gt;</code>. You can also inspect application related information using the command line, as described in the aforementioned documentation.</p>
+
+<p>As we mentioned at the beginning of this post, we choose TEZ to show you how to use the Timeline Server. After running the Tez application in the Timeline Server web UI you will have fine grained generic information about the application, application attempt, containers used by the application, etc.</p>
+
+<p>You can find a few screenshots of the web ui  <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/timeline-server/ts-screenshots/gen-app-logs">here</a>.</p>
+
+<p>If you&rsquo;d like to have a vizualized view of the application   you can use the <em>swimlanes</em> tez tool. Based on the information provided by the Timeline Server this generates images similar to <a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/timeline-server/ts-screenshots/swimlanes/topk_topk_stark_application_1415093602516_0016.svg">this</a></p>
+
+<p>If you are curious what framework related information have been logged, you can access the Timeline Server RESTful interface.
+You can get very deep details similar to the ones in <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/timeline-server/ts-screenshots/framework-logs">these</a> screenshots</p>
+
+<p>For further details follow up with us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Spark on Tez execution context - running in Docker]]></title>
@@ -1437,7 +1538,7 @@ In the benchmark, the jobs were submitted to the <code>default</code> queue and 
 <p>SequenceIQ is an innovative big data startup with the mission statement to simplify and automate provisioning of on-demand Hadoop clusters running on different environments. Leaders in “containerizing” Hadoop, SequenceIQ is the first company who provisions and runs the full Hadoop stack and components on Docker containers. The company has further plans to create the industry’s first cloud agnostic, autoscaling and use case driven Platform as a Service API, and break the common significant barriers of entry that exist with most big data projects through a series of As-a-Service API offerings.
 For more information follow up with us on @SequenceIQ and <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>.</p>
 
-<p><a href="&#x6d;&#x61;&#x69;&#108;&#x74;&#x6f;&#x3a;&#x69;&#x6e;&#x66;&#111;&#x40;&#x73;&#x65;&#113;&#117;&#101;&#x6e;&#x63;&#x65;&#105;&#113;&#x2e;&#x63;&#x6f;&#109;">&#105;&#110;&#x66;&#x6f;&#x40;&#115;&#101;&#x71;&#117;&#x65;&#110;&#x63;&#101;&#105;&#113;&#x2e;&#x63;&#x6f;&#109;</a></p>
+<p><a href="&#109;&#x61;&#x69;&#x6c;&#x74;&#111;&#58;&#x69;&#x6e;&#102;&#111;&#x40;&#x73;&#x65;&#113;&#x75;&#x65;&#110;&#99;&#101;&#x69;&#113;&#46;&#99;&#111;&#109;">&#105;&#x6e;&#102;&#111;&#x40;&#115;&#x65;&#113;&#117;&#101;&#110;&#99;&#x65;&#x69;&#113;&#46;&#99;&#111;&#x6d;</a></p>
 ]]></content>
   </entry>
   
@@ -2665,137 +2766,6 @@ You can convert your <code>vmdk</code> file into the supported raw type by using
 
 
 <p>Once this is done you have created your custom built Google Cloud image, and you are ready to start cloud instances using it. Let us know how it works for you, and make sure you follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a> for updates.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Apache Spark 1.1.0 on Docker]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/09/17/spark-1-1-0-docker/"/>
-    <updated>2014-09-17T18:07:18+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/09/17/spark-1-1-0-docker</id>
-    <content type="html"><![CDATA[<p>As you might be already familiar, we have <code>dockerized</code> most of the Hadoop ecosystem &ndash; we are running MR2, Spark, Storm, Hive, HBase, Pig, Oozie, Drill etc in Docker containers &ndash; on bare metal and in the cloud as well. For details you can check these older posts/resources:</p>
-
-<table>
-<thead>
-<tr>
-<th></th>
-<th> Name                  </th>
-<th> Description </th>
-<th> Documentation </th>
-<th> GitHub</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td> Apache Hadoop  </td>
-<td> Pseudo distributed container </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/">http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/</a> </td>
-<td> <a href="https://github.com/sequenceiq/hadoop-docker">https://github.com/sequenceiq/hadoop-docker</a></td>
-</tr>
-<tr>
-<td></td>
-<td> Apache Ambari   </td>
-<td> Multi node &ndash; full Hadoop stack, blueprint based </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/</a> </td>
-<td> <a href="https://github.com/sequenceiq/docker-ambari">https://github.com/sequenceiq/docker-ambari</a></td>
-</tr>
-<tr>
-<td></td>
-<td> Cloudbreak         </td>
-<td> Cloud agnostic Hadoop as a Service </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/</a> </td>
-<td> <a href="https://github.com/sequenceiq/cloudbreak">https://github.com/sequenceiq/cloudbreak</a></td>
-</tr>
-<tr>
-<td></td>
-<td> Periscope          </td>
-<td> SLA policy based autoscaling for Hadoop clusters </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/</a> </td>
-<td> <a href="https://github.com/sequenceiq/periscope">https://github.com/sequenceiq/periscope</a></td>
-</tr>
-</tbody>
-</table>
-
-
-<p>In this current post we’d like to help you to start with the <code>latest - 1.1.0</code> Spark release in minutes &ndash; using Docker. Docker and Spark are two technologies which are very <code>hyped</code> these days. At <a href="http://sequenceiq.com/">SequenceIQ</a> we use both quite a lot, thus we put together a Docker container and sharing it with the community.</p>
-
-<p>The container’s code is available in our <a href="https://github.com/sequenceiq/docker-spark/blob/v1.1onHadoop-2.5.1/README.md">GitHub</a> repository.</p>
-
-<h3>Pull the image from Docker Repository</h3>
-
-<p>We suggest to always pull the container from the official Docker repository &ndash; as this is always maintained and supported by us.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/spark:1.1.0</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<!-- more -->
-
-
-<h2>Building the image</h2>
-
-<p>Alternatively you can always build your own container based on our Dockerfile.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker build --rm -t sequenceiq/spark:1.1.0 .</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Running the image</h2>
-
-<p>Once you have pulled or built the container, you are ready to start with Spark.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -i -t -h sandbox sequenceiq/spark /etc/bootstrap.sh -bash</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Testing</h3>
-
-<p>In order to check whether everything is OK, you can run one of the stock examples, coming with Spark. Check our previous blog posts and examples about Spark <a href="http://blog.sequenceiq.com/blog/2014/07/31/spark-mllib/">here</a> and <a href="http://blog.sequenceiq.com/blog/2014/08/22/spark-submit-in-java/">here</a>.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>cd /usr/local/spark
-</span><span class='line'># run the spark shell
-</span><span class='line'>./bin/spark-shell --master yarn-client --driver-memory 1g --executor-memory 1g --executor-cores 1
-</span><span class='line'>
-</span><span class='line'># execute the the following command which should return 1000
-</span><span class='line'>scala&gt; sc.parallelize(1 to 1000).count()</span></code></pre></td></tr></table></div></figure>
-
-
-<p>There are two deploy modes that can be used to launch Spark applications on YARN. In yarn-cluster mode, the Spark driver runs inside an application master process which is managed by YARN on the cluster, and the client can go away after initiating the application. In yarn-client mode, the driver runs in the client process, and the application master is only used for requesting resources from YARN.</p>
-
-<p>Estimating Pi (yarn-cluster mode):</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>cd /usr/local/spark
-</span><span class='line'>
-</span><span class='line'># execute the the following command which should write the "Pi is roughly 3.1418" into the logs
-</span><span class='line'>./bin/spark-submit --class org.apache.spark.examples.SparkPi --master yarn-cluster --driver-memory 1g --executor-memory 1g --executor-cores 1 ./lib/spark-examples-1.1.0-hadoop2.4.0.jar</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Estimating Pi (yarn-client mode):</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>cd /usr/local/spark
-</span><span class='line'>
-</span><span class='line'># execute the the following command which should print the "Pi is roughly 3.1418" to the screen
-</span><span class='line'>./bin/spark-submit --class org.apache.spark.examples.SparkPi --master yarn-client --driver-memory 1g --executor-memory 1g --executor-cores 1 ./lib/spark-examples-1.1.0-hadoop2.4.0.jar</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Should you have any questions let us know through our social channels using <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   
