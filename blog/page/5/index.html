@@ -130,6 +130,57 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/07/13/groovy-and-java-runtime-bug/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">13 July 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/groovy/"><span class="label label-warning">Groovy</span></a>
+            
+            <a href="/blog/categories/java/"><span class="label label-warning">Java</span></a>
+            
+            <a href="/blog/categories/bug/"><span class="label label-warning">bug</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/07/13/groovy-and-java-runtime-bug/">Groovy and Java, the runtime bug</a>
+          <span class="badge name-badge">Krisztian Horvath</span>
+
+      </h1>
+      <p>I can barely count how many languages we use at SequenceIQ <em>[based on our <a href="https://github.com/sequenceiq">GitHub</a> repository it&rsquo;s Java, Scala, Groovy, Go, CoffeeScript, JavaScript, R and Shell (Ansible, Dockerfile, AWS CLI, what not)]</em>. Groovy is one of them.
+Coding in Groovy is fast and fun, isn&rsquo;t it? Except when problems come up at runtime. This is one of those.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/groovy-bug/src/main/resources/wtf.png"></p>
+
+
+      
+       <a href="/blog/2014/07/13/groovy-and-java-runtime-bug/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -823,69 +874,6 @@ with jdk1.7 on latest ubuntu, ambari-shell preinstalled. Detailed description is
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/05/09/building-the-build-environment-with-ansible-and-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">09 May 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/ansible/"><span class="label label-warning">Ansible</span></a>
-            
-            <a href="/blog/categories/ci/"><span class="label label-warning">CI</span></a>
-            
-            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
-            
-            <a href="/blog/categories/jenkins/"><span class="label label-warning">Jenkins</span></a>
-            
-            <a href="/blog/categories/devops/"><span class="label label-warning">devops</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/05/09/building-the-build-environment-with-ansible-and-docker/">Building the build environment with Ansible and Docker</a>
-          <span class="badge name-badge">Marton Sereg</span>
-
-      </h1>
-      <p>At SequenceIQ we put a strong emphasis on automating everything we can and this automation starts with our continuous integration &amp; delivery process.</p>
-
-<h2>Introduction</h2>
-
-<p>Lately there is a lot of buzz around continuous integration, development and deployment. More and more companies are moving away from long release cycles towards the &ldquo;release early, release often&rdquo; approach. The advantages of this approach are well known: lower overhead, earlier bug discovery and bug fixing, fewer context switches for the developers to name just a few. There are very good resources to learn about these concepts &ndash; blog posts by different companies (e.g.: by <a href="http://techblog.netflix.com/2013/08/deploying-netflix-api.html">Netflix</a>) and of course the <a href="http://www.amazon.com/dp/0321601912">book</a> &lsquo;Continuous Delivery&rsquo; by Jez Humble and David Farley &ndash; we&rsquo;ll now try to add our own experiences as well.</p>
-
-<p>We&rsquo;ll share two blog posts about our continuous delivery at SequenceIQ: the first one being an introductory post about some tools we use to make the whole process easier and more robust, the second one explains the <a href="http://scottchacon.com/2011/08/31/github-flow.html">flow</a> we use from committing changes to being the changes available in our different environments.</p>
-
-<h2>Tools</h2>
-
-<p>Our CI and CD process at SequenceIQ is based on Ansible, Jenkins and of course Docker.
-When we started to build our own process, we decided that we don&rsquo;t want to commit the same mistake that a lot of companies make about their build environment. At these companies the build servers where Jenkins and/or the other build tools are installed are often prepared once in the far past by someone who probably doesn&rsquo;t work there anymore. It quickly becomes something that everyone is afraid to touch and just hope that it will work forever. As the projects improve there will be a lot of different tools with a lot of different versions on the build machine and soon it leads to a small chaos, where the maintenance will involve a lot of hard manual work. To get rid of these problems, we use <a href="http://www.ansible.com/">Ansible</a> to &ldquo;build the build infrastructure&rdquo;, and Docker to run the builds in separated self-sufficient containers.</p>
-
-
-      
-       <a href="/blog/2014/05/09/building-the-build-environment-with-ansible-and-docker/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -907,6 +895,10 @@ When we started to build our own process, we decided that we don&rsquo;t want to
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/11/06/securing-cloudbreak-with-oauth2-part-2/">Securing Cloudbreak with OAuth2 - part 2</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/11/04/yarn-timeline-service-tez/">YARN Timeline Service</a>

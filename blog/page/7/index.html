@@ -130,6 +130,108 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/03/07/read-from-hdfs/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">07 March 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/hdfs/"><span class="label label-warning">HDFS</span></a>
+            
+            <a href="/blog/categories/hdp2/"><span class="label label-warning">HDP2</span></a>
+            
+            <a href="/blog/categories/namenode/"><span class="label label-warning">NameNode</span></a>
+            
+            <a href="/blog/categories/remoteblockreader2/"><span class="label label-warning">RemoteBlockReader2</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/03/07/read-from-hdfs/">HDFS and java.nio.channels</a>
+          <span class="badge name-badge">Janos Matyas</span>
+
+      </h1>
+      <p>Many times there is a need to access files or interact with HDFS from Java applications or libraries. Hadoop has built in many tools in order to work or interact with HDFS &ndash; however in case you&rsquo;d like to read into a content of a file remotely (e.g. retrieve the headers of a CSV/TSV file) random exceptions can occurs. One of these remote exceptions coming from the HDFS NameNode is a <em>java.io.IOException: File /user/abc/xyz/ could only be replicated to 0 nodes, instead of 1.</em></p>
+
+<p>Such an exception can be reproduced by the following code snippet:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>java BufferedInputStream bufferedInputStream
+</span><span class='line'>
+</span><span class='line'>/**
+</span><span class='line'> * For the sake of readability, try/cacth/finally blocks are removed 
+</span><span class='line'> * Don't Say We Didn't Warn You
+</span><span class='line'> */
+</span><span class='line'>
+</span><span class='line'>FileSystem fs = FileSystem.get(configuration);
+</span><span class='line'>          Path filePath = getFilePath(dataPath);
+</span><span class='line'>
+</span><span class='line'>BufferedInputStream bufferedInputStream = new BufferedInputStream(fs.open(filePath));
+</span><span class='line'>  listReader = new CsvListReader(new BufferedReader(new InputStreamReader(bufferedInputStream)),
+</span><span class='line'>                      CsvPreference.STANDARD_PREFERENCE);
+</span><span class='line'>                     </span></code></pre></td></tr></table></div></figure>
+
+
+<p>The exception looks like this:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ERROR SimpleFeatureSelector:67 - Exception {}
+</span><span class='line'>java.lang.IllegalStateException: Must not use direct buffers with InputStream API
+</span><span class='line'>  at com.google.common.base.Preconditions.checkState(Preconditions.java:176)
+</span><span class='line'>  at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.doReadFully(PacketReceiver.java:211)
+</span><span class='line'>  at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.doRead(PacketReceiver.java:134)
+</span><span class='line'>  at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.receiveNextPacket(PacketReceiver.java:102)
+</span><span class='line'>  at org.apache.hadoop.hdfs.RemoteBlockReader2.readNextPacket(RemoteBlockReader2.java:170)</span></code></pre></td></tr></table></div></figure>
+
+
+<p><em>Note: actually all HDFS operations fail in case of the underlying input stream does not have a readable channel (check the java.nio.channels package. RemoteBlockReader2 needs channel based inputstreams to deal with direct buffers.</em></p>
+
+
+      
+       <a href="/blog/2014/03/07/read-from-hdfs/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/03/05/access-hdp2-sandbox/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -492,6 +594,10 @@ SequenceIQ</p>
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/11/06/securing-cloudbreak-with-oauth2-part-2/">Securing Cloudbreak with OAuth2 - part 2</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/11/04/yarn-timeline-service-tez/">YARN Timeline Service</a>

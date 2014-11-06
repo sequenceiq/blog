@@ -130,6 +130,85 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/10/09/ngrok-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">09 October 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/docker/"><span class="label label-warning">docker</span></a>
+            
+            <a href="/blog/categories/ngrok/"><span class="label label-warning">ngrok</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/10/09/ngrok-docker/">Self hosted ngrok server in Docker</a>
+          <span class="badge name-badge">Lajos Papp</span>
+
+      </h1>
+      <p><a href="vhttps://ngrok.com/">Ngrok</a> is used for <code>introspected</code> tunnels to localhost.
+In integration testing situations is really common that you want to bind some webhooks
+to localhost. For example you want AWS SNS deliver messages to your service,
+but is not reachable publicly, as it runs only on localhost.</p>
+
+<p>So its really 2 in 1: <strong>local tunnel</strong> and <strong>introspection</strong>. Sometimes you
+just want to use its <strong>introspection</strong> feature, to get insight about how a
+specific API works. It&rsquo;s like a local <a href="https://www.runscope.com/">runscope</a>.</p>
+
+<p>While you can always use the free hosted version: <a href="https://ngrok.com/">ngrok</a>,
+there are reasons to roll you own:</p>
+
+<ul>
+<li>Sometimes the free hosted version has <strong>availability</strong> issues,when it gets heavy traffic</li>
+<li>Yo don&rsquo;t want your messages/calls go through a public free service, for
+<strong>security</strong> concerns</li>
+<li>You just want to use its <strong>introspection</strong> feature, and want to avoid the
+extra <strong>network</strong> round trip to ngrok.com and back.</li>
+</ul>
+
+
+<p>There is documentation about <a href="https://github.com/inconshreveable/ngrok/blob/master/docs/SELFHOSTING.md">self hosting ngrok</a>
+But it include steps, like:</p>
+
+<ul>
+<li>create an SSL certificate</li>
+<li>build server/client binaries using the cert above</li>
+<li>configure, and install it on your server</li>
+</ul>
+
+
+<p>How about using a <strong>single click</strong> version of this? Easy: we have already containerized
+this process and made it available in the official Docker
+<a href="https://registry.hub.docker.com/u/sequenceiq/ngrokd/">repository</a>.</p>
+
+
+      
+       <a href="/blog/2014/10/09/ngrok-docker/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/10/07/hadoop-monitoring/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -723,58 +802,6 @@ from producers to consumers. The DAG itself defines the structure of the data pr
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/09/18/custom-image-on-gcc/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">18 September 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/cloud/"><span class="label label-warning">Cloud</span></a>
-            
-            <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
-            
-            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
-            
-            <a href="/blog/categories/google-cloud/"><span class="label label-warning">Google Cloud</span></a>
-            
-            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/09/18/custom-image-on-gcc/">Cloudbreak new provider implementation - Part I: Build your custom image</a>
-          <span class="badge name-badge">Richard Doktorics</span>
-
-      </h1>
-      <p>Not so long ago we have released <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; the cloud agnostic, open source and Docker based Hadoop as a Service API (with support for <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">autoscaling</a> Hadoop clusters). As we have <code>dockerized</code> the whole Hadoop ecosystem, we are shipping the containers to different cloud providers, such as Amazon AWS, Microsoft Azure and Google Cloud Compute. Also Cloudbreak has an <a href="http://sequenceiq.com/cloudbreak/#add-new-cloud-providers">SDK</a> which allows you to quickly add your favorite cloud provider. In this post (series) we’d like to guide you trough the process, and show you how to create a custom image &ndash; on Google Cloud. We have chose Google Cloud as this is the least documented and has the smallest amount on default images (there are thousand for Amazon, and hundreds for Azure). Nevertheless on all cloud provider usually you’d like to have a custom image with your preferred OS, configuration and potentially installed applications.</p>
-
-
-      
-       <a href="/blog/2014/09/18/custom-image-on-gcc/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -796,6 +823,10 @@ from producers to consumers. The DAG itself defines the structure of the data pr
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/11/06/securing-cloudbreak-with-oauth2-part-2/">Securing Cloudbreak with OAuth2 - part 2</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/11/04/yarn-timeline-service-tez/">YARN Timeline Service</a>

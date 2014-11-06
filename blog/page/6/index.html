@@ -130,6 +130,69 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/05/09/building-the-build-environment-with-ansible-and-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">09 May 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/ansible/"><span class="label label-warning">Ansible</span></a>
+            
+            <a href="/blog/categories/ci/"><span class="label label-warning">CI</span></a>
+            
+            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
+            
+            <a href="/blog/categories/jenkins/"><span class="label label-warning">Jenkins</span></a>
+            
+            <a href="/blog/categories/devops/"><span class="label label-warning">devops</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/05/09/building-the-build-environment-with-ansible-and-docker/">Building the build environment with Ansible and Docker</a>
+          <span class="badge name-badge">Marton Sereg</span>
+
+      </h1>
+      <p>At SequenceIQ we put a strong emphasis on automating everything we can and this automation starts with our continuous integration &amp; delivery process.</p>
+
+<h2>Introduction</h2>
+
+<p>Lately there is a lot of buzz around continuous integration, development and deployment. More and more companies are moving away from long release cycles towards the &ldquo;release early, release often&rdquo; approach. The advantages of this approach are well known: lower overhead, earlier bug discovery and bug fixing, fewer context switches for the developers to name just a few. There are very good resources to learn about these concepts &ndash; blog posts by different companies (e.g.: by <a href="http://techblog.netflix.com/2013/08/deploying-netflix-api.html">Netflix</a>) and of course the <a href="http://www.amazon.com/dp/0321601912">book</a> &lsquo;Continuous Delivery&rsquo; by Jez Humble and David Farley &ndash; we&rsquo;ll now try to add our own experiences as well.</p>
+
+<p>We&rsquo;ll share two blog posts about our continuous delivery at SequenceIQ: the first one being an introductory post about some tools we use to make the whole process easier and more robust, the second one explains the <a href="http://scottchacon.com/2011/08/31/github-flow.html">flow</a> we use from committing changes to being the changes available in our different environments.</p>
+
+<h2>Tools</h2>
+
+<p>Our CI and CD process at SequenceIQ is based on Ansible, Jenkins and of course Docker.
+When we started to build our own process, we decided that we don&rsquo;t want to commit the same mistake that a lot of companies make about their build environment. At these companies the build servers where Jenkins and/or the other build tools are installed are often prepared once in the far past by someone who probably doesn&rsquo;t work there anymore. It quickly becomes something that everyone is afraid to touch and just hope that it will work forever. As the projects improve there will be a lot of different tools with a lot of different versions on the build machine and soon it leads to a small chaos, where the maintenance will involve a lot of hard manual work. To get rid of these problems, we use <a href="http://www.ansible.com/">Ansible</a> to &ldquo;build the build infrastructure&rdquo;, and Docker to run the builds in separated self-sufficient containers.</p>
+
+
+      
+       <a href="/blog/2014/05/09/building-the-build-environment-with-ansible-and-docker/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/05/01/mapreduce-job-profiling-with-R/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -897,108 +960,6 @@ It is a simple tsv file &ndash; we are going to use the same column names as it 
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/03/07/read-from-hdfs/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">07 March 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/hdfs/"><span class="label label-warning">HDFS</span></a>
-            
-            <a href="/blog/categories/hdp2/"><span class="label label-warning">HDP2</span></a>
-            
-            <a href="/blog/categories/namenode/"><span class="label label-warning">NameNode</span></a>
-            
-            <a href="/blog/categories/remoteblockreader2/"><span class="label label-warning">RemoteBlockReader2</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/03/07/read-from-hdfs/">HDFS and java.nio.channels</a>
-          <span class="badge name-badge">Janos Matyas</span>
-
-      </h1>
-      <p>Many times there is a need to access files or interact with HDFS from Java applications or libraries. Hadoop has built in many tools in order to work or interact with HDFS &ndash; however in case you&rsquo;d like to read into a content of a file remotely (e.g. retrieve the headers of a CSV/TSV file) random exceptions can occurs. One of these remote exceptions coming from the HDFS NameNode is a <em>java.io.IOException: File /user/abc/xyz/ could only be replicated to 0 nodes, instead of 1.</em></p>
-
-<p>Such an exception can be reproduced by the following code snippet:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>java BufferedInputStream bufferedInputStream
-</span><span class='line'>
-</span><span class='line'>/**
-</span><span class='line'> * For the sake of readability, try/cacth/finally blocks are removed 
-</span><span class='line'> * Don't Say We Didn't Warn You
-</span><span class='line'> */
-</span><span class='line'>
-</span><span class='line'>FileSystem fs = FileSystem.get(configuration);
-</span><span class='line'>          Path filePath = getFilePath(dataPath);
-</span><span class='line'>
-</span><span class='line'>BufferedInputStream bufferedInputStream = new BufferedInputStream(fs.open(filePath));
-</span><span class='line'>  listReader = new CsvListReader(new BufferedReader(new InputStreamReader(bufferedInputStream)),
-</span><span class='line'>                      CsvPreference.STANDARD_PREFERENCE);
-</span><span class='line'>                     </span></code></pre></td></tr></table></div></figure>
-
-
-<p>The exception looks like this:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ERROR SimpleFeatureSelector:67 - Exception {}
-</span><span class='line'>java.lang.IllegalStateException: Must not use direct buffers with InputStream API
-</span><span class='line'>  at com.google.common.base.Preconditions.checkState(Preconditions.java:176)
-</span><span class='line'>  at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.doReadFully(PacketReceiver.java:211)
-</span><span class='line'>  at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.doRead(PacketReceiver.java:134)
-</span><span class='line'>  at org.apache.hadoop.hdfs.protocol.datatransfer.PacketReceiver.receiveNextPacket(PacketReceiver.java:102)
-</span><span class='line'>  at org.apache.hadoop.hdfs.RemoteBlockReader2.readNextPacket(RemoteBlockReader2.java:170)</span></code></pre></td></tr></table></div></figure>
-
-
-<p><em>Note: actually all HDFS operations fail in case of the underlying input stream does not have a readable channel (check the java.nio.channels package. RemoteBlockReader2 needs channel based inputstreams to deal with direct buffers.</em></p>
-
-
-      
-       <a href="/blog/2014/03/07/read-from-hdfs/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -1020,6 +981,10 @@ It is a simple tsv file &ndash; we are going to use the same column names as it 
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/11/06/securing-cloudbreak-with-oauth2-part-2/">Securing Cloudbreak with OAuth2 - part 2</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/11/04/yarn-timeline-service-tez/">YARN Timeline Service</a>

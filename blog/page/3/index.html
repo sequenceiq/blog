@@ -130,6 +130,58 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/09/18/custom-image-on-gcc/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">18 September 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/cloud/"><span class="label label-warning">Cloud</span></a>
+            
+            <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
+            
+            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
+            
+            <a href="/blog/categories/google-cloud/"><span class="label label-warning">Google Cloud</span></a>
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/09/18/custom-image-on-gcc/">Cloudbreak new provider implementation - Part I: Build your custom image</a>
+          <span class="badge name-badge">Richard Doktorics</span>
+
+      </h1>
+      <p>Not so long ago we have released <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; the cloud agnostic, open source and Docker based Hadoop as a Service API (with support for <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">autoscaling</a> Hadoop clusters). As we have <code>dockerized</code> the whole Hadoop ecosystem, we are shipping the containers to different cloud providers, such as Amazon AWS, Microsoft Azure and Google Cloud Compute. Also Cloudbreak has an <a href="http://sequenceiq.com/cloudbreak/#add-new-cloud-providers">SDK</a> which allows you to quickly add your favorite cloud provider. In this post (series) we’d like to guide you trough the process, and show you how to create a custom image &ndash; on Google Cloud. We have chose Google Cloud as this is the least documented and has the smallest amount on default images (there are thousand for Amazon, and hundreds for Azure). Nevertheless on all cloud provider usually you’d like to have a custom image with your preferred OS, configuration and potentially installed applications.</p>
+
+
+      
+       <a href="/blog/2014/09/18/custom-image-on-gcc/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/09/17/spark-1-1-0-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -878,111 +930,6 @@ The queue hierarchy and resource allocation needs to be changed when new tenants
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/08/22/spark-submit-in-java/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">22 August 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/ambari/"><span class="label label-warning">Ambari</span></a>
-            
-            <a href="/blog/categories/spark/"><span class="label label-warning">Spark</span></a>
-            
-            <a href="/blog/categories/yarn/"><span class="label label-warning">YARN</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/08/22/spark-submit-in-java/">Submit a Spark job to YARN from code</a>
-          <span class="badge name-badge">Oliver Szabo</span>
-
-      </h1>
-      <p>In our previous Apache Spark related post we showed you how to write a simple machine learning job. In this post we’d like to show you how to submit a Spark job from code. At SequenceIQ we submit jobs to different clusters &ndash; based on load, customer profile, associated SLAs, etc. Doing this the <code>documented</code> way was cumbersome so we needed a way to submit Spark jobs (and in general all of our jobs running in a YARN cluster) from code. Also due to the <code>dynamic</code> clusters, and changing job configurations we can’t use hardcoded parameters &ndash; in a previous <a href="http://blog.sequenceiq.com/blog/2014/07/09/ambari-configuration-service/">blog post</a> we highlighted how are we doing all these.</p>
-
-<h2>Business as usual</h2>
-
-<p>Basically as you from the <a href="https://spark.apache.org/docs/1.0.1/submitting-applications.html">Spark documentation</a>, you have to use the <a href="https://github.com/apache/spark/blob/master/bin/spark-submit">spark-submit</a> script to submit a job. In nutshell SparkSubmit is called
-by the <a href="https://github.com/apache/spark/blob/master/bin/spark-class">spark-class</a> script with a lots of decorated arguments. In our example we examine only the YARN part of the submissions.
-As you can see in <a href="https://github.com/apache/spark/blob/master/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala">SparkSubmit.scala</a> the YARN <a href="https://github.com/apache/spark/blob/master/yarn/stable/src/main/scala/org/apache/spark/deploy/yarn/Client.scala">Client</a> is loaded and its main method invoked (based on the arguments of the script).</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="c1">// If we&#39;re deploying into YARN, use yarn.Client as a wrapper around the user class</span>
-</span><span class='line'><span class="k">if</span> <span class="o">(!</span><span class="n">deployOnCluster</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">childMainClass</span> <span class="k">=</span> <span class="n">args</span><span class="o">.</span><span class="n">mainClass</span>
-</span><span class='line'>  <span class="k">if</span> <span class="o">(</span><span class="n">isUserJar</span><span class="o">(</span><span class="n">args</span><span class="o">.</span><span class="n">primaryResource</span><span class="o">))</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">childClasspath</span> <span class="o">+=</span> <span class="n">args</span><span class="o">.</span><span class="n">primaryResource</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">clusterManager</span> <span class="o">==</span> <span class="nc">YARN</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">childMainClass</span> <span class="k">=</span> <span class="s">&quot;org.apache.spark.deploy.yarn.Client&quot;</span>
-</span><span class='line'>  <span class="n">childArgs</span> <span class="o">+=</span> <span class="o">(</span><span class="s">&quot;--jar&quot;</span><span class="o">,</span> <span class="n">args</span><span class="o">.</span><span class="n">primaryResource</span><span class="o">)</span>
-</span><span class='line'>  <span class="n">childArgs</span> <span class="o">+=</span> <span class="o">(</span><span class="s">&quot;--class&quot;</span><span class="o">,</span> <span class="n">args</span><span class="o">.</span><span class="n">mainClass</span><span class="o">)</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">...</span>
-</span><span class='line'><span class="c1">// Here we invoke the main method of the Client</span>
-</span><span class='line'><span class="k">val</span> <span class="n">mainClass</span> <span class="k">=</span> <span class="nc">Class</span><span class="o">.</span><span class="n">forName</span><span class="o">(</span><span class="n">childMainClass</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="n">loader</span><span class="o">)</span>
-</span><span class='line'><span class="k">val</span> <span class="n">mainMethod</span> <span class="k">=</span> <span class="n">mainClass</span><span class="o">.</span><span class="n">getMethod</span><span class="o">(</span><span class="s">&quot;main&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="nc">Array</span><span class="o">[</span><span class="kt">String</span><span class="o">](</span><span class="mi">0</span><span class="o">).</span><span class="n">getClass</span><span class="o">)</span>
-</span><span class='line'><span class="k">try</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">mainMethod</span><span class="o">.</span><span class="n">invoke</span><span class="o">(</span><span class="kc">null</span><span class="o">,</span> <span class="n">childArgs</span><span class="o">.</span><span class="n">toArray</span><span class="o">)</span>
-</span><span class='line'><span class="o">}</span> <span class="k">catch</span> <span class="o">{</span>
-</span><span class='line'>  <span class="k">case</span> <span class="n">e</span><span class="k">:</span> <span class="kt">InvocationTargetException</span> <span class="o">=&gt;</span> <span class="n">e</span><span class="o">.</span><span class="n">getCause</span> <span class="k">match</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">case</span> <span class="n">cause</span><span class="k">:</span> <span class="kt">Throwable</span> <span class="o">=&gt;</span> <span class="k">throw</span> <span class="n">cause</span>
-</span><span class='line'>    <span class="k">case</span> <span class="kc">null</span> <span class="k">=&gt;</span> <span class="k">throw</span> <span class="n">e</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>It’s a pretty straightforward way to submit a Spark job to a YARN cluster, though you will need to change manually the parameters which as passed as arguments.</p>
-
-
-      
-       <a href="/blog/2014/08/22/spark-submit-in-java/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -1004,6 +951,10 @@ As you can see in <a href="https://github.com/apache/spark/blob/master/core/src/
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/11/06/securing-cloudbreak-with-oauth2-part-2/">Securing Cloudbreak with OAuth2 - part 2</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/11/04/yarn-timeline-service-tez/">YARN Timeline Service</a>

@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Apache Ambari + Spring Shell = Ambari Shell - SequenceIQ Blog</title>
+  <title>Securing Cloudbreak with OAuth2 - part 2 - SequenceIQ Blog</title>
   <meta name="author" content="SequenceIQ">
 
    
@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell">
+  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2014/11/06/securing-cloudbreak-with-oauth2-part-2">
   <link href="/favicon.png" rel="icon">
   <link href='http://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
@@ -129,10 +129,10 @@
        
          
        
-       <h1 class="article-style"> Apache Ambari + Spring Shell = Ambari Shell
+       <h1 class="article-style"> Securing Cloudbreak with OAuth2 - part 2
 
-       <span class="badge name-badge">Krisztian Horvath</span>
-       <span class="badge name-badge">26 May 2014</span>
+       <span class="badge name-badge">Marton Sereg</span>
+       <span class="badge name-badge">06 November 2014</span>
        </h1>
 
 
@@ -145,60 +145,34 @@
 
   <div class="row-fluid">
     <div class="span12">
-      <h2>Introduction</h2>
+      <p>A few weeks ago we&rsquo;ve published a <a href="http://blog.sequenceiq.com/blog/2014/10/16/using-uaa-as-an-identity-server/">blog post</a> about securing our <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> infrastructure with OAuth2.
+We&rsquo;ve discussed how we were setting up and configuring a new UAA OAuth2 identity server with Docker but we haven&rsquo;t detailed how to use this identity server in client applications.
+And that&rsquo;s exactly what we&rsquo;ll do now: we&rsquo;ll show some code examples about how to obtain tokens from different clients and how to check these tokens in resource servers.</p>
 
-<p><a href="http://ambari.apache.org/">Apache Ambari&rsquo;s</a> goal is to make Hadoop cluster management
-as simple as possible. It provides an intuitive easy-to-use web UI backed by its RESTful API.
-With only a few clicks you&rsquo;re able to install Hadoop services across any number of hosts
-and Ambari will take care of the configurations as well. After the installation is complete
-you can monitor your cluster taking leverage of <a href="http://ganglia.sourceforge.net/">Ganglia</a>
-and <a href="http://www.nagios.org/">Nagios</a>.</p>
+<p>We&rsquo;re using almost every type of the OAuth2 flows in our infrastructure: Cloudbreak and <a href="http://sequenceiq.com/periscope/">Periscope</a> act as resource servers while <a href="https://github.com/sequenceiq/uluwatu">Uluwatu</a> and <a href="https://github.com/sequenceiq/cloudbreak-shell">Cloudbreak shell</a> for example are clients for these APIs.</p>
 
-<p>At SequenceIQ we prefer to use command line tools whenever it&rsquo;s possible,
-because it&rsquo;s much faster than interacting with a web UI and it&rsquo;s a better candidate for automation.
-Here comes <a href="https://github.com/spring-projects/spring-shell#readme">Spring Shell</a> to our rescue.</p>
+<h2>Obtaining an access token</h2>
 
-<p>It&rsquo;s an interactive shell that can be easily extended using a Spring based programming model and battle
-tested in various projects like <a href="http://projects.spring.io/spring-roo/">Spring Roo</a>,
-<a href="http://docs.spring.io/spring-xd/docs/1.0.0.BUILD-SNAPSHOT/reference/html/">Spring XD</a>, and
-<a href="https://github.com/spring-projects/rest-shell">Spring REST Shell</a> Combine these two projects
-and a really powerful tool will come to light.</p>
+<p>The main goal of an OAuth2 flow is to obtain an access token for the resource owner that can be used to access a resource server later.
+There are multiple common flows depending on the client type, we&rsquo;ll have examples for three of them now: <em>implicit</em>, <em>authorization code</em> and <em>client credentials</em>.
+If you&rsquo;re not familiar with the roles and expressions that take part in the OAuth2 flows I suggest to check out some <a href="http://aaronparecki.com/articles/2012/07/29/1/oauth2-simplified">&ldquo;Getting started&rdquo; resources</a> first before going forward with this post.</p>
 
-<h2>Ambari Shell</h2>
+<h3>Implicit flow</h3>
 
-<p>The goal is to provide an interactive command line tool which supports:</p>
+<p>This is not the most common flow with OAuth2 but it is the most simple one because only one request should be made to the identity server and the token will arrive directly in the response.
+Two different types of this flow is supported by UAA. One for browser-based applications and one for those scenarios when there is no browser interaction (e.g.: CLIs).
+The common part of these scenarios is that it would be useless to have a client secret because it couldn&rsquo;t be kept as a secret.</p>
 
-<ul>
-<li>all functionality available through the REST API or Ambari web UI</li>
-<li>makes possible complete automation of management task via <strong>scripts</strong></li>
-<li>context aware command availability</li>
-<li>tab completion</li>
-<li>required/optional parameter support</li>
-<li><strong>hint</strong> command to guide you on the usual path</li>
-</ul>
-
-
-<p>Since we&rsquo;re open sourcing the project, it should be available and part of the official Ambari repository
-<a href="https://issues.apache.org/jira/browse/AMBARI-5482">soon</a>.</p>
-
-<h2>Install Ambari Shell</h2>
-
-<p>For now you have 3 options to give it a try:</p>
-
-<ul>
-<li>use our prepared <a href="https://index.docker.io/u/sequenceiq/ambari-shell/">docker image</a></li>
-<li>download the latest self-containing executable jar form our maven repo</li>
-<li>build it from source</li>
-</ul>
-
-
-<h3>Run via docker</h3>
-
-<p>As we love to dockerize everything, we prepared a <a href="https://index.docker.io/u/sequenceiq/ambari-shell/">docker image</a>
-with jdk1.7 on latest ubuntu, ambari-shell preinstalled. Detailed description is available on <a href="https://github.com/sequenceiq/ambari-shell-docker">github</a>.</p>
+<p>We are using the <em>implicit flow with credentials</em> in the <a href="https://github.com/sequenceiq/cloudbreak-shell">Cloudbreak Shell</a>.
+When using the shell you must provide your SequenceIQ credentials as environment variables and the shell uses those to obtain an access token.
+Cloudbreak shell is written in Java but let&rsquo;s see a basic <code>curl</code> example instead &ndash; it does exactly the same as the Java code. (If you&rsquo;re still eager you can check out the code <a href="https://github.com/sequenceiq/cloudbreak-shell/blob/master/src/main/java/com/sequenceiq/cloudbreak/shell/configuration/ShellConfiguration.java#L122">here</a>)</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -it --rm sequenceiq/ambari-shell --ambari.host=&lt;HOSTNAME&gt; --ambari.port=&lt;PORT&gt;</span></code></pre></td></tr></table></div></figure>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -iX POST -H "accept: application/x-www-form-urlencoded"  \
+</span><span class='line'> -d 'credentials={"username":"admin","password":"periscope"}' \
+</span><span class='line'> "http://localhost:8080/oauth/authorize?response_type=token&client_id=cli&scope.0=openid&redirect_uri=http://cli"</span></code></pre></td></tr></table></div></figure>
 
 
 
@@ -206,46 +180,65 @@ with jdk1.7 on latest ubuntu, ambari-shell preinstalled. Detailed description is
 <!-- more -->
 
 
-<h3>Run latest snapshot</h3>
+<p><em>notes:</em></p>
 
-<p>You need only jdk 1.7. The script below will download the latest ambari-shell.jar into a
-temporary folder, and give you instruction on how to use.</p>
+<ul>
+<li>the <code>response_type=token</code> part tells the identity server to return a token <em>implicitly</em></li>
+<li>UAA must be running on <code>localhost:8080</code></li>
+<li>there is a registered client in UAA with <code>implicit</code> as <em>authorized_grant_type</em>, <code>cli</code> as <em>client ID</em>, and <code>http://cli</code> as <em>redirect URI</em> (it doesn&rsquo;t need to be a valid URL but has to match the one in the request)</li>
+<li>the <code>cli</code> client is configured in UAA as <em>autoapproved</em></li>
+<li>a user with <code>admin</code> as username and <code>periscope</code> as password is registered in UAA</li>
+</ul>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl -Ls https://raw.githubusercontent.com/sequenceiq/ambari-shell/master/latest-snap.sh | bash</span></code></pre></td></tr></table></div></figure>
 
+<p>If you&rsquo;re having a browser-based application and would like to use the implicit flow it is very similar.
+The main difference is that you won&rsquo;t have to provide the credentials in the request body but redirect the user to the same URL.
+User authentication will happen through a login form and the <code>access_token</code> will appear as a parameter in the redirect URI.
+You can simply try this out by opening the same URL in a browser. (Of course the redirect won&rsquo;t be successful with the URI above but the redirect URL will appear in the browser with the access token as a parameter if UAA is properly configured)</p>
 
-<h3>Build from source</h3>
+<h3>Authorization code flow</h3>
 
-<p>If want to check the code, or extend it with new commands, Follow the steps below. You will need:
-&ndash; jdk 1.7
-&ndash; maven 3.x.x</p>
+<p>The authorization code flow is the most common one &ndash; it is used mostly by standard web applications that have some server side code besides the frontend.
+It&rsquo;s main advantage against the implicit flow is that the token doesn&rsquo;t show up in the browser, only an authorization code is sent back by the identity server to the browser and it will be exchanged for an access token later in some kind of server side code.
+We&rsquo;re using the authorization code flow with Uluwatu that&rsquo;s written in <em>node.js</em> so I&rsquo;ll show some <em>node.js</em> examples here</p>
+
+<p>The first part of the authorization code flow is almost exactly the same as the browser-based implicit flow: you&rsquo;ll have to redirect the user to the <code>oauth/authorize</code> endpoint, but with a different <code>response_type</code> (<em>code</em>). The response is a redirect again but instead of the access token an authorization code is sent back as a parameter. You can still try it out in a browser &ndash; of course the redirect won&rsquo;t be successful if there&rsquo;s nothing listening on the redirect URI but the code will appear in the browser.</p>
+
+<p>A somewhat simplified version of the code we&rsquo;re using <a href="https://github.com/sequenceiq/uluwatu/blob/master/server.js#L123">in Uluwatu</a> to start the process looks like this:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>git clone https://github.com/sequenceiq/ambari-shell.git
-</span><span class='line'>cd ambari-shell
-</span><span class='line'>mvn package</span></code></pre></td></tr></table></div></figure>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  var authUrl = uaaAddress
+</span><span class='line'>    + 'oauth/authorize?response_type=code'
+</span><span class='line'>    + '&client_id=' + clientId
+</span><span class='line'>    + '&scope=' + clientScopes
+</span><span class='line'>    + '&redirect_uri=' + redirectUri
+</span><span class='line'>  if (!req.session.token){
+</span><span class='line'>    res.redirect(authUrl)
+</span><span class='line'>  } else {
+</span><span class='line'>    res.render('index');
+</span><span class='line'>  }</span></code></pre></td></tr></table></div></figure>
 
 
-<p>The shell is built as a single executable jar with the help of <a href="http://projects.spring.io/spring-boot/">Spring Boot</a>.</p>
+<p><em>notes:</em></p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>java -jar target/ambari-shell-1.0-SNAPSHOT.jar --ambari.host=&lt;HOSTNAME&gt; --ambari.port=&lt;PORT&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Start a &ldquo;sandbox&rdquo; Ambari Server</h2>
-
-<p>The image is available at the Docker repository, which means you only need to run the following to get a running Ambari server:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -d -P -h server.ambari.com --name ambari-singlenode sequenceiq/ambari</span></code></pre></td></tr></table></div></figure>
+<ul>
+<li>the <code>response_type=code</code> part tells the identity server to return an authorization code instead of an access token</li>
+<li>UAA must be available on the address specified in the uaaAddress variable</li>
+<li>there is a registered client in UAA with <code>authorization_code</code> as <em>authorized_grant_type</em>, and its <em>client ID</em> and <em>redirect URI</em> parameters must be specified in the <code>clientId</code> and <code>redirectUri</code> variables</li>
+<li>we&rsquo;re using the <a href="http://expressjs.com">Express</a> web framework for node.js.</li>
+</ul>
 
 
-<h2>Connect Ambari Shell to the server</h2>
-
-<p>Once the server is up and running (10-20 sec) you can connect to it with the shell:</p>
+<p>The second part is about exchanging the authorization code for an access token. To try it out you&rsquo;ll need a web server that will handle the redirect URI. In our case it is done by the <a href="https://github.com/sequenceiq/uluwatu/blob/master/server.js#L100">Uluwatu backend</a> on the <code>/authorize</code> endpoint.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -259,65 +252,96 @@ temporary folder, and give you instruction on how to use.</p>
 <span class='line-number'>10</span>
 <span class='line-number'>11</span>
 <span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Usage:
-</span><span class='line'>  java -jar ambari-shell.jar                  : Starts Ambari Shell in interactive mode.
-</span><span class='line'>  java -jar ambari-shell.jar --cmdfile=&lt;FILE&gt; : Ambari Shell executes commands read from the file.
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>var optionsAuth = { user: clientId, password: clientSecret },
+</span><span class='line'>    identityServerClient = new restClient.Client(optionsAuth);
 </span><span class='line'>
-</span><span class='line'>Options:
-</span><span class='line'>  --ambari.host=&lt;HOSTNAME&gt;       Hostname of the Ambari Server [default: localhost].
-</span><span class='line'>  --ambari.port=&lt;PORT&gt;           Port of the Ambari Server [default: 8080].
-</span><span class='line'>  --ambari.user=&lt;USER&gt;           Username of the Ambari admin [default: admin].
-</span><span class='line'>  --ambari.password=&lt;PASSWORD&gt;   Password of the Ambari admin [default: admin].
+</span><span class='line'>identityServerClient.registerMethod("retrieveToken", uaaAddress + "oauth/token", "POST");
 </span><span class='line'>
-</span><span class='line'>Note:
-</span><span class='line'>  At least one option is mandatory.</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>app.get('/authorize', function(req, res, next){
+</span><span class='line'>  var args = {
+</span><span class='line'>    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+</span><span class='line'>    data:
+</span><span class='line'>      'grant_type=authorization_code'
+</span><span class='line'>      + '&redirect_uri=' + redirectUri
+</span><span class='line'>      + '&code=' + req.query.code
+</span><span class='line'>  }
+</span><span class='line'>  identityServerClient.methods.retrieveToken(args, function(data, response){
+</span><span class='line'>    req.session.token=data.access_token;
+</span><span class='line'>    res.redirect('/');
+</span><span class='line'>  });
+</span><span class='line'>});</span></code></pre></td></tr></table></div></figure>
 
 
-<h2>Create a cluster</h2>
+<p><em>notes:</em></p>
 
-<p>All commands are context aware and are available only when it makes sense. For example the <code>cluster create</code> command is not available
-until a blueprint hasn&rsquo;t been added or selected. A good approach is to use the <code>hint</code> command &ndash; as the Ambari UI, this will give
-you hints about the available commands and the flow of creating or configuring a cluster. You can always use TAB for completion
-or available parameters.</p>
+<ul>
+<li>the <em>POST</em> request must be made to the <code>oauth/token</code> endpoint</li>
+<li>the client must authenticate himself by putting the <em>client id</em> and <em>client secret</em> in a standard basic authentication header. The base64 encoding is done by the client library we&rsquo;re using.</li>
+<li>the access token arrives in the response body along with a refresh token that can be used to renew the access token when it expires</li>
+</ul>
 
-<p>Initially there are no blueprints available &ndash; you can add blueprints from file or URL. For your convenience we&rsquo;ve added two
-blueprints as defaults. You can get these blueprints by using the <code>blueprint defaults</code> command. The result is the following:</p>
+
+<h3>Client credentials flow</h3>
+
+<p>This one is a bit different from the previous ones because this flow is used when a client would like to access some resources by itself, not on behalf of a user.
+A common use case with UAA is when we&rsquo;d like to access the <a href="http://www.simplecloud.info/">SCIM</a> endpoints for describing or registering users.
+<a href="https://github.com/sequenceiq/sultans">Sultans</a> is the user management service for the SequenceIQ platform, it uses the client credentials flow in its <a href="https://github.com/sequenceiq/sultans/blob/master/main.js#L216">source</a> to obtain a token that&rsquo;s used for example to register new users later.
+Just to keep it simple that&rsquo;s how it looks like in <code>curl</code>:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ambari-shell&gt; blueprint defaults
-</span><span class='line'>ambari-shell&gt; blueprint list</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -u &lt;CLIENT_ID&gt;:&lt;CLIENT_SECRET&gt; -d 'grant_type=client_credentials' http://localhost:8080/oauth/token</span></code></pre></td></tr></table></div></figure>
 
+
+<p>And that&rsquo;s how a correct sample response looks like:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>{"access_token":"&lt;ACCESS_TOKEN&gt;","token_type":"bearer","expires_in":43199,"scope":"password.write scim.write scim.read uaa.resource","jti":"&lt;JTI&gt;"}</span></code></pre></td></tr></table></div></figure>
+
+
+<p><em>notes:</em></p>
+
+<ul>
+<li><p>the scopes of a client is described in the authorities property in the UAA configuration.</p></li>
+<li><p>an UAA server must be available on localhost:8080</p></li>
+<li><p>a client must be registered in UAA&rsquo;s database with <code>client_credentials</code> as <em>grant_type</em></p></li>
+</ul>
+
+
+<h2>Using the access token to make requests to a resource server</h2>
+
+<p>The <a href="http://self-issued.info/docs/draft-ietf-oauth-v2-bearer.html">Bearer Token Usage part</a> of the OAuth 2.0 specification talks about how to include the access token in a request. According to the specification there are several ways to send the token:</p>
+
+<ul>
+<li>in the Authorization request header field</li>
+<li>in a form-encoded body parameter</li>
+<li>in a URI query parameter</li>
+</ul>
+
+
+<p>Only the first of these (the Authorization header) <em>must</em> be supported by resource servers, the others are only optional.
+Here&rsquo;s how the Authorization header should look like:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>  BLUEPRINT              STACK
-</span><span class='line'>  ---------------------  -------
-</span><span class='line'>  multi-node-hdfs-yarn   HDP:2.0
-</span><span class='line'>  single-node-hdfs-yarn  HDP:2.0</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>GET /resource HTTP/1.1
+</span><span class='line'>Host: server.example.com
+</span><span class='line'>Authorization: Bearer mF_9.B5f-4.1JqM</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Once the blueprints are added you can use them to create a cluster by typing <code>cluster build --blueprint single-node-hdfs-yarn</code>.
-Now that the blueprint is selected you have to assign the hosts to the available host groups. Use</p>
+<h2>Checking the token in the resource server</h2>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ambari-shell&gt; cluster build --blueprint single-node-hdfs-yarn
-</span><span class='line'>CLUSTER_BUILD:single-node-hdfs-yarn&gt; cluster assign --hostGroup host_group_1 --host server.ambari.com
-</span><span class='line'>
-</span><span class='line'>  HOSTGROUP     HOST
-</span><span class='line'>  ------------  -----------------
-</span><span class='line'>  host_group_1  server.ambari.com</span></code></pre></td></tr></table></div></figure>
+<p>Now that we are able to deploy and configure an UAA identity server, obtain tokens from it in client applications and send these in resource server requests there&rsquo;s only one thing left: how should we implement the resource server part of our infrastructure to handle the token requests. The OAuth 2.0 specification leaves it up to the implementor but with UAA there is one recommended way, the <code>/check_token</code> <a href="https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-APIs.rst#oauth2-token-validation-service-post-check_token">endpoint</a>.</p>
 
+<p>The boundaries of resource servers and OAuth2 providers are often blurred and they are in the same application therefore checking a token can be implemented in place by going directly to a token store or decoding the JWT token. If the components are correctly separated this can only be done if the token is encrypted with a shared secret between the provider and the resource server. If it&rsquo;s not the case the resource server must reach out to the identity server to check the validity of the token. In case of UAA this can be achieved with the help of the <code>check_token</code> endpoint.</p>
 
-<p>Once you are happy with the host &ndash; host group associations you can choose <code>cluster create</code> to start building the cluster.
-Progress can be checked either at the Amabri UI or using the <code>tasks</code> command.</p>
+<p>Our resource servers are implemented in Java and are using Spring. Spring has great support for <a href="http://projects.spring.io/spring-security-oauth/">OAuth</a> but it could feel like <strong>magic</strong> if you don&rsquo;t know what&rsquo;s behind it.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -344,75 +368,61 @@ Progress can be checked either at the Amabri UI or using the <code>tasks</code> 
 <span class='line-number'>23</span>
 <span class='line-number'>24</span>
 <span class='line-number'>25</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>
-</span><span class='line'>CLUSTER_BUILD:single-node-hdfs-yarn&gt; cluster create
-</span><span class='line'>Successfully created the cluster
-</span><span class='line'>CLUSTER:single-node-hdfs-yarn&gt; tasks
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>@Configuration
+</span><span class='line'>@EnableResourceServer
+</span><span class='line'>protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 </span><span class='line'>
-</span><span class='line'>  TASK                        STATUS
-</span><span class='line'>  --------------------------  -------
-</span><span class='line'>  HISTORYSERVER INSTALL       QUEUED
-</span><span class='line'>  ZOOKEEPER_SERVER START      PENDING
-</span><span class='line'>  ZOOKEEPER_CLIENT INSTALL    PENDING
-</span><span class='line'>  HDFS_CLIENT INSTALL         PENDING
-</span><span class='line'>  HISTORYSERVER START         PENDING
-</span><span class='line'>  NODEMANAGER INSTALL         QUEUED
-</span><span class='line'>  NODEMANAGER START           PENDING
-</span><span class='line'>  ZOOKEEPER_SERVER INSTALL    QUEUED
-</span><span class='line'>  YARN_CLIENT INSTALL         PENDING
-</span><span class='line'>  NAMENODE INSTALL            QUEUED
-</span><span class='line'>  RESOURCEMANAGER INSTALL     QUEUED
-</span><span class='line'>  NAMENODE START              PENDING
-</span><span class='line'>  RESOURCEMANAGER START       PENDING
-</span><span class='line'>  DATANODE START              PENDING
-</span><span class='line'>  SECONDARY_NAMENODE START    PENDING
-</span><span class='line'>  DATANODE INSTALL            QUEUED
-</span><span class='line'>  MAPREDUCE2_CLIENT INSTALL   PENDING
-</span><span class='line'>  SECONDARY_NAMENODE INSTALL  QUEUED</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>    @Bean
+</span><span class='line'>    RemoteTokenServices remoteTokenServices() {
+</span><span class='line'>        RemoteTokenServices rts = new RemoteTokenServices();
+</span><span class='line'>        rts.setClientId(clientId);
+</span><span class='line'>        rts.setClientSecret(clientSecret);
+</span><span class='line'>        rts.setCheckTokenEndpointUrl(identityServerUrl + "/check_token");
+</span><span class='line'>        return rts;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    @Override
+</span><span class='line'>    public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
+</span><span class='line'>        resources.resourceId("cloudbreak");
+</span><span class='line'>        resources.tokenServices(remoteTokenServices());
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    @Override
+</span><span class='line'>    public void configure(HttpSecurity http) throws Exception {
+</span><span class='line'>        http
+</span><span class='line'>            .authorizeRequests()
+</span><span class='line'>            .antMatchers("/user/blueprints").access("#oauth2.hasScope('cloudbreak.blueprints')")
+</span><span class='line'>            .antMatchers("/user/templates").access("#oauth2.hasScope('cloudbreak.templates')");
+</span><span class='line'>    }</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Each time you start the shell the executed commands are logged in a file line by line and later either with the <code>script</code> command
-or specifying an <code>--cmdfile</code> option the same commands can be executed.</p>
+<p>With these few lines you&rsquo;ll have a fully functioning resource server that checks every incoming token on the two endpoints defined in the second <code>configure</code> method.
+The <code>EnableResourceServer</code> annotation will include a new <a href="https://github.com/spring-projects/spring-security-oauth/blob/master/spring-security-oauth2/src/main/java/org/springframework/security/oauth2/provider/authentication/OAuth2AuthenticationProcessingFilter.java#L95">filter</a> in the security filter chain that will use the <a href="https://github.com/spring-projects/spring-security-oauth/blob/master/spring-security-oauth2/src/main/java/org/springframework/security/oauth2/provider/token/RemoteTokenServices.java#L95">RemoteTokenServices class</a> to make a request to the <code>check_token</code> endpoint. If the response doesn&rsquo;t contain errors it uses a custom <a href="https://github.com/spring-projects/spring-security-oauth/blob/master/spring-security-oauth2/src/main/java/org/springframework/security/oauth2/provider/authentication/OAuth2AuthenticationManager.java#L77">authentication manager</a> to put the authentication in the Spring authentication context (username will be available through the <code>Principal</code> object). It is also very easy to configure which scopes are needed for specific endpoints &ndash; the expressions used in the configuration are processed by the <a href="https://github.com/spring-projects/spring-security-oauth/blob/master/spring-security-oauth2/src/main/java/org/springframework/security/oauth2/provider/expression/OAuth2SecurityExpressionMethods.java">OAuth2SecurityExpressionMethods class</a>.</p>
 
-<h2>Commands</h2>
+<p>The <code>check_token</code> endpoint in UAA uses basic authentication with the <strong>resource server&rsquo;s</strong> client id and client secret as username and password. That&rsquo;s why the <em>resource server must be configured in UAA as a client</em> as well. The access token must be included in the request body:</p>
 
-<p>The currently supported commands are:</p>
-
-<ul>
-<li><code>blueprint add</code> &ndash; Add a new blueprint with either &mdash;url or &mdash;file</li>
-<li><code>blueprint defaults</code> &ndash; Adds the default blueprints to Ambari</li>
-<li><code>blueprint list</code> &ndash; Lists all known blueprints</li>
-<li><code>blueprint show</code> &ndash; Shows the blueprint by its id</li>
-<li><code>cluster assign</code> &ndash; Assign host to host group</li>
-<li><code>cluster build</code> &ndash; Starts to build a cluster</li>
-<li><code>cluster create</code> &ndash; Create a cluster based on current blueprint and assigned hosts</li>
-<li><code>cluster delete</code> &ndash; Delete the cluster</li>
-<li><code>cluster preview</code> &ndash; Shows the currently assigned hosts</li>
-<li><code>cluster reset</code> &ndash; Clears the host &ndash; host group assignments</li>
-<li><code>debug off</code> &ndash; Stops showing the URL of the API calls</li>
-<li><code>debug on</code> &ndash; Shows the URL of the API calls</li>
-<li><code>exit</code> &ndash; Exits the shell</li>
-<li><code>hello</code> &ndash; Prints a simple elephant to the console</li>
-<li><code>help</code> &ndash; List all commands usage</li>
-<li><code>hint</code> &ndash; Shows some hints</li>
-<li><code>host components</code> &ndash; Lists the components assigned to the selected host</li>
-<li><code>host focus</code> &ndash; Sets the useHost to the specified host</li>
-<li><code>host list</code> &ndash; Lists the available hosts</li>
-<li><code>quit</code> &ndash; Exits the shell</li>
-<li><code>script</code> &ndash; Parses the specified resource file and executes its commands</li>
-<li><code>service components</code> &ndash; Lists all services with their components</li>
-<li><code>service list</code> &ndash; Lists the available services</li>
-<li><code>tasks</code> &ndash; Lists the Ambari tasks</li>
-<li><code>version</code> &ndash; Displays shell version</li>
-</ul>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>POST /check_token HTTP/1.1
+</span><span class='line'>Host: server.example.com
+</span><span class='line'>Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
+</span><span class='line'>Content-Type: application/x-www-form-encoded
+</span><span class='line'>
+</span><span class='line'>token=eyJ0eXAiOiJKV1QiL</span></code></pre></td></tr></table></div></figure>
 
 
-<h2>Summary</h2>
+<p>A successful response will include the decoded parts of the JWT token such as <code>exp</code>, <code>scope</code>, <code>user_name</code> or <code>client_id</code>. See an example <a href="https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-APIs.rst#oauth2-token-validation-service-post-check_token">here</a>.</p>
 
-<p>To sum it up in less than two minutes watch this video:</p>
+<h2>Resources</h2>
 
-<script type="text/javascript" src="https://asciinema.org/a/9783.js" id="asciicast-9783" async></script>
+<p>I haven&rsquo;t included an example for the password grant type because we are not using it in our projects but you can check it out in the <a href="https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-Tokens.md#getting-started"><strong>Tokens part</strong></a> of the UAA documentation. If you&rsquo;d like to learn more about UAA, check out its <a href="https://github.com/cloudfoundry/uaa/tree/master/docs">documentation</a> or the source code of our projects in our <a href="https://github.com/sequenceiq/">Github repo</a>. Also feel free to ask anything in the comments section.</p>
 
+<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 
     </div>
   </div>
@@ -424,7 +434,7 @@ or specifying an <code>--cmdfile</code> option the same commands can be executed
     
   
 
-<span class="byline author vcard">Posted by <span class="fn">Krisztian Horvath</span></span>
+<span class="byline author vcard">Posted by <span class="fn">Marton Sereg</span></span>
 
     
     <div class="row">
@@ -436,11 +446,9 @@ or specifying an <code>--cmdfile</code> option the same commands can be executed
 
 
 
-  <a href="/blog/categories/apache-ambari/"><span class="label label-warning">Apache Ambari</span></a>
+  <a href="/blog/categories/oauth2/"><span class="label label-warning">OAuth2</span></a>
 
-  <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
-
-  <a href="/blog/categories/spring-shell/"><span class="label label-warning">Spring Shell</span></a>
+  <a href="/blog/categories/uaa/"><span class="label label-warning">UAA</span></a>
 
 
 
@@ -472,10 +480,8 @@ or specifying an <code>--cmdfile</code> option the same commands can be executed
       <div class="span12">
         <p class="meta">
           
-            <a class="basic-alignment left" href="/blog/2014/05/09/building-the-build-environment-with-ansible-and-docker/" title="Previous Post: Building the build environment with Ansible and Docker">&laquo; Building the build environment with Ansible and Docker</a>
+            <a class="basic-alignment left" href="/blog/2014/11/04/yarn-timeline-service-tez/" title="Previous Post: YARN Timeline Service">&laquo; YARN Timeline Service</a>
           
-          
-            <a class=" basic-alignment pull-right" href="/blog/2014/06/06/hadoop-summit-slides/" title="Next Post: Hadoop Summit 2014 - SequenceIQ slides">Hadoop Summit 2014 - SequenceIQ slides &raquo;</a>
           
         </p>
       </div>
@@ -822,8 +828,8 @@ or specifying an <code>--cmdfile</code> option the same commands can be executed
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell/';
-        var disqus_url = 'http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell/';
+        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2014/11/06/securing-cloudbreak-with-oauth2-part-2/';
+        var disqus_url = 'http://blog.sequenceiq.com/blog/2014/11/06/securing-cloudbreak-with-oauth2-part-2/';
         var disqus_script = 'embed.js';
       
     (function () {

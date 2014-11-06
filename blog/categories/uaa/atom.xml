@@ -4,7 +4,7 @@
   <title><![CDATA[Category: UAA | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/uaa/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-11-04T18:23:03+00:00</updated>
+  <updated>2014-11-06T09:56:57+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,247 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Securing Cloudbreak with OAuth2 - part 2]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/11/06/securing-cloudbreak-with-oauth2-part-2/"/>
+    <updated>2014-11-06T17:00:08+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/11/06/securing-cloudbreak-with-oauth2-part-2</id>
+    <content type="html"><![CDATA[<p>A few weeks ago we&rsquo;ve published a <a href="http://blog.sequenceiq.com/blog/2014/10/16/using-uaa-as-an-identity-server/">blog post</a> about securing our <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> infrastructure with OAuth2.
+We&rsquo;ve discussed how we were setting up and configuring a new UAA OAuth2 identity server with Docker but we haven&rsquo;t detailed how to use this identity server in client applications.
+And that&rsquo;s exactly what we&rsquo;ll do now: we&rsquo;ll show some code examples about how to obtain tokens from different clients and how to check these tokens in resource servers.</p>
+
+<p>We&rsquo;re using almost every type of the OAuth2 flows in our infrastructure: Cloudbreak and <a href="http://sequenceiq.com/periscope/">Periscope</a> act as resource servers while <a href="https://github.com/sequenceiq/uluwatu">Uluwatu</a> and <a href="https://github.com/sequenceiq/cloudbreak-shell">Cloudbreak shell</a> for example are clients for these APIs.</p>
+
+<h2>Obtaining an access token</h2>
+
+<p>The main goal of an OAuth2 flow is to obtain an access token for the resource owner that can be used to access a resource server later.
+There are multiple common flows depending on the client type, we&rsquo;ll have examples for three of them now: <em>implicit</em>, <em>authorization code</em> and <em>client credentials</em>.
+If you&rsquo;re not familiar with the roles and expressions that take part in the OAuth2 flows I suggest to check out some <a href="http://aaronparecki.com/articles/2012/07/29/1/oauth2-simplified">&ldquo;Getting started&rdquo; resources</a> first before going forward with this post.</p>
+
+<h3>Implicit flow</h3>
+
+<p>This is not the most common flow with OAuth2 but it is the most simple one because only one request should be made to the identity server and the token will arrive directly in the response.
+Two different types of this flow is supported by UAA. One for browser-based applications and one for those scenarios when there is no browser interaction (e.g.: CLIs).
+The common part of these scenarios is that it would be useless to have a client secret because it couldn&rsquo;t be kept as a secret.</p>
+
+<p>We are using the <em>implicit flow with credentials</em> in the <a href="https://github.com/sequenceiq/cloudbreak-shell">Cloudbreak Shell</a>.
+When using the shell you must provide your SequenceIQ credentials as environment variables and the shell uses those to obtain an access token.
+Cloudbreak shell is written in Java but let&rsquo;s see a basic <code>curl</code> example instead &ndash; it does exactly the same as the Java code. (If you&rsquo;re still eager you can check out the code <a href="https://github.com/sequenceiq/cloudbreak-shell/blob/master/src/main/java/com/sequenceiq/cloudbreak/shell/configuration/ShellConfiguration.java#L122">here</a>)</p>
+
+<p><code>
+curl -iX POST -H "accept: application/x-www-form-urlencoded"  \
+ -d 'credentials={"username":"admin","password":"periscope"}' \
+ "http://localhost:8080/oauth/authorize?response_type=token&amp;client_id=cli&amp;scope.0=openid&amp;redirect_uri=http://cli"
+</code></p>
+
+<!-- more -->
+
+
+<p><em>notes:</em></p>
+
+<ul>
+<li>the <code>response_type=token</code> part tells the identity server to return a token <em>implicitly</em></li>
+<li>UAA must be running on <code>localhost:8080</code></li>
+<li>there is a registered client in UAA with <code>implicit</code> as <em>authorized_grant_type</em>, <code>cli</code> as <em>client ID</em>, and <code>http://cli</code> as <em>redirect URI</em> (it doesn&rsquo;t need to be a valid URL but has to match the one in the request)</li>
+<li>the <code>cli</code> client is configured in UAA as <em>autoapproved</em></li>
+<li>a user with <code>admin</code> as username and <code>periscope</code> as password is registered in UAA</li>
+</ul>
+
+
+<p>If you&rsquo;re having a browser-based application and would like to use the implicit flow it is very similar.
+The main difference is that you won&rsquo;t have to provide the credentials in the request body but redirect the user to the same URL.
+User authentication will happen through a login form and the <code>access_token</code> will appear as a parameter in the redirect URI.
+You can simply try this out by opening the same URL in a browser. (Of course the redirect won&rsquo;t be successful with the URI above but the redirect URL will appear in the browser with the access token as a parameter if UAA is properly configured)</p>
+
+<h3>Authorization code flow</h3>
+
+<p>The authorization code flow is the most common one &ndash; it is used mostly by standard web applications that have some server side code besides the frontend.
+It&rsquo;s main advantage against the implicit flow is that the token doesn&rsquo;t show up in the browser, only an authorization code is sent back by the identity server to the browser and it will be exchanged for an access token later in some kind of server side code.
+We&rsquo;re using the authorization code flow with Uluwatu that&rsquo;s written in <em>node.js</em> so I&rsquo;ll show some <em>node.js</em> examples here</p>
+
+<p>The first part of the authorization code flow is almost exactly the same as the browser-based implicit flow: you&rsquo;ll have to redirect the user to the <code>oauth/authorize</code> endpoint, but with a different <code>response_type</code> (<em>code</em>). The response is a redirect again but instead of the access token an authorization code is sent back as a parameter. You can still try it out in a browser &ndash; of course the redirect won&rsquo;t be successful if there&rsquo;s nothing listening on the redirect URI but the code will appear in the browser.</p>
+
+<p>A somewhat simplified version of the code we&rsquo;re using <a href="https://github.com/sequenceiq/uluwatu/blob/master/server.js#L123">in Uluwatu</a> to start the process looks like this:
+```
+  var authUrl = uaaAddress</p>
+
+<pre><code>+ 'oauth/authorize?response_type=code'
++ '&amp;client_id=' + clientId
++ '&amp;scope=' + clientScopes
++ '&amp;redirect_uri=' + redirectUri
+</code></pre>
+
+<p>  if (!req.session.token){</p>
+
+<pre><code>res.redirect(authUrl)
+</code></pre>
+
+<p>  } else {</p>
+
+<pre><code>res.render('index');
+</code></pre>
+
+<p>  }
+```</p>
+
+<p><em>notes:</em></p>
+
+<ul>
+<li>the <code>response_type=code</code> part tells the identity server to return an authorization code instead of an access token</li>
+<li>UAA must be available on the address specified in the uaaAddress variable</li>
+<li>there is a registered client in UAA with <code>authorization_code</code> as <em>authorized_grant_type</em>, and its <em>client ID</em> and <em>redirect URI</em> parameters must be specified in the <code>clientId</code> and <code>redirectUri</code> variables</li>
+<li>we&rsquo;re using the <a href="http://expressjs.com">Express</a> web framework for node.js.</li>
+</ul>
+
+
+<p>The second part is about exchanging the authorization code for an access token. To try it out you&rsquo;ll need a web server that will handle the redirect URI. In our case it is done by the <a href="https://github.com/sequenceiq/uluwatu/blob/master/server.js#L100">Uluwatu backend</a> on the <code>/authorize</code> endpoint.</p>
+
+<p>```
+var optionsAuth = { user: clientId, password: clientSecret },</p>
+
+<pre><code>identityServerClient = new restClient.Client(optionsAuth);
+</code></pre>
+
+<p>identityServerClient.registerMethod(&ldquo;retrieveToken&rdquo;, uaaAddress + &ldquo;oauth/token&rdquo;, &ldquo;POST&rdquo;);</p>
+
+<p>app.get(&lsquo;/authorize&rsquo;, function(req, res, next){
+  var args = {</p>
+
+<pre><code>headers: { "Content-Type": "application/x-www-form-urlencoded" },
+data:
+  'grant_type=authorization_code'
+  + '&amp;redirect_uri=' + redirectUri
+  + '&amp;code=' + req.query.code
+</code></pre>
+
+<p>  }
+  identityServerClient.methods.retrieveToken(args, function(data, response){</p>
+
+<pre><code>req.session.token=data.access_token;
+res.redirect('/');
+</code></pre>
+
+<p>  });
+});
+```</p>
+
+<p><em>notes:</em></p>
+
+<ul>
+<li>the <em>POST</em> request must be made to the <code>oauth/token</code> endpoint</li>
+<li>the client must authenticate himself by putting the <em>client id</em> and <em>client secret</em> in a standard basic authentication header. The base64 encoding is done by the client library we&rsquo;re using.</li>
+<li>the access token arrives in the response body along with a refresh token that can be used to renew the access token when it expires</li>
+</ul>
+
+
+<h3>Client credentials flow</h3>
+
+<p>This one is a bit different from the previous ones because this flow is used when a client would like to access some resources by itself, not on behalf of a user.
+A common use case with UAA is when we&rsquo;d like to access the <a href="http://www.simplecloud.info/">SCIM</a> endpoints for describing or registering users.
+<a href="https://github.com/sequenceiq/sultans">Sultans</a> is the user management service for the SequenceIQ platform, it uses the client credentials flow in its <a href="https://github.com/sequenceiq/sultans/blob/master/main.js#L216">source</a> to obtain a token that&rsquo;s used for example to register new users later.
+Just to keep it simple that&rsquo;s how it looks like in <code>curl</code>:</p>
+
+<p><code>
+curl -u &lt;CLIENT_ID&gt;:&lt;CLIENT_SECRET&gt; -d 'grant_type=client_credentials' http://localhost:8080/oauth/token
+</code></p>
+
+<p>And that&rsquo;s how a correct sample response looks like:
+<code>
+{"access_token":"&lt;ACCESS_TOKEN&gt;","token_type":"bearer","expires_in":43199,"scope":"password.write scim.write scim.read uaa.resource","jti":"&lt;JTI&gt;"}
+</code></p>
+
+<p><em>notes:</em></p>
+
+<ul>
+<li><p>the scopes of a client is described in the authorities property in the UAA configuration.</p></li>
+<li><p>an UAA server must be available on localhost:8080</p></li>
+<li><p>a client must be registered in UAA&rsquo;s database with <code>client_credentials</code> as <em>grant_type</em></p></li>
+</ul>
+
+
+<h2>Using the access token to make requests to a resource server</h2>
+
+<p>The <a href="http://self-issued.info/docs/draft-ietf-oauth-v2-bearer.html">Bearer Token Usage part</a> of the OAuth 2.0 specification talks about how to include the access token in a request. According to the specification there are several ways to send the token:</p>
+
+<ul>
+<li>in the Authorization request header field</li>
+<li>in a form-encoded body parameter</li>
+<li>in a URI query parameter</li>
+</ul>
+
+
+<p>Only the first of these (the Authorization header) <em>must</em> be supported by resource servers, the others are only optional.
+Here&rsquo;s how the Authorization header should look like:</p>
+
+<p><code>
+GET /resource HTTP/1.1
+Host: server.example.com
+Authorization: Bearer mF_9.B5f-4.1JqM
+</code></p>
+
+<h2>Checking the token in the resource server</h2>
+
+<p>Now that we are able to deploy and configure an UAA identity server, obtain tokens from it in client applications and send these in resource server requests there&rsquo;s only one thing left: how should we implement the resource server part of our infrastructure to handle the token requests. The OAuth 2.0 specification leaves it up to the implementor but with UAA there is one recommended way, the <code>/check_token</code> <a href="https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-APIs.rst#oauth2-token-validation-service-post-check_token">endpoint</a>.</p>
+
+<p>The boundaries of resource servers and OAuth2 providers are often blurred and they are in the same application therefore checking a token can be implemented in place by going directly to a token store or decoding the JWT token. If the components are correctly separated this can only be done if the token is encrypted with a shared secret between the provider and the resource server. If it&rsquo;s not the case the resource server must reach out to the identity server to check the validity of the token. In case of UAA this can be achieved with the help of the <code>check_token</code> endpoint.</p>
+
+<p>Our resource servers are implemented in Java and are using Spring. Spring has great support for <a href="http://projects.spring.io/spring-security-oauth/">OAuth</a> but it could feel like <strong>magic</strong> if you don&rsquo;t know what&rsquo;s behind it.</p>
+
+<p>```
+@Configuration
+@EnableResourceServer
+protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {</p>
+
+<pre><code>@Bean
+RemoteTokenServices remoteTokenServices() {
+    RemoteTokenServices rts = new RemoteTokenServices();
+    rts.setClientId(clientId);
+    rts.setClientSecret(clientSecret);
+    rts.setCheckTokenEndpointUrl(identityServerUrl + "/check_token");
+    return rts;
+}
+
+@Override
+public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
+    resources.resourceId("cloudbreak");
+    resources.tokenServices(remoteTokenServices());
+}
+
+@Override
+public void configure(HttpSecurity http) throws Exception {
+    http
+        .authorizeRequests()
+        .antMatchers("/user/blueprints").access("#oauth2.hasScope('cloudbreak.blueprints')")
+        .antMatchers("/user/templates").access("#oauth2.hasScope('cloudbreak.templates')");
+}
+</code></pre>
+
+<p>```</p>
+
+<p>With these few lines you&rsquo;ll have a fully functioning resource server that checks every incoming token on the two endpoints defined in the second <code>configure</code> method.
+The <code>EnableResourceServer</code> annotation will include a new <a href="https://github.com/spring-projects/spring-security-oauth/blob/master/spring-security-oauth2/src/main/java/org/springframework/security/oauth2/provider/authentication/OAuth2AuthenticationProcessingFilter.java#L95">filter</a> in the security filter chain that will use the <a href="https://github.com/spring-projects/spring-security-oauth/blob/master/spring-security-oauth2/src/main/java/org/springframework/security/oauth2/provider/token/RemoteTokenServices.java#L95">RemoteTokenServices class</a> to make a request to the <code>check_token</code> endpoint. If the response doesn&rsquo;t contain errors it uses a custom <a href="https://github.com/spring-projects/spring-security-oauth/blob/master/spring-security-oauth2/src/main/java/org/springframework/security/oauth2/provider/authentication/OAuth2AuthenticationManager.java#L77">authentication manager</a> to put the authentication in the Spring authentication context (username will be available through the <code>Principal</code> object). It is also very easy to configure which scopes are needed for specific endpoints &ndash; the expressions used in the configuration are processed by the <a href="https://github.com/spring-projects/spring-security-oauth/blob/master/spring-security-oauth2/src/main/java/org/springframework/security/oauth2/provider/expression/OAuth2SecurityExpressionMethods.java">OAuth2SecurityExpressionMethods class</a>.</p>
+
+<p>The <code>check_token</code> endpoint in UAA uses basic authentication with the <strong>resource server&rsquo;s</strong> client id and client secret as username and password. That&rsquo;s why the <em>resource server must be configured in UAA as a client</em> as well. The access token must be included in the request body:</p>
+
+<p>```
+POST /check_token HTTP/1.1
+Host: server.example.com
+Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
+Content-Type: application/x-www-form-encoded</p>
+
+<p>token=eyJ0eXAiOiJKV1QiL
+```</p>
+
+<p>A successful response will include the decoded parts of the JWT token such as <code>exp</code>, <code>scope</code>, <code>user_name</code> or <code>client_id</code>. See an example <a href="https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-APIs.rst#oauth2-token-validation-service-post-check_token">here</a>.</p>
+
+<h2>Resources</h2>
+
+<p>I haven&rsquo;t included an example for the password grant type because we are not using it in our projects but you can check it out in the <a href="https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-Tokens.md#getting-started"><strong>Tokens part</strong></a> of the UAA documentation. If you&rsquo;d like to learn more about UAA, check out its <a href="https://github.com/cloudfoundry/uaa/tree/master/docs">documentation</a> or the source code of our projects in our <a href="https://github.com/sequenceiq/">Github repo</a>. Also feel free to ask anything in the comments section.</p>
+
+<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Securing Cloudbreak with OAuth2]]></title>
