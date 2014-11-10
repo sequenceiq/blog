@@ -130,6 +130,81 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/09/19/apache-tez-cluster/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">19 September 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/apache-tez/"><span class="label label-warning">Apache Tez</span></a>
+            
+            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+            <a href="/blog/categories/performance/"><span class="label label-warning">Performance</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/09/19/apache-tez-cluster/">Apache Tez cluster on Docker</a>
+          <span class="badge name-badge">Janos Matyas</span>
+
+      </h1>
+      <p>This week the <a href="http://tez.apache.org/">Apache Tez</a> community announced the release of the 0.5 version of the project. At <a href="http://sequenceiq.com/">SequenceIQ</a> first time we came across Tez was in 2013 &ndash; after <a href="http://hortonworks.com/">Hortonworks</a> launched the <code>Stinger Initiative</code>. Though we were not using Hive (that might change soon) we have quickly realized the <code>other</code> capabilities of Tez &ndash; the expressive data flow API, data movement patterns, dynamic graph reconfiguration, etc &ndash; to name a few.</p>
+
+<p>We quickly became <code>fans</code> of Tez &ndash; and have started to run internal PoC projects, rewrite ML algorithms and legacy MR2 code to run/leverage Tez. The new release comes with a stable developer API and a proven stability track, and this has triggered a <code>major</code> re-architecture/refactoring project at SequenceIQ. While I don’t want to enter into deep details, we are building a Platform as a Service API &ndash; with the first stages of the project already released, open sourced and in public beta:</p>
+
+<p><a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; our Docker based cloud agnostic Hadoop as a Service API (AWS, Azure, Google Cloud, DigitalOcean);
+<a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> &ndash; an SLA policy based autoscaling API for Hadoop YARN</p>
+
+<p>One of the unreleased component is a project called <a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> &ndash; a big data pipeline API (with 50+ pre-built data and job pipes), running on <strong>MR2, Tez and Spark</strong>.</p>
+
+<p>With all these said, we have put together a <code>Tez Ready</code> Docker based Hadoop cluster to share our excitement and allow you to quickly start and get familiar with the nice features of the Tez API. The cluster is built on our widely used Apache Ambari Docker <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">container</a>, with some additional features. The containers are <code>service discovery</code> aware. You don’t need to setup anything beforehand, configure IP addresses or DNS names &ndash; the only thing you will need to do is just specify the number of nodes desired in your cluster, and you are ready to go. If you are interested on the underlying architecture (using Docker, Serf and dnsmasq) you can check my slides/presentation from the <a href="http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning">Hadoop Summit</a>.</p>
+
+<p>I&rsquo;d like to highlight one important feature of Tez &ndash; us being crazy about automation/DevOps &ndash; the simplicity and the capability of running multiple versions of Tez on the same YARN cluster. We are contributors to many Apache projects (Hadoop, YARN, Ambari, etc) and since we have started to use Tez we consider to contribute there as well (at the end of the day will be a core part of our platform). Adding new features, changing code or fixing bugs always introduce undesired <code>features</code> &ndash; nevertheless, the Tez binaries built by different colleagues can be tested at scale, using the same cluster without affecting each others work. Check Gopal V&rsquo;s good <a href="http://bit.ly/tez-devops">introduction</a> about Tez and DevOps.</p>
+
+<h2>Apache Tez cluster on Docker</h2>
+
+<p>The container’s code is available on our <a href="https://github.com/sequenceiq/docker-ambari/tree/1.7.0-ea-tez">GitHub</a> repository.</p>
+
+<h3>Pull the image from the Docker Repository</h3>
+
+<p>We suggest to always pull the container from the official Docker repository &ndash; as this is always maintained and supported by us.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/ambari:1.7.0-ea-tez</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+
+      
+       <a href="/blog/2014/09/19/apache-tez-cluster/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/09/18/custom-image-on-gcc/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -860,76 +935,6 @@ Yes!</p>
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">27 August 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/autoscaling/"><span class="label label-warning">Autoscaling</span></a>
-            
-            <a href="/blog/categories/cloud/"><span class="label label-warning">Cloud</span></a>
-            
-            <a href="/blog/categories/periscope/"><span class="label label-warning">Periscope</span></a>
-            
-            <a href="/blog/categories/qos/"><span class="label label-warning">QoS</span></a>
-            
-            <a href="/blog/categories/sla/"><span class="label label-warning">SLA</span></a>
-            
-            <a href="/blog/categories/schedulers/"><span class="label label-warning">Schedulers</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/08/27/announcing-periscope/">Periscope - autoscaling for Hadoop YARN</a>
-          <span class="badge name-badge">Janos Matyas</span>
-
-      </h1>
-      <p><em>Periscope is a powerful, fast, thick and top-to-bottom right-hander, eastward from Sumbawa&rsquo;s famous west-coast. Timing is critical, as needs a number of elements to align before it shows its true colors.</em></p>
-
-<p><em>Periscope brings QoS and autoscaling to Hadoop YARN. Built on cloud resource management and YARN schedulers, allows to associate SLA policies to applications.</em></p>
-
-<p>After the very positive reception of <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> &ndash; the first open source and cloud agnostic Hadoop as a Service API &ndash; today we are releasing the <code>public beta</code> version of our open source <strong>SLA policy based autoscaling API</strong> for Hadoop YARN clusters.</p>
-
-<h2>Overview</h2>
-
-<p>The purpose of Periscope is to bring QoS and autoscaling to a multi-tenant Hadoop YARN cluster, while allowing to apply SLA policies to individual applications.
-At <a href="http://sequenceiq.com">SequenceIQ</a> working with multi-tenant Hadoop clusters for quite a while, we have always seen the same frustration and fight for resource between users.
-The <strong>FairScheduler</strong> was partially solving this problem &ndash; bringing in fairness based on the notion of <a href="http://static.usenix.org/event/nsdi11/tech/full_papers/Ghodsi.pdf">Dominant Resource Fairness</a>.
-With the emergence of Hadoop 2 YARN and the <strong>CapacityScheduler</strong> we had the option to maximize throughput and utilization for a multi-tenant cluster in an operator-friendly manner.
-The scheduler works around the concept of queues. These queues are typically setup by administrators to reflect the economics of the shared cluster.
-While this is a pretty good abstraction and brings some level of SLA for predictable workloads, it often needs proper design ahead.
-The queue hierarchy and resource allocation needs to be changed when new tenants and workloads are moved to the cluster.</p>
-
-<p>Periscope was designed around the idea of <code>autoscaling</code> clusters &ndash; without any need to preconfigure queues, cluster nodes or apply capacity planning ahead.</p>
-
-
-      
-       <a href="/blog/2014/08/27/announcing-periscope/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -951,6 +956,10 @@ The queue hierarchy and resource allocation needs to be changed when new tenants
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/11/10/new-yarn-features-part-1-label-based-scheduling/">New YARN features: Label based scheduling</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/11/06/securing-cloudbreak-with-oauth2-part-2/">Securing Cloudbreak with OAuth2 - part 2</a>

@@ -130,6 +130,79 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">18 July 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/cloud/"><span class="label label-warning">Cloud</span></a>
+            
+            <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
+            
+            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+            <a href="/blog/categories/hadoop-as-a-service/"><span class="label label-warning">Hadoop as a Service</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak - the Hadoop as a Service API</a>
+          <span class="badge name-badge">Janos Matyas</span>
+
+      </h1>
+      <p><em>Cloudbreak is a powerful left surf that breaks over a coral reef, a mile off southwest the island of Tavarua, Fiji.</em></p>
+
+<p><em>Cloudbreak is a cloud agnostic Hadoop as a Service API. Abstracts the provisioning and ease management and monitoring of on-demand clusters.</em></p>
+
+<p>Today is a big day for us and the Hadoop community &ndash; we are announcing the first <code>public beta</code> version of our open source and cloud agnostic <strong>Hadoop as a Service API</strong>.</p>
+
+<p>During our daily work with large Hadoop clusters in the cloud, <code>dockerized</code> environments and bare metal we were doing the same things over and over again. Although we are automating and <code>dockerizing</code> always everything, we felt that something is missing &ndash; an open source, cloud agnostic Hadoop as a Service API. Welcome <a href="https://cloudbreak.sequenceiq.com">Cloudbreak</a> &ndash; you are one POST away from your on-demand Hadoop cluster on your favorite cloud provider.</p>
+
+<p>When we have started to work on Cloudbreak &ndash; first of all to solve our internal needs at SequenceIQ &ndash; we have set the following criteria:</p>
+
+<ul>
+<li>Use open source software and be <strong>100% open source</strong> under Apache 2 license</li>
+<li>Have the ability to quickly launch arbitrary sized Hadoop clusters</li>
+<li>Be cloud provider agnostic and create an SDK which allows to quickly add new providers</li>
+<li>No more glue code, repeating the same things over and over again</li>
+<li>Have a REST API and a CLI in order to be able to automate the whole process</li>
+<li>Create an easy to use and responsive UI</li>
+<li>Support different Hadoop services and configurations in a declarative way</li>
+<li>Elastic and flexible, with the ability to resize running clusters</li>
+<li>Secure</li>
+</ul>
+
+
+
+      
+       <a href="/blog/2014/07/18/announcing-cloudbreak/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/07/13/groovy-and-java-runtime-bug/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -770,110 +843,6 @@ the glue-code is different. Let&rsquo;s start with the most simple setup:</p>
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">26 May 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/apache-ambari/"><span class="label label-warning">Apache Ambari</span></a>
-            
-            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
-            
-            <a href="/blog/categories/spring-shell/"><span class="label label-warning">Spring Shell</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/05/26/ambari-shell/">Apache Ambari + Spring Shell = Ambari Shell</a>
-          <span class="badge name-badge">Krisztian Horvath</span>
-
-      </h1>
-      <h2>Introduction</h2>
-
-<p><a href="http://ambari.apache.org/">Apache Ambari&rsquo;s</a> goal is to make Hadoop cluster management
-as simple as possible. It provides an intuitive easy-to-use web UI backed by its RESTful API.
-With only a few clicks you&rsquo;re able to install Hadoop services across any number of hosts
-and Ambari will take care of the configurations as well. After the installation is complete
-you can monitor your cluster taking leverage of <a href="http://ganglia.sourceforge.net/">Ganglia</a>
-and <a href="http://www.nagios.org/">Nagios</a>.</p>
-
-<p>At SequenceIQ we prefer to use command line tools whenever it&rsquo;s possible,
-because it&rsquo;s much faster than interacting with a web UI and it&rsquo;s a better candidate for automation.
-Here comes <a href="https://github.com/spring-projects/spring-shell#readme">Spring Shell</a> to our rescue.</p>
-
-<p>It&rsquo;s an interactive shell that can be easily extended using a Spring based programming model and battle
-tested in various projects like <a href="http://projects.spring.io/spring-roo/">Spring Roo</a>,
-<a href="http://docs.spring.io/spring-xd/docs/1.0.0.BUILD-SNAPSHOT/reference/html/">Spring XD</a>, and
-<a href="https://github.com/spring-projects/rest-shell">Spring REST Shell</a> Combine these two projects
-and a really powerful tool will come to light.</p>
-
-<h2>Ambari Shell</h2>
-
-<p>The goal is to provide an interactive command line tool which supports:</p>
-
-<ul>
-<li>all functionality available through the REST API or Ambari web UI</li>
-<li>makes possible complete automation of management task via <strong>scripts</strong></li>
-<li>context aware command availability</li>
-<li>tab completion</li>
-<li>required/optional parameter support</li>
-<li><strong>hint</strong> command to guide you on the usual path</li>
-</ul>
-
-
-<p>Since we&rsquo;re open sourcing the project, it should be available and part of the official Ambari repository
-<a href="https://issues.apache.org/jira/browse/AMBARI-5482">soon</a>.</p>
-
-<h2>Install Ambari Shell</h2>
-
-<p>For now you have 3 options to give it a try:</p>
-
-<ul>
-<li>use our prepared <a href="https://index.docker.io/u/sequenceiq/ambari-shell/">docker image</a></li>
-<li>download the latest self-containing executable jar form our maven repo</li>
-<li>build it from source</li>
-</ul>
-
-
-<h3>Run via docker</h3>
-
-<p>As we love to dockerize everything, we prepared a <a href="https://index.docker.io/u/sequenceiq/ambari-shell/">docker image</a>
-with jdk1.7 on latest ubuntu, ambari-shell preinstalled. Detailed description is available on <a href="https://github.com/sequenceiq/ambari-shell-docker">github</a>.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -it --rm sequenceiq/ambari-shell --ambari.host=&lt;HOSTNAME&gt; --ambari.port=&lt;PORT&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-
-      
-       <a href="/blog/2014/05/26/ambari-shell/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -895,6 +864,10 @@ with jdk1.7 on latest ubuntu, ambari-shell preinstalled. Detailed description is
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/11/10/new-yarn-features-part-1-label-based-scheduling/">New YARN features: Label based scheduling</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/11/06/securing-cloudbreak-with-oauth2-part-2/">Securing Cloudbreak with OAuth2 - part 2</a>

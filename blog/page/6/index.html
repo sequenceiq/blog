@@ -130,6 +130,110 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">26 May 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/apache-ambari/"><span class="label label-warning">Apache Ambari</span></a>
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+            <a href="/blog/categories/spring-shell/"><span class="label label-warning">Spring Shell</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/05/26/ambari-shell/">Apache Ambari + Spring Shell = Ambari Shell</a>
+          <span class="badge name-badge">Krisztian Horvath</span>
+
+      </h1>
+      <h2>Introduction</h2>
+
+<p><a href="http://ambari.apache.org/">Apache Ambari&rsquo;s</a> goal is to make Hadoop cluster management
+as simple as possible. It provides an intuitive easy-to-use web UI backed by its RESTful API.
+With only a few clicks you&rsquo;re able to install Hadoop services across any number of hosts
+and Ambari will take care of the configurations as well. After the installation is complete
+you can monitor your cluster taking leverage of <a href="http://ganglia.sourceforge.net/">Ganglia</a>
+and <a href="http://www.nagios.org/">Nagios</a>.</p>
+
+<p>At SequenceIQ we prefer to use command line tools whenever it&rsquo;s possible,
+because it&rsquo;s much faster than interacting with a web UI and it&rsquo;s a better candidate for automation.
+Here comes <a href="https://github.com/spring-projects/spring-shell#readme">Spring Shell</a> to our rescue.</p>
+
+<p>It&rsquo;s an interactive shell that can be easily extended using a Spring based programming model and battle
+tested in various projects like <a href="http://projects.spring.io/spring-roo/">Spring Roo</a>,
+<a href="http://docs.spring.io/spring-xd/docs/1.0.0.BUILD-SNAPSHOT/reference/html/">Spring XD</a>, and
+<a href="https://github.com/spring-projects/rest-shell">Spring REST Shell</a> Combine these two projects
+and a really powerful tool will come to light.</p>
+
+<h2>Ambari Shell</h2>
+
+<p>The goal is to provide an interactive command line tool which supports:</p>
+
+<ul>
+<li>all functionality available through the REST API or Ambari web UI</li>
+<li>makes possible complete automation of management task via <strong>scripts</strong></li>
+<li>context aware command availability</li>
+<li>tab completion</li>
+<li>required/optional parameter support</li>
+<li><strong>hint</strong> command to guide you on the usual path</li>
+</ul>
+
+
+<p>Since we&rsquo;re open sourcing the project, it should be available and part of the official Ambari repository
+<a href="https://issues.apache.org/jira/browse/AMBARI-5482">soon</a>.</p>
+
+<h2>Install Ambari Shell</h2>
+
+<p>For now you have 3 options to give it a try:</p>
+
+<ul>
+<li>use our prepared <a href="https://index.docker.io/u/sequenceiq/ambari-shell/">docker image</a></li>
+<li>download the latest self-containing executable jar form our maven repo</li>
+<li>build it from source</li>
+</ul>
+
+
+<h3>Run via docker</h3>
+
+<p>As we love to dockerize everything, we prepared a <a href="https://index.docker.io/u/sequenceiq/ambari-shell/">docker image</a>
+with jdk1.7 on latest ubuntu, ambari-shell preinstalled. Detailed description is available on <a href="https://github.com/sequenceiq/ambari-shell-docker">github</a>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -it --rm sequenceiq/ambari-shell --ambari.host=&lt;HOSTNAME&gt; --ambari.port=&lt;PORT&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+
+      
+       <a href="/blog/2014/05/26/ambari-shell/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/05/09/building-the-build-environment-with-ansible-and-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -844,122 +948,6 @@ Or simply just use <a href="https://www.docker.io/">docker</a>.</p>
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/03/11/data-cleaning-with-mapreduce-and-morphlines/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">11 March 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/data-cleaning/"><span class="label label-warning">Data cleaning</span></a>
-            
-            <a href="/blog/categories/etl/"><span class="label label-warning">ETL</span></a>
-            
-            <a href="/blog/categories/hdfs/"><span class="label label-warning">HDFS</span></a>
-            
-            <a href="/blog/categories/mapreduce/"><span class="label label-warning">MapReduce</span></a>
-            
-            <a href="/blog/categories/morphline/"><span class="label label-warning">Morphline</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/03/11/data-cleaning-with-mapreduce-and-morphlines/">Data cleaning with MapReduce and Morphlines</a>
-          <span class="badge name-badge">Krisztian Horvath</span>
-
-      </h1>
-      <p>In one of our <a href="http://blog.sequenceiq.com/blog/2014/02/28/etl-and-data-quality/">previous</a> posts we showed how easy is to extend the Kite Morphlines framework with your custom commands. In this post we are going to use it to remove columns from a dataset to demonstrate how it can be used and embeded in MapReduce jobs.
-Download the MovieLens + IMDb/Rotten Tomatoes dataset from <a href="http://grouplens.org/datasets/hetrec-2011/">Grouplens</a>, extract it, and it should contain a file called user_ratedmovies.dat.
-It is a simple tsv file &ndash; we are going to use the same column names as it shows in the first line (header)</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>userID   movieID rating  date_day  date_month  date_year date_hour  date_minute  date_second
-</span><span class='line'>75        3       1       29       10           2006      23          17          16
-</span><span class='line'>75        32      4.5     29       10           2006      23          23          44
-</span><span class='line'>75        110     4       29       10           2006      23          30          8
-</span><span class='line'>75        160     2       29       10           2006      23          16          52
-</span><span class='line'>75        163     4       29       10           2006      23          29          30
-</span><span class='line'>75        165     4.5     29       10           2006      23          25          15
-</span><span class='line'>75        173     3.5     29       10           2006      23          17          37</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Let’s just pretend that we don’t need all the data from the file and remove the last 3 columns (date_hour, date_minute, date_second). We can achieve this task with the following 2 commands:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>{
-</span><span class='line'>  readCSV {
-</span><span class='line'>          separator : "\t"
-</span><span class='line'>          columns : [userID,movieID,rating,date_day,date_month,date_year,date_hour,date_minute,date_second]
-</span><span class='line'>          ignoreFirstLine : false
-</span><span class='line'>          trim : true
-</span><span class='line'>          charset : UTF-8
-</span><span class='line'>  }
-</span><span class='line'>}  
-</span><span class='line'>
-</span><span class='line'>{
-</span><span class='line'>  java {
-</span><span class='line'>        imports : "import java.util.*;"
-</span><span class='line'>        code: """
-</span><span class='line'>          record.removeAll("date_hour");
-</span><span class='line'>          record.removeAll("date_minute");
-</span><span class='line'>          record.removeAll("date_second");
-</span><span class='line'>        return child.process(record);
-</span><span class='line'>  }
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-
-      
-       <a href="/blog/2014/03/11/data-cleaning-with-mapreduce-and-morphlines/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -981,6 +969,10 @@ It is a simple tsv file &ndash; we are going to use the same column names as it 
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/11/10/new-yarn-features-part-1-label-based-scheduling/">New YARN features: Label based scheduling</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/11/06/securing-cloudbreak-with-oauth2-part-2/">Securing Cloudbreak with OAuth2 - part 2</a>

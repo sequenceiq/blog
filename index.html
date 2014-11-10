@@ -130,6 +130,75 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/11/10/new-yarn-features-part-1-label-based-scheduling/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">10 November 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/yarn/"><span class="label label-warning">YARN</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/11/10/new-yarn-features-part-1-label-based-scheduling/">New YARN features: Label based scheduling</a>
+          <span class="badge name-badge">Krisztian Horvath</span>
+
+      </h1>
+      <p>The release of Hadoop 2.6.0 is upon us thus it&rsquo;s time to highlight a few upcoming features, especially those which we are building/planning to use in our Hadoop as a Service API &ndash; <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> and our SLA policy based autoscaling API &ndash; <a href="http://sequenceiq.com/periscope/">Periscope</a>.</p>
+
+<p>Recently we explained how the
+<a href="http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1/">CapacityScheduler</a> and the <a href="http://blog.sequenceiq.com/blog/2014/09/09/yarn-schedulers-demystified-part-2-fair/">FairScheduler</a>
+works and the upcoming release is about to add a few really interesting functionality to them which you should be aware as they might
+change the way we think about resource scheduling. The first one which we are going to discuss is the <code>label based scheduling</code> although it&rsquo;s
+not fully finished, yet. You can track its progress here: <a href="https://issues.apache.org/jira/browse/YARN-796">YARN-796</a>.</p>
+
+<h2>Motivation</h2>
+
+<p>Hadoop clusters are usually not fully homogeneous which means that different nodes can have different parameters. For example some nodes
+have more memory than the others while others have better cpu&rsquo;s or better network bandwidth. At the moment YARN doesn&rsquo;t have the
+ability to segregate nodes in a cluster based on their architectural parameters. Applications which are aware of their resource usages
+cannot choose which nodes they want to run their containers on. Labels are about to solve this problem. Administrators will have
+the ability to <code>mark</code> the nodes with different labels like: cpu, memory, network, rackA, rackB so applications can specify where they&rsquo;d
+like to run.</p>
+
+<h2>Cloud</h2>
+
+<p>Things are different in cloud environments as the composition of the Hadoop clusters are more homogeneous. By the nature of cloud it&rsquo;s
+easier and more convenient to request nodes with the exact same capabilities. <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a>
+our Hadoop as a service API will address this problem, by giving the ability to the users to specify their needs. Take one example: on AWS
+users can launch <code>spot price</code> instances which EC2 can <code>take away any time</code>. Labeling them as <code>spot</code> we can avoid spinning up the
+<code>ApplicationMasters</code> on those nodes, thus operate safely and re-launch new containers on different nodes in case it happens.
+Furthermore <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> with its autoscaling capabilities will be able
+to scale out with nodes that are marked with <code>cpu</code>.</p>
+
+
+      
+       <a href="/blog/2014/11/10/new-yarn-features-part-1-label-based-scheduling/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/11/06/securing-cloudbreak-with-oauth2-part-2/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -834,88 +903,6 @@ And the best thing is that it is <strong>fully configurable through environment 
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/10/15/hadoop-metrics/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">15 October 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/baywatch/"><span class="label label-warning">Baywatch</span></a>
-            
-            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
-            
-            <a href="/blog/categories/periscope/"><span class="label label-warning">Periscope</span></a>
-            
-            <a href="/blog/categories/metrics/"><span class="label label-warning">metrics</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/10/15/hadoop-metrics/">Real-time adjustments with Hadoop metrics</a>
-          <span class="badge name-badge">Krisztian Horvath</span>
-
-      </h1>
-      <p>To properly understand and to be fully aware of the state of our Hadoop clusters at any time we needed a scalable and flexible solution
-to monitor our Hadoop nodes. After investigating the possible solutions we realized that there is no available solution which satisfies
-all our needs thus we&rsquo;ve created one and recently just open sourced it, called <a href="http://sequenceiq.com/periscope/#monitoring">Baywatch</a>. Baywatch is capable to capture and visualize real-time changes on Hadoop clusters to understand and make adjustments based on the submitted jobs resource
-allocation needs. To plan ahead, viewing and comparing old and new metrics is just as
-important as analyzing real-time ones, not to mention that we can find possible weaknesses and defects in our clusters.</p>
-
-<p>To be able to do all of the above mentioned, Baywatch processes the metrics information produced by the Hadoop daemons. This might already sound familiar as we have another project called <a href="http://sequenceiq.com/periscope/">Periscope</a> where you can create alarms and cluster scaling activities making use of the same metrics, but just consuming it in a different way. Combine these 2
-components and you&rsquo;ll have a powerful tool and you&rsquo;ll be able to view your cluster&rsquo;s state and based on that <code>make smart decisions</code>
-to scale up or down, or simply just set alarms. If you&rsquo;re thrilled to see it in action we are at <a href="http://strataconf.com/stratany2014">Strata</a> and happy to show you a quick demo.</p>
-
-<h2>Hadoop metrics</h2>
-
-<p>So what are these metrics? As I mentioned it earlier metrics are collections of information about Hadoop daemons, e.g:
-the <code>ResourceManager</code> produces information about the queue statuses which we use in Periscope when we <code>re-prioritise applications</code>.
-To distinguish these metrics they are grouped into named contexts, e.g <code>jvm</code> for java virtual machine metrics, <code>rpc</code> for debugging
-rcp calls, but there are many more:</p>
-
-<ul>
-<li>yarn</li>
-<li>rpcdetailed</li>
-<li>metricssystem</li>
-<li>mapred</li>
-<li>dfs</li>
-<li>ugi</li>
-</ul>
-
-
-<p>This <code>Metrics2</code> framework is designed to collect and dispatch per-process metrics to monitor the overall status of the Hadoop system.
-In Hadoop related technologies it is a common design to use sources and sinks, just like in this case. Metrics sources are where the
-metrics are generated and metrics sinks consume the records generated by the metrics sources. A metrics system would poll the metrics
-sources periodically and pass the metrics records to metrics sinks.</p>
-
-<p><img src="http://yuml.me/0faf3738"></p>
-
-
-      
-       <a href="/blog/2014/10/15/hadoop-metrics/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -935,6 +922,10 @@ sources periodically and pass the metrics records to metrics sinks.</p>
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/11/10/new-yarn-features-part-1-label-based-scheduling/">New YARN features: Label based scheduling</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/11/06/securing-cloudbreak-with-oauth2-part-2/">Securing Cloudbreak with OAuth2 - part 2</a>

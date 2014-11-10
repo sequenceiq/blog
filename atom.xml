@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-11-06T09:56:57+00:00</updated>
+  <updated>2014-11-10T15:10:57+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,214 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[New YARN features: Label based scheduling]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/11/10/new-yarn-features-part-1-label-based-scheduling/"/>
+    <updated>2014-11-10T15:14:17+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/11/10/new-yarn-features-part-1-label-based-scheduling</id>
+    <content type="html"><![CDATA[<p>The release of Hadoop 2.6.0 is upon us thus it&rsquo;s time to highlight a few upcoming features, especially those which we are building/planning to use in our Hadoop as a Service API &ndash; <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> and our SLA policy based autoscaling API &ndash; <a href="http://sequenceiq.com/periscope/">Periscope</a>.</p>
+
+<p>Recently we explained how the
+<a href="http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1/">CapacityScheduler</a> and the <a href="http://blog.sequenceiq.com/blog/2014/09/09/yarn-schedulers-demystified-part-2-fair/">FairScheduler</a>
+works and the upcoming release is about to add a few really interesting functionality to them which you should be aware as they might
+change the way we think about resource scheduling. The first one which we are going to discuss is the <code>label based scheduling</code> although it&rsquo;s
+not fully finished, yet. You can track its progress here: <a href="https://issues.apache.org/jira/browse/YARN-796">YARN-796</a>.</p>
+
+<h2>Motivation</h2>
+
+<p>Hadoop clusters are usually not fully homogeneous which means that different nodes can have different parameters. For example some nodes
+have more memory than the others while others have better cpu&rsquo;s or better network bandwidth. At the moment YARN doesn&rsquo;t have the
+ability to segregate nodes in a cluster based on their architectural parameters. Applications which are aware of their resource usages
+cannot choose which nodes they want to run their containers on. Labels are about to solve this problem. Administrators will have
+the ability to <code>mark</code> the nodes with different labels like: cpu, memory, network, rackA, rackB so applications can specify where they&rsquo;d
+like to run.</p>
+
+<h2>Cloud</h2>
+
+<p>Things are different in cloud environments as the composition of the Hadoop clusters are more homogeneous. By the nature of cloud it&rsquo;s
+easier and more convenient to request nodes with the exact same capabilities. <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a>
+our Hadoop as a service API will address this problem, by giving the ability to the users to specify their needs. Take one example: on AWS
+users can launch <code>spot price</code> instances which EC2 can <code>take away any time</code>. Labeling them as <code>spot</code> we can avoid spinning up the
+<code>ApplicationMasters</code> on those nodes, thus operate safely and re-launch new containers on different nodes in case it happens.
+Furthermore <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> with its autoscaling capabilities will be able
+to scale out with nodes that are marked with <code>cpu</code>.</p>
+
+<!--more-->
+
+
+<h2>Terminology</h2>
+
+<p>To start with let&rsquo;s declare the different types of labels and expressions:</p>
+
+<ul>
+<li>node label &ndash; describes a node, multiple labels can be specified</li>
+<li>queue label &ndash; determines on which nodes the queue can schedule containers</li>
+<li>application label &ndash; defines on which nodes the application want to run its containers</li>
+<li>label expression &ndash; logical combination of labels (&amp;&amp;, ||, !) e.g: cpu &amp;&amp; rackA</li>
+<li>queue label policy &ndash; resolve conflicts on different queue and application labels</li>
+</ul>
+
+
+<h2>Technical details</h2>
+
+<p>Labeling nodes itself is not enough. Schedulers cannot rely only on application requirements as administrators can configure the queues
+to act differently. As we discussed earlier, schedulers are defined in a configuration file where you can specify the queues. Initial labeling
+can be done in these files:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;property&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;name&gt;</span>yarn.scheduler.capacity.root.alpha.label<span class="nt">&lt;/name&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;value&gt;</span>cpuheavy||rackA<span class="nt">&lt;/value&gt;</span>
+</span><span class='line'><span class="nt">&lt;/property&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The value is a <code>label expression</code> that means applications which are submitted to this queue can run either on nodes labeled as
+<code>cpuheavy</code> or <code>rackA</code>. As I said the configuration files can be used as an initial configuration, but changing dynamically queue labels
+and node labels is also not a problem as the <code>RMAdminCLI</code> <a href="https://issues.apache.org/jira/browse/YARN-2504">allows</a> that.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'> <span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;-addToClusterNodeLabels&quot;</span><span class="o">,</span>
+</span><span class='line'>              <span class="k">new</span> <span class="nf">UsageInfo</span><span class="o">(</span><span class="s">&quot;[label1,label2,label3] (label splitted by \&quot;,\&quot;)&quot;</span><span class="o">,</span>
+</span><span class='line'>                  <span class="s">&quot;add to cluster node labels &quot;</span><span class="o">))</span>
+</span><span class='line'>  <span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;-removeFromClusterNodeLabels&quot;</span><span class="o">,</span>
+</span><span class='line'>              <span class="k">new</span> <span class="nf">UsageInfo</span><span class="o">(</span><span class="s">&quot;[label1,label2,label3] (label splitted by \&quot;,\&quot;)&quot;</span><span class="o">,</span>
+</span><span class='line'>                  <span class="s">&quot;remove from cluster node labels&quot;</span><span class="o">))</span>
+</span><span class='line'>  <span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;-replaceLabelsOnNode&quot;</span><span class="o">,</span>
+</span><span class='line'>              <span class="k">new</span> <span class="nf">UsageInfo</span><span class="o">(</span><span class="s">&quot;[node1:port,label1,label2 node2:port,label1,label2]&quot;</span><span class="o">,</span>
+</span><span class='line'>                  <span class="s">&quot;replace labels on nodes&quot;</span><span class="o">))</span>
+</span><span class='line'>  <span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;-directlyAccessNodeLabelStore&quot;</span><span class="o">,</span>
+</span><span class='line'>              <span class="k">new</span> <span class="nf">UsageInfo</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">,</span> <span class="s">&quot;Directly access node label store, &quot;</span>
+</span><span class='line'>                  <span class="o">+</span> <span class="s">&quot;with this option, all node label related operations&quot;</span>
+</span><span class='line'>                  <span class="o">+</span> <span class="s">&quot; will not connect RM. Instead, they will&quot;</span>
+</span><span class='line'>                  <span class="o">+</span> <span class="s">&quot; access/modify stored node labels directly.&quot;</span>
+</span><span class='line'>                  <span class="o">+</span> <span class="s">&quot; By default, it is false (access via RM).&quot;</span>
+</span><span class='line'>                  <span class="o">+</span> <span class="s">&quot; AND PLEASE NOTE: if you configured&quot;</span>
+</span><span class='line'>                  <span class="o">+</span> <span class="s">&quot; yarn.node-labels.fs-store.root-dir to a local directory&quot;</span>
+</span><span class='line'>                  <span class="o">+</span> <span class="s">&quot; (instead of NFS or HDFS), this option will only work&quot;</span>
+</span><span class='line'>                  <span class="o">+</span>
+</span><span class='line'>                  <span class="s">&quot; when the command run on the machine where RM is running.&quot;</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Declaring the labels is one thing, but how can the <code>ResourceManager</code> enforce that containers run on nodes where the application wants
+it to? Let&rsquo;s think the other way around, how can the <code>ResourceManager</code> enforce that containers do not run on nodes where the
+application doesn&rsquo;t want it to? The answer is already part of the RM. The <code>ApplicationMaster</code> can <strong>blacklist</strong> nodes. The
+<code>AppSchedulingInfo</code> class can decide based on the <code>ApplicationLabelExpression</code> and the <code>QueueLabelExpression</code> whether the resource is
+blacklisted or not.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>  <span class="kd">synchronized</span> <span class="kd">public</span> <span class="kt">void</span> <span class="nf">updateBlacklist</span><span class="o">(</span>
+</span><span class='line'>      <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">blacklistAdditions</span><span class="o">,</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">blacklistRemovals</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// Add to blacklist</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">blacklistAdditions</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">blacklist</span><span class="o">.</span><span class="na">addAll</span><span class="o">(</span><span class="n">blacklistAdditions</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Remove from blacklist</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">blacklistRemovals</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">blacklist</span><span class="o">.</span><span class="na">removeAll</span><span class="o">(</span><span class="n">blacklistRemovals</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Okay, we know how to add labels to queues and nodes, but who is going to handle them? A new service will be introduced as part of
+the RM called <a href="https://github.com/sequenceiq/hadoop/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/nodelabels/RMNodeLabelsManager.java">LabelManager</a>.
+Its responsibilities are:</p>
+
+<ul>
+<li>load node labels and maintain an internal map of nodes and their labels</li>
+<li>dynamically update the label &ndash; node associations (RMAdminCLI, queue configs are reloaded automatically on change)</li>
+<li>evaluate label logical expressions for both queue and application</li>
+<li>evaluate label expressions against nodes</li>
+</ul>
+
+
+<p>How can applications specify on which nodes they want to run? The <a href="https://github.com/sequenceiq/hadoop/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/src/main/java/org/apache/hadoop/yarn/api/records/ApplicationSubmissionContext.java#L77">ApplicationSubmissionContext</a>
+has been extended with an <code>appLabelExpression</code> and <code>amContainerLabelExpression</code> thus when submitting the job we can specify them. If
+we know that our application consumes too much memory and the labels are properly defined it shouldn&rsquo;t be a problem. Providing
+an invalid label obviously our application will be rejected. Fairly complex expressions can be given, e.g: (highmemory &amp;&amp; rackA) || master.
+Labels can be provided for every <a href="https://github.com/sequenceiq/hadoop/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/src/main/java/org/apache/hadoop/yarn/api/records/ResourceRequest.java#L80">ResourceRequest</a>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>  <span class="nd">@Public</span>
+</span><span class='line'>  <span class="nd">@Stable</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="n">ResourceRequest</span> <span class="nf">newInstance</span><span class="o">(</span><span class="n">Priority</span> <span class="n">priority</span><span class="o">,</span> <span class="n">String</span> <span class="n">hostName</span><span class="o">,</span>
+</span><span class='line'>      <span class="n">Resource</span> <span class="n">capability</span><span class="o">,</span> <span class="kt">int</span> <span class="n">numContainers</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">relaxLocality</span><span class="o">,</span>
+</span><span class='line'>      <span class="n">String</span> <span class="n">labelExpression</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">ResourceRequest</span> <span class="n">request</span> <span class="o">=</span> <span class="n">Records</span><span class="o">.</span><span class="na">newRecord</span><span class="o">(</span><span class="n">ResourceRequest</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">request</span><span class="o">.</span><span class="na">setPriority</span><span class="o">(</span><span class="n">priority</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">request</span><span class="o">.</span><span class="na">setResourceName</span><span class="o">(</span><span class="n">hostName</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">request</span><span class="o">.</span><span class="na">setCapability</span><span class="o">(</span><span class="n">capability</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">request</span><span class="o">.</span><span class="na">setNumContainers</span><span class="o">(</span><span class="n">numContainers</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">request</span><span class="o">.</span><span class="na">setRelaxLocality</span><span class="o">(</span><span class="n">relaxLocality</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">request</span><span class="o">.</span><span class="na">setNodeLabelExpression</span><span class="o">(</span><span class="n">labelExpression</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">request</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It only makes sense when the resource location is <code>ANY</code> or <code>rack</code> and not <code>data local</code>.</p>
+
+<h2>Summary</h2>
+
+<p>We&rsquo;re going to revisit this feature once it completely finished with a concrete example labeling multiple <code>docker</code> containers
+and submit stock examples to see how it works in action. Besides labeling there are other important changes about to come to
+the schedulers which will change the way we plan cluster capacities. The <code>CapacityScheduler</code> will be fully dynamic to create/remove/resize
+queues, move applications on the fly to make room for the <code>AdmissionControl</code>.</p>
+
+<p>Keep up with the latest news with us on our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
+on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Securing Cloudbreak with OAuth2 - part 2]]></title>
@@ -1824,7 +2032,7 @@ In the benchmark, the jobs were submitted to the <code>default</code> queue and 
 <p>SequenceIQ is an innovative big data startup with the mission statement to simplify and automate provisioning of on-demand Hadoop clusters running on different environments. Leaders in “containerizing” Hadoop, SequenceIQ is the first company who provisions and runs the full Hadoop stack and components on Docker containers. The company has further plans to create the industry’s first cloud agnostic, autoscaling and use case driven Platform as a Service API, and break the common significant barriers of entry that exist with most big data projects through a series of As-a-Service API offerings.
 For more information follow up with us on @SequenceIQ and <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>.</p>
 
-<p><a href="&#x6d;&#97;&#x69;&#x6c;&#x74;&#111;&#58;&#x69;&#x6e;&#102;&#111;&#x40;&#x73;&#101;&#113;&#117;&#101;&#110;&#99;&#101;&#105;&#113;&#46;&#x63;&#x6f;&#x6d;">&#105;&#x6e;&#x66;&#x6f;&#64;&#x73;&#x65;&#x71;&#117;&#x65;&#110;&#x63;&#101;&#x69;&#x71;&#46;&#99;&#111;&#109;</a></p>
+<p><a href="&#x6d;&#97;&#105;&#108;&#116;&#111;&#x3a;&#105;&#110;&#102;&#x6f;&#x40;&#x73;&#101;&#x71;&#x75;&#101;&#110;&#x63;&#x65;&#105;&#x71;&#x2e;&#99;&#111;&#109;">&#x69;&#x6e;&#102;&#111;&#64;&#x73;&#x65;&#x71;&#x75;&#x65;&#x6e;&#99;&#x65;&#x69;&#113;&#x2e;&#x63;&#x6f;&#x6d;</a></p>
 ]]></content>
   </entry>
   
@@ -2799,73 +3007,6 @@ class.</p>
 <p>In the next post we&rsquo;ll see how we can achieve the same with Spark and we&rsquo;ll do a performance comparison on a large dataset.
 Cascading also works on the Tez integration, so we&rsquo;ll definitely report on that too.
 If you have any questions or suggestions you can reach us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Apache Tez cluster on Docker]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/09/19/apache-tez-cluster/"/>
-    <updated>2014-09-19T07:42:58+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/09/19/apache-tez-cluster</id>
-    <content type="html"><![CDATA[<p>This week the <a href="http://tez.apache.org/">Apache Tez</a> community announced the release of the 0.5 version of the project. At <a href="http://sequenceiq.com/">SequenceIQ</a> first time we came across Tez was in 2013 &ndash; after <a href="http://hortonworks.com/">Hortonworks</a> launched the <code>Stinger Initiative</code>. Though we were not using Hive (that might change soon) we have quickly realized the <code>other</code> capabilities of Tez &ndash; the expressive data flow API, data movement patterns, dynamic graph reconfiguration, etc &ndash; to name a few.</p>
-
-<p>We quickly became <code>fans</code> of Tez &ndash; and have started to run internal PoC projects, rewrite ML algorithms and legacy MR2 code to run/leverage Tez. The new release comes with a stable developer API and a proven stability track, and this has triggered a <code>major</code> re-architecture/refactoring project at SequenceIQ. While I don’t want to enter into deep details, we are building a Platform as a Service API &ndash; with the first stages of the project already released, open sourced and in public beta:</p>
-
-<p><a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; our Docker based cloud agnostic Hadoop as a Service API (AWS, Azure, Google Cloud, DigitalOcean);
-<a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> &ndash; an SLA policy based autoscaling API for Hadoop YARN</p>
-
-<p>One of the unreleased component is a project called <a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> &ndash; a big data pipeline API (with 50+ pre-built data and job pipes), running on <strong>MR2, Tez and Spark</strong>.</p>
-
-<p>With all these said, we have put together a <code>Tez Ready</code> Docker based Hadoop cluster to share our excitement and allow you to quickly start and get familiar with the nice features of the Tez API. The cluster is built on our widely used Apache Ambari Docker <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">container</a>, with some additional features. The containers are <code>service discovery</code> aware. You don’t need to setup anything beforehand, configure IP addresses or DNS names &ndash; the only thing you will need to do is just specify the number of nodes desired in your cluster, and you are ready to go. If you are interested on the underlying architecture (using Docker, Serf and dnsmasq) you can check my slides/presentation from the <a href="http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning">Hadoop Summit</a>.</p>
-
-<p>I&rsquo;d like to highlight one important feature of Tez &ndash; us being crazy about automation/DevOps &ndash; the simplicity and the capability of running multiple versions of Tez on the same YARN cluster. We are contributors to many Apache projects (Hadoop, YARN, Ambari, etc) and since we have started to use Tez we consider to contribute there as well (at the end of the day will be a core part of our platform). Adding new features, changing code or fixing bugs always introduce undesired <code>features</code> &ndash; nevertheless, the Tez binaries built by different colleagues can be tested at scale, using the same cluster without affecting each others work. Check Gopal V&rsquo;s good <a href="http://bit.ly/tez-devops">introduction</a> about Tez and DevOps.</p>
-
-<h2>Apache Tez cluster on Docker</h2>
-
-<p>The container’s code is available on our <a href="https://github.com/sequenceiq/docker-ambari/tree/1.7.0-ea-tez">GitHub</a> repository.</p>
-
-<h3>Pull the image from the Docker Repository</h3>
-
-<p>We suggest to always pull the container from the official Docker repository &ndash; as this is always maintained and supported by us.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/ambari:1.7.0-ea-tez</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<!-- more -->
-
-
-<h3>Building the image</h3>
-
-<p>Alternatively you can always build your own container based on our Dockerfile.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker build --rm -t sequenceiq/ambari:1.7.0-ea-tez ambari-server/</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Running the cluster</h2>
-
-<p>We have put together a few shell functions to simplify your work, so before you start make sure you get the following <code>ambari-functions</code> <a href="https://github.com/sequenceiq/docker-ambari/blob/1.7.0-ea-tez/ambari-functions">file</a>.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl -Lo .amb j.mp/docker-ambari-tez && . .amb</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Create your Apache Tez cluster</h3>
-
-<p>You are almost there. The only thing you will need to do is to specify the number of nodes you need in your cluster. We will launch the containers, they will dynamically join the cluster and apply the Tez specific configurations.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>amb-deploy-cluster 4</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Once the cluster is started you can <a href="http://blog.sequenceiq.com/blog/2014/07/05/docker-debug-with-nsenter-on-boot2docker/">enter</a> in the container and submit your custom Tez application or use one of the stock Tez examples.</p>
-
-<p>Check back next week, as we are releasing <code>real world</code> examples running on three different big data fabrics: Tez, MR2 and Spark.</p>
-
-<p>Should you have any questions let us know through our social channels using <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   

@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>YARN Timeline Service - SequenceIQ Blog</title>
+  <title>New YARN features: Label based scheduling - SequenceIQ Blog</title>
   <meta name="author" content="SequenceIQ">
 
    
@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2014/11/04/yarn-timeline-service-tez">
+  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2014/11/10/new-yarn-features-part-1-label-based-scheduling">
   <link href="/favicon.png" rel="icon">
   <link href='http://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
@@ -129,10 +129,10 @@
        
          
        
-       <h1 class="article-style"> YARN Timeline Service
+       <h1 class="article-style"> New YARN features: Label based scheduling
 
-       <span class="badge name-badge">Laszlo Puskas</span>
-       <span class="badge name-badge">04 November 2014</span>
+       <span class="badge name-badge">Krisztian Horvath</span>
+       <span class="badge name-badge">10 November 2014</span>
        </h1>
 
 
@@ -145,54 +145,71 @@
 
   <div class="row-fluid">
     <div class="span12">
-      <p>As you may know from our earlier <a href="http://blog.sequenceiq.com/blog/2014/10/07/hadoop-monitoring/">blogposts</a> we are continuously monitoring and trying to find out what happens inside our YARN clusters, let it be MapReduce jobs, TEZ DAGs, etc&hellip; We&rsquo;ve analyzed our clusters from various aspects so far; now it&rsquo;s the time to take a look at the information provided by the built YARN <code>timeline</code> service.</p>
+      <p>The release of Hadoop 2.6.0 is upon us thus it&rsquo;s time to highlight a few upcoming features, especially those which we are building/planning to use in our Hadoop as a Service API &ndash; <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> and our SLA policy based autoscaling API &ndash; <a href="http://sequenceiq.com/periscope/">Periscope</a>.</p>
 
-<p>This post is about how to set up a YARN cluster so that the Timeline Server is available and how to configure applications running in the cluster to report information to it. As an example we&rsquo;ve chosen to run a simple TEZ example. (MapReduce2 also reports to the <code>timeline</code> service)</p>
+<p>Recently we explained how the
+<a href="http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1/">CapacityScheduler</a> and the <a href="http://blog.sequenceiq.com/blog/2014/09/09/yarn-schedulers-demystified-part-2-fair/">FairScheduler</a>
+works and the upcoming release is about to add a few really interesting functionality to them which you should be aware as they might
+change the way we think about resource scheduling. The first one which we are going to discuss is the <code>label based scheduling</code> although it&rsquo;s
+not fully finished, yet. You can track its progress here: <a href="https://issues.apache.org/jira/browse/YARN-796">YARN-796</a>.</p>
 
-<p>As a playground we will use a multinode cluster set up on the local machine; alternatively one could do the same on a cluster provisioned with <a href="http://sequenceiq.com/cloudbreak">Cloudbreak</a>. Cluster nodes run in Docker containers, YARN / TEZ provisioning and configuration is done with <a href="http://ambari.apache.org/">Apache Ambari</a>.</p>
+<h2>Motivation</h2>
 
-<h2>Building a multinode cluster</h2>
+<p>Hadoop clusters are usually not fully homogeneous which means that different nodes can have different parameters. For example some nodes
+have more memory than the others while others have better cpu&rsquo;s or better network bandwidth. At the moment YARN doesn&rsquo;t have the
+ability to segregate nodes in a cluster based on their architectural parameters. Applications which are aware of their resource usages
+cannot choose which nodes they want to run their containers on. Labels are about to solve this problem. Administrators will have
+the ability to <code>mark</code> the nodes with different labels like: cpu, memory, network, rackA, rackB so applications can specify where they&rsquo;d
+like to run.</p>
 
-<p>To build a multinode cluster we use a set of commodity functions that you can install by running the following in a terminal:</p>
+<h2>Cloud</h2>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl -Lo .amb j.mp/docker-ambari && . .amb</span></code></pre></td></tr></table></div></figure>
+<p>Things are different in cloud environments as the composition of the Hadoop clusters are more homogeneous. By the nature of cloud it&rsquo;s
+easier and more convenient to request nodes with the exact same capabilities. <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a>
+our Hadoop as a service API will address this problem, by giving the ability to the users to specify their needs. Take one example: on AWS
+users can launch <code>spot price</code> instances which EC2 can <code>take away any time</code>. Labeling them as <code>spot</code> we can avoid spinning up the
+<code>ApplicationMasters</code> on those nodes, thus operate safely and re-launch new containers on different nodes in case it happens.
+Furthermore <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> with its autoscaling capabilities will be able
+to scale out with nodes that are marked with <code>cpu</code>.</p>
 
-
-<p>(The commodity functions use our docker-ambari image: sequenceiq/ambari:1.6.0)</p>
-
-<!-- more -->
-
-
-<p>With the functions installed, you can start your cluster by running:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>amb-start-cluster 3</span></code></pre></td></tr></table></div></figure>
-
-
-<p>After a couple of seconds you&rsquo;ll have a running 3-node Ambari cluster.</p>
-
-<h2>Create an Ambari blueprint with the Timeline Server configuration entries</h2>
-
-<p>To provision and configure Hadoop services we use Ambari and Ambari blueprints. Check this <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">blogpost</a> about how to setup an multi-node Hadoop cluster.</p>
-
-<p>To enable the Timeline Server in the cluster, we&rsquo;ve created a blueprint which contains a few overrides of the related configuration properties. A detailed description of the configuration settings for the Timeline Server are described <a href="http://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/TimelineServer.html">here</a> and <a href="http://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.1.5/bk_system-admin-guide/content/ch_application-timeline-server.html">here</a>.</p>
-
-<p>We used <a href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/timeline-server/blueprints/multi-node-hdfs-yarn-tez-timeline-service.json">this</a> blueprint for the experiment.</p>
-
-<p>Please note, that the blueprint here only contains those configuration entries that differ from the defaults; the assumption is that the other defaults are similar to those described in the documentation. It&rsquo;s always possible to override any of the defaults by adding them to the blueprint, or using the Ambari UI.</p>
-
-<h1>Create the YARN cluster with ambari-shell</h1>
-
-<p>Now it&rsquo;s time to provision our cluster with YARN, TEZ and the Timeline Server enabled. For this let&rsquo;s start the <code>ambari-shell</code>, which, surprisingly runs in a docker container as well.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>amb-shell</span></code></pre></td></tr></table></div></figure>
+<!--more-->
 
 
-<p>Following the instructions below you can provision the Timeline Server enabled cluster:</p>
+<h2>Terminology</h2>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p>To start with let&rsquo;s declare the different types of labels and expressions:</p>
+
+<ul>
+<li>node label &ndash; describes a node, multiple labels can be specified</li>
+<li>queue label &ndash; determines on which nodes the queue can schedule containers</li>
+<li>application label &ndash; defines on which nodes the application want to run its containers</li>
+<li>label expression &ndash; logical combination of labels (&amp;&amp;, ||, !) e.g: cpu &amp;&amp; rackA</li>
+<li>queue label policy &ndash; resolve conflicts on different queue and application labels</li>
+</ul>
+
+
+<h2>Technical details</h2>
+
+<p>Labeling nodes itself is not enough. Schedulers cannot rely only on application requirements as administrators can configure the queues
+to act differently. As we discussed earlier, schedulers are defined in a configuration file where you can specify the queues. Initial labeling
+can be done in these files:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;property&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;name&gt;</span>yarn.scheduler.capacity.root.alpha.label<span class="nt">&lt;/name&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;value&gt;</span>cpuheavy||rackA<span class="nt">&lt;/value&gt;</span>
+</span><span class='line'><span class="nt">&lt;/property&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The value is a <code>label expression</code> that means applications which are submitted to this queue can run either on nodes labeled as
+<code>cpuheavy</code> or <code>rackA</code>. As I said the configuration files can be used as an initial configuration, but changing dynamically queue labels
+and node labels is also not a problem as the <code>RMAdminCLI</code> <a href="https://issues.apache.org/jira/browse/YARN-2504">allows</a> that.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -200,44 +217,134 @@
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>#add the blueprint
-</span><span class='line'>blueprint add --url https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/timeline-server/blueprints/multi-node-hdfs-yarn-tez-timeline-service.json
-</span><span class='line'>#build the cluster
-</span><span class='line'>cluster build --blueprint multi-node-hdfs-yarn-tez-timeline-service
-</span><span class='line'>#auto assign nodes
-</span><span class='line'>cluster autoAssign
-</span><span class='line'>#create the cluster
-</span><span class='line'>cluster create</span></code></pre></td></tr></table></div></figure>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'> <span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;-addToClusterNodeLabels&quot;</span><span class="o">,</span>
+</span><span class='line'>              <span class="k">new</span> <span class="nf">UsageInfo</span><span class="o">(</span><span class="s">&quot;[label1,label2,label3] (label splitted by \&quot;,\&quot;)&quot;</span><span class="o">,</span>
+</span><span class='line'>                  <span class="s">&quot;add to cluster node labels &quot;</span><span class="o">))</span>
+</span><span class='line'>  <span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;-removeFromClusterNodeLabels&quot;</span><span class="o">,</span>
+</span><span class='line'>              <span class="k">new</span> <span class="nf">UsageInfo</span><span class="o">(</span><span class="s">&quot;[label1,label2,label3] (label splitted by \&quot;,\&quot;)&quot;</span><span class="o">,</span>
+</span><span class='line'>                  <span class="s">&quot;remove from cluster node labels&quot;</span><span class="o">))</span>
+</span><span class='line'>  <span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;-replaceLabelsOnNode&quot;</span><span class="o">,</span>
+</span><span class='line'>              <span class="k">new</span> <span class="nf">UsageInfo</span><span class="o">(</span><span class="s">&quot;[node1:port,label1,label2 node2:port,label1,label2]&quot;</span><span class="o">,</span>
+</span><span class='line'>                  <span class="s">&quot;replace labels on nodes&quot;</span><span class="o">))</span>
+</span><span class='line'>  <span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;-directlyAccessNodeLabelStore&quot;</span><span class="o">,</span>
+</span><span class='line'>              <span class="k">new</span> <span class="nf">UsageInfo</span><span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">,</span> <span class="s">&quot;Directly access node label store, &quot;</span>
+</span><span class='line'>                  <span class="o">+</span> <span class="s">&quot;with this option, all node label related operations&quot;</span>
+</span><span class='line'>                  <span class="o">+</span> <span class="s">&quot; will not connect RM. Instead, they will&quot;</span>
+</span><span class='line'>                  <span class="o">+</span> <span class="s">&quot; access/modify stored node labels directly.&quot;</span>
+</span><span class='line'>                  <span class="o">+</span> <span class="s">&quot; By default, it is false (access via RM).&quot;</span>
+</span><span class='line'>                  <span class="o">+</span> <span class="s">&quot; AND PLEASE NOTE: if you configured&quot;</span>
+</span><span class='line'>                  <span class="o">+</span> <span class="s">&quot; yarn.node-labels.fs-store.root-dir to a local directory&quot;</span>
+</span><span class='line'>                  <span class="o">+</span> <span class="s">&quot; (instead of NFS or HDFS), this option will only work&quot;</span>
+</span><span class='line'>                  <span class="o">+</span>
+</span><span class='line'>                  <span class="s">&quot; when the command run on the machine where RM is running.&quot;</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-<p>After services start, you can reach the Timeline Server on the port 8188 of the ambari host.</p>
+<p>Declaring the labels is one thing, but how can the <code>ResourceManager</code> enforce that containers run on nodes where the application wants
+it to? Let&rsquo;s think the other way around, how can the <code>ResourceManager</code> enforce that containers do not run on nodes where the
+application doesn&rsquo;t want it to? The answer is already part of the RM. The <code>ApplicationMaster</code> can <strong>blacklist</strong> nodes. The
+<code>AppSchedulingInfo</code> class can decide based on the <code>ApplicationLabelExpression</code> and the <code>QueueLabelExpression</code> whether the resource is
+blacklisted or not.</p>
 
-<p>There is some more configuration needed for the Timeline Server to work properly, we have to set the following entries to the address where the timeline service is running. You can get the proper value from Ambari &ndash;  the Timeline Server runs where the resource manager is.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>yarn.timeline-service.webapp.address
-</span><span class='line'>yarn.timeline-service.webapp.https.address
-</span><span class='line'>yarn.timeline-service.address</span></code></pre></td></tr></table></div></figure>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>  <span class="kd">synchronized</span> <span class="kd">public</span> <span class="kt">void</span> <span class="nf">updateBlacklist</span><span class="o">(</span>
+</span><span class='line'>      <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">blacklistAdditions</span><span class="o">,</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">blacklistRemovals</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// Add to blacklist</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">blacklistAdditions</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">blacklist</span><span class="o">.</span><span class="na">addAll</span><span class="o">(</span><span class="n">blacklistAdditions</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Remove from blacklist</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">blacklistRemovals</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">blacklist</span><span class="o">.</span><span class="na">removeAll</span><span class="o">(</span><span class="n">blacklistRemovals</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-<p>This can be done from the Ambari web UI; a restart of the YARN services is needed after the values are saved.</p>
+<p>Okay, we know how to add labels to queues and nodes, but who is going to handle them? A new service will be introduced as part of
+the RM called <a href="https://github.com/sequenceiq/hadoop/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/nodelabels/RMNodeLabelsManager.java">LabelManager</a>.
+Its responsibilities are:</p>
 
-<h1>Check the information in the Timeline Server</h1>
+<ul>
+<li>load node labels and maintain an internal map of nodes and their labels</li>
+<li>dynamically update the label &ndash; node associations (RMAdminCLI, queue configs are reloaded automatically on change)</li>
+<li>evaluate label logical expressions for both queue and application</li>
+<li>evaluate label expressions against nodes</li>
+</ul>
 
-<p>With the cluster and the Timeline Server set up every MR2 and TEZ application starts reporting to the <code>timeline</code> service. Information is made available at <code>http://&lt;ambari-host:8188&gt;</code>. You can also inspect application related information using the command line, as described in the aforementioned documentation.</p>
 
-<p>As we mentioned at the beginning of this post, we choose TEZ to show you how to use the Timeline Server. After running the Tez application in the Timeline Server web UI you will have fine grained generic information about the application, application attempt, containers used by the application, etc.</p>
+<p>How can applications specify on which nodes they want to run? The <a href="https://github.com/sequenceiq/hadoop/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/src/main/java/org/apache/hadoop/yarn/api/records/ApplicationSubmissionContext.java#L77">ApplicationSubmissionContext</a>
+has been extended with an <code>appLabelExpression</code> and <code>amContainerLabelExpression</code> thus when submitting the job we can specify them. If
+we know that our application consumes too much memory and the labels are properly defined it shouldn&rsquo;t be a problem. Providing
+an invalid label obviously our application will be rejected. Fairly complex expressions can be given, e.g: (highmemory &amp;&amp; rackA) || master.
+Labels can be provided for every <a href="https://github.com/sequenceiq/hadoop/blob/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api/src/main/java/org/apache/hadoop/yarn/api/records/ResourceRequest.java#L80">ResourceRequest</a>:</p>
 
-<p>You can find a few screenshots of the web ui  <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/timeline-server/ts-screenshots/gen-app-logs">here</a>.</p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>  <span class="nd">@Public</span>
+</span><span class='line'>  <span class="nd">@Stable</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kd">static</span> <span class="n">ResourceRequest</span> <span class="nf">newInstance</span><span class="o">(</span><span class="n">Priority</span> <span class="n">priority</span><span class="o">,</span> <span class="n">String</span> <span class="n">hostName</span><span class="o">,</span>
+</span><span class='line'>      <span class="n">Resource</span> <span class="n">capability</span><span class="o">,</span> <span class="kt">int</span> <span class="n">numContainers</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">relaxLocality</span><span class="o">,</span>
+</span><span class='line'>      <span class="n">String</span> <span class="n">labelExpression</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">ResourceRequest</span> <span class="n">request</span> <span class="o">=</span> <span class="n">Records</span><span class="o">.</span><span class="na">newRecord</span><span class="o">(</span><span class="n">ResourceRequest</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">request</span><span class="o">.</span><span class="na">setPriority</span><span class="o">(</span><span class="n">priority</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">request</span><span class="o">.</span><span class="na">setResourceName</span><span class="o">(</span><span class="n">hostName</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">request</span><span class="o">.</span><span class="na">setCapability</span><span class="o">(</span><span class="n">capability</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">request</span><span class="o">.</span><span class="na">setNumContainers</span><span class="o">(</span><span class="n">numContainers</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">request</span><span class="o">.</span><span class="na">setRelaxLocality</span><span class="o">(</span><span class="n">relaxLocality</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">request</span><span class="o">.</span><span class="na">setNodeLabelExpression</span><span class="o">(</span><span class="n">labelExpression</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">request</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>If you&rsquo;d like to have a vizualized view of the application   you can use the <em>swimlanes</em> tez tool. Based on the information provided by the Timeline Server this generates images similar to <a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/timeline-server/ts-screenshots/swimlanes/topk_topk_stark_application_1415093602516_0016.svg">this</a></p>
 
-<p>If you are curious what framework related information have been logged, you can access the Timeline Server RESTful interface.
-You can get very deep details similar to the ones in <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/timeline-server/ts-screenshots/framework-logs">these</a> screenshots</p>
+<p>It only makes sense when the resource location is <code>ANY</code> or <code>rack</code> and not <code>data local</code>.</p>
 
-<p>For further details follow up with us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+<h2>Summary</h2>
+
+<p>We&rsquo;re going to revisit this feature once it completely finished with a concrete example labeling multiple <code>docker</code> containers
+and submit stock examples to see how it works in action. Besides labeling there are other important changes about to come to
+the schedulers which will change the way we plan cluster capacities. The <code>CapacityScheduler</code> will be fully dynamic to create/remove/resize
+queues, move applications on the fly to make room for the <code>AdmissionControl</code>.</p>
+
+<p>Keep up with the latest news with us on our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
+on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
 
     </div>
   </div>
@@ -249,7 +356,7 @@ You can get very deep details similar to the ones in <a href="https://github.com
     
   
 
-<span class="byline author vcard">Posted by <span class="fn">Laszlo Puskas</span></span>
+<span class="byline author vcard">Posted by <span class="fn">Krisztian Horvath</span></span>
 
     
     <div class="row">
@@ -261,7 +368,7 @@ You can get very deep details similar to the ones in <a href="https://github.com
 
 
 
-  <a href="/blog/categories/timeline-service/"><span class="label label-warning">Timeline service</span></a>
+  <a href="/blog/categories/yarn/"><span class="label label-warning">YARN</span></a>
 
 
 
@@ -293,10 +400,8 @@ You can get very deep details similar to the ones in <a href="https://github.com
       <div class="span12">
         <p class="meta">
           
-            <a class="basic-alignment left" href="/blog/2014/11/02/spark-on-tez/" title="Previous Post: Spark on Tez execution context - running in Docker">&laquo; Spark on Tez execution context - running in Docker</a>
+            <a class="basic-alignment left" href="/blog/2014/11/06/securing-cloudbreak-with-oauth2-part-2/" title="Previous Post: Securing Cloudbreak with OAuth2 - part 2">&laquo; Securing Cloudbreak with OAuth2 - part 2</a>
           
-          
-            <a class=" basic-alignment pull-right" href="/blog/2014/11/06/securing-cloudbreak-with-oauth2-part-2/" title="Next Post: Securing Cloudbreak with OAuth2 - part 2">Securing Cloudbreak with OAuth2 - part 2 &raquo;</a>
           
         </p>
       </div>
@@ -647,8 +752,8 @@ You can get very deep details similar to the ones in <a href="https://github.com
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2014/11/04/yarn-timeline-service-tez/';
-        var disqus_url = 'http://blog.sequenceiq.com/blog/2014/11/04/yarn-timeline-service-tez/';
+        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2014/11/10/new-yarn-features-part-1-label-based-scheduling/';
+        var disqus_url = 'http://blog.sequenceiq.com/blog/2014/11/10/new-yarn-features-part-1-label-based-scheduling/';
         var disqus_script = 'embed.js';
       
     (function () {
