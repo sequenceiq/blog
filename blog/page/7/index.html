@@ -130,6 +130,114 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">14 March 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/capacity-scheduler/"><span class="label label-warning">Capacity Scheduler</span></a>
+            
+            <a href="/blog/categories/hd2/"><span class="label label-warning">HD2</span></a>
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+            <a href="/blog/categories/yarn/"><span class="label label-warning">YARN</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/03/14/yarn-capacity-scheduler/">YARN Capacity Scheduler</a>
+          <span class="badge name-badge">Janos Matyas</span>
+
+      </h1>
+      <p>Since the emergence of Hadoop 2 and the YARN based architecture we have a platform where we can run multiple applications (of different types) not constrained only to MapReduce. Different applications or different MapReduce job profiles have different resource needs, however since Hadoop 2.0 is a multi tenant platform the different users could have different access patterns or need for cluster capacity. In Hadoop 2.0 this is achieved through YARN schedulers — to allocate resources to various applications subject to constraints of capacities and queues (for more information on YARN follow this <a href="http://hortonworks.com/hadoop/yarn/">link</a> or feel free to ask us should you have any questions).</p>
+
+<p>In Hadoop 2.0, the scheduler is a pluggable piece of code that lives inside the <em>ResourceManager</em> (the JobTracker in MR1) &ndash; the ultimate authority that arbitrates resources among all the applications in the system. The scheduler in YARN does not perform monitoring or status tracking and offers no guarantees to restart failed tasks — check our sample <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/yarn-queue-tests">GitHub</a> project to check how monitoring or progress can be tracked.</p>
+
+<p>The Capacity Scheduler was designed to allow significantly higher cluster utilization while still providing predictability for Hadoop workloads, while sharing resources in a predictable and simple manner, using the common notion of <em>job queues</em>.</p>
+
+<p>In our <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/yarn-queue-tests">example</a> we show you how to use the Capacity Scheduler, configure queues with different priorities, submit MapReduce jobs into these queues, monitor and track the progress of the jobs &ndash; and ultimately see the differences between execution times and throughput of different queue setups.</p>
+
+<p>First, let’s config the Capacity Scheduler (you can use xml, <a href="http://ambari.apache.org/">Apache Ambari</a> or you can configure queues programmatically). In this example we use a simple xml configuration.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;property&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;name&gt;</span>yarn.scheduler.capacity.root.queues<span class="nt">&lt;/name&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;value&gt;</span>default,highPriority,lowPriority<span class="nt">&lt;/value&gt;</span>
+</span><span class='line'><span class="nt">&lt;/property&gt;</span>
+</span><span class='line'><span class="nt">&lt;property&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;name&gt;</span>yarn.scheduler.capacity.root.highPriority.capacity<span class="nt">&lt;/name&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;value&gt;</span>70<span class="nt">&lt;/value&gt;</span>
+</span><span class='line'><span class="nt">&lt;/property&gt;</span>
+</span><span class='line'><span class="nt">&lt;property&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;name&gt;</span>yarn.scheduler.capacity.root.lowPriority.capacity<span class="nt">&lt;/name&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;value&gt;</span>20<span class="nt">&lt;/value&gt;</span>
+</span><span class='line'><span class="nt">&lt;/property&gt;</span>
+</span><span class='line'><span class="nt">&lt;property&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;name&gt;</span>yarn.scheduler.capacity.root.default.capacity<span class="nt">&lt;/name&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;value&gt;</span>10<span class="nt">&lt;/value&gt;</span>
+</span><span class='line'><span class="nt">&lt;/property&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We have 3 queues, with different queue setups/priorities. Each queue is given a <em>minimum</em> guaranteed percentage of total cluster capacity available &ndash; the total guaranteed capacity must equal 100%. In our example the <em>highPriority</em> queue has 70% of the resources, the <em>lowPriority</em> 20%, and the default queue has the remaining 10%. While it is not highlight in the example above, the Capacity Scheduler provides elastic resource scheduling, which means that if there are idle resources in the cluster, then one queue can take up more of the cluster capacity than was minimally allocated . In our case we could allocate a <em>maximum</em> capacity to the <em>lowPriority</em> queue:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;property&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;name&gt;</span>yarn.scheduler.capacity.root. lowPriority.maximum-capacity<span class="nt">&lt;/name&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;value&gt;</span>50<span class="nt">&lt;/value&gt;</span>
+</span><span class='line'><span class="nt">&lt;/property&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+
+      
+       <a href="/blog/2014/03/14/yarn-capacity-scheduler/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/03/11/data-cleaning-with-mapreduce-and-morphlines/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -710,6 +818,10 @@ SequenceIQ</p>
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/11/13/kylin-on-docker/">Extreme OLAP Engine running in Docker</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/11/10/new-yarn-features-part-1-label-based-scheduling/">New YARN features: Label based scheduling</a>

@@ -130,6 +130,87 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/09/23/topn-on-apache-tez/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">23 September 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/apache-tez/"><span class="label label-warning">Apache Tez</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/09/23/topn-on-apache-tez/">TopK on Apache Tez</a>
+          <span class="badge name-badge">Krisztian Horvath</span>
+
+      </h1>
+      <p>The Apache Tez community draw attention last week with their latest release <a href="http://tez.apache.org/releases/0.5.0/release-notes.txt">0.5.0</a>
+of the application framework. At SequenceIQ we always try to find and provide the best solutions to our customers and share the experience we gain by
+being involved in many open source Apache projects. We are always looking for the latest innovations, and try to apply them to our projects.
+For a while we have been working hard on a new project called
+<a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> which we&rsquo;ll open source in the near future. One handy feature of the projects is the ability to run the same pipes on <code>MR2</code>, <code>Spark</code> and <code>Tez</code> &ndash; your choice.
+In the next couple of posts we&rsquo;ll compare these runtimes using different jobs and as the first example to implement we chose TopK. Before going into
+details let&rsquo;s revisit what Apache Tez is made of.</p>
+
+<h2>Apache Tez key concepts</h2>
+
+<ul>
+<li>One of the most important feature is that there is no heavy deployment phase which otherwise could go wrong in many ways &ndash; probably sounds familiar
+for most of us. There is a nice <a href="http://tez.apache.org/install.html">install guide</a> on the project&rsquo;s page which you can follow, but basically
+you have to copy a bunch of jars to HDFS and you&rsquo;re almost good to go.</li>
+<li>Multiple versions of Tez can be used at the same time which solves a common problem, the rolling upgrades.</li>
+<li>Distributed data processing jobs typically look like <code>DAGs</code> (directed acyclic graphs) and Tez relies on this concept to define your jobs.
+DAGs are made from <code>Vertices</code> and <code>Edges</code>. Vertices in the graph represent data transformations while edges represent the data movement
+from producers to consumers. The DAG itself defines the structure of the data processing and the relationship between producers and consumers.</li>
+</ul>
+
+
+<p>Tez provides faster execution and higher predictability because:</p>
+
+<ul>
+<li>Eliminates replicated write barriers between successive computations</li>
+<li>Eliminates the job launch overhead</li>
+<li>Eliminates the extra stage of map reads in every workflow job</li>
+<li>Provides better locality</li>
+<li>Capable to re-use containers which reduces the scheduling time and speeds up incredibly the short running tasks</li>
+<li>Can share in-memory data across tasks</li>
+<li>Can run multiple DAGs in one session</li>
+<li>The core engine can be customized (vertex manager, DAG scheduler, task scheduler)</li>
+<li>Provides an event mechanism to communicate between tasks (data movement events to inform consumers by the data location)</li>
+</ul>
+
+
+<p>If you&rsquo;d like to try Tez on a fully functional multi-node cluster we put together an Ambari based Docker image. Click
+<a href="http://blog.sequenceiq.com/blog/2014/09/19/apache-tez-cluster/">here</a> for details.</p>
+
+
+      
+       <a href="/blog/2014/09/23/topn-on-apache-tez/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/09/19/apache-tez-cluster/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -840,101 +921,6 @@ Yes!</p>
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/08/29/aws-cloudformation-makes-everything-easier/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">29 August 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/aws/"><span class="label label-warning">AWS</span></a>
-            
-            <a href="/blog/categories/cloud/"><span class="label label-warning">Cloud</span></a>
-            
-            <a href="/blog/categories/cloudformation/"><span class="label label-warning">CloudFormation</span></a>
-            
-            <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
-            
-            <a href="/blog/categories/infrastructure/"><span class="label label-warning">infrastructure</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/08/29/aws-cloudformation-makes-everything-easier/">Infrastructure management with CloudFormation</a>
-          <span class="badge name-badge">Marton Sereg</span>
-
-      </h1>
-      <p>Our Hadoop as a Service solution, <a href="https://cloudbreak.sequenceiq.com">Cloudbreak</a> integrates with multiple cloud providers to deploy Hadoop clusters in the cloud. It means that every time a cluster is requested, Cloudbreak goes to the selected cloud provider and creates a new, separated infrastructure through the provider’s API. Building this infrastructure can be a real pain and can cause a lot of problems &ndash; it involves a lot of API calls, the polling of created building blocks, the management of failures and the necessary rollbacks to name a few. With the help of <a href="http://aws.amazon.com/cloudformation/">AWS CloudFormation</a> we were able to avoid most of these problems when integrating AWS in Cloudbreak.</p>
-
-<h3>Problems with the traditional approach</h3>
-
-<p>When Cloudbreak creates a Hadoop cluster it should first create the underlying infrastructure on the cloud provider. The building blocks are a bit different on every provider, the following resources are created on AWS:</p>
-
-<ul>
-<li>a virtual private cloud (VPC)</li>
-<li>a subnet</li>
-<li>an internet gateway</li>
-<li>a route table</li>
-<li>an auto scaling group and its launch configuration</li>
-<li>a security group</li>
-</ul>
-
-
-<p>Although AWS has a pretty good API and great SDKs to communicate with it, we needed to deal with the above described problems if we would like to create all of these elements one by one through the Java SDK. The code would start with something like this with the creation of the VPC:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">AmazonEC2Client</span> <span class="n">amazonEC2Client</span> <span class="o">=</span> <span class="k">new</span> <span class="n">AmazonEC2Client</span><span class="o">(</span><span class="n">basicSessionCredentials</span><span class="o">);</span>
-</span><span class='line'><span class="n">amazonEC2Client</span><span class="o">.</span><span class="na">setRegion</span><span class="o">(</span><span class="n">region</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">CreateVpcRequest</span> <span class="n">vpcRequest</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CreateVpcRequest</span><span class="o">().</span><span class="na">withCidrBlock</span><span class="o">(</span><span class="mf">10.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mi">24</span><span class="o">);</span>
-</span><span class='line'><span class="n">CreateVpcResponse</span> <span class="n">vpcResponse</span> <span class="o">=</span> <span class="n">amazonEC2Client</span><span class="o">.</span><span class="na">createVpc</span><span class="o">(</span><span class="n">createVpcRequest</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">//poll vpc creation until it’s state is available</span>
-</span><span class='line'><span class="n">waitForVPC</span><span class="o">(</span><span class="n">amazonEC2Client</span><span class="o">,</span> <span class="n">vpcResponse</span><span class="o">.</span><span class="na">getVpc</span><span class="o">());</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">ModifyVpcAttributeRequest</span> <span class="n">modifyVpcRequest</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ModifyVpcAttributeRequest</span><span class="o">().</span><span class="na">withEnableDnsHostnames</span><span class="o">(</span><span class="kc">true</span><span class="o">).</span><span class="na">withEnableDnsSupport</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
-</span><span class='line'><span class="n">amazonEC2Cient</span><span class="o">.</span><span class="na">modifyVpcAttribute</span><span class="o">(</span><span class="n">modifyVpcRequest</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-
-      
-       <a href="/blog/2014/08/29/aws-cloudformation-makes-everything-easier/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -956,6 +942,10 @@ Yes!</p>
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/11/13/kylin-on-docker/">Extreme OLAP Engine running in Docker</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/11/10/new-yarn-features-part-1-label-based-scheduling/">New YARN features: Label based scheduling</a>

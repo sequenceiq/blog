@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: OLAP | SequenceIQ Blog]]></title>
+  <link href="http://blog.sequenceiq.com/blog/categories/olap/atom.xml" rel="self"/>
+  <link href="http://blog.sequenceiq.com/"/>
+  <updated>2014-11-13T12:27:55+00:00</updated>
+  <id>http://blog.sequenceiq.com/</id>
+  <author>
+    <name><![CDATA[SequenceIQ]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Extreme OLAP Engine running in Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/11/13/kylin-on-docker/"/>
+    <updated>2014-11-13T15:14:17+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/11/13/kylin-on-docker</id>
+    <content type="html"><![CDATA[<p><em><a href="https://github.com/KylinOLAP/Kylin">Kylin</a> is an open source Distributed Analytics Engine from eBay Inc. that provides SQL interface and multi-dimensional analysis (OLAP) on Hadoop supporting extremely large datasets.</em></p>
+
+<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we are always interested in the latest emerging technologies, and try to offer those to our customers and the open source community. A few weeks ago <a href="http://www.ebayinc.com/">eBay Inc.</a> released <a href="https://github.com/KylinOLAP/Kylin">Kylin</a> as an open source product and made available for the community under an Apache 2 license. Since we share the approach towards <code>open source</code> software we have partnered with them to <code>Dockerize</code> Kylin &ndash; and made it extremely easy for people to deploy a Kylin locally or in the cloud, using our Hadoop as a Service API &ndash; <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>.</p>
+
+<p>While there is a pretty good <a href="http://www.kylin.io/document.html">documentation</a> available for Kylin we&rsquo;d like to give you a really short introduction and overview.</p>
+
+<!--more-->
+
+
+<h2>Overview</h2>
+
+<p>For an overview and the used components and architecture please check this diagram.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/docker-kylin/master/img/kylin_diagram.png" alt="" /></p>
+
+<p>For your reference you can also check the Ambari blueprint to learn the components used by Kylin. Both <a href="https://raw.githubusercontent.com/sequenceiq/docker-kylin/master/kylin-singlenode.json">singlenode</a> and <a href="https://raw.githubusercontent.com/sequenceiq/docker-kylin/master/kylin-multinode.json">multinode</a> blueprint templates are available.</p>
+
+<h2>Kylin cluster running on Docker</h2>
+
+<p>We have put together and fully <code>automated</code> the steps of creating a Kylin cluster. The only thing you will need to do is just pull the container from the <code>official</code> Docker repository by issuing the following command.</p>
+
+<p><code>
+docker pull sequenceiq/kylin
+</code></p>
+
+<p>Once the container is pulled you are ready to start playing with Kylin. Get the following helper functions from our Kylin GitHub <a href="https://github.com/sequenceiq/docker-kylin/blob/master/ambari-functions">repository</a> &ndash; <em>(make sure you source it).</em></p>
+
+<p><code>
+ kylin-deploy-cluster 3
+</code></p>
+
+<p>You can specify the number of nodes you&rsquo;d like to have in your cluster (3 in this case). Once we installed all the necessary Hadoop
+services we&rsquo;ll build Kylin on top of it and then you can reach the UI on:
+<code>
+http://&lt;container_ip&gt;:9080
+</code>
+The default credentials to login are: <code>admin:KADMIN</code>. The cluster is pre-populated with sample data and is ready to build cubes as shown <a href="https://github.com/KylinOLAP/Kylin/wiki/Kylin-Cube-Creation-Tutorial">here</a>.</p>
+
+<p>Keep up with the latest news with us on our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
+on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
+]]></content>
+  </entry>
+  
+</feed>

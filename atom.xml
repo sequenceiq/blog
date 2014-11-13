@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-11-10T15:10:57+00:00</updated>
+  <updated>2014-11-13T12:27:55+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,56 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Extreme OLAP Engine running in Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/11/13/kylin-on-docker/"/>
+    <updated>2014-11-13T15:14:17+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/11/13/kylin-on-docker</id>
+    <content type="html"><![CDATA[<p><em><a href="https://github.com/KylinOLAP/Kylin">Kylin</a> is an open source Distributed Analytics Engine from eBay Inc. that provides SQL interface and multi-dimensional analysis (OLAP) on Hadoop supporting extremely large datasets.</em></p>
+
+<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we are always interested in the latest emerging technologies, and try to offer those to our customers and the open source community. A few weeks ago <a href="http://www.ebayinc.com/">eBay Inc.</a> released <a href="https://github.com/KylinOLAP/Kylin">Kylin</a> as an open source product and made available for the community under an Apache 2 license. Since we share the approach towards <code>open source</code> software we have partnered with them to <code>Dockerize</code> Kylin &ndash; and made it extremely easy for people to deploy a Kylin locally or in the cloud, using our Hadoop as a Service API &ndash; <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>.</p>
+
+<p>While there is a pretty good <a href="http://www.kylin.io/document.html">documentation</a> available for Kylin we&rsquo;d like to give you a really short introduction and overview.</p>
+
+<!--more-->
+
+
+<h2>Overview</h2>
+
+<p>For an overview and the used components and architecture please check this diagram.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/docker-kylin/master/img/kylin_diagram.png" alt="" /></p>
+
+<p>For your reference you can also check the Ambari blueprint to learn the components used by Kylin. Both <a href="https://raw.githubusercontent.com/sequenceiq/docker-kylin/master/kylin-singlenode.json">singlenode</a> and <a href="https://raw.githubusercontent.com/sequenceiq/docker-kylin/master/kylin-multinode.json">multinode</a> blueprint templates are available.</p>
+
+<h2>Kylin cluster running on Docker</h2>
+
+<p>We have put together and fully <code>automated</code> the steps of creating a Kylin cluster. The only thing you will need to do is just pull the container from the <code>official</code> Docker repository by issuing the following command.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/kylin</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once the container is pulled you are ready to start playing with Kylin. Get the following helper functions from our Kylin GitHub <a href="https://github.com/sequenceiq/docker-kylin/blob/master/ambari-functions">repository</a> &ndash; <em>(make sure you source it).</em></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> kylin-deploy-cluster 3</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can specify the number of nodes you&rsquo;d like to have in your cluster (3 in this case). Once we installed all the necessary Hadoop
+services we&rsquo;ll build Kylin on top of it and then you can reach the UI on:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>http://&lt;container_ip&gt;:9080</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The default credentials to login are: <code>admin:KADMIN</code>. The cluster is pre-populated with sample data and is ready to build cubes as shown <a href="https://github.com/KylinOLAP/Kylin/wiki/Kylin-Cube-Creation-Tutorial">here</a>.</p>
+
+<p>Keep up with the latest news with us on our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
+on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[New YARN features: Label based scheduling]]></title>
@@ -2032,7 +2082,7 @@ In the benchmark, the jobs were submitted to the <code>default</code> queue and 
 <p>SequenceIQ is an innovative big data startup with the mission statement to simplify and automate provisioning of on-demand Hadoop clusters running on different environments. Leaders in “containerizing” Hadoop, SequenceIQ is the first company who provisions and runs the full Hadoop stack and components on Docker containers. The company has further plans to create the industry’s first cloud agnostic, autoscaling and use case driven Platform as a Service API, and break the common significant barriers of entry that exist with most big data projects through a series of As-a-Service API offerings.
 For more information follow up with us on @SequenceIQ and <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>.</p>
 
-<p><a href="&#x6d;&#97;&#105;&#108;&#116;&#111;&#x3a;&#105;&#110;&#102;&#x6f;&#x40;&#x73;&#101;&#x71;&#x75;&#101;&#110;&#x63;&#x65;&#105;&#x71;&#x2e;&#99;&#111;&#109;">&#x69;&#x6e;&#102;&#111;&#64;&#x73;&#x65;&#x71;&#x75;&#x65;&#x6e;&#99;&#x65;&#x69;&#113;&#x2e;&#x63;&#x6f;&#x6d;</a></p>
+<p><a href="&#x6d;&#97;&#105;&#108;&#x74;&#111;&#58;&#x69;&#110;&#102;&#111;&#64;&#115;&#101;&#113;&#x75;&#101;&#110;&#x63;&#x65;&#105;&#x71;&#46;&#99;&#111;&#109;">&#105;&#110;&#102;&#x6f;&#x40;&#115;&#x65;&#x71;&#117;&#101;&#110;&#99;&#x65;&#105;&#113;&#x2e;&#99;&#x6f;&#109;</a></p>
 ]]></content>
   </entry>
   
@@ -2719,294 +2769,6 @@ considered bad practice.</p>
 
 <p>This process comes handy if you&rsquo;ve already started a container, and the file in
 question doesn&rsquo;t sits on a volume. [30]</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[TopK on Apache Tez]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/09/23/topn-on-apache-tez/"/>
-    <updated>2014-09-23T17:53:04+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/09/23/topn-on-apache-tez</id>
-    <content type="html"><![CDATA[<p>The Apache Tez community draw attention last week with their latest release <a href="http://tez.apache.org/releases/0.5.0/release-notes.txt">0.5.0</a>
-of the application framework. At SequenceIQ we always try to find and provide the best solutions to our customers and share the experience we gain by
-being involved in many open source Apache projects. We are always looking for the latest innovations, and try to apply them to our projects.
-For a while we have been working hard on a new project called
-<a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> which we&rsquo;ll open source in the near future. One handy feature of the projects is the ability to run the same pipes on <code>MR2</code>, <code>Spark</code> and <code>Tez</code> &ndash; your choice.
-In the next couple of posts we&rsquo;ll compare these runtimes using different jobs and as the first example to implement we chose TopK. Before going into
-details let&rsquo;s revisit what Apache Tez is made of.</p>
-
-<h2>Apache Tez key concepts</h2>
-
-<ul>
-<li>One of the most important feature is that there is no heavy deployment phase which otherwise could go wrong in many ways &ndash; probably sounds familiar
-for most of us. There is a nice <a href="http://tez.apache.org/install.html">install guide</a> on the project&rsquo;s page which you can follow, but basically
-you have to copy a bunch of jars to HDFS and you&rsquo;re almost good to go.</li>
-<li>Multiple versions of Tez can be used at the same time which solves a common problem, the rolling upgrades.</li>
-<li>Distributed data processing jobs typically look like <code>DAGs</code> (directed acyclic graphs) and Tez relies on this concept to define your jobs.
-DAGs are made from <code>Vertices</code> and <code>Edges</code>. Vertices in the graph represent data transformations while edges represent the data movement
-from producers to consumers. The DAG itself defines the structure of the data processing and the relationship between producers and consumers.</li>
-</ul>
-
-
-<p>Tez provides faster execution and higher predictability because:</p>
-
-<ul>
-<li>Eliminates replicated write barriers between successive computations</li>
-<li>Eliminates the job launch overhead</li>
-<li>Eliminates the extra stage of map reads in every workflow job</li>
-<li>Provides better locality</li>
-<li>Capable to re-use containers which reduces the scheduling time and speeds up incredibly the short running tasks</li>
-<li>Can share in-memory data across tasks</li>
-<li>Can run multiple DAGs in one session</li>
-<li>The core engine can be customized (vertex manager, DAG scheduler, task scheduler)</li>
-<li>Provides an event mechanism to communicate between tasks (data movement events to inform consumers by the data location)</li>
-</ul>
-
-
-<p>If you&rsquo;d like to try Tez on a fully functional multi-node cluster we put together an Ambari based Docker image. Click
-<a href="http://blog.sequenceiq.com/blog/2014/09/19/apache-tez-cluster/">here</a> for details.</p>
-
-<!-- more -->
-
-
-<h2>TopK</h2>
-
-<p>The goal is to find the top K elements of a dataset. In this example&rsquo;s case is a simple CSV and we&rsquo;re looking for the top elements in a given column.
-In order to do that we need to <code>group</code> and <code>sort</code> them to <code>take</code> the K elements. The implementation can be found in our
-<a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub</a> repository. The important part starts
-with the <a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/tez-topk/src/main/java/com/sequenceiq/tez/topk/TopK.java#L136">DAG creation</a>.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="n">DataSourceDescriptor</span> <span class="n">dataSource</span> <span class="o">=</span> <span class="n">MRInput</span><span class="o">.</span><span class="na">createConfigBuilder</span><span class="o">(</span><span class="k">new</span> <span class="n">Configuration</span><span class="o">(</span><span class="n">tezConf</span><span class="o">),</span>
-</span><span class='line'>            <span class="n">TextInputFormat</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">inputPath</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">DataSinkDescriptor</span> <span class="n">dataSink</span> <span class="o">=</span> <span class="n">MROutput</span><span class="o">.</span><span class="na">createConfigBuilder</span><span class="o">(</span><span class="k">new</span> <span class="n">Configuration</span><span class="o">(</span><span class="n">tezConf</span><span class="o">),</span>
-</span><span class='line'>            <span class="n">TextOutputFormat</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">outputPath</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">Vertex</span> <span class="n">tokenizerVertex</span> <span class="o">=</span> <span class="n">Vertex</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">TOKENIZER</span><span class="o">,</span>
-</span><span class='line'>            <span class="n">ProcessorDescriptor</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">TokenProcessor</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">())</span>
-</span><span class='line'>                    <span class="o">.</span><span class="na">setUserPayload</span><span class="o">(</span><span class="n">createPayload</span><span class="o">(</span><span class="n">Integer</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">columnIndex</span><span class="o">))))</span>
-</span><span class='line'>            <span class="o">.</span><span class="na">addDataSource</span><span class="o">(</span><span class="n">INPUT</span><span class="o">,</span> <span class="n">dataSource</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kt">int</span> <span class="n">topK</span> <span class="o">=</span> <span class="n">Integer</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">top</span><span class="o">);</span>
-</span><span class='line'>    <span class="n">Vertex</span> <span class="n">sumVertex</span> <span class="o">=</span> <span class="n">Vertex</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">SUM</span><span class="o">,</span>
-</span><span class='line'>            <span class="n">ProcessorDescriptor</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">SumProcessor</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">())</span>
-</span><span class='line'>                    <span class="o">.</span><span class="na">setUserPayload</span><span class="o">(</span><span class="n">createPayload</span><span class="o">(</span><span class="n">topK</span><span class="o">)),</span> <span class="n">Integer</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">numPartitions</span><span class="o">));</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">Vertex</span> <span class="n">writerVertex</span> <span class="o">=</span> <span class="n">Vertex</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">WRITER</span><span class="o">,</span>
-</span><span class='line'>            <span class="n">ProcessorDescriptor</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">Writer</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">())</span>
-</span><span class='line'>                    <span class="o">.</span><span class="na">setUserPayload</span><span class="o">(</span><span class="n">createPayload</span><span class="o">(</span><span class="n">topK</span><span class="o">)),</span> <span class="mi">1</span><span class="o">)</span>
-</span><span class='line'>            <span class="o">.</span><span class="na">addDataSink</span><span class="o">(</span><span class="n">OUTPUT</span><span class="o">,</span> <span class="n">dataSink</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">OrderedPartitionedKVEdgeConfig</span> <span class="n">tokenSumEdge</span> <span class="o">=</span> <span class="n">OrderedPartitionedKVEdgeConfig</span>
-</span><span class='line'>            <span class="o">.</span><span class="na">newBuilder</span><span class="o">(</span><span class="n">Text</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span> <span class="n">IntWritable</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span>
-</span><span class='line'>                    <span class="n">HashPartitioner</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">()).</span><span class="na">build</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">UnorderedKVEdgeConfig</span> <span class="n">sumWriterEdge</span> <span class="o">=</span> <span class="n">UnorderedKVEdgeConfig</span>
-</span><span class='line'>            <span class="o">.</span><span class="na">newBuilder</span><span class="o">(</span><span class="n">IntWritable</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span> <span class="n">Text</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getName</span><span class="o">()).</span><span class="na">build</span><span class="o">();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>First of all we define a <code>DataSourceDescriptor</code> which represents our dataset and a <code>DataSinkDescriptor</code> where we&rsquo;ll
-write the results to. As you can see there are plenty of utility classes to help you define your DAGs. Now that the input and output is
-ready let&rsquo;s define our <code>Vertices</code>. You&rsquo;ll see the actual data transformation is really easy as Hadoop will take care of the heavy
-lifting. The first Vertex is a
-<a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/tez-topk/src/main/java/com/sequenceiq/tez/topk/TopK.java#L198">tokenizer</a>
-which does nothing more than splitting the rows of the CSV and emit a record with the selected column as the key and <code>1</code> as the value.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
-</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">initialize</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
-</span><span class='line'>  <span class="kt">byte</span><span class="o">[]</span> <span class="n">payload</span> <span class="o">=</span> <span class="n">getContext</span><span class="o">().</span><span class="na">getUserPayload</span><span class="o">().</span><span class="na">deepCopyAsArray</span><span class="o">();</span>
-</span><span class='line'>  <span class="n">ByteArrayInputStream</span> <span class="n">bis</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ByteArrayInputStream</span><span class="o">(</span><span class="n">payload</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">DataInputStream</span> <span class="n">dis</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DataInputStream</span><span class="o">(</span><span class="n">bis</span><span class="o">);</span>
-</span><span class='line'>  <span class="n">columnIndex</span> <span class="o">=</span> <span class="n">dis</span><span class="o">.</span><span class="na">readInt</span><span class="o">();</span>
-</span><span class='line'>  <span class="n">dis</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
-</span><span class='line'>  <span class="n">bis</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'><span class="nd">@Override</span>
-</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">KeyValueWriter</span> <span class="n">kvWriter</span> <span class="o">=</span> <span class="o">(</span><span class="n">KeyValueWriter</span><span class="o">)</span> <span class="n">getOutputs</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="n">WRITER</span><span class="o">).</span><span class="na">getWriter</span><span class="o">();</span>
-</span><span class='line'>  <span class="n">KeyValuesReader</span> <span class="n">kvReader</span> <span class="o">=</span> <span class="o">(</span><span class="n">KeyValuesReader</span><span class="o">)</span> <span class="n">getInputs</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="n">TOKENIZER</span><span class="o">).</span><span class="na">getReader</span><span class="o">();</span>
-</span><span class='line'>  <span class="k">while</span> <span class="o">(</span><span class="n">kvReader</span><span class="o">.</span><span class="na">next</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">Text</span> <span class="n">word</span> <span class="o">=</span> <span class="o">(</span><span class="n">Text</span><span class="o">)</span> <span class="n">kvReader</span><span class="o">.</span><span class="na">getCurrentKey</span><span class="o">();</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
-</span><span class='line'>    <span class="k">for</span> <span class="o">(</span><span class="n">Object</span> <span class="n">value</span> <span class="o">:</span> <span class="n">kvReader</span><span class="o">.</span><span class="na">getCurrentValues</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">sum</span> <span class="o">+=</span> <span class="o">((</span><span class="n">IntWritable</span><span class="o">)</span> <span class="n">value</span><span class="o">).</span><span class="na">get</span><span class="o">();</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>    <span class="n">kvWriter</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="k">new</span> <span class="n">IntWritable</span><span class="o">(</span><span class="n">sum</span><span class="o">),</span> <span class="n">word</span><span class="o">);</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The interesting part here is the <code>initialize</code> method which reads the <code>UserPayload</code> to find out in which column we&rsquo;re looking for
-the top K elements. What happens after the first Vertex is that Hadoop will <code>group</code> the records by key, so we&rsquo;ll have all the keys
-with a bunch of 1s. In the next Vertex we
-<a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/tez-topk/src/main/java/com/sequenceiq/tez/topk/TopK.java#L243">sum</a>
-these values so we&rsquo;ll have all the words in the given column counted. We could emit all the values to make Hadoop sort them for us,
-but we can optimize this process by reducing the data we need to send over the network. And how we are going to do that? If we
-<a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/tez-topk/src/main/java/com/sequenceiq/tez/topk/TopK.java#L340">maintain</a>
-a <code>local</code> top K of the data which the sum tasks process and emit only these values all we have left in the last Vertex is to
-select the top K results from a much smaller data set. Another important improvement here is that we can use the <code>UnorderedKVEdgeConfig</code>
-to avoid sorting the data at the task output and the merge sort at the next tasks input. We used the <code>OrderedPartitionedKVEdgeConfig</code>
-between the first 2 Vertices to demonstrate the different edges and as partition can be a huge asset.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="nd">@Override</span>
-</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
-</span><span class='line'>        <span class="n">Preconditions</span><span class="o">.</span><span class="na">checkArgument</span><span class="o">(</span><span class="n">getInputs</span><span class="o">().</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">1</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">Preconditions</span><span class="o">.</span><span class="na">checkArgument</span><span class="o">(</span><span class="n">getOutputs</span><span class="o">().</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">1</span><span class="o">);</span>
-</span><span class='line'>        <span class="n">KeyValueWriter</span> <span class="n">kvWriter</span> <span class="o">=</span> <span class="o">(</span><span class="n">KeyValueWriter</span><span class="o">)</span> <span class="n">getOutputs</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="n">WRITER</span><span class="o">).</span><span class="na">getWriter</span><span class="o">();</span>
-</span><span class='line'>        <span class="n">KeyValuesReader</span> <span class="n">kvReader</span> <span class="o">=</span> <span class="o">(</span><span class="n">KeyValuesReader</span><span class="o">)</span> <span class="n">getInputs</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="n">TOKENIZER</span><span class="o">).</span><span class="na">getReader</span><span class="o">();</span>
-</span><span class='line'>        <span class="k">while</span> <span class="o">(</span><span class="n">kvReader</span><span class="o">.</span><span class="na">next</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>            <span class="n">Text</span> <span class="n">currentWord</span> <span class="o">=</span> <span class="o">(</span><span class="n">Text</span><span class="o">)</span> <span class="n">kvReader</span><span class="o">.</span><span class="na">getCurrentKey</span><span class="o">();</span>
-</span><span class='line'>            <span class="kt">int</span> <span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
-</span><span class='line'>            <span class="k">for</span> <span class="o">(</span><span class="n">Object</span> <span class="n">value</span> <span class="o">:</span> <span class="n">kvReader</span><span class="o">.</span><span class="na">getCurrentValues</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>                <span class="n">sum</span> <span class="o">+=</span> <span class="o">((</span><span class="n">IntWritable</span><span class="o">)</span> <span class="n">value</span><span class="o">).</span><span class="na">get</span><span class="o">();</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>            <span class="n">localTop</span><span class="o">.</span><span class="na">store</span><span class="o">(</span><span class="n">sum</span><span class="o">,</span> <span class="n">currentWord</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="n">Map</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">,</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="n">localTop</span><span class="o">.</span><span class="na">getTopK</span><span class="o">();</span>
-</span><span class='line'>        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">top</span> <span class="o">:</span> <span class="n">result</span><span class="o">.</span><span class="na">keySet</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>            <span class="n">IntWritable</span> <span class="n">topWritable</span> <span class="o">=</span> <span class="k">new</span> <span class="n">IntWritable</span><span class="o">(</span><span class="n">top</span><span class="o">);</span>
-</span><span class='line'>            <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">string</span> <span class="o">:</span> <span class="n">result</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">top</span><span class="o">))</span> <span class="o">{</span>
-</span><span class='line'>                <span class="n">word</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">string</span><span class="o">);</span>
-</span><span class='line'>                <span class="n">kvWriter</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">topWritable</span><span class="o">,</span> <span class="n">word</span><span class="o">);</span>
-</span><span class='line'>            <span class="o">}</span>
-</span><span class='line'>        <span class="o">}</span>
-</span><span class='line'>    <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>All we have left is to <a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/tez-topk/src/main/java/com/sequenceiq/tez/topk/TopK.java#L318">take</a>
-the first K elements of the reduced data set (from the local top Ks) and write it to HDFS and we&rsquo;re done. Except that we have to
-define the data movements with edges.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">DAG</span> <span class="n">dag</span> <span class="o">=</span> <span class="n">DAG</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="s">&quot;topk&quot;</span><span class="o">);</span>
-</span><span class='line'><span class="n">dag</span>
-</span><span class='line'>    <span class="o">.</span><span class="na">addVertex</span><span class="o">(</span><span class="n">tokenizerVertex</span><span class="o">)</span>
-</span><span class='line'>    <span class="o">.</span><span class="na">addVertex</span><span class="o">(</span><span class="n">sumVertex</span><span class="o">)</span>
-</span><span class='line'>    <span class="o">.</span><span class="na">addVertex</span><span class="o">(</span><span class="n">writerVertex</span><span class="o">)</span>
-</span><span class='line'>    <span class="o">.</span><span class="na">addEdge</span><span class="o">(</span><span class="n">Edge</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">tokenizerVertex</span><span class="o">,</span> <span class="n">sumVertex</span><span class="o">,</span> <span class="n">tokenSumEdge</span><span class="o">.</span><span class="na">createDefaultEdgeProperty</span><span class="o">()))</span>
-</span><span class='line'>    <span class="o">.</span><span class="na">addEdge</span><span class="o">(</span><span class="n">Edge</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">sumVertex</span><span class="o">,</span> <span class="n">writerVertex</span><span class="o">,</span> <span class="n">sumWriterEdge</span><span class="o">.</span><span class="na">createDefaultBroadcastEdgeProperty</span><span class="o">()));</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The execution of this DAG looks something like this:</p>
-
-<p><img src="http://yuml.me/b6bf74a3" alt="" /></p>
-
-<p>In the last Vertex we start collecting the grouped sorted data so we can take the first K elements. This part kills the parallelism as
-we need to see the global picture here, that&rsquo;s why you can see that the parallelism is
-<a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/tez-topk/src/main/java/com/sequenceiq/tez/topk/TopK.java#L129">set</a> to <code>1</code>.
-Leaving the parallelism undefined or -1 results that the number of launched tasks will be determined by the <code>ApplicationMaster</code>.</p>
-
-<h3>TopK DataGen</h3>
-
-<p>You also can generate an arbitrary size of dataset with the
-<a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/tez-topk/src/main/java/com/sequenceiq/tez/topk/TopKDataGen.java">TopKDataGen</a>
-job. This is a special DAG which has only 1 Vertex and no Edges.</p>
-
-<h3>How to run the examples</h3>
-
-<p>First of all you will need a Tez cluster &ndash; we have put together a real one, you can get it from <a href="http://blog.sequenceiq.com/blog/2014/09/19/apache-tez-cluster/">here</a>. Pull the container, and follow the instructions below.</p>
-
-<p>Build the project <code>mvn clean install</code> which will generate a jar. Copy this jar to HDFS and you are good to go. In order to make this jar
-runnable we also created a
-<a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/tez-topk/src/main/java/com/sequenceiq/tez/topk/TopKDriver.java">driver</a>
-class.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">hadoop</span> <span class="n">jar</span> <span class="n">tez</span><span class="o">-</span><span class="n">topk</span><span class="o">-</span><span class="mf">1.0</span><span class="o">.</span><span class="na">jar</span> <span class="n">topkgen</span> <span class="o">/</span><span class="n">data</span> <span class="mi">1000000</span>
-</span><span class='line'><span class="n">hadoop</span> <span class="n">jar</span> <span class="n">tez</span><span class="o">-</span><span class="n">topk</span><span class="o">-</span><span class="mf">1.0</span><span class="o">.</span><span class="na">jar</span> <span class="n">topk</span> <span class="o">/</span><span class="n">data</span> <span class="o">/</span><span class="n">result</span> <span class="mi">0</span> <span class="mi">10</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>What&rsquo;s next</h2>
-
-<p>In the next post we&rsquo;ll see how we can achieve the same with Spark and we&rsquo;ll do a performance comparison on a large dataset.
-Cascading also works on the Tez integration, so we&rsquo;ll definitely report on that too.
-If you have any questions or suggestions you can reach us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   

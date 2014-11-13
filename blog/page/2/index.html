@@ -130,6 +130,87 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/10/16/using-uaa-as-an-identity-server/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">16 October 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/cloudfoundry/"><span class="label label-warning">CloudFoundry</span></a>
+            
+            <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
+            
+            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
+            
+            <a href="/blog/categories/oauth2/"><span class="label label-warning">OAuth2</span></a>
+            
+            <a href="/blog/categories/uaa/"><span class="label label-warning">UAA</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/10/16/using-uaa-as-an-identity-server/">Securing Cloudbreak with OAuth2</a>
+          <span class="badge name-badge">Marton Sereg</span>
+
+      </h1>
+      <p>When we first released <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> &ndash; our Hadoop as a Service API &ndash; it contained its own authentication and user management layer.
+We were using basic authentication for the API calls so every request had to contain a username and a password <em>Base64</em> encoded in the authorization header.
+Cloudbreak also had its own user representation and we were binding the resources &ndash; like clusters &ndash; to these users.</p>
+
+<p>This approach had multiple flaws. As we were starting to develop multiple <a href="http://sequenceiq.com/periscope/">projects</a> for our future Platform as a Service solution it became obvious that we will have to refactor our whole user management layer out from Cloudbreak and <strong>share it across our projects</strong>.
+Base64 encoding of usernames and passwords is not the best solution either even if transport layer security is working.</p>
+
+<p>What comes into play almost instantly when dealing with these kind of problems is <strong>OAuth2</strong> but it&rsquo;s not as trivial as it first sounds.</p>
+
+<h2>OAuth2</h2>
+
+<p>The main &ldquo;problem&rdquo; with OAuth2 is that its <a href="http://tools.ietf.org/html/rfc6749">specification</a> leaves a lot of decisions up to the implementations.
+First of all it does not speak at all about authentication, only authorization. It also leaves out details such as how to manage users, how scopes and tokens look like or how these tokens should be checked by a resource server.</p>
+
+<p>Because of all these reasons implementing a full OAuth2 solution from scratch means a <em>lot</em> of work and reinventing the wheel and of course we didn&rsquo;t want to do that.
+Luckily there are a few specifications that complement the original standard and there are also some solutions that implement not only the basic specification but these complementary specifications too.</p>
+
+<p><strong><a href="https://github.com/cloudfoundry/uaa">UAA</a> is CloudFoundry&rsquo;s fully open source identity management service.</strong>
+According to the documentation its primary role is as an OAuth2 provider that can issue tokens for client applications, but it can also authenticate users and can manage user accounts and OAuth2 clients through an HTTP API.
+To achieve these things it uses these specifications:</p>
+
+<ul>
+<li><p><a href="http://openid.net/connect/">OpenID Connect</a> for authentication</p></li>
+<li><p><a href="http://www.simplecloud.info/">SCIM</a> for user management</p></li>
+<li><p><a href="http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html">JWT</a> for token representation</p></li>
+</ul>
+
+
+<p>UAA adds a few more things on top of these like client management endpoints which makes it a complete solution as an identity server.
+And the best thing is that it is <strong>fully configurable through environment variables and a YAML file</strong>.</p>
+
+
+      
+       <a href="/blog/2014/10/16/using-uaa-as-an-identity-server/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/10/15/hadoop-metrics/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -728,87 +809,6 @@ go for the <strong>standalone</strong> version.</p>
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/09/23/topn-on-apache-tez/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">23 September 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/apache-tez/"><span class="label label-warning">Apache Tez</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/09/23/topn-on-apache-tez/">TopK on Apache Tez</a>
-          <span class="badge name-badge">Krisztian Horvath</span>
-
-      </h1>
-      <p>The Apache Tez community draw attention last week with their latest release <a href="http://tez.apache.org/releases/0.5.0/release-notes.txt">0.5.0</a>
-of the application framework. At SequenceIQ we always try to find and provide the best solutions to our customers and share the experience we gain by
-being involved in many open source Apache projects. We are always looking for the latest innovations, and try to apply them to our projects.
-For a while we have been working hard on a new project called
-<a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> which we&rsquo;ll open source in the near future. One handy feature of the projects is the ability to run the same pipes on <code>MR2</code>, <code>Spark</code> and <code>Tez</code> &ndash; your choice.
-In the next couple of posts we&rsquo;ll compare these runtimes using different jobs and as the first example to implement we chose TopK. Before going into
-details let&rsquo;s revisit what Apache Tez is made of.</p>
-
-<h2>Apache Tez key concepts</h2>
-
-<ul>
-<li>One of the most important feature is that there is no heavy deployment phase which otherwise could go wrong in many ways &ndash; probably sounds familiar
-for most of us. There is a nice <a href="http://tez.apache.org/install.html">install guide</a> on the project&rsquo;s page which you can follow, but basically
-you have to copy a bunch of jars to HDFS and you&rsquo;re almost good to go.</li>
-<li>Multiple versions of Tez can be used at the same time which solves a common problem, the rolling upgrades.</li>
-<li>Distributed data processing jobs typically look like <code>DAGs</code> (directed acyclic graphs) and Tez relies on this concept to define your jobs.
-DAGs are made from <code>Vertices</code> and <code>Edges</code>. Vertices in the graph represent data transformations while edges represent the data movement
-from producers to consumers. The DAG itself defines the structure of the data processing and the relationship between producers and consumers.</li>
-</ul>
-
-
-<p>Tez provides faster execution and higher predictability because:</p>
-
-<ul>
-<li>Eliminates replicated write barriers between successive computations</li>
-<li>Eliminates the job launch overhead</li>
-<li>Eliminates the extra stage of map reads in every workflow job</li>
-<li>Provides better locality</li>
-<li>Capable to re-use containers which reduces the scheduling time and speeds up incredibly the short running tasks</li>
-<li>Can share in-memory data across tasks</li>
-<li>Can run multiple DAGs in one session</li>
-<li>The core engine can be customized (vertex manager, DAG scheduler, task scheduler)</li>
-<li>Provides an event mechanism to communicate between tasks (data movement events to inform consumers by the data location)</li>
-</ul>
-
-
-<p>If you&rsquo;d like to try Tez on a fully functional multi-node cluster we put together an Ambari based Docker image. Click
-<a href="http://blog.sequenceiq.com/blog/2014/09/19/apache-tez-cluster/">here</a> for details.</p>
-
-
-      
-       <a href="/blog/2014/09/23/topn-on-apache-tez/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -830,6 +830,10 @@ from producers to consumers. The DAG itself defines the structure of the data pr
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/11/13/kylin-on-docker/">Extreme OLAP Engine running in Docker</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/11/10/new-yarn-features-part-1-label-based-scheduling/">New YARN features: Label based scheduling</a>

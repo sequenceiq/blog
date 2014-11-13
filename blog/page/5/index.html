@@ -130,6 +130,65 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">22 July 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+            <a href="/blog/categories/schedulers/"><span class="label label-warning">Schedulers</span></a>
+            
+            <a href="/blog/categories/yarn/"><span class="label label-warning">YARN</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/07/22/schedulers-part-1/">YARN Schedulers demystified - Part 1: Capacity</a>
+          <span class="badge name-badge">Krisztian Horvath</span>
+
+      </h1>
+      <p>After our first <a href="http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues/">post</a> about re-prioritizing already submitted and running jobs on different queues we have received many questions and feedbacks about the Capacity Scheduler internals. While there is <code>some</code> documentation available, there is no extensive and deep documentation about how it actually works internally. Since it&rsquo;s all event based it&rsquo;s pretty hard to understand the flow &ndash; let alone debugging it. At <a href="http://sequenceiq.com/">SequenceIQ</a> we are working on a heuristic cluster scheduler &ndash; and understanding how YARN schedulers work was essential. This is part of a larger piece of work &ndash; which will lead to a fully dynamic Hadoop cluster &ndash; orchestrating <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; the first open source and Docker based <strong>Hadoop as a Service API</strong>. As usual for us, this work and what we have already done around Capacity and Fair schedulers will be open sourced (or already contributed back to Apache YARN project).</p>
+
+<h2>The Capacity Scheduler internals</h2>
+
+<p>The CapacityScheduler is the default scheduler used with Hadoop 2.x. Its purpose is to allow multi-tenancy and share resources between multiple organizations and applications on the same cluster. You can read about the high level abstraction
+<a href="http://hadoop.apache.org/docs/r2.3.0/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html">here</a>. In this blog entry we&rsquo;ll examine it
+from a deep technical point of view (the implementation can be found <a href="https://github.com/apache/hadoop-common/tree/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity">here</a>
+as part of the ResourceManager). I&rsquo;ll try to keep it short and deal with the most important aspects, preventing to write a book about it (would be still better than twilight).</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-queue-tests/src/main/resources/event-flow.gif"></p>
+
+<p>The animation shows a basic application submission event flow, but don&rsquo;t worry if you don&rsquo;t understand it yet, hopefully you will when you&rsquo;re done with the reading.</p>
+
+
+      
+       <a href="/blog/2014/07/22/schedulers-part-1/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -787,62 +846,6 @@ the glue-code is different. Let&rsquo;s start with the most simple setup:</p>
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/06/06/hadoop-summit-slides/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">06 June 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/apache-ambari/"><span class="label label-warning">Apache Ambari</span></a>
-            
-            <a href="/blog/categories/devops/"><span class="label label-warning">DevOps</span></a>
-            
-            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
-            
-            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/06/06/hadoop-summit-slides/">Hadoop Summit 2014 - SequenceIQ slides</a>
-          <span class="badge name-badge">Janos Matyas</span>
-
-      </h1>
-      <p>These are the slides of our presentation from the Hadoop Summit 2014, San Jose. We would like to thank all who have joined the session and the positive feedbacks we have received. This gives us a great confidence and validates our efforts that there is a great need to an easy and seamless Hadoop provisionig &ndash; let it be bare metal, cloud or other virtualizations.</p>
-
-<p>Watch this space as <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a> will be open sourced in the coming weeks.</p>
-
-<iframe src="http://www.slideshare.net/slideshow/embed_code/35573123" width="640" height="400" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px 1px 0; margin-bottom:5px; max-width: 100%;" allowfullscreen> </iframe>
-
-
-<p> <div style="margin-bottom:5px"> <strong> <a href="https://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning" title="Docker based Hadoop provisioning - Hadoop Summit 2014 " target="_blank">Docker based Hadoop provisioning &ndash; Hadoop Summit 2014 </a> </strong> from <strong><a href="http://www.slideshare.net/JanosMatyas" target="_blank">Janos Matyas</a></strong> </div></p>
-
-      
-      
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -864,6 +867,10 @@ the glue-code is different. Let&rsquo;s start with the most simple setup:</p>
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/11/13/kylin-on-docker/">Extreme OLAP Engine running in Docker</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/11/10/new-yarn-features-part-1-label-based-scheduling/">New YARN features: Label based scheduling</a>

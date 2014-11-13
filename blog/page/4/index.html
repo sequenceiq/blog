@@ -130,6 +130,101 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/08/29/aws-cloudformation-makes-everything-easier/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">29 August 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/aws/"><span class="label label-warning">AWS</span></a>
+            
+            <a href="/blog/categories/cloud/"><span class="label label-warning">Cloud</span></a>
+            
+            <a href="/blog/categories/cloudformation/"><span class="label label-warning">CloudFormation</span></a>
+            
+            <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
+            
+            <a href="/blog/categories/infrastructure/"><span class="label label-warning">infrastructure</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/08/29/aws-cloudformation-makes-everything-easier/">Infrastructure management with CloudFormation</a>
+          <span class="badge name-badge">Marton Sereg</span>
+
+      </h1>
+      <p>Our Hadoop as a Service solution, <a href="https://cloudbreak.sequenceiq.com">Cloudbreak</a> integrates with multiple cloud providers to deploy Hadoop clusters in the cloud. It means that every time a cluster is requested, Cloudbreak goes to the selected cloud provider and creates a new, separated infrastructure through the provider’s API. Building this infrastructure can be a real pain and can cause a lot of problems &ndash; it involves a lot of API calls, the polling of created building blocks, the management of failures and the necessary rollbacks to name a few. With the help of <a href="http://aws.amazon.com/cloudformation/">AWS CloudFormation</a> we were able to avoid most of these problems when integrating AWS in Cloudbreak.</p>
+
+<h3>Problems with the traditional approach</h3>
+
+<p>When Cloudbreak creates a Hadoop cluster it should first create the underlying infrastructure on the cloud provider. The building blocks are a bit different on every provider, the following resources are created on AWS:</p>
+
+<ul>
+<li>a virtual private cloud (VPC)</li>
+<li>a subnet</li>
+<li>an internet gateway</li>
+<li>a route table</li>
+<li>an auto scaling group and its launch configuration</li>
+<li>a security group</li>
+</ul>
+
+
+<p>Although AWS has a pretty good API and great SDKs to communicate with it, we needed to deal with the above described problems if we would like to create all of these elements one by one through the Java SDK. The code would start with something like this with the creation of the VPC:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">AmazonEC2Client</span> <span class="n">amazonEC2Client</span> <span class="o">=</span> <span class="k">new</span> <span class="n">AmazonEC2Client</span><span class="o">(</span><span class="n">basicSessionCredentials</span><span class="o">);</span>
+</span><span class='line'><span class="n">amazonEC2Client</span><span class="o">.</span><span class="na">setRegion</span><span class="o">(</span><span class="n">region</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">CreateVpcRequest</span> <span class="n">vpcRequest</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CreateVpcRequest</span><span class="o">().</span><span class="na">withCidrBlock</span><span class="o">(</span><span class="mf">10.0</span><span class="o">.</span><span class="mf">0.0</span><span class="o">/</span><span class="mi">24</span><span class="o">);</span>
+</span><span class='line'><span class="n">CreateVpcResponse</span> <span class="n">vpcResponse</span> <span class="o">=</span> <span class="n">amazonEC2Client</span><span class="o">.</span><span class="na">createVpc</span><span class="o">(</span><span class="n">createVpcRequest</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//poll vpc creation until it’s state is available</span>
+</span><span class='line'><span class="n">waitForVPC</span><span class="o">(</span><span class="n">amazonEC2Client</span><span class="o">,</span> <span class="n">vpcResponse</span><span class="o">.</span><span class="na">getVpc</span><span class="o">());</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">ModifyVpcAttributeRequest</span> <span class="n">modifyVpcRequest</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ModifyVpcAttributeRequest</span><span class="o">().</span><span class="na">withEnableDnsHostnames</span><span class="o">(</span><span class="kc">true</span><span class="o">).</span><span class="na">withEnableDnsSupport</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span><span class='line'><span class="n">amazonEC2Cient</span><span class="o">.</span><span class="na">modifyVpcAttribute</span><span class="o">(</span><span class="n">modifyVpcRequest</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+
+      
+       <a href="/blog/2014/08/29/aws-cloudformation-makes-everything-easier/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -818,65 +913,6 @@ Check our previous blog posts about a <a href="http://blog.sequenceiq.com/blog/2
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">22 July 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
-            
-            <a href="/blog/categories/schedulers/"><span class="label label-warning">Schedulers</span></a>
-            
-            <a href="/blog/categories/yarn/"><span class="label label-warning">YARN</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/07/22/schedulers-part-1/">YARN Schedulers demystified - Part 1: Capacity</a>
-          <span class="badge name-badge">Krisztian Horvath</span>
-
-      </h1>
-      <p>After our first <a href="http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues/">post</a> about re-prioritizing already submitted and running jobs on different queues we have received many questions and feedbacks about the Capacity Scheduler internals. While there is <code>some</code> documentation available, there is no extensive and deep documentation about how it actually works internally. Since it&rsquo;s all event based it&rsquo;s pretty hard to understand the flow &ndash; let alone debugging it. At <a href="http://sequenceiq.com/">SequenceIQ</a> we are working on a heuristic cluster scheduler &ndash; and understanding how YARN schedulers work was essential. This is part of a larger piece of work &ndash; which will lead to a fully dynamic Hadoop cluster &ndash; orchestrating <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; the first open source and Docker based <strong>Hadoop as a Service API</strong>. As usual for us, this work and what we have already done around Capacity and Fair schedulers will be open sourced (or already contributed back to Apache YARN project).</p>
-
-<h2>The Capacity Scheduler internals</h2>
-
-<p>The CapacityScheduler is the default scheduler used with Hadoop 2.x. Its purpose is to allow multi-tenancy and share resources between multiple organizations and applications on the same cluster. You can read about the high level abstraction
-<a href="http://hadoop.apache.org/docs/r2.3.0/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html">here</a>. In this blog entry we&rsquo;ll examine it
-from a deep technical point of view (the implementation can be found <a href="https://github.com/apache/hadoop-common/tree/trunk/hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-resourcemanager/src/main/java/org/apache/hadoop/yarn/server/resourcemanager/scheduler/capacity">here</a>
-as part of the ResourceManager). I&rsquo;ll try to keep it short and deal with the most important aspects, preventing to write a book about it (would be still better than twilight).</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/yarn-queue-tests/src/main/resources/event-flow.gif"></p>
-
-<p>The animation shows a basic application submission event flow, but don&rsquo;t worry if you don&rsquo;t understand it yet, hopefully you will when you&rsquo;re done with the reading.</p>
-
-
-      
-       <a href="/blog/2014/07/22/schedulers-part-1/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -898,6 +934,10 @@ as part of the ResourceManager). I&rsquo;ll try to keep it short and deal with t
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/11/13/kylin-on-docker/">Extreme OLAP Engine running in Docker</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/11/10/new-yarn-features-part-1-label-based-scheduling/">New YARN features: Label based scheduling</a>
