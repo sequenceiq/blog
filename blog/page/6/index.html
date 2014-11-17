@@ -130,6 +130,119 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">17 June 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/apache-ambari/"><span class="label label-warning">Apache Ambari</span></a>
+            
+            <a href="/blog/categories/devops/"><span class="label label-warning">DevOps</span></a>
+            
+            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/06/17/ambari-cluster-on-docker/">Ambari provisioned Hadoop cluster on Docker</a>
+          <span class="badge name-badge">Lajos Papp</span>
+
+      </h1>
+      <p>We are getting close to release and open source our <strong>Docker-based Hadoop Provisioning</strong> project.
+The <a href="http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning">slides</a>
+were presented recently at the <a href="http://hadoopsummit.org/san-jose/">Hadoop Summit</a>, and
+there is an interest from the community to learn the technical details.</p>
+
+<p>The project &ndash; called <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a> &ndash; will provide a REST API to provision a Hadoop cluster &ndash; anywhere. The cluster can be hosted
+on AWS EC2, Azure, physical servers or even your laptop &ndash; we are adding more providers &ndash; but always based on the same concept:
+<a href="http://ambari.apache.org/">Apache Ambari</a> managed <a href="http://www.docker.com/">Docker</a>
+containers.</p>
+
+<p>This blog entry is the first in a series, where we describe the Docker layer step-by-step:</p>
+
+<ul>
+<li>Single-node Docker based Hadoop &ldquo;cluster&rdquo; locally</li>
+<li>Multi-node Docker based Hadoop cluster</li>
+<li>Multi-node Docker based Hadoop cluster on EC2</li>
+<li>Cloudbreak</li>
+</ul>
+
+
+<h2>Get Docker</h2>
+
+<p>The only required software is Docker, so if you don&rsquo;t have it yet, jump to the
+installation section of the <a href="https://docs.docker.com/installation/">official documentation</a>.</p>
+
+<p>The very basic you need to work with Docker containers, is described in the
+<a href="https://docs.docker.com/userguide/dockerizing/">users guide</a>.</p>
+
+<h2>Single-node Cluster</h2>
+
+<p>All setup is based on <a href="https://hub.docker.com/u/sequenceiq/">Docker images</a> only
+the glue-code is different. Let&rsquo;s start with the most simple setup:</p>
+
+<ul>
+<li>start the first Docker container in the background that runs <strong>ambari-server</strong> and <strong>ambari-agent</strong>.</li>
+<li>start the second Docker container which:
+
+<ul>
+<li>waits for the agent connecting to the server</li>
+<li>starts an <a href="https://github.com/sequenceiq/ambari-shell">ambari-shell</a>, which will instruct ambari-server on its REST API:
+
+<ul>
+<li>define an <strong><a href="https://cwiki.apache.org/confluence/display/AMBARI/Blueprints">Ambari Blueprint</a></strong> by posting a JSON to <code>&lt;AMBARI_URL&gt;/api/v1/blueprints</code></li>
+<li>create a Hadoop cluster by posting a JSON to <code>&lt;AMBARI_URL&gt;/api/v1/clusters</code> using the blueprint created in the previous step</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/ambari:1.6.0 --tag ambari-server=true
+</span><span class='line'>docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -t --rm --entrypoint /bin/sh sequenceiq/ambari:1.6.0 -c /tmp/install-cluster.sh</span></code></pre></td></tr></table></div></figure>
+
+
+<p>or if you want a <strong>twitter-sized</strong> one-liner to start with Hadoop in less than a minute:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -LOs j.mp/ambari-singlenode && . ambari-singlenode</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+
+      
+       <a href="/blog/2014/06/17/ambari-cluster-on-docker/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/06/06/hadoop-summit-slides/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -820,82 +933,6 @@ For your convenience we have put together an automated install script which lets
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/03/19/hadoop-2-dot-3-with-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">19 March 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
-            
-            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
-            
-            <a href="/blog/categories/devops/"><span class="label label-warning">devops</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/03/19/hadoop-2-dot-3-with-docker/">Hadoop 2.3 with docker</a>
-          <span class="badge name-badge">Lajos Papp</span>
-
-      </h1>
-      <p>You want to try out hadoop 2.3? Go to the zoo and <a href="http://sethgodin.typepad.com/seths_blog/2005/03/dont_shave_that.html">shave a yak</a>.
-Or simply just use <a href="https://www.docker.io/">docker</a>.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -i -t sequenceiq/hadoop-docker /etc/bootstrap.sh -bash</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Testing</h2>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># start ssh and hdfs</span>
-</span><span class='line'><span class="nb">cd</span> <span class="nv">$HADOOP_PREFIX</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># run the mapreduce</span>
-</span><span class='line'>bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.3.0.jar grep input output <span class="s1">&#39;dfs[a-z.]+&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># check the output</span>
-</span><span class='line'>bin/hdfs dfs -cat output/*
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-
-      
-       <a href="/blog/2014/03/19/hadoop-2-dot-3-with-docker/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -917,6 +954,10 @@ Or simply just use <a href="https://www.docker.io/">docker</a>.</p>
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/11/27/datalake-cloudbreak-2/">Building the data lake in the cloud - Part2</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/11/13/kylin-on-docker/">Extreme OLAP Engine running in Docker</a>

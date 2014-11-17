@@ -130,6 +130,87 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/07/25/cloudbreak-technology/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">25 July 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/cloud/"><span class="label label-warning">Cloud</span></a>
+            
+            <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
+            
+            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/07/25/cloudbreak-technology/">Docker ships Hadoop to the cloud</a>
+          <span class="badge name-badge">Janos Matyas</span>
+
+      </h1>
+      <p>A week ago we have <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">announced</a> and open sourced <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a>, the first Docker based Hadoop as a Service API. In this post we&rsquo;d like to introduce you into the technical details and the building blocks of the architecture.
+Cloudbreak is built on the foundation of cloud providers APIs, Apache Ambari, Docker containers, Serf and dnsmasq. It is a cloud agnostic solution &ndash; as all the Hadoop services and components are running inside Docker containers &ndash; and these containers are shipped across different cloud providers.</p>
+
+<p>Cloudbreak product documentation: <a href="http://sequenceiq.com/cloudbreak">http://sequenceiq.com/cloudbreak</a></p>
+
+<p>Cloudbreak API documentation: <a href="http://docs.cloudbreak.apiary.io/">http://docs.cloudbreak.apiary.io/</a></p>
+
+<h2>How it works</h2>
+
+<p>From Docker containers point of view we have two kind of containers &ndash; based on their Ambari role &ndash; server and agent. There is one Docker container running the Ambari server, and there are many Docker containers running the Ambari agents. The used Docker image is always the same: <code>sequenceiq/ambari</code> and
+the Ambari role is decided based on the <code>$AMBARI_ROLE</code> variable.</p>
+
+<p>For example on Amazon EC2 this is how we start the containers:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>docker run -d -p &lt;LIST of ports&gt; -e <span class="nv">SERF_JOIN_IP</span><span class="o">=</span><span class="nv">$SERF_JOIN_IP</span> --dns 127.0.0.1 --name <span class="k">${</span><span class="nv">NODE_PREFIX</span><span class="k">}${</span><span class="nv">INSTANCE_IDX</span><span class="k">}</span> -h <span class="k">${</span><span class="nv">NODE_PREFIX</span><span class="k">}${</span><span class="nv">INSTANCE_IDX</span><span class="k">}</span>.<span class="k">${</span><span class="nv">MYDOMAIN</span><span class="k">}</span> --entrypoint /usr/local/serf/bin/start-serf-agent.sh  <span class="nv">$IMAGE</span> <span class="nv">$AMBARI_ROLE</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As we are starting up the instances and the Docker containers on the host, we&rsquo;d like them to join each other and be able to communicate &ndash; though we don&rsquo;t know the IP addresses beforehand. This can be challanging on cloud environments &ndash; where your IP address and DNS name is dynamically allocated &ndash; however you don&rsquo;t want to collect these imformations beforehand launching the Docker containers.
+For that we use Serf &ndash; and pass along the IP address <code>SERF_JOIN_IP=$SERF_JOIN_IP</code> of the first container. Using a gossip protocol Serf will automatically discover each other, set the DNS names, and configure the routing between the nodes.
+Serf reconfigures the DNS server <code>dnsmasq</code> running inside the container, and keeps it up to date with the joining or leaving nodes information.
+As you can see at startup we always pass a <code>--dns 127.0.0.1</code> dns server for the container to use.</p>
+
+<p>As you see there is no cloud specific code at the Docker containers level, the same technology can be used on bare metal as well.
+Check our previous blog posts about a <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">multi node Hadoop cluster on any host</a>.</p>
+
+<p>Obliviously there is some configuration on the host as well &ndash; for that and to handle early initialization of a cloud instance we use <a href="https://help.ubuntu.com/community/CloudInit">CloudInit</a>. We will write a blog post about these for every cloud provider we support.</p>
+
+<p>For additional information you can check our slides from the <a href="http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning">Hadoop Summit 2014</a>.</p>
+
+<p>Once Ambari is started it will install the selected components based on the passed Hadoop blueprint &ndash; and start the desired services.</p>
+
+
+      
+       <a href="/blog/2014/07/25/cloudbreak-technology/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/07/22/schedulers-part-1/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -733,119 +814,6 @@ we have created a couple of <a href="https://github.com/sequenceiq/docker-ambari
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">17 June 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/apache-ambari/"><span class="label label-warning">Apache Ambari</span></a>
-            
-            <a href="/blog/categories/devops/"><span class="label label-warning">DevOps</span></a>
-            
-            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
-            
-            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/06/17/ambari-cluster-on-docker/">Ambari provisioned Hadoop cluster on Docker</a>
-          <span class="badge name-badge">Lajos Papp</span>
-
-      </h1>
-      <p>We are getting close to release and open source our <strong>Docker-based Hadoop Provisioning</strong> project.
-The <a href="http://www.slideshare.net/JanosMatyas/docker-based-hadoop-provisioning">slides</a>
-were presented recently at the <a href="http://hadoopsummit.org/san-jose/">Hadoop Summit</a>, and
-there is an interest from the community to learn the technical details.</p>
-
-<p>The project &ndash; called <a href="http://docs.cloudbreak.apiary.io/">Cloudbreak</a> &ndash; will provide a REST API to provision a Hadoop cluster &ndash; anywhere. The cluster can be hosted
-on AWS EC2, Azure, physical servers or even your laptop &ndash; we are adding more providers &ndash; but always based on the same concept:
-<a href="http://ambari.apache.org/">Apache Ambari</a> managed <a href="http://www.docker.com/">Docker</a>
-containers.</p>
-
-<p>This blog entry is the first in a series, where we describe the Docker layer step-by-step:</p>
-
-<ul>
-<li>Single-node Docker based Hadoop &ldquo;cluster&rdquo; locally</li>
-<li>Multi-node Docker based Hadoop cluster</li>
-<li>Multi-node Docker based Hadoop cluster on EC2</li>
-<li>Cloudbreak</li>
-</ul>
-
-
-<h2>Get Docker</h2>
-
-<p>The only required software is Docker, so if you don&rsquo;t have it yet, jump to the
-installation section of the <a href="https://docs.docker.com/installation/">official documentation</a>.</p>
-
-<p>The very basic you need to work with Docker containers, is described in the
-<a href="https://docs.docker.com/userguide/dockerizing/">users guide</a>.</p>
-
-<h2>Single-node Cluster</h2>
-
-<p>All setup is based on <a href="https://hub.docker.com/u/sequenceiq/">Docker images</a> only
-the glue-code is different. Let&rsquo;s start with the most simple setup:</p>
-
-<ul>
-<li>start the first Docker container in the background that runs <strong>ambari-server</strong> and <strong>ambari-agent</strong>.</li>
-<li>start the second Docker container which:
-
-<ul>
-<li>waits for the agent connecting to the server</li>
-<li>starts an <a href="https://github.com/sequenceiq/ambari-shell">ambari-shell</a>, which will instruct ambari-server on its REST API:
-
-<ul>
-<li>define an <strong><a href="https://cwiki.apache.org/confluence/display/AMBARI/Blueprints">Ambari Blueprint</a></strong> by posting a JSON to <code>&lt;AMBARI_URL&gt;/api/v1/blueprints</code></li>
-<li>create a Hadoop cluster by posting a JSON to <code>&lt;AMBARI_URL&gt;/api/v1/clusters</code> using the blueprint created in the previous step</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -d -p 8080 -h amb0.mycorp.kom --name ambari-singlenode sequenceiq/ambari:1.6.0 --tag ambari-server=true
-</span><span class='line'>docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariserver -t --rm --entrypoint /bin/sh sequenceiq/ambari:1.6.0 -c /tmp/install-cluster.sh</span></code></pre></td></tr></table></div></figure>
-
-
-<p>or if you want a <strong>twitter-sized</strong> one-liner to start with Hadoop in less than a minute:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl -LOs j.mp/ambari-singlenode && . ambari-singlenode</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-
-      
-       <a href="/blog/2014/06/17/ambari-cluster-on-docker/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -867,6 +835,10 @@ the glue-code is different. Let&rsquo;s start with the most simple setup:</p>
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/11/27/datalake-cloudbreak-2/">Building the data lake in the cloud - Part2</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/11/13/kylin-on-docker/">Extreme OLAP Engine running in Docker</a>

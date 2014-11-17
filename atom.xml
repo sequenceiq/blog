@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-11-13T12:27:55+00:00</updated>
+  <updated>2014-11-17T13:58:28+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,161 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Building the data lake in the cloud - Part2]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/11/27/datalake-cloudbreak-2/"/>
+    <updated>2014-11-27T13:56:32+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/11/27/datalake-cloudbreak-2</id>
+    <content type="html"><![CDATA[<p>Few weeks ago we had a <a href="http://blog.sequenceiq.com/blog/2014/10/28/datalake-cloudbreak/">post</a> about building a <code>data lake</code> in the cloud using a cloud based <code>object storage</code> as the primary file system.
+In this post we&rsquo;d like to move forward and show you how to create an <code>always on</code> persistent datalake with <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> and create <code>ephemeral</code> clusters which can be scaled up and down based on configured SLA policies using <a href="http://sequenceiq.com/periscope/">Periscope</a>.</p>
+
+<p>Just as a quick reminder &ndash; both are open source projects under Apache2 license and the documentation and code is available following these links below.</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th> Name                  </th>
+<th> Description </th>
+<th> Documentation </th>
+<th> GitHub</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td> Cloudbreak         </td>
+<td> Cloud agnostic Hadoop as a Service </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/</a> </td>
+<td> <a href="https://github.com/sequenceiq/cloudbreak">https://github.com/sequenceiq/cloudbreak</a></td>
+</tr>
+<tr>
+<td></td>
+<td> Periscope          </td>
+<td> SLA policy based autoscaling for Hadoop clusters </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/</a> </td>
+<td> <a href="https://github.com/sequenceiq/periscope">https://github.com/sequenceiq/periscope</a></td>
+</tr>
+</tbody>
+</table>
+
+
+<h2>Sample architecture</h2>
+
+<p>For the sample use case we will create a <code>datalake</code> on <strong>AWS</strong> and <strong>Google Cloud</strong> as well &ndash; and use the most popular data warehouse software with an SQL interface &ndash; <a href="https://hive.apache.org/">Apache Hive</a>.</p>
+
+<!--more-->
+
+
+<p>From Hive perspective (simplified) while building the <code>datalake</code> there are tree main components:</p>
+
+<ul>
+<li>Hive warehouse &ndash; the location where the raw data is stored. Usually it&rsquo;s HDFS, in our case it&rsquo;s the <code>object store</code> &ndash; <strong>Amazon S3</strong> or <strong>Google Cloud Storage</strong></li>
+<li>Hive metastore service &ndash; the Hive metastore service stores the metadata for Hive tables and partitions in a relational database &ndash; aka: <strong>metastore DB</strong>, and provides clients (including Hive) access to this information</li>
+<li>Metastore database &ndash; a database implementation where the metastore information is stored and the local/remote metastore services talk to, over a JDBC interface</li>
+</ul>
+
+
+<p>The proposed sample architecture is shown on the diagram below &ndash; we have a <strong>permanent</strong> cluster which contains the <code>metastore database</code> and a local <code>metastore service</code>, an <strong>ephemeral</strong> cluster where the <code>metastore service</code> talks to a remote <code>metastore database</code> and the Hive <code>warehouse</code> with the data being stored in the cloud provider&rsquo;s <code>object store</code>.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/blog-test/source/source/images/hive-metastore/hive-permanent-ephemeral.jpg" alt="" /></p>
+
+<p>Setting up a an architecture as such can be pretty complicated and involves a few steps &ndash; where many things could go wrong.</p>
+
+<p>At <a href="http://sequenceiq.com">SequenceIQ</a> we try to automate all these steps and build into our product stack &ndash; and we did exactly the same with <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>. While a default Hive metastore cluster can be created in a fully automated manner using Cloudbreak <code>blueprints</code> in case of different cloud providers (remember we support AWS, Google Cloud and Azure, Open Stack in the pipeline) there are settings which you will need to apply on each nodes, reconfigure services, etc &ndash; and on a large cluster this is pretty awkward.
+Because of these in the next release of Cloudbreak we introduce a new concept called <strong>recipes</strong>. A recipe will embed a full architectural representation of the Hadoop stack &ndash; incorporating all the necessary settings, service configurations &ndash; and allows the end user to bring up clusters as the one(s) discussed in this blog &ndash; with a push of a button, API call or CLI interface.</p>
+
+<h2>Permanent cluster &ndash; on AWS and Google Cloud</h2>
+
+<p>Both Amazon EC2 and Google Cloud allows you to set up a permanent cluster and use their <code>object store</code> for the Hive warehouse. You can set up these clusters with <a href="http://cloudbreak.sequenceiq.com">Cloudbreak</a> &ndash; overriding the default configurations in the blueprints.</p>
+
+<h4>Using AWS S3 as the Hive warehouse</h4>
+
+<p>This setup will use the S3 Block FileSystem &ndash; as a quick note you need to remember that this is not interoperable with other S3 tools.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>{
+</span><span class='line'>  "core-site": {
+</span><span class='line'>    "fs.s3.awsAccessKeyId": "YOUR ACCESS KEY",
+</span><span class='line'>    "fs.s3.awsSecretAccessKey": "YOUR SECRET KEY"
+</span><span class='line'>  }
+</span><span class='line'>},
+</span><span class='line'>{
+</span><span class='line'>  "hive-site": {
+</span><span class='line'>    "hive.metastore.warehouse.dir": "s3://siq-hadoop/apps/hive/warehouse"
+</span><span class='line'>  }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You will need to create an S3 <code>bucket</code> first &ndash; <code>siq-hadoop</code> in our example &ndash; that will contain the Hive warehouse. After the cluster is up you can start using Hive as usual. When you create a table its metadata will be stored in the MySQL database configured in the blueprint and if you load data in it, it will be moved to the warehouse location on S3. Note that in order to use the <code>LOAD DATA INPATH</code> hive command the source and target directories must be located on the same filesystem, so a file in local HDFS cannot be used.</p>
+
+<h4>Using Google Storage as the Hive warehouse</h4>
+
+<p>This setup will use the Google Storage &ndash; and the GS to HDFS connector.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  "global": {
+</span><span class='line'>    "fs.gs.impl": "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem",
+</span><span class='line'>    "fs.AbstractFileSystem.gs.impl": "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS",
+</span><span class='line'>    "fs.gs.project.id": "siq-haas",
+</span><span class='line'>    "google.cloud.auth.service.account.enable": true,
+</span><span class='line'>    "google.cloud.auth.service.account.email": "YOUR_ACCOUNT_ID@developer.gserviceaccount.com",
+</span><span class='line'>    "google.cloud.auth.service.account.keyfile": "/mnt/fs1/&lt;PRIVATE_KEY_FILE&gt;.p12"
+</span><span class='line'>  }</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note that in case of Google being used as an object store you will need to add your account details and the path towards your P12 file. You&rsquo;ll also have to copy the connector JAR to the classpath and the p12 file to every node as mentioned in our previous <a href="http://blog.sequenceiq.com/blog/2014/10/28/datalake-cloudbreak/">post</a>.</p>
+
+<h2>Ephemeral cluster &ndash; on AWS and Google Cloud</h2>
+
+<p>Ephemeral Hive clusters are using a very similar configuration: they also have to reach the object store as HDFS so the corresponding configurations must be there in the blueprint. The only <a href="http://docs.hortonworks.com/HDPDocuments/HDP1/HDP-1.2.2/bk_installing_manually_book/content/rpm-chap6-3.html">additional parameters</a> needed are the ones that configure how the metastore service of the ephemeral cluster will reach the Hive <code>metastore DB</code> in the permanent cluster. Note: on the permanent cluster you will have to configure the <code>metastore DB</code> to allow connections from remote clusters.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>{
+</span><span class='line'>  "hive-site": {
+</span><span class='line'>    "hive.metastore.warehouse.dir": "s3://siq-hadoop/apps/hive/warehouse",
+</span><span class='line'>    "javax.jdo.option.ConnectionURL": "jdbc:mysql://$mysql.full.hostname:3306/$database.name?createDatabaseIfNotExist=true",
+</span><span class='line'>    "javax.jdo.option.ConnectionDriverName": "com.mysql.jdbc.Driver",
+</span><span class='line'>    "javax.jdo.option.ConnectionUserName": "dbusername",
+</span><span class='line'>    "javax.jdo.option.ConnectionPassword": "dbpassword"
+</span><span class='line'>  }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Conclusion</h2>
+
+<p>As highlighted in this example, building a data lake or data warehouse is pretty simple and can be automated with <a href="http://cloudbreak.sequenceiq.com">Cloudbreak</a> &ndash; also with the new <code>recipe</code> feature we are standardizing the provisioning of different Hadoop clusters. One of the coming posts will highlight the new architectural changes &ndash; and the components we use for service discovery/registry, failure detection, key/value store for dynamic configuration, feature flagging, coordination, leader election and more.</p>
+
+<p>Make sure you check back soon to our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
+on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Extreme OLAP Engine running in Docker]]></title>
@@ -2082,7 +2237,7 @@ In the benchmark, the jobs were submitted to the <code>default</code> queue and 
 <p>SequenceIQ is an innovative big data startup with the mission statement to simplify and automate provisioning of on-demand Hadoop clusters running on different environments. Leaders in “containerizing” Hadoop, SequenceIQ is the first company who provisions and runs the full Hadoop stack and components on Docker containers. The company has further plans to create the industry’s first cloud agnostic, autoscaling and use case driven Platform as a Service API, and break the common significant barriers of entry that exist with most big data projects through a series of As-a-Service API offerings.
 For more information follow up with us on @SequenceIQ and <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>.</p>
 
-<p><a href="&#x6d;&#97;&#105;&#108;&#x74;&#111;&#58;&#x69;&#110;&#102;&#111;&#64;&#115;&#101;&#113;&#x75;&#101;&#110;&#x63;&#x65;&#105;&#x71;&#46;&#99;&#111;&#109;">&#105;&#110;&#102;&#x6f;&#x40;&#115;&#x65;&#x71;&#117;&#101;&#110;&#99;&#x65;&#105;&#113;&#x2e;&#99;&#x6f;&#109;</a></p>
+<p><a href="&#x6d;&#97;&#105;&#108;&#116;&#111;&#x3a;&#x69;&#110;&#x66;&#111;&#64;&#x73;&#101;&#x71;&#117;&#x65;&#x6e;&#99;&#101;&#105;&#113;&#46;&#x63;&#x6f;&#x6d;">&#105;&#110;&#x66;&#111;&#64;&#115;&#101;&#113;&#117;&#101;&#110;&#99;&#101;&#105;&#x71;&#46;&#99;&#111;&#109;</a></p>
 ]]></content>
   </entry>
   
@@ -2609,166 +2764,6 @@ step-by step approach</li>
     <content type="html"><![CDATA[<p>We are happy to announce that Euroventures has invested in SequenceIQ. Euroventure&rsquo;s investment is intended to foster the company&rsquo;s growth in terms of staffing, technology stack and expansion into the U.S. market.</p>
 
 <p>Euroventures&#8217; press release is available <a href="http://www.euroventures.hu/news.php?id=296">here</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Edit files in Docker containers]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/09/24/edit-files-docker/"/>
-    <updated>2014-09-24T13:53:04+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/09/24/edit-files-docker</id>
-    <content type="html"><![CDATA[<p>I wish I get 1 dollar each time I install vi in a docker container &hellip; I wanted
-an easier way to edit files in a running docker container. First of all try to
-<strong>avoid</strong> editing files at all, as it is against the container philosophy
-(see the last paragraph).</p>
-
-<p>But if you have a valid reason, here comes the how-to.</p>
-
-<h2>Why Zedapp</h2>
-
-<p>Most of the time I use either vi or <a href="https://atom.io/">Atom</a>, but a few months
-ago I stumbled upon <a href="http://zedapp.org/">Zedapp</a> an opinionated editor. It aims to
-reduce cognitive load while editing, by simplifying things, like deliberately
-not using tabs.</p>
-
-<p>It stands out with its <strong>first-class support of remote editing</strong> let it be a
-remote server, or even directly editing github repositories.</p>
-
-<p>Zedapp just reached version 1.0 and if you like it, consider help Zef Hemmel
-at <a href="https://gratipay.com/zefhemel/">gratipay</a>, who was brave enough to quit his
-regular job, and work full time on an open-source project!</p>
-
-<h2>Install Zedapp</h2>
-
-<p>You can use zedapp as a <em>chrome plugin</em> or a <em>standalone</em> app. Downloads are
-available at: <a href="http://zedapp.org/download/">zedapp.org</a>. I recommend to
-go for the <strong>standalone</strong> version.</p>
-
-<!-- more -->
-
-
-<h2>Install zedrem</h2>
-
-<p>For <a href="http://zedapp.org/features/edit-remote-files/">remote editing</a>,
-you need zedrem, a small process serving files to be edited in Zedapp.
-Zedrem is packaged into a docker image:
-<a href="https://github.com/sequenceiq/docker-zedapp">sequenceiq/zedapp</a></p>
-
-<p>To start a local zed-server, and zed-client in the target container, there
-is a helper script: <strong>zed</strong></p>
-
-<p>To install the docker image and the shell script run this:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run --rm \
-</span><span class='line'>  -v /usr/local/bin:/target \
-</span><span class='line'>  -v /usr/local/bin/docker:/usr/local/bin/docker \
-</span><span class='line'>  -v /var/run/docker.sock:/var/run/docker.sock \
-</span><span class='line'>  sequenceiq/zedapp</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Actually there is only a single binary called <strong>zedrem</strong>, i just use the
-terminology: zed-server and zed-client to
-distinguish when you use it with or without the <code>--server</code> option.</p>
-
-<p>Now you are ready to start a zedrem session, to edit files in Zedapp which are
-inside of a Docker container&rsquo;s directory.</p>
-
-<h2>Start a zedrem session</h2>
-
-<p>To start a zedrem client in a container</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>zed &lt;container&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This will:
-&ndash; start a <code>zedrem-server</code> if not already running.
-&ndash; copy and start <code>zedrem-client</code> into the selected container and print out
-  the zedrem session&rsquo;s <strong>remote-url</strong>.</p>
-
-<p>Navigate to the project list window by: <code>Command-Shift-O</code>/<code>Ctrl-Shift-O</code>. Select
- <code>Remote Folder</code>, enter the remote-url into <code>Zedrem URL</code> input field and press
- <code>Open</code>.</p>
-
-<p>Thats all enyoj! All the following paragraphs are for the curious only.</p>
-
-<h2>Boot2docker helper function</h2>
-
-<p>The <code>Install zedrem</code> step should have detected that you are using Boot2docker,
-and instructed you to create a helper function, but in case you missed it, or
-for reference:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>zed() { boot2docker ssh "sudo zed $@" ; }</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This is needed as the helper script called <code>zed</code> is installed inside of
-Boot2docker, so you need the ususal <code>boot2docker ssh</code> workaround.</p>
-
-<p>after that you can issue directly on OSX:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>zed &lt;container&gt; &lt;directory&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Local zedrem server.</h2>
-
-<p>By default when you want to use Zedapp for remote editing, you need two
-other components then Zedapp:</p>
-
-<ul>
-<li><strong>zedrem-server</strong> Zedapp gets file content, and sends edit commands
-on webservices protocol. It maintains sessions with zedrem-clients.</li>
-<li><strong>zedrem-client</strong> a small process serving files from a specified directory.</li>
-</ul>
-
-
-<p>When you use zedrem-client via the official server, all the editing commands/content
-travel around the blobe:</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/docker-zedapp/master/images/zed-remote.png" alt="zedrem remote" /></p>
-
-<p>Compare it with the dockerized local server setup, which is more quick and
-secure:
-<img src="https://raw.githubusercontent.com/sequenceiq/docker-zedapp/master/images/zed-docker.png" alt="zedrem docker" /></p>
-
-<h2>nsenter</h2>
-
-<p>You might wonder about the step: <strong>copy zedrem into the container</strong>. How is it
-possible? Docker&rsquo;s <code>cp</code> command only supportts the other direction: copy from a
-container into a local dir.</p>
-
-<p>There is an <a href="https://github.com/docker/docker/issues/5846">open issue</a>, so it
-will be fixed soon, but meanwhile you can use nsenter to the rescue. Jérôme
-Petazzoni prepared us a canned <a href="https://github.com/jpetazzo/nsenter">nsenter</a>
-with the helper script: <code>docker-enter</code>. We can missuse docker-enter to copy
-a file from local fs into the container by:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>cat local-file | docker-enter $container sh -c 'cat&gt;/zedrem'</span></code></pre></td></tr></table></div></figure>
-
-
-<p>btw: <code>docker exec</code> is already merged into the master branch, so it will replace
-nsenter completely.</p>
-
-<h2>Don&rsquo;t do this at all</h2>
-
-<p>Let&rsquo;s make it clear, that most of the time you don&rsquo;t need this.
-First of all editing files in a container, other than development or debug
-considered bad practice.</p>
-
-<p>You find yourself editing nginx config files? Don&rsquo;t do it, use the great generic
-<a href="https://github.com/progrium/nginx-appliance">nginx appliance</a> from Jeff Lindsay.</p>
-
-<p>If you <strong>really</strong> need to edit files in a docker container, just use volumes.</p>
-
-<p>This process comes handy if you&rsquo;ve already started a container, and the file in
-question doesn&rsquo;t sits on a volume. [30]</p>
 ]]></content>
   </entry>
   

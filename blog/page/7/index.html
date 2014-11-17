@@ -130,6 +130,82 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/03/19/hadoop-2-dot-3-with-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">19 March 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+            <a href="/blog/categories/devops/"><span class="label label-warning">devops</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/03/19/hadoop-2-dot-3-with-docker/">Hadoop 2.3 with docker</a>
+          <span class="badge name-badge">Lajos Papp</span>
+
+      </h1>
+      <p>You want to try out hadoop 2.3? Go to the zoo and <a href="http://sethgodin.typepad.com/seths_blog/2005/03/dont_shave_that.html">shave a yak</a>.
+Or simply just use <a href="https://www.docker.io/">docker</a>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -i -t sequenceiq/hadoop-docker /etc/bootstrap.sh -bash</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Testing</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># start ssh and hdfs</span>
+</span><span class='line'><span class="nb">cd</span> <span class="nv">$HADOOP_PREFIX</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># run the mapreduce</span>
+</span><span class='line'>bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.3.0.jar grep input output <span class="s1">&#39;dfs[a-z.]+&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># check the output</span>
+</span><span class='line'>bin/hdfs dfs -cat output/*
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+
+      
+       <a href="/blog/2014/03/19/hadoop-2-dot-3-with-docker/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -818,6 +894,10 @@ SequenceIQ</p>
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/11/27/datalake-cloudbreak-2/">Building the data lake in the cloud - Part2</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/11/13/kylin-on-docker/">Extreme OLAP Engine running in Docker</a>
