@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Cloudbreak | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/cloudbreak/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-11-17T13:58:28+00:00</updated>
+  <updated>2014-11-17T14:10:28+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Building the data lake in the cloud - Part2]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/11/27/datalake-cloudbreak-2/"/>
-    <updated>2014-11-27T13:56:32+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/11/27/datalake-cloudbreak-2</id>
+    <link href="http://blog.sequenceiq.com/blog/2014/11/17/datalake-cloudbreak-2/"/>
+    <updated>2014-11-17T13:56:32+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/11/17/datalake-cloudbreak-2</id>
     <content type="html"><![CDATA[<p>Few weeks ago we had a <a href="http://blog.sequenceiq.com/blog/2014/10/28/datalake-cloudbreak/">post</a> about building a <code>data lake</code> in the cloud using a cloud based <code>object storage</code> as the primary file system.
 In this post we&rsquo;d like to move forward and show you how to create an <code>always on</code> persistent datalake with <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> and create <code>ephemeral</code> clusters which can be scaled up and down based on configured SLA policies using <a href="http://sequenceiq.com/periscope/">Periscope</a>.</p>
 
@@ -231,7 +231,7 @@ Usage:
 <p>Options:
   &mdash;cloudbreak.address=&lt;http[s]://HOSTNAME:PORT>  Address of the Cloudbreak Server [default: <a href="https://cloudbreak-api.sequenceiq.com">https://cloudbreak-api.sequenceiq.com</a>].
   &mdash;identity.address=&lt;http[s]://HOSTNAME:PORT>    Address of the SequenceIQ identity server [default: <a href="https://identity.sequenceiq.com">https://identity.sequenceiq.com</a>].
-  &mdash;sequenceiq.user=<USER>                        Username of the SequenceIQ user [default: <a href="&#109;&#97;&#105;&#x6c;&#x74;&#111;&#58;&#117;&#x73;&#101;&#114;&#x40;&#115;&#x65;&#113;&#117;&#x65;&#x6e;&#99;&#x65;&#x69;&#113;&#x2e;&#99;&#111;&#109;">&#117;&#115;&#101;&#114;&#x40;&#115;&#101;&#x71;&#117;&#x65;&#x6e;&#99;&#101;&#x69;&#113;&#46;&#99;&#111;&#109;</a>].
+  &mdash;sequenceiq.user=<USER>                        Username of the SequenceIQ user [default: <a href="&#109;&#x61;&#x69;&#x6c;&#x74;&#111;&#x3a;&#117;&#x73;&#x65;&#x72;&#64;&#115;&#101;&#113;&#117;&#x65;&#x6e;&#99;&#x65;&#105;&#113;&#46;&#99;&#x6f;&#109;">&#117;&#x73;&#101;&#x72;&#x40;&#115;&#101;&#113;&#x75;&#101;&#110;&#99;&#101;&#105;&#x71;&#x2e;&#99;&#x6f;&#109;</a>].
   &mdash;sequenceiq.password=<PASSWORD>                Password of the SequenceIQ user [default: password].</p>
 
 <p>Note:
