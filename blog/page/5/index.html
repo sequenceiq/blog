@@ -130,6 +130,75 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/07/31/spark-mllib/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">31 July 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/kmeans/"><span class="label label-warning">KMeans</span></a>
+            
+            <a href="/blog/categories/mllib/"><span class="label label-warning">MLlib</span></a>
+            
+            <a href="/blog/categories/spark/"><span class="label label-warning">Spark</span></a>
+            
+            <a href="/blog/categories/tez/"><span class="label label-warning">Tez</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/07/31/spark-mllib/">Apache Spark - MLlib Introduction</a>
+          <span class="badge name-badge">Oliver Szabo</span>
+
+      </h1>
+      <h3>Introduction</h3>
+
+<p>In one of our earlier posts we have mentioned that we use Scalding (among others) for writing MR jobs. Scala/Scalding simplifies the implementation of many MR patterns and makes it easy to implement quite complex jobs like machine learning algorithms. Map Reduce is a mature and widely used framework and it is a good choice for processing large amounts of data &ndash; but not as great if you’d like to use it for fast iterative algorithms/processing. This is a use case where <a href="https://spark.apache.org/">Apache Spark</a> can be quite handy. Spark is fit for these kind of algorithms, because it tries to keep everything in memory (in case of you run out of memory, you can switch to another <a href="http://spark.apache.org/docs/latest/programming-guide.html#rdd-persistence">storage levels</a>).</p>
+
+<h3>Apache Spark &ndash; MLlib library</h3>
+
+<p><a href="https://spark.apache.org/docs/latest/mllib-guide.html">MLlib</a> is a machine learning library which ships with Apache Spark, and can run on any Hadoop2/YARN cluster without any pre-installation. At SequenceIQ we use MLlib in Scala &ndash; but you could use it from Java and Python as well. Let us quickly show you an MLlib clustering algorithm with code examples.</p>
+
+<h3>KMeans example</h3>
+
+<p>K-Means (Lloyd&rsquo;s algorithm) is a simple NP-hard unsupervised learning algorithm that solve well known clustering problems. The essence of the algorithm is to separate your data into K cluster. In simple terms it needs 4 steps. First of all you have to vectorize your data. (you can do that with text values too). The code looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">val</span> <span class="n">data</span> <span class="k">=</span> <span class="n">context</span><span class="o">.</span><span class="n">textFile</span><span class="o">(</span><span class="n">input</span><span class="o">).</span><span class="n">map</span> <span class="o">{</span>
+</span><span class='line'>  <span class="n">line</span> <span class="k">=&gt;</span> <span class="nc">Vectors</span><span class="o">.</span><span class="n">dense</span><span class="o">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="sc">&#39;,&#39;</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">toDouble</span><span class="o">))</span>
+</span><span class='line'><span class="o">}.</span><span class="n">cache</span><span class="o">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+      
+       <a href="/blog/2014/07/31/spark-mllib/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/07/25/cloudbreak-technology/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -740,80 +809,6 @@ In Scala the code would look like this:</p>
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">19 June 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/apache-ambari/"><span class="label label-warning">Apache Ambari</span></a>
-            
-            <a href="/blog/categories/devops/"><span class="label label-warning">DevOps</span></a>
-            
-            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
-            
-            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
-            
-            <a href="/blog/categories/multi-node/"><span class="label label-warning">Multi-node</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">Multi-node Hadoop cluster on Docker</a>
-          <span class="badge name-badge">Lajos Papp</span>
-
-      </h1>
-      <p>In the <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/">previous post</a>
-you saw how easy is to create a single-node Hadoop <em>cluster</em> on your devbox.</p>
-
-<p>Now lets raise the bar and create a multinode Hadoop cluster on Docker. Before we
-start, make sure you have the latest Ambari image:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/ambari:1.6.0</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>One-liner</h2>
-
-<p>Once you have the latest image, you can start running Docker containers.
-But instead of typing long commands like <code>docker run [options] image [command]</code>,
-we have created a couple of <a href="https://github.com/sequenceiq/docker-ambari/blob/master/ambari-functions">shell functions</a> to help you with Docker commands.</p>
-
-<p>Using these functions the impatient can provision a 3 node Hadoop cluster with this one-liner:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl -Lo .amb j.mp/docker-ambari && . .amb && amb-deploy-cluster</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-
-      
-       <a href="/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -835,6 +830,10 @@ we have created a couple of <a href="https://github.com/sequenceiq/docker-ambari
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/11/20/yarn-containers-and-docker/">YARN containers as Docker containers in Docker</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/11/17/datalake-cloudbreak-2/">Building the data lake in the cloud - Part2</a>

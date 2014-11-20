@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Self hosted ngrok server in Docker - SequenceIQ Blog</title>
+  <title>YARN containers as Docker containers in Docker - SequenceIQ Blog</title>
   <meta name="author" content="SequenceIQ">
 
    
@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2014/10/09/ngrok-docker">
+  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2014/11/20/yarn-containers-and-docker">
   <link href="/favicon.png" rel="icon">
   <link href='http://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
@@ -129,10 +129,10 @@
        
          
        
-       <h1 class="article-style"> Self hosted ngrok server in Docker
+       <h1 class="article-style"> YARN containers as Docker containers in Docker
 
-       <span class="badge name-badge">Lajos Papp</span>
-       <span class="badge name-badge">09 October 2014</span>
+       <span class="badge name-badge">Janos Matyas</span>
+       <span class="badge name-badge">20 November 2014</span>
        </h1>
 
 
@@ -145,170 +145,41 @@
 
   <div class="row-fluid">
     <div class="span12">
-      <p><a href="vhttps://ngrok.com/">Ngrok</a> is used for <code>introspected</code> tunnels to localhost.
-In integration testing situations is really common that you want to bind some webhooks
-to localhost. For example you want AWS SNS deliver messages to your service,
-but is not reachable publicly, as it runs only on localhost.</p>
+      <p>The new Hadoop 2.6 <a href="https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310240&amp;version=12327179">release</a> is almost here with an impressive set of new features and collaboration from the community &ndash; including <a href="http://sequenceiq.com">SequenceIQ</a> as well. It&rsquo;s not a new information that we use Docker quite a lot &ndash; and have <code>containerized</code> the full Hadoop ecosystem, and the <strong>2.6</strong> release will contain a new feature: <a href="https://issues.apache.org/jira/browse/YARN-1964">YARN-1964</a>.</p>
 
-<p>So its really 2 in 1: <strong>local tunnel</strong> and <strong>introspection</strong>. Sometimes you
-just want to use its <strong>introspection</strong> feature, to get insight about how a
-specific API works. It&rsquo;s like a local <a href="https://www.runscope.com/">runscope</a>.</p>
+<h2>YARN containers as .. Docker containers</h2>
 
-<p>While you can always use the free hosted version: <a href="https://ngrok.com/">ngrok</a>,
-there are reasons to roll you own:</p>
+<p><a href="https://issues.apache.org/jira/browse/MAPREDUCE-279">Introduction</a> of YARN has revolutionized Hadoop &ndash; extending it with a new resource management, opening up Hadoop to different workloads, etc. &ndash; it&rsquo;s all history and we know it. With the emergence and wide adoption of Docker these days we are part of another <code>interesting</code> times again. Hadoop 2.6 will introduce (though in <code>alpha</code>) an analogy of YARN containers as Docker containers.</p>
 
-<ul>
-<li>Sometimes the free hosted version has <strong>availability</strong> issues,when it gets heavy traffic</li>
-<li>Yo don&rsquo;t want your messages/calls go through a public free service, for
-<strong>security</strong> concerns</li>
-<li>You just want to use its <strong>introspection</strong> feature, and want to avoid the
-extra <strong>network</strong> round trip to ngrok.com and back.</li>
-</ul>
+<p>Just to remember, a container is the resource allocation which is the successful result of the ResourceManager granting a specific ResourceRequest. A Container grants rights to an application to use a specific amount of resources (memory, cpu etc.) on a specific host, and isolates it from other containers. Sounds familiar &ndash; well, among few others this is what exactly Docker does &ndash; with the additional benefit of <code>packaging</code> and <code>shipping</code> applications the easy way.</p>
+
+<!--more-->
 
 
-<p>There is documentation about <a href="https://github.com/inconshreveable/ngrok/blob/master/docs/SELFHOSTING.md">self hosting ngrok</a>
-But it include steps, like:</p>
+<p>Though there is still a long way to go in order to make this support the same features as YARN containers does today the future is very promising. All the networking, accessing external data, etc are already well-trodden paths. As an example <a href="https://registry.hub.docker.com/repos/sequenceiq/?&amp;s=downloads">SequenceIQ containers</a> available and open sourced on the official Docker registry all using some of these needed features.</p>
 
-<ul>
-<li>create an SSL certificate</li>
-<li>build server/client binaries using the cert above</li>
-<li>configure, and install it on your server</li>
-</ul>
+<h2>Wait, but you run Hadoop in Docker already</h2>
 
+<p>OK, got it. YARN containers are Docker containers. But wait, all the Hadoop ecosystem at <a href="http://sequenceiq.com">SequenceIQ</a> is running inside a cluster of Docker containers, right?
+Actually that&rsquo;s true &ndash; we run everything in Docker, and we will use these new feature to package some applications as Docker containers and run them inside YARN containers as Docker containers (err, how many times am I going to write down Docker in one sentence). Basically we will run <strong>Docker in Docker</strong>. How&rsquo;s that possible? Pretty easy and simple, Docker already does support this &ndash; the only requirement is that your Docker version should support the <code>--privileged</code> flag (0.6+).</p>
 
-<p>How about using a <strong>single click</strong> version of this? Easy: we have already containerized
-this process and made it available in the official Docker
-<a href="https://registry.hub.docker.com/u/sequenceiq/ngrokd/">repository</a>.</p>
+<p>We have put together a Docker container for you to give it a quick try &ndash; it&rsquo;s available on our <a href="https://github.com/sequenceiq/docker-dind">GitHub page</a>.</p>
 
-<!-- more -->
-
-
-<h2>Running</h2>
-
-<p>To launch the ngrok daemon, you just have to start the <code>sequenceiq/ngrokd</code> Docker image:</p>
+<p>Built the container</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -d --name ngrokd \
-</span><span class='line'>  -p 4480:4480 \
-</span><span class='line'>  -p 4444:4444 \
-</span><span class='line'>  -p 4443:4443 \
-</span><span class='line'>  sequenceiq/ngrokd \
-</span><span class='line'>    -httpAddr=:4480 \
-</span><span class='line'>    -httpsAddr=:4444 \
-</span><span class='line'>    -domain=ngrok.mydomain.com</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker build -t sequenceiq/dind .</span></code></pre></td></tr></table></div></figure>
 
 
-<p>It will expose 3 ports:</p>
-
-<ul>
-<li><strong>4444</strong>: that is the so called control port, ngrok clients connect there</li>
-<li><strong>4480/4443</strong>: this to port is used for the tunneled http/https connections</li>
-<li><strong>domain</strong>: this is the domain name, clients need to use to connect to the
-server, and the ngrok server will assign <code>&lt;SUBDOMAIN&gt;.ngrok.mydomain.com</code>
-addresses to each tunnel.</li>
-</ul>
-
-
-<h2>Install the custom <code>ngrok</code> client</h2>
-
-<p>You remember we have a custom ngrok daemon inside the Docker image. Based on the
-<a href="https://gist.github.com/lyoshenka/002b7fbd801d0fd21f2f">self hosting documentation</a></p>
-
-<blockquote><p>Since the client and server executables are paired, you won&rsquo;t be able to use
-  any other ngrok to connect to this ngrokd, and vice versa.</p></blockquote>
-
-<p>So we need the <em>paired</em> ngrok client</p>
-
-<h3>OSX</h3>
-
-<p>If you use brew:</p>
+<p>Run the container</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>brew cask install https://raw.githubusercontent.com/sequenceiq/docker-ngrokd/master/ngrok.rb</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -it --rm --privileged -e LOG=file sequenceiq/dind</span></code></pre></td></tr></table></div></figure>
 
 
-<p>otherwise:</p>
+<p>It will start a Docker daemon in the background (unix:///var/run/docker.sock) and provide a bash session where you can play with a vanilla Docker environment. Once you are inside the container you will be able to pull or start any other Docker container &ndash; this is basically will work the same way as the how a YARN Docker container will run inside a Dokcer container.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl -o /usr/local/bin/ngrok https://s3-eu-west-1.amazonaws.com/sequenceiq/ngrok_darwin
-</span><span class='line'>chmod +x /usr/local/bin/ngrok</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Linux</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl -o /usr/local/bin/ngrok https://s3-eu-west-1.amazonaws.com/sequenceiq/ngrok_linux
-</span><span class='line'>chmod +x /usr/local/bin/ngrok</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Please make sure you check the ngrok version:</p>
-
-<p>You should see the <code>1.7.2</code> on client side:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&gt; ngrok version
-</span><span class='line'>
-</span><span class='line'>1.7.2</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Client configuration</h2>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>cat &gt; ~/.ngrok &lt;&lt;EOF
-</span><span class='line'>server_addr: ngrok.mydomain.com:4443
-</span><span class='line'>trust_host_root_certs: false
-</span><span class='line'>EOF</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Hostname workaround</h2>
-
-<p>If you want to run ngrokd internally just use a new entry
-in <code>/etc/hosts</code></p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;NGROKD_IP&gt; ngrok.mydomain.com subdomain1.mydomain.com subdomain2.mydomain.com</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If you want a proper subdomain you need an <code>A record</code> such as:
-<code>*.ngrok.mydomain.com 54.72.21.93</code></p>
-
-<h2>Usage</h2>
-
-<p>Starting ngrok is business as usual, just use <code>ngrok &lt;port&gt;</code>.
-Pretty much that’s it, you have a self-hosted ngrok server in Docker.
-Then you can introspect the tunnel on <a href="http://127.0.0.0:4444">http://127.0.0.0:4444</a></p>
-
-<h2>Sample use case</h2>
-
-<p>To fully understand how Docker works, sometimes it&rsquo;s useful to see how the
-Docker client communicates with the Docker server. You can just use ngrok
-to introspect the Docker API.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ngrok -subdomain=docker 127.0.0.1:2375</span></code></pre></td></tr></table></div></figure>
-
-
-<p>then if you want to record API calls you have to configure</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>alias docker='docker --host=tcp://docker.ngrok.mydomain.com:4480'</span></code></pre></td></tr></table></div></figure>
-
-
-<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+<p>Once the new <strong>2.6</strong> release will be out we will release it as a Hadoop <a href="https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/">container</a> (as usuall) as well &ndash; to give you an easy way to try this new feature. Also we are putting together some examples in order to start experimenting this new cool feature &ndash; now that you understand how <strong>Docker in Docker</strong> works and you can start containers inside containers (inside containers, &hellip;) check back soon for some more serious stuff. In the meanwhile make sure you follow us through our <a href="http://blog.sequenceiq.com/">blog</a>, <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
 
     </div>
   </div>
@@ -320,7 +191,7 @@ to introspect the Docker API.</p>
     
   
 
-<span class="byline author vcard">Posted by <span class="fn">Lajos Papp</span></span>
+<span class="byline author vcard">Posted by <span class="fn">Janos Matyas</span></span>
 
     
     <div class="row">
@@ -332,9 +203,7 @@ to introspect the Docker API.</p>
 
 
 
-  <a href="/blog/categories/docker/"><span class="label label-warning">docker</span></a>
-
-  <a href="/blog/categories/ngrok/"><span class="label label-warning">ngrok</span></a>
+  <a href="/blog/categories/yarn/"><span class="label label-warning">YARN</span></a>
 
 
 
@@ -366,10 +235,8 @@ to introspect the Docker API.</p>
       <div class="span12">
         <p class="meta">
           
-            <a class="basic-alignment left" href="/blog/2014/10/07/hadoop-monitoring/" title="Previous Post: Real-time monitoring of Hadoop clusters">&laquo; Real-time monitoring of Hadoop clusters</a>
+            <a class="basic-alignment left" href="/blog/2014/11/17/datalake-cloudbreak-2/" title="Previous Post: Building the data lake in the cloud - Part2">&laquo; Building the data lake in the cloud - Part2</a>
           
-          
-            <a class=" basic-alignment pull-right" href="/blog/2014/10/15/hadoop-metrics/" title="Next Post: Real-time adjustments with Hadoop metrics">Real-time adjustments with Hadoop metrics &raquo;</a>
           
         </p>
       </div>
@@ -732,8 +599,8 @@ to introspect the Docker API.</p>
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2014/10/09/ngrok-docker/';
-        var disqus_url = 'http://blog.sequenceiq.com/blog/2014/10/09/ngrok-docker/';
+        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2014/11/20/yarn-containers-and-docker/';
+        var disqus_url = 'http://blog.sequenceiq.com/blog/2014/11/20/yarn-containers-and-docker/';
         var disqus_script = 'embed.js';
       
     (function () {
