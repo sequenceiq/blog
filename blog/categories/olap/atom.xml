@@ -4,7 +4,7 @@
   <title><![CDATA[Category: OLAP | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/olap/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-11-20T13:58:32+00:00</updated>
+  <updated>2014-11-20T22:23:40+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -54,7 +54,7 @@ services we&rsquo;ll build Kylin on top of it and then you can reach the UI on:
 <code>
 http://&lt;container_ip&gt;:9080
 </code>
-The default credentials to login are: <code>admin:KADMIN</code>. The cluster is pre-populated with sample data and is ready to build cubes as shown <a href="https://github.com/KylinOLAP/Kylin/wiki/Kylin-Cube-Creation-Tutorial">here</a>.</p>
+The default credentials to login are: <code>admin/KYLIN</code>. The cluster is pre-populated with sample data and is ready to build cubes as shown <a href="https://github.com/KylinOLAP/Kylin/wiki/Kylin-Cube-Creation-Tutorial">here</a>.</p>
 
 <p>Keep up with the latest news with us on our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
 on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
