@@ -4,7 +4,7 @@
   <title><![CDATA[Category: OLAP | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/olap/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-11-20T22:23:40+00:00</updated>
+  <updated>2014-11-21T08:24:08+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -52,7 +52,7 @@ docker pull sequenceiq/kylin
 <p>You can specify the number of nodes you&rsquo;d like to have in your cluster (3 in this case). Once we installed all the necessary Hadoop
 services we&rsquo;ll build Kylin on top of it and then you can reach the UI on:
 <code>
-http://&lt;container_ip&gt;:9080
+http://&lt;container_ip&gt;:7070
 </code>
 The default credentials to login are: <code>admin/KYLIN</code>. The cluster is pre-populated with sample data and is ready to build cubes as shown <a href="https://github.com/KylinOLAP/Kylin/wiki/Kylin-Cube-Creation-Tutorial">here</a>.</p>
 
