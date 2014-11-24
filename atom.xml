@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-11-21T08:24:08+00:00</updated>
+  <updated>2014-11-24T09:51:43+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,73 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Hadoop 2.5.2 on Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/11/24/hadoop-252-docker/"/>
+    <updated>2014-11-24T18:07:18+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/11/24/hadoop-252-docker</id>
+    <content type="html"><![CDATA[<p>Following the release cycle of Hadoop -2.5.2 point release- today we are releasing a new <code>2.5.2</code> version of our <a href="https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/">Hadoop Docker container</a>.</p>
+
+<h2>Centos</h2>
+
+<h3>Build the image</h3>
+
+<p>In case you&rsquo;d like to try directly from the <a href="https://github.com/sequenceiq/hadoop-docker/tree/2.5.2">Dockerfile</a> you can build the image as:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker build  -t sequenceiq/hadoop-docker:2.5.2 .</span></code></pre></td></tr></table></div></figure>
+
+
+<!-- more -->
+
+
+<h3>Pull the image</h3>
+
+<p>As it is also released as an official Docker image from Docker&rsquo;s automated build repository &ndash; you can always pull or refer the image when launching containers.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/hadoop-docker:2.5.2</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Start a container</h3>
+
+<p>In order to use the Docker image you have just build or pulled use:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -i -t sequenceiq/hadoop-docker:2.5.2 /etc/bootstrap.sh -bash</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!-- more -->
+
+
+<h2>Testing</h2>
+
+<p>You can run one of the stock examples:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cd $HADOOP_PREFIX
+</span><span class='line'># run the mapreduce
+</span><span class='line'>bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.5.2.jar grep input output 'dfs[a-z.]+'
+</span><span class='line'>
+</span><span class='line'># check the output
+</span><span class='line'>bin/hdfs dfs -cat output/*</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Hadoop native libraries, build, Bintray, etc</h2>
+
+<p>The Hadoop build process is no easy task &ndash; requires lots of libraries and their right version, protobuf, etc and takes some time &ndash; we have simplified all these, made the build and released a 64b version of Hadoop nativelibs on our <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.5.2/view/files">Bintray repo</a>. Enjoy.</p>
+
+<p>Should you have any questions let us know through our social channels as <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[YARN containers as Docker containers in Docker]]></title>
@@ -2280,7 +2347,7 @@ In the benchmark, the jobs were submitted to the <code>default</code> queue and 
 <p>SequenceIQ is an innovative big data startup with the mission statement to simplify and automate provisioning of on-demand Hadoop clusters running on different environments. Leaders in “containerizing” Hadoop, SequenceIQ is the first company who provisions and runs the full Hadoop stack and components on Docker containers. The company has further plans to create the industry’s first cloud agnostic, autoscaling and use case driven Platform as a Service API, and break the common significant barriers of entry that exist with most big data projects through a series of As-a-Service API offerings.
 For more information follow up with us on @SequenceIQ and <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>.</p>
 
-<p><a href="&#x6d;&#97;&#x69;&#x6c;&#116;&#111;&#58;&#x69;&#x6e;&#102;&#111;&#x40;&#x73;&#x65;&#x71;&#x75;&#101;&#x6e;&#99;&#x65;&#105;&#x71;&#x2e;&#99;&#x6f;&#109;">&#105;&#x6e;&#x66;&#111;&#64;&#115;&#x65;&#x71;&#x75;&#x65;&#110;&#x63;&#101;&#x69;&#x71;&#46;&#x63;&#x6f;&#x6d;</a></p>
+<p><a href="&#x6d;&#97;&#105;&#108;&#x74;&#x6f;&#x3a;&#x69;&#x6e;&#102;&#111;&#64;&#115;&#101;&#113;&#x75;&#x65;&#x6e;&#99;&#101;&#x69;&#x71;&#46;&#x63;&#x6f;&#x6d;">&#105;&#110;&#x66;&#111;&#x40;&#x73;&#101;&#x71;&#x75;&#x65;&#x6e;&#99;&#101;&#105;&#113;&#46;&#x63;&#x6f;&#109;</a></p>
 ]]></content>
   </entry>
   
@@ -2781,21 +2848,6 @@ step-by step approach</li>
 
 <p>If you have any questions or suggestions you can reach us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>,
  <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Strata + Hadoop World 2014 Startup Showcase]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/09/25/strata-hadoop-world-2014/"/>
-    <updated>2014-09-25T07:42:38+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/09/25/strata-hadoop-world-2014</id>
-    <content type="html"><![CDATA[<p><a href="http://sequenceiq.com">SequenceIQ</a> is happy to announce that it has been selected among the top 10 leading big data startups by a team of investors, entrepreneurs, and industry analysts and will present live at the Startup Showcase at <strong>Strata + Hadoop World 2014, New York.</strong></p>
-
-<p>We will have a space in the showcase to win over the judges, and pitch our company and innovative technology to the thousands of developers, founders, executives, investors and researchers that attend <a href="http://strataconf.com/stratany2014">Strata</a>.</p>
-
-<p>Come and watch our showcase on Wednesday, October 15 or catch up with us during the conference (@sequenceiq).</p>
-
-<p>Stay in touch with us through <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   
