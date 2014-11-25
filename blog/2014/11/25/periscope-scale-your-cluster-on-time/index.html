@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: bug - SequenceIQ Blog</title>
+  <title>Periscope: time based autoscaling - SequenceIQ Blog</title>
   <meta name="author" content="SequenceIQ">
 
    
-  <meta name="description" content="Category: bug">
+  <meta name="description" content="">
   
   <meta name="keywords" content="">
 
@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.sequenceiq.comblog/categories/bug">
+  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2014/11/25/periscope-scale-your-cluster-on-time">
   <link href="/favicon.png" rel="icon">
   <link href='http://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
@@ -117,59 +117,251 @@
               <div class="col-md-9" id="">
                   <div class="">
                    <!-- <div id="content">-->
-                      <article role="article">
-  
- <!-- <header>
+                      <div>
 
-    
-  </header>-->
-  
-  <div id="blog-archives" class="category">
+<div class="container-fluid">
+     <div class="row">
+       
+         
+       
+       
 
-  
-  <div class="row">
-    <div class="col-md-1">
-  	
-  	
-  	  
-  	    <h2>2014</h2>
-  	
-    </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-07-13T09:13:53+00:00" pubdate><span class='month'>Jul</span> <span class='day'>13</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/07/13/groovy-and-java-runtime-bug/">Groovy and Java, the runtime bug</a></h1>
-	</div>
+       
+         
+       
+       <h1 class="article-style"> Periscope: time based autoscaling
+
+       <span class="badge name-badge">Krisztian Horvath</span>
+       <span class="badge name-badge">25 November 2014</span>
+       </h1>
+
+
+
 </div>
-
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
-
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/groovy/'>Groovy</a>, <a class='category' href='/blog/categories/java/'>Java</a>, <a class='category' href='/blog/categories/bug/'>bug</a></span>
-		</footer>
-		
-	</div>
 </div>
+<article class="hentry" role="article">
+  
 
 
-  	</article>
+  <div class="row-fluid">
+    <div class="span12">
+      <p><a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> allows you to configure SLA policies for your cluster
+and scale up or down on demand. You are able to set alarms and notifications for different metrics like <code>pending containers</code>,
+<code>lost nodes</code> or <code>memory usage</code>, etc . Recently we got a request to scale based on <code>time interval</code>. What does this mean? It means that you can tell
+Periscope to shrink your cluster down to arbitrary number of nodes after work hours or at weekends and grow it back by the time people starts to work. We thought it would make a really useful feature so we quickly implemented it and made available. You can learn more about the Periscope API <a href="http://docs.periscope.apiary.io/">here</a>.</p>
+
+<h3>Cost efficiency</h3>
+
+<p>In this example we&rsquo;ll configure Pericope to downscale at 7PM and upscale at 8AM from Monday to Friday:</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/dowscale_diagram.png" alt="" /></p>
+
+<p>Just to make things easier let&rsquo;s assume that our cluster is homogeneous. On AWS a c3.xlarge instance costs $0.210 per hour.
+Now let&rsquo;s do the math:</p>
+
+<ul>
+<li>24 x 0.21 x 100                      = $504</li>
+<li>(11 x 0.21 x 100) + (13 x 0.21 x 10) = $260</li>
+</ul>
+
+
+<p>In a month we can save <strong>$7560</strong> scaling from 100 to 10 and back &ndash; and the weekends are not even counted.</p>
+
+<!--more-->
+
+
+<h3>Cron based alarms</h3>
+
+<p>In order to configure such actions you&rsquo;ll have to set some <code>time alarms</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="nt">&quot;alarms&quot;</span><span class="p">:</span> <span class="p">[</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="nt">&quot;alarmName&quot;</span><span class="p">:</span> <span class="s2">&quot;worktime&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Number of nodes during worktime&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;timeZone&quot;</span><span class="p">:</span> <span class="s2">&quot;Europe/Budapest&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;cron&quot;</span><span class="p">:</span> <span class="s2">&quot;0 59 07 ? * MON-FRI&quot;</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="nt">&quot;alarmName&quot;</span><span class="p">:</span> <span class="s2">&quot;after work&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Number of nodes after worktime&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;timeZone&quot;</span><span class="p">:</span> <span class="s2">&quot;Europe/Budapest&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;cron&quot;</span><span class="p">:</span> <span class="s2">&quot;0 59 18 ? * MON-FRI&quot;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">]</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now that the alarms are set we need to tell Periscope what to do when they are triggered. Let&rsquo;s define the <code>scaling policies</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="nt">&quot;minSize&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;maxSize&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;cooldown&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;scalingPolicies&quot;</span><span class="p">:</span> <span class="p">[</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;upscale&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;adjustmentType&quot;</span><span class="p">:</span> <span class="s2">&quot;EXACT&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;scalingAdjustment&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;hostGroup&quot;</span><span class="p">:</span> <span class="s2">&quot;slave_1&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;alarmId&quot;</span><span class="p">:</span> <span class="s2">&quot;150&quot;</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;downscale&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;adjustmentType&quot;</span><span class="p">:</span> <span class="s2">&quot;EXACT&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;scalingAdjustment&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;hostGroup&quot;</span><span class="p">:</span> <span class="s2">&quot;slave_1&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;alarmId&quot;</span><span class="p">:</span> <span class="s2">&quot;151&quot;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">]</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For those who are not familiar with the properties in the scaling JSON:</p>
+
+<ul>
+<li>minSize: defines the minimum size of the cluster</li>
+<li>maxSize: defines the maximum size of the cluster</li>
+<li>cooldown: defines the time between 2 scaling activity</li>
+<li>adjustmentType: can be <code>NODE_COUNT</code>, <code>PERCENTAGE</code>, or <code>EXACT</code></li>
+<li>scalingAdjustment: defines the number nodes of with to upscale or downscale and depends on the adjustment type as follows:
+
+<ul>
+<li><code>NODE_COUNT</code> can be -2 (downscale with 2 nodes) or +2 (upscale with 2 nodes)</li>
+<li><code>PERCENTAGE</code> similarly can be 40% and -40%</li>
+<li><code>EXACT</code> always a positive number which can mean both upscale or downscale based on the previous size of the cluster</li>
+</ul>
+</li>
+<li>hostGroup: defines the Hadoop services installed on a host. In case of scaling we&rsquo;ll take or add hosts with these services.</li>
+</ul>
+
+
+<p>Many people reached us with their questions of how to scale down properly as they had some concerns about it.
+Generally speaking downscaling is much harder to do than upscaling. Am I going to lose portion of my data? What will happen with the running applications? What will happen with say <code>RegionServers</code>? Luckily Hadoop services provide <code>graceful decommission</code>.</p>
+
+<p><em>Note:When you are storing your data in a cloud object store (last week we have blogged about these <a href="http://blog.sequenceiq.com/blog/2014/10/28/datalake-cloudbreak/">here</a> and <a href="http://blog.sequenceiq.com/blog/2014/11/17/datalake-cloudbreak-2/">here</a>) this is less of an issue &ndash; and Periscope will not have to worry about HDFS data replications.</em></p>
+
+<h3>Decommission flow</h3>
+
+<p>Let&rsquo;s dive through an example: Periscope instructs <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; our
+Hadoop as a service API &ndash; to shut down 10 nodes and Cloudbreak will make sure that nothing gets lost. First it will check which nodes are running <code>ApplicationMasters</code> to leave them out of the process. If it found all the 10 candidates for shutting down
+it will decommission the necessary services from them and then it will shut down those nodes. Applications continue to run and Hadoop <code>master</code> services continue to run undisturbed.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/downscale_sequence.png" alt="" /></p>
+
+<p>If you have questions like these don&rsquo;t hesitate to contact us we&rsquo;ll try to help you solve your problems.
+Make sure you check back soon to our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
+on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
+
     </div>
   </div>
 
+
+
+  <footer>
+    <hr>
+    
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Krisztian Horvath</span></span>
+
+    
+    <div class="row">
+      
+      <div class="col-md-6 span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/periscope/"><span class="label label-warning">Periscope</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="col-md-5 social-sharing pull-right">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
+  
+  <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+  
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
 </div>
 
+      </div>
+      
+      
+    </div>
+    
+    <div class="row">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2014/11/24/hadoop-252-docker/" title="Previous Post: Apache Hadoop 2.5.2 on Docker">&laquo; Apache Hadoop 2.5.2 on Docker</a>
+          
+          
+        </p>
+      </div>
+    </div>
+  </footer>
 </article>
 
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
+</div>
 
 
                     <!--</div>-->
@@ -525,7 +717,10 @@
       var disqus_shortname = 'sequenceiqblog';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2014/11/25/periscope-scale-your-cluster-on-time/';
+        var disqus_url = 'http://blog.sequenceiq.com/blog/2014/11/25/periscope-scale-your-cluster-on-time/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

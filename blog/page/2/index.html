@@ -130,6 +130,77 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/10/28/datalake-cloudbreak/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">28 October 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/10/28/datalake-cloudbreak/">Building the data lake in the cloud - Part1</a>
+          <span class="badge name-badge">Tamas Bihari</span>
+
+      </h1>
+      <p>A while ago we have released our cloud agnostic and Docker container based Hadoop as a Service API &ndash; <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>. Though the purpose of <a href="https://cloudbreak.sequenceiq.com">Cloudbreak</a> is to quickly provision arbitrary sized Hadoop clusters in the cloud, the project emerged from bare metal Hadoop provisioning in Docker containers. We were (still doing it) <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">provisioning</a> Hadoop on bare metal using Docker &ndash; and because of this legacy the data was always stored in HDFS. Recently we have been asked to run a proof-of-concept project and build an <code>always on</code> data lake using a cloud <code>object storage</code>.</p>
+
+<p>This post is the first in this series and will cover the connectivity, interoperability and access of data from an <code>object storage</code> and work with that in Hadoop. For this post we choose to create a <code>data lake</code> on Google Cloud Compute and guide you through the steps, run performance tests and understand the benefits/drawbacks of such a setup.</p>
+
+<p><em>Next post will be about sharing the <code>data lake</code> among multiple clusters, using <a href="http://hortonworks.com/hadoop/hcatalog/">Apache HCatalog</a>.</em></p>
+
+<h2>Object storage</h2>
+
+<p>An object storage usually is an <code>internet service</code> to store data in the cloud and comes with a programming interface which allows to retrieve data in a secure, durable and highly-scalable way. The most well know object storage is <strong>Amazon S3</strong> &ndash; with a pretty well covered literature, thus in this example we will use the <strong>Google Cloud Storage</strong>. Google Cloud Storage enables application developers to store their data on Google’s infrastructure with very high reliability, performance and availability, and can be used to distribute large data objects &ndash; like HDFS. In many occasions companies stores their data in objects storages &ndash; but for analytics they would like to access it from their Hadoop cluster. There are several options available:</p>
+
+<ul>
+<li>replicate the full dataset in HDFS</li>
+<li>read and write from <code>object storage</code> at start/stop of the flow and use HDFS for intermediary data</li>
+<li>use a connector such as Google Cloud Storage Connector for Hadoop</li>
+</ul>
+
+
+<h2>Google Cloud Storage Connector for Hadoop</h2>
+
+<p>Using <a href="https://cloud.google.com/hadoop/google-cloud-storage-connector">this</a> connector developed by Google allows you to choose <code>Google Cloud Storage</code> as the default file system for Hadoop, and run all your jobs on top (we will come up with MR2 and Spark examples). Using the connector can have several benefits, to name a few:</p>
+
+<ul>
+<li>Direct data access &ndash; data is stored in GCS, no need to transfer it into HDFS</li>
+<li>HDFS compatibility &ndash; data stored in HDFS can be accessed through the connector</li>
+<li>Data accessibility &ndash; data is always accessible, even when the Hadoop cluster is shut down</li>
+<li>High data availability &ndash; data is highly available and globally replicated</li>
+</ul>
+
+
+
+      
+       <a href="/blog/2014/10/28/datalake-cloudbreak/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/10/23/spark-operations-overview/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -803,66 +874,6 @@ This way you cab run and create your <code>SparkContext</code>locally and substi
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/09/26/database-upgrade-process/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">26 September 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/cd/"><span class="label label-warning">CD</span></a>
-            
-            <a href="/blog/categories/ci/"><span class="label label-warning">CI</span></a>
-            
-            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
-            
-            <a href="/blog/categories/liquibase/"><span class="label label-warning">Liquibase</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/09/26/database-upgrade-process/">Managing database upgrades with Liquibase and Docker</a>
-          <span class="badge name-badge">Laszlo Puskas</span>
-
-      </h1>
-      <p>At <a href="http://sequenceiq.com">SequenceIQ</a> we are <em>crazy</em> about automating everything &ndash; let it be the provisioning of a thousand nodes Hadoop
-cluster using <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> or a simple database change.
-We apply the same automated CI/CD process to all our projects, including plain old RDBMS schema changes &hellip; yes, though we are a <em>big data</em> technology
-company sometimes we do use JPA as well.</p>
-
-<p>As applications evolve their underlying data model change. New functionalities often need data model changes and the initial design
-needs to be adapted to the ever changing demands. These changes usually are of two types : structural changes
-(e.g.: addition/removal of tables, columns, constraints etc &hellip;)
-and migration of the existing data to the new version of the datamodel.
-As the data model gets more and more complex  &ndash; this will happen in-spite of trying to keep it as simple as possible &ndash;
-the complexity of these tasks grow proportionally. This happens here at SequenceIQ too; the post is about how we address some of these problems.</p>
-
-
-      
-       <a href="/blog/2014/09/26/database-upgrade-process/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -884,6 +895,10 @@ the complexity of these tasks grow proportionally. This happens here at Sequence
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/11/25/periscope-scale-your-cluster-on-time/">Periscope: time based autoscaling</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/11/24/hadoop-252-docker/">Apache Hadoop 2.5.2 on Docker</a>

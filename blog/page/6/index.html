@@ -130,6 +130,68 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/06/25/hadoop-2-4-0-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">25 June 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/apache/"><span class="label label-warning">Apache</span></a>
+            
+            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+            <a href="/blog/categories/registry/"><span class="label label-warning">Registry</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/06/25/hadoop-2-4-0-docker/">Apache Hadoop 2.4.1 on Docker</a>
+          <span class="badge name-badge">Janos Matyas</span>
+
+      </h1>
+      <p>A few weeks ago we have released an Apache Hadoop 2.3 Docker image &ndash; in a very short time this become the most <a href="https://registry.hub.docker.com/search?q=hadoop&amp;s=downloads">popular</a> Hadoop image in the Docker <a href="https://registry.hub.docker.com/">registry</a>.</p>
+
+<p>Following on the success of our Hadoop 2.3 Docker <a href="https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/">image</a>, the feedbacks and requests we have received and aligning with the Hadoop release cycle, we have released an Apache Hadoop 2.4.1 Docker image &ndash; same as the previous version this is available as a trusted and automated build on the official Docker <a href="https://registry.hub.docker.com/">registry</a>.</p>
+
+<p>Please note that beside this Hadoop image, we have released and maintain a <a href="http://blog.sequenceiq.com/blog/2014/06/17/ambari-cluster-on-docker/">pseudo-distributed</a> and <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">distributed</a> Hadoop Docker image provisioned with Apache Ambari. As they are provisioned with Ambari you have the option to change, add and remove Hadoop components using cluster blueprints.</p>
+
+<h2>Build the image</h2>
+
+<p>In case you&rsquo;d like to try directly from the <a href="https://github.com/sequenceiq/hadoop-docker">Dockerfile</a> you can build the image as:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker build  -t sequenceiq/hadoop-docker .</span></code></pre></td></tr></table></div></figure>
+
+
+
+      
+       <a href="/blog/2014/06/25/hadoop-2-4-0-docker/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/06/23/scalding-correlation-example/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -830,83 +892,6 @@ To build the project use:</p>
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/04/04/hadoop-docker-introduction/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">04 April 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
-            
-            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
-            
-            <a href="/blog/categories/hadoop-vm/"><span class="label label-warning">Hadoop VM</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/04/04/hadoop-docker-introduction/">Hadoop on Docker introduction</a>
-          <span class="badge name-badge">Krisztian Horvath</span>
-
-      </h1>
-      <p>In the last few weeks we&rsquo;ve created and published several Docker images (<a href="https://github.com/sequenceiq/hadoop-docker">Hadoop</a>, <a href="https://github.com/sequenceiq/hoya-docker">Hoya</a>, <a href="https://github.com/sequenceiq/tez-docker">Tez</a>) to help you to quick-start with Hadoop and the latest innovations using YARN.
-While many people have downloaded and started to use these preconfigured images we&rsquo;ve been asked to give a short introduction of what Docker is, and how one can build Docker images. Also during the Hadoop Summit in Amsterdem we have been inquired in particular about running Hadoop on Docker, so this post is our answer for all the requests we received.</p>
-
-<p>Docker is an open-source engine that automates the deployment of any application as a lightweight, portable, self-sufficient container that will run virtually anywhere.</p>
-
-<h2>Installation</h2>
-
-<p>First install Docker with a package manager. On Ubuntu there is an easy way to start with by running a simple curl script which will do it for you:
-<code>curl -s https://get.docker.io/ubuntu/ | sudo sh</code>.
-Unfortunately Mac, Windows and some Linux distributions cannot natively run Docker (yet). At <a href="http://sequenceiq.com/">SequenceIQ</a> we develop on OSX and run a 3-6 node Hadoop mini cluster on our laptops. To overcome the limitation of running Docker natively
-you will have to install <code>boot2docker</code>. It is a Tiny Core Linux made specifically to run Docker containers and weights less than 24MB memory.
-Initialize <em>(boot2docker init)</em> and start <em>(boot2docker up)</em> and you can SSH into the VM <em>(boot2docker ssh, pass: tcuser)</em>.</p>
-
-<p>To verify the installation let&rsquo;s test it: <code>docker run ubuntu /bin/echo hello docker</code>. Docker did a bunch of things within seconds:</p>
-
-<ul>
-<li>Downloaded the base image from the docker.io index</li>
-<li>Created a new LXC container</li>
-<li>Allocated a filesystem for it</li>
-<li>Mounted a read-write layer</li>
-<li>Allocated a network interface</li>
-<li>Setup an IP for it, with network address translation</li>
-<li>Executed a process inside the container</li>
-<li>Captured the output and printed it</li>
-</ul>
-
-
-<p>You can run an interactive shell as well <code>docker run -i -t ubuntu /bin/bash</code> and use this shell as you would use any other shell.</p>
-
-<p>While there are lots of different Docker images available we would like to share how to create your own images.</p>
-
-
-      
-       <a href="/blog/2014/04/04/hadoop-docker-introduction/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -928,6 +913,10 @@ Initialize <em>(boot2docker init)</em> and start <em>(boot2docker up)</em> and y
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/11/25/periscope-scale-your-cluster-on-time/">Periscope: time based autoscaling</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/11/24/hadoop-252-docker/">Apache Hadoop 2.5.2 on Docker</a>

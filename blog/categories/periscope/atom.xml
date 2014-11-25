@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Periscope | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/periscope/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-11-24T09:51:43+00:00</updated>
+  <updated>2014-11-25T06:34:16+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,128 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Periscope: time based autoscaling]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/11/25/periscope-scale-your-cluster-on-time/"/>
+    <updated>2014-11-25T14:13:33+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/11/25/periscope-scale-your-cluster-on-time</id>
+    <content type="html"><![CDATA[<p><a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> allows you to configure SLA policies for your cluster
+and scale up or down on demand. You are able to set alarms and notifications for different metrics like <code>pending containers</code>,
+<code>lost nodes</code> or <code>memory usage</code>, etc . Recently we got a request to scale based on <code>time interval</code>. What does this mean? It means that you can tell
+Periscope to shrink your cluster down to arbitrary number of nodes after work hours or at weekends and grow it back by the time people starts to work. We thought it would make a really useful feature so we quickly implemented it and made available. You can learn more about the Periscope API <a href="http://docs.periscope.apiary.io/">here</a>.</p>
+
+<h3>Cost efficiency</h3>
+
+<p>In this example we&rsquo;ll configure Pericope to downscale at 7PM and upscale at 8AM from Monday to Friday:</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/dowscale_diagram.png" alt="" /></p>
+
+<p>Just to make things easier let&rsquo;s assume that our cluster is homogeneous. On AWS a c3.xlarge instance costs $0.210 per hour.
+Now let&rsquo;s do the math:</p>
+
+<ul>
+<li>24 x 0.21 x 100                      = $504</li>
+<li>(11 x 0.21 x 100) + (13 x 0.21 x 10) = $260</li>
+</ul>
+
+
+<p>In a month we can save <strong>$7560</strong> scaling from 100 to 10 and back &ndash; and the weekends are not even counted.</p>
+
+<!--more-->
+
+
+<h3>Cron based alarms</h3>
+
+<p>In order to configure such actions you&rsquo;ll have to set some <code>time alarms</code>.</p>
+
+<p>```json
+{
+  &ldquo;alarms&rdquo;: [</p>
+
+<pre><code>{
+  "alarmName": "worktime",
+  "description": "Number of nodes during worktime",
+  "timeZone": "Europe/Budapest",
+  "cron": "0 59 07 ? * MON-FRI"
+},
+{
+  "alarmName": "after work",
+  "description": "Number of nodes after worktime",
+  "timeZone": "Europe/Budapest",
+  "cron": "0 59 18 ? * MON-FRI"
+}
+</code></pre>
+
+<p>  ]
+}
+```</p>
+
+<p>Now that the alarms are set we need to tell Periscope what to do when they are triggered. Let&rsquo;s define the <code>scaling policies</code>:</p>
+
+<p>```json
+{
+  &ldquo;minSize&rdquo;: 2,
+  &ldquo;maxSize&rdquo;: 100,
+  &ldquo;cooldown&rdquo;: 30,
+  &ldquo;scalingPolicies&rdquo;: [</p>
+
+<pre><code>{
+  "name": "upscale",
+  "adjustmentType": "EXACT",
+  "scalingAdjustment": 100,
+  "hostGroup": "slave_1",
+  "alarmId": "150"
+},
+{
+  "name": "downscale",
+  "adjustmentType": "EXACT",
+  "scalingAdjustment": 10,
+  "hostGroup": "slave_1",
+  "alarmId": "151"
+}
+</code></pre>
+
+<p>  ]
+}
+```
+For those who are not familiar with the properties in the scaling JSON:</p>
+
+<ul>
+<li>minSize: defines the minimum size of the cluster</li>
+<li>maxSize: defines the maximum size of the cluster</li>
+<li>cooldown: defines the time between 2 scaling activity</li>
+<li>adjustmentType: can be <code>NODE_COUNT</code>, <code>PERCENTAGE</code>, or <code>EXACT</code></li>
+<li>scalingAdjustment: defines the number nodes of with to upscale or downscale and depends on the adjustment type as follows:
+
+<ul>
+<li><code>NODE_COUNT</code> can be -2 (downscale with 2 nodes) or +2 (upscale with 2 nodes)</li>
+<li><code>PERCENTAGE</code> similarly can be 40% and -40%</li>
+<li><code>EXACT</code> always a positive number which can mean both upscale or downscale based on the previous size of the cluster</li>
+</ul>
+</li>
+<li>hostGroup: defines the Hadoop services installed on a host. In case of scaling we&rsquo;ll take or add hosts with these services.</li>
+</ul>
+
+
+<p>Many people reached us with their questions of how to scale down properly as they had some concerns about it.
+Generally speaking downscaling is much harder to do than upscaling. Am I going to lose portion of my data? What will happen with the running applications? What will happen with say <code>RegionServers</code>? Luckily Hadoop services provide <code>graceful decommission</code>.</p>
+
+<p><em>Note:When you are storing your data in a cloud object store (last week we have blogged about these <a href="http://blog.sequenceiq.com/blog/2014/10/28/datalake-cloudbreak/">here</a> and <a href="http://blog.sequenceiq.com/blog/2014/11/17/datalake-cloudbreak-2/">here</a>) this is less of an issue &ndash; and Periscope will not have to worry about HDFS data replications.</em></p>
+
+<h3>Decommission flow</h3>
+
+<p>Let&rsquo;s dive through an example: Periscope instructs <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; our
+Hadoop as a service API &ndash; to shut down 10 nodes and Cloudbreak will make sure that nothing gets lost. First it will check which nodes are running <code>ApplicationMasters</code> to leave them out of the process. If it found all the 10 candidates for shutting down
+it will decommission the necessary services from them and then it will shut down those nodes. Applications continue to run and Hadoop <code>master</code> services continue to run undisturbed.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/downscale_sequence.png" alt="" /></p>
+
+<p>If you have questions like these don&rsquo;t hesitate to contact us we&rsquo;ll try to help you solve your problems.
+Make sure you check back soon to our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
+on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Real-time adjustments with Hadoop metrics]]></title>
@@ -209,7 +331,7 @@ In order to avoid reacting for sudden spikes in the system and apply policies on
 
 <h1>set metric alarms</h1>
 
-<p>curl -X POST -H &ldquo;Content-Type: application/json&rdquo; -d &lsquo;{&ldquo;alarms&rdquo;:[{&ldquo;alarmName&rdquo;:&ldquo;pendingContainerHigh&rdquo;,&ldquo;description&rdquo;:&ldquo;Number of pending containers is high&rdquo;,&ldquo;metric&rdquo;:&ldquo;PENDING_CONTAINERS&rdquo;,&ldquo;threshold&rdquo;:10,&ldquo;comparisonOperator&rdquo;:&ldquo;GREATER_THAN&rdquo;,&ldquo;period&rdquo;:1},{&ldquo;alarmName&rdquo;:&ldquo;freeGlobalResourcesRateLow&rdquo;,&ldquo;description&rdquo;:&ldquo;Low free global resource rate&rdquo;,&ldquo;metric&rdquo;:&ldquo;GLOBAL_RESOURCES&rdquo;,&ldquo;threshold&rdquo;:1,&ldquo;comparisonOperator&rdquo;:&ldquo;EQUALS&rdquo;,&ldquo;period&rdquo;:1,&ldquo;notifications&rdquo;:[{&ldquo;target&rdquo;:[“<a href="&#109;&#x61;&#105;&#108;&#116;&#111;&#x3a;&#109;&#105;&#99;&#x6b;&#x2e;&#x66;&#97;&#110;&#110;&#105;&#110;&#103;&#64;&#x61;&#115;&#x70;&#x77;&#x6f;&#x72;&#x6c;&#100;&#116;&#111;&#x75;&#x72;&#x2e;&#x63;&#x6f;&#x6d;">&#x6d;&#x69;&#99;&#x6b;&#x2e;&#x66;&#97;&#110;&#x6e;&#105;&#110;&#103;&#64;&#97;&#115;&#x70;&#119;&#111;&#114;&#x6c;&#x64;&#116;&#111;&#117;&#114;&#x2e;&#x63;&#x6f;&#109;</a>"],&ldquo;notificationType&rdquo;:&ldquo;EMAIL&rdquo;}]}]}&rsquo; localhost:8081/clusters/1/alarms | jq .
+<p>curl -X POST -H &ldquo;Content-Type: application/json&rdquo; -d &lsquo;{&ldquo;alarms&rdquo;:[{&ldquo;alarmName&rdquo;:&ldquo;pendingContainerHigh&rdquo;,&ldquo;description&rdquo;:&ldquo;Number of pending containers is high&rdquo;,&ldquo;metric&rdquo;:&ldquo;PENDING_CONTAINERS&rdquo;,&ldquo;threshold&rdquo;:10,&ldquo;comparisonOperator&rdquo;:&ldquo;GREATER_THAN&rdquo;,&ldquo;period&rdquo;:1},{&ldquo;alarmName&rdquo;:&ldquo;freeGlobalResourcesRateLow&rdquo;,&ldquo;description&rdquo;:&ldquo;Low free global resource rate&rdquo;,&ldquo;metric&rdquo;:&ldquo;GLOBAL_RESOURCES&rdquo;,&ldquo;threshold&rdquo;:1,&ldquo;comparisonOperator&rdquo;:&ldquo;EQUALS&rdquo;,&ldquo;period&rdquo;:1,&ldquo;notifications&rdquo;:[{&ldquo;target&rdquo;:[“<a href="&#109;&#x61;&#x69;&#x6c;&#116;&#x6f;&#58;&#x6d;&#x69;&#99;&#107;&#x2e;&#102;&#97;&#x6e;&#x6e;&#x69;&#x6e;&#x67;&#x40;&#x61;&#x73;&#112;&#119;&#x6f;&#114;&#108;&#100;&#116;&#111;&#x75;&#114;&#46;&#x63;&#x6f;&#109;">&#109;&#x69;&#x63;&#x6b;&#x2e;&#x66;&#x61;&#x6e;&#110;&#105;&#110;&#x67;&#x40;&#97;&#x73;&#x70;&#x77;&#x6f;&#x72;&#108;&#100;&#x74;&#111;&#117;&#114;&#x2e;&#99;&#111;&#109;</a>"],&ldquo;notificationType&rdquo;:&ldquo;EMAIL&rdquo;}]}]}&rsquo; localhost:8081/clusters/1/alarms | jq .
 curl -X PUT -H &ldquo;Content-Type: application/json&rdquo; -d &lsquo;{&ldquo;alarmName&rdquo;:&ldquo;unhealthyNodesHigh&rdquo;,&ldquo;description&rdquo;:&ldquo;Number of unhealthy nodes is high&rdquo;,&ldquo;metric&rdquo;:&ldquo;UNHEALTHY_NODES&rdquo;,&ldquo;threshold&rdquo;:5,&ldquo;comparisonOperator&rdquo;:&ldquo;GREATER_OR_EQUAL_THAN&rdquo;,&ldquo;period&rdquo;:5}&rsquo; localhost:8081/clusters/1/alarms | jq .
 ```</p>
 

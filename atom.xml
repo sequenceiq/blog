@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-11-24T09:51:43+00:00</updated>
+  <updated>2014-11-25T06:34:16+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,160 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Periscope: time based autoscaling]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/11/25/periscope-scale-your-cluster-on-time/"/>
+    <updated>2014-11-25T14:13:33+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/11/25/periscope-scale-your-cluster-on-time</id>
+    <content type="html"><![CDATA[<p><a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> allows you to configure SLA policies for your cluster
+and scale up or down on demand. You are able to set alarms and notifications for different metrics like <code>pending containers</code>,
+<code>lost nodes</code> or <code>memory usage</code>, etc . Recently we got a request to scale based on <code>time interval</code>. What does this mean? It means that you can tell
+Periscope to shrink your cluster down to arbitrary number of nodes after work hours or at weekends and grow it back by the time people starts to work. We thought it would make a really useful feature so we quickly implemented it and made available. You can learn more about the Periscope API <a href="http://docs.periscope.apiary.io/">here</a>.</p>
+
+<h3>Cost efficiency</h3>
+
+<p>In this example we&rsquo;ll configure Pericope to downscale at 7PM and upscale at 8AM from Monday to Friday:</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/dowscale_diagram.png" alt="" /></p>
+
+<p>Just to make things easier let&rsquo;s assume that our cluster is homogeneous. On AWS a c3.xlarge instance costs $0.210 per hour.
+Now let&rsquo;s do the math:</p>
+
+<ul>
+<li>24 x 0.21 x 100                      = $504</li>
+<li>(11 x 0.21 x 100) + (13 x 0.21 x 10) = $260</li>
+</ul>
+
+
+<p>In a month we can save <strong>$7560</strong> scaling from 100 to 10 and back &ndash; and the weekends are not even counted.</p>
+
+<!--more-->
+
+
+<h3>Cron based alarms</h3>
+
+<p>In order to configure such actions you&rsquo;ll have to set some <code>time alarms</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="nt">&quot;alarms&quot;</span><span class="p">:</span> <span class="p">[</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="nt">&quot;alarmName&quot;</span><span class="p">:</span> <span class="s2">&quot;worktime&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Number of nodes during worktime&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;timeZone&quot;</span><span class="p">:</span> <span class="s2">&quot;Europe/Budapest&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;cron&quot;</span><span class="p">:</span> <span class="s2">&quot;0 59 07 ? * MON-FRI&quot;</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="nt">&quot;alarmName&quot;</span><span class="p">:</span> <span class="s2">&quot;after work&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Number of nodes after worktime&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;timeZone&quot;</span><span class="p">:</span> <span class="s2">&quot;Europe/Budapest&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;cron&quot;</span><span class="p">:</span> <span class="s2">&quot;0 59 18 ? * MON-FRI&quot;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">]</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now that the alarms are set we need to tell Periscope what to do when they are triggered. Let&rsquo;s define the <code>scaling policies</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="nt">&quot;minSize&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;maxSize&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;cooldown&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;scalingPolicies&quot;</span><span class="p">:</span> <span class="p">[</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;upscale&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;adjustmentType&quot;</span><span class="p">:</span> <span class="s2">&quot;EXACT&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;scalingAdjustment&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;hostGroup&quot;</span><span class="p">:</span> <span class="s2">&quot;slave_1&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;alarmId&quot;</span><span class="p">:</span> <span class="s2">&quot;150&quot;</span>
+</span><span class='line'>    <span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;downscale&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;adjustmentType&quot;</span><span class="p">:</span> <span class="s2">&quot;EXACT&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;scalingAdjustment&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;hostGroup&quot;</span><span class="p">:</span> <span class="s2">&quot;slave_1&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;alarmId&quot;</span><span class="p">:</span> <span class="s2">&quot;151&quot;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">]</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For those who are not familiar with the properties in the scaling JSON:</p>
+
+<ul>
+<li>minSize: defines the minimum size of the cluster</li>
+<li>maxSize: defines the maximum size of the cluster</li>
+<li>cooldown: defines the time between 2 scaling activity</li>
+<li>adjustmentType: can be <code>NODE_COUNT</code>, <code>PERCENTAGE</code>, or <code>EXACT</code></li>
+<li>scalingAdjustment: defines the number nodes of with to upscale or downscale and depends on the adjustment type as follows:
+
+<ul>
+<li><code>NODE_COUNT</code> can be -2 (downscale with 2 nodes) or +2 (upscale with 2 nodes)</li>
+<li><code>PERCENTAGE</code> similarly can be 40% and -40%</li>
+<li><code>EXACT</code> always a positive number which can mean both upscale or downscale based on the previous size of the cluster</li>
+</ul>
+</li>
+<li>hostGroup: defines the Hadoop services installed on a host. In case of scaling we&rsquo;ll take or add hosts with these services.</li>
+</ul>
+
+
+<p>Many people reached us with their questions of how to scale down properly as they had some concerns about it.
+Generally speaking downscaling is much harder to do than upscaling. Am I going to lose portion of my data? What will happen with the running applications? What will happen with say <code>RegionServers</code>? Luckily Hadoop services provide <code>graceful decommission</code>.</p>
+
+<p><em>Note:When you are storing your data in a cloud object store (last week we have blogged about these <a href="http://blog.sequenceiq.com/blog/2014/10/28/datalake-cloudbreak/">here</a> and <a href="http://blog.sequenceiq.com/blog/2014/11/17/datalake-cloudbreak-2/">here</a>) this is less of an issue &ndash; and Periscope will not have to worry about HDFS data replications.</em></p>
+
+<h3>Decommission flow</h3>
+
+<p>Let&rsquo;s dive through an example: Periscope instructs <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; our
+Hadoop as a service API &ndash; to shut down 10 nodes and Cloudbreak will make sure that nothing gets lost. First it will check which nodes are running <code>ApplicationMasters</code> to leave them out of the process. If it found all the 10 candidates for shutting down
+it will decommission the necessary services from them and then it will shut down those nodes. Applications continue to run and Hadoop <code>master</code> services continue to run undisturbed.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/downscale_sequence.png" alt="" /></p>
+
+<p>If you have questions like these don&rsquo;t hesitate to contact us we&rsquo;ll try to help you solve your problems.
+Make sure you check back soon to our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
+on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Apache Hadoop 2.5.2 on Docker]]></title>
@@ -2347,7 +2501,7 @@ In the benchmark, the jobs were submitted to the <code>default</code> queue and 
 <p>SequenceIQ is an innovative big data startup with the mission statement to simplify and automate provisioning of on-demand Hadoop clusters running on different environments. Leaders in “containerizing” Hadoop, SequenceIQ is the first company who provisions and runs the full Hadoop stack and components on Docker containers. The company has further plans to create the industry’s first cloud agnostic, autoscaling and use case driven Platform as a Service API, and break the common significant barriers of entry that exist with most big data projects through a series of As-a-Service API offerings.
 For more information follow up with us on @SequenceIQ and <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>.</p>
 
-<p><a href="&#x6d;&#97;&#105;&#108;&#x74;&#x6f;&#x3a;&#x69;&#x6e;&#102;&#111;&#64;&#115;&#101;&#113;&#x75;&#x65;&#x6e;&#99;&#101;&#x69;&#x71;&#46;&#x63;&#x6f;&#x6d;">&#105;&#110;&#x66;&#111;&#x40;&#x73;&#101;&#x71;&#x75;&#x65;&#x6e;&#99;&#101;&#105;&#113;&#46;&#x63;&#x6f;&#109;</a></p>
+<p><a href="&#x6d;&#97;&#x69;&#x6c;&#116;&#111;&#58;&#105;&#x6e;&#102;&#x6f;&#64;&#115;&#x65;&#x71;&#x75;&#101;&#x6e;&#99;&#x65;&#x69;&#113;&#46;&#99;&#x6f;&#109;">&#105;&#110;&#102;&#x6f;&#x40;&#x73;&#x65;&#x71;&#x75;&#101;&#x6e;&#x63;&#101;&#105;&#x71;&#x2e;&#x63;&#x6f;&#109;</a></p>
 ]]></content>
   </entry>
   
@@ -2632,219 +2786,6 @@ In order to run Spark locally set master to &ldquo;local&rdquo;. In our example 
 
 
 <p>You can run this correlation example in our free Docker based Apache Spark container as well. (with <a href="https://github.com/apache/spark/blob/master/bin/spark-submit">spark-submit</a> script). You can get the Spark container from the official <a href="https://registry.hub.docker.com/u/sequenceiq/spark/">Docker registry</a> or from our <a href="https://github.com/sequenceiq/docker-spark">GitHub</a> repository. The source code is available at <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/spark-correlation">SequenceIQ&rsquo;s GitHub repository</a>.</p>
-
-<p>If you have any questions or suggestions you can reach us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>,
- <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Managing database upgrades with Liquibase and Docker]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/09/26/database-upgrade-process/"/>
-    <updated>2014-09-26T16:00:00+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/09/26/database-upgrade-process</id>
-    <content type="html"><![CDATA[<p>At <a href="http://sequenceiq.com">SequenceIQ</a> we are <em>crazy</em> about automating everything &ndash; let it be the provisioning of a thousand nodes Hadoop
-cluster using <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> or a simple database change.
-We apply the same automated CI/CD process to all our projects, including plain old RDBMS schema changes &hellip; yes, though we are a <em>big data</em> technology
-company sometimes we do use JPA as well.</p>
-
-<p>As applications evolve their underlying data model change. New functionalities often need data model changes and the initial design
-needs to be adapted to the ever changing demands. These changes usually are of two types : structural changes
-(e.g.: addition/removal of tables, columns, constraints etc &hellip;)
-and migration of the existing data to the new version of the datamodel.
-As the data model gets more and more complex  &ndash; this will happen in-spite of trying to keep it as simple as possible &ndash;
-the complexity of these tasks grow proportionally. This happens here at SequenceIQ too; the post is about how we address some of these problems.</p>
-
-<!-- more -->
-
-
-<h2>Directives</h2>
-
-<ul>
-<li>We need a process to follow each time such changes arise</li>
-<li>Use appropriate tools that do the job (instead of reinventing the wheel)</li>
-<li>Make the process <strong>automated</strong> as much as possible</li>
-</ul>
-
-
-<h3>The process</h3>
-
-<p>The process &ndash; as the common sense suggests &ndash; could be split in the following steps:</p>
-
-<ul>
-<li>start from the initial version of the database (the version in production)</li>
-<li>perform changes required by the new version of the application</li>
-<li>capture and store differences between the two versions of the database</li>
-<li>(automatically) apply changes to the initial database version</li>
-<li>perform tests</li>
-<li>apply changes to production</li>
-</ul>
-
-
-<h3>Tools</h3>
-
-<ul>
-<li>Dockerized (PostgreSQL) database</li>
-<li>Dockerized Liquibase</li>
-<li>Jenkins</li>
-</ul>
-
-
-<h3>Implementation</h3>
-
-<h4>Start from the initial version of the database</h4>
-
-<p>To start with, you need a database that&rsquo;s (structurally) identical with the production one. There are several ways to achieve this;we use Postgres and try to
-keep it simple, so here&rsquo;s what we do:</p>
-
-<ul>
-<li>we always have a QA database which is identical with the production (obliviously the data is not the same)</li>
-<li>we make a copy of the <em>data</em> folder of the postgres installation into an arbitrary location on the host</li>
-<li>we pass it as a volume to a Docker container running Postgres</li>
-</ul>
-
-
-<p>We run the following command each time we need a fresh database:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -d \
-</span><span class='line'>  --name $CONTAINER_NAME \
-</span><span class='line'>  -v /$WORKING_DIR/data:/data \
-</span><span class='line'>  -p 5432:5432 \
-</span><span class='line'>  -e "USER=$DB_USER" \
-</span><span class='line'>  -e "PASS=$DB_PASS" \
-</span><span class='line'>  -e "DB=$DB_NAME" \
-</span><span class='line'>paintedfox/postgresql</span></code></pre></td></tr></table></div></figure>
-
-
-<p>where the passed in variables are the following:</p>
-
-<ul>
-<li>CONTAINER_NAME &ndash; the name of the database Docker container</li>
-<li>DB_USER &ndash; the database user name</li>
-<li>DB_PASS &ndash; the database password</li>
-<li>DB_NAME &ndash; the database schema</li>
-</ul>
-
-
-<p>We have a running database now (in less than a minute) &ndash; same as the prod; we can connect to it with a client on your localhost, port 5432 with the given username/password.</p>
-
-<h4>Perform changes required by the new version of the application</h4>
-
-<p>As expected, this is the most challenging part in the process: changes need to be implemented and also
-captured so that they can be applied any time (preferably in an <strong>automated</strong> way)
-As we&rsquo;re using JPA (with Hibernate as JPA provider) incremental structural changes are executed with the
-SchemaUpdate tool. This can be done during the application startup or using <em>ant</em> or <em>maven</em>.
-As we continuously test the application we choose to start the application configured to update the database based on the
-changed data model (annotations). Alternatively we could regenerate the whole schema. (See the SchemaUpdate tool documentation:
-<a href="http://docs.jboss.org/hibernate/core/3.6/reference/en-US/html/toolsetguide.html">here</a>)</p>
-
-<p>At this point we have a database that aligns with the new version of the application. Please note here, that only <code>incremental</code> changes have been applied to
-the database till now, meaning that for example new fields have been added,
- but old/deprecated fields haven&rsquo;t been deleted.</p>
-
-<p>Other type of scripts need to be implemented manually:</p>
-
-<ul>
-<li><p>changes that couldn&rsquo;t be performed by the SchemaUpdate tool, such as cleanup (SQL) scripts. This being done, differences till this phase
-can be automatically generated by running the Liquibase Docker container &ndash; see the next section. Differences are stored under version control,
-in form of <em>Liquibase changelogs</em></p></li>
-<li><p>data migration scripts, that adapt the existing data to the new structure. Think of cases
-when for example a field becomes a new entity and instead of a value you need to store a reference to the new entity. We store these kind of scripts along
-with the generated diff files under version control in form of <em>Liquibase changelogs</em></p></li>
-</ul>
-
-
-<h4>Dockerized Liquibase</h4>
-
-<p>Speaking of tools, we found that <a href="http://www.liquibase.org/index.html">Liquibase</a> addresses many of our requirements, such as</p>
-
-<ul>
-<li>track database changes (changes being stored in VCS)</li>
-<li>automatically generate diffs between two versions of the database</li>
-<li>automatically update a database based on changelogs</li>
-</ul>
-
-
-<p>We have created a docker image with a <em>liquibase</em> installation. You can find the project <a href="https://github.com/sequenceiq/docker-liquibase">here</a></p>
-
-<p>The image can be built locally with the command:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker build -t sequenceiq/docker-liquibase .</span></code></pre></td></tr></table></div></figure>
-
-
-<p>or from the project root, or pulled from the Docker repository:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/docker-liquibase</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Containers built from this image can be used to perform <em>liquibase</em> operations on any host.
-This saves us a lot of time by having the installation and configuration shipped and helps us to automate most of the tasks.
-You can use the container for performing liquibase tasks manually in a terminal, or you can start the container to
-automatically perform specific tasks (and quit eventually). To start the container linked to the previously started database
-container and perform manual operations, run:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -it \
-</span><span class='line'>--name $LIQUIBASE_CONTAINER \
-</span><span class='line'>--link $DB_CONTAINER:db \
-</span><span class='line'>--entrypoint /bin/bash \
-</span><span class='line'>-v /$LIQUIBASE_CHANGELOGS:/changelogs \
-</span><span class='line'>$LIQUIBASE_DOCKER_IMAGE \
-</span><span class='line'>/bin/bash</span></code></pre></td></tr></table></div></figure>
-
-
-<p>See the description of the variables:</p>
-
-<ul>
-<li>LIQUIBASE_CONTAINER the name of the Liquibase Docker container</li>
-<li>DB_CONTAINER the name of the database container the Liquibase container is to be linked to</li>
-<li>LIQUIBASE_CHANGELOGS the folder holding the liquibase changelogs (Liquibase will read and write here)</li>
-<li>LIQUIBASE_DOCKER_IMAGE the name of the dockerized Liquibase Docker image</li>
-</ul>
-
-
-<p>Some of the Liquibase tasks can be scripted. We scripted the diff generation and changelog application. Liquibase offers more advanced features too.</p>
-
-<h4>Testing</h4>
-
-<p>We write tests that can be run automatically to check the process. Each <code>changeset</code>, especially those related to data migration / transformation is covered.</p>
-
-<h4>Apply liquibase changelogs to the production database</h4>
-
-<p>After the application is tested upon applying the database changes &ndash; that ensures that changelogs are correct, it&rsquo;s easy to set up a <code>jenkins</code> job that:</p>
-
-<ul>
-<li>checks out the proper version of changelogs</li>
-<li>starts a docker container linked to the (production) database and applies changelogs</li>
-</ul>
-
-
-<p>Obviously this step needs to be designed carefully and adapted to the custom application deployment needs.</p>
-
-<h4>Notes</h4>
-
-<ul>
-<li>Thanks to Docker, all the work described here can be done offline (setting up the infrastructure can be done fast, on a dev&rsquo;s machine for example)</li>
-<li>Liquibase changelogs can be executed individually or in group (by including subsets of changelogs) thus during the whole process we can adopt a
-step-by step approach</li>
-</ul>
-
 
 <p>If you have any questions or suggestions you can reach us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>,
  <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
