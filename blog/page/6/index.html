@@ -130,6 +130,79 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">02 July 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+            <a href="/blog/categories/scheduler/"><span class="label label-warning">Scheduler</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/07/02/move-applications-between-queues/">Re-prioritize running jobs with YARN schedulers</a>
+          <span class="badge name-badge">Krisztian Horvath</span>
+
+      </h1>
+      <p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we run different applications all within the same Hadoop YARN cluster. Often the deployed Hadoop stack is a multi-tenant and multi-application and runtime setup &ndash; and as usual for a scenario as such end users will try to use or book as much cluster capacity as possible. A great help for solving these problems are YARN schedulers &ndash; however in our case due to certain SLA and QoS requirements we needed to step further. We have invested a great effort to build custom YARN schedulers, learn about application insights (check our <a href="http://blog.sequenceiq.com/blog/2014/05/01/mapreduce-job-profiling-with-R/">blog post</a> about how we use R to profile running jobs) and we would like to share our experience with the community. Let&rsquo;s dig into technical details.</p>
+
+<p>In YARN, one of the ResourceManager&rsquo;s most important role is the scheduling (allocating available resources in the cluster) between competing applications. It doesn&rsquo;t care about per-application states nor internal flows and optimizations, but the overall resource requirements of
+each application. Currently there are 3 different scheduler implementations available: FIFO, Fair, Capacity.</p>
+
+<p>Going back a few weeks in time we blogged about how to configure the
+<a href="http://blog.sequenceiq.com/blog/2014/03/14/yarn-capacity-scheduler/">CapacityScheduler</a> and use different queue
+setups. Based on the feedbacks we have received we realized that there is a lack of knowledge about how these schedulers work and many people have asked to fill that gap. Good news that we didn&rsquo;t
+forget about you. We&rsquo;re going to start a post series where we&rsquo;ll explain them a little bit detailed with fancy diagrams and code examples.</p>
+
+<p>But before doing that, let&rsquo;s visit a concrete problem we encountered while we were developing our product stack.
+We wanted to use the CapacityScheduler, but for different reasons (SLA and QoS) move the submitted applications between different queues to set a priority among them &ndash; at runtime (quick reminder: queues are either a composition of other queues or a collection of applications, forming a tree).
+Cross application priorites can&rsquo;t be configured yet, only priorities between tasks within the application. The only problem is if you check the code you&rsquo;ll find this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">moveApplication</span><span class="o">(</span><span class="n">ApplicationId</span> <span class="n">appId</span><span class="o">,</span> <span class="n">String</span> <span class="n">newQueue</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">YarnException</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">throw</span> <span class="k">new</span> <span class="nf">YarnException</span><span class="o">(</span><span class="n">getClass</span><span class="o">().</span><span class="na">getSimpleName</span><span class="o">()</span>
+</span><span class='line'>        <span class="o">+</span> <span class="s">&quot; does not support moving apps between queues&quot;</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+
+      
+       <a href="/blog/2014/07/02/move-applications-between-queues/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/06/25/hadoop-2-4-0-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -800,98 +873,6 @@ When we started to build our own process, we decided that we don&rsquo;t want to
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/04/14/mapreduce-with-scalding/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">14 April 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
-            
-            <a href="/blog/categories/scalding/"><span class="label label-warning">Scalding</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/04/14/mapreduce-with-scalding/">Writing MapReduce jobs in Scala</a>
-          <span class="badge name-badge">Richard Doktorics</span>
-
-      </h1>
-      <p>At SequenceIQ we have many pre-built and configurable MapReduce jobs (complex math algorithms, filtering, sorting and correlation patterns, samplings, top-n, joins, partitioning, etc) &ndash; as building blocks of our job worklow. We needed to find a quick way to build and test these jobs during developement on &lsquo;local&rsquo; mode and be able to push the same jobs to a large test cluster without any modifications.
-Though in general we use Java, we always strive for efficiency when we need to solve a problem and we use different  languages (not just JVM based) in our stack (e.g. Groovy, Go and R) &ndash; to write MapReduce jobs we have choosen Scala and the Scalding library. Scalding is a Scala library developed by Twitter that abstracts and makes easy to write Hadoop MapReduce jobs. In many ways Scalding is similar to Pig, but it was writen in Scala, bringing the advantages of Scala to your MapReduce jobs (e.g. type safety &ndash; how many times you have submitted a job to a cluster only to learn 5 hours later that you can&rsquo;t convert a String to Double).</p>
-
-<p>This example will show you how you can use Scalding with Hadoop 2.3 and how easy is to write a MapReduce job with few lines of Scala code.</p>
-
-<h2>Build the project</h2>
-
-<p>In our example we will transform a csv file to an other one with a filter step.
-To build the project use:</p>
-
-<p><code>./gradlew clean build</code> in the project library.</p>
-
-<h2>Run the sample</h2>
-
-<p>To run the sample with these parameters in local mode:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>yarn jar scalding-sample-0.1.jar com.sequenceiq.samples.scalding.CsvToCsvFilterJob --local --schema <span class="o">{</span>YOUR_SCHEME<span class="o">}</span> --input <span class="o">{</span>INPUT<span class="o">}</span> --type <span class="o">{</span>TYPE<span class="o">}</span> --operator <span class="o">{</span>OPERATOR<span class="o">}</span> --field <span class="o">{</span>FILTER_FIELD<span class="o">}</span> --operand <span class="o">{</span>OPERAND<span class="o">}</span> --output <span class="o">{</span>OUTPUT_PATH<span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>or if you want to run the exampke using HDFS then use:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>yarn jar scalding-sample-0.1.jar com.sequenceiq.samples.scalding.CsvToCsvFilterJob --hdfs --schema <span class="o">{</span>YOUR_SCHEME<span class="o">}</span> --input <span class="o">{</span>INPUT<span class="o">}</span> --type <span class="o">{</span>TYPE<span class="o">}</span> --operator <span class="o">{</span>OPERATOR<span class="o">}</span> --field <span class="o">{</span>FILTER_FIELD<span class="o">}</span> --operand <span class="o">{</span>OPERAND<span class="o">}</span> --output <span class="o">{</span>OUTPUT_PATH<span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>To run the filtering example the parameters are like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>yarn jar scalding-sample-0.1.jar com.sequenceiq.samples.scalding.CsvToCsvFilterJob --hdfs --schema id,name --input /input.csv --type int --operator eq --field id --operand 1 --output /output.csv
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The code looks extremely simple:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">validation</span><span class="o">()</span>
-</span><span class='line'>  <span class="n">input</span><span class="o">(</span><span class="n">args</span><span class="o">)</span>
-</span><span class='line'>    <span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">filterableField</span><span class="o">)</span> <span class="o">{</span><span class="nl">field:</span> <span class="n">String</span> <span class="o">=&gt;</span> <span class="n">createFilterCriterion</span><span class="o">(</span><span class="n">field</span><span class="o">)}</span>
-</span><span class='line'>    <span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">output</span><span class="o">(</span><span class="n">args</span><span class="o">))</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-      
-       <a href="/blog/2014/04/14/mapreduce-with-scalding/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -913,6 +894,10 @@ To build the project use:</p>
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/12/02/hadoop-2-6-0-docker/">Running Hadoop 2.6.0 in Docker containers</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/11/25/periscope-scale-your-cluster-on-time/">Periscope: time based autoscaling</a>

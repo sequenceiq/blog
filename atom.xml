@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-11-25T06:34:16+00:00</updated>
+  <updated>2014-12-02T15:07:04+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,92 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Running Hadoop 2.6.0 in Docker containers]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/12/02/hadoop-2-6-0-docker/"/>
+    <updated>2014-12-02T18:07:18+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/12/02/hadoop-2-6-0-docker</id>
+    <content type="html"><![CDATA[<p>Yesterday the Hadoop community has released the <code>2.6.0</code> version of Hadoop &ndash; the 4th major release of this year &ndash; and one which contains quite a few new and interesting features:</p>
+
+<ul>
+<li>Rolling upgrades &ndash; the holly grail for enterprises to switch Hadoop versions</li>
+<li>Long running services in YARN</li>
+<li>Heterogeneous storage in HDFS</li>
+</ul>
+
+
+<p>These were the most popular features, though beside these there were quite a few extremely important ones &ndash; at least for us and our our <a href="http://sequenceiq.com/periscope/">Periscope</a> project. As you might be aware we are working on an SLA policy based autoscaling API for Apache YARN and we were closely following/been involved or contributed to these JIRA&rsquo;s below:</p>
+
+<ul>
+<li><a href="https://issues.apache.org/jira/browse/YARN-2248">YARN-2248</a> &ndash; CS changes for moving apps between queues</li>
+<li><a href="https://issues.apache.org/jira/browse/YARN-1051">YARN-1051</a> &ndash; YARN Admission Control/Planner</li>
+</ul>
+
+
+<p>These tasks/subtasks (beside a few others) are all coming with the new major release and opening up brand new opportunities to make Hadoop YARN a more <code>dynamic</code> environment. Considering these and the <a href="http://slider.incubator.apache.org/index.html">Apache Slider</a> project it&rsquo;s pretty clear to see that exciting times are coming.</p>
+
+<p>We have combined all these above with <a href="http://slider.incubator.apache.org/index.html">Docker</a>, our open source projects &ndash; <a href="http://sequenceiq.com/cloudbreak">Cloudbreak</a> and <a href="http://sequenceiq.com/periscope/">Periscope</a> &ndash; and we are leveraging these new innovations, so stay tuned and get the code or our Docker containers to start with.</p>
+
+<p>In the meanwhile (as usuall) we have <a href="https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/">released</a> our Hadoop 2.6.0 container to ease your quick start with Hadoop.</p>
+
+<h3>DIY &ndash; Build the image</h3>
+
+<p>In case you&rsquo;d like to try directly from the <a href="https://github.com/sequenceiq/hadoop-docker/tree/2.6.0">Dockerfile</a> you can build the image as:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker build  -t sequenceiq/hadoop-docker:2.6.0 .</span></code></pre></td></tr></table></div></figure>
+
+
+<!-- more -->
+
+
+<h3>Pull the image</h3>
+
+<p>As it is also released as an official Docker image from Docker&rsquo;s automated build repository &ndash; you can always pull or refer the image when launching containers.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/hadoop-docker:2.6.0</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Start the container</h3>
+
+<p>In order to use the Docker image you have just built or pulled use:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -i -t sequenceiq/hadoop-docker:2.6.0 /etc/bootstrap.sh -bash</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!-- more -->
+
+
+<h2>Testing</h2>
+
+<p>You can run one of the stock examples:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cd $HADOOP_PREFIX
+</span><span class='line'># run the mapreduce
+</span><span class='line'>bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0.jar grep input output 'dfs[a-z.]+'
+</span><span class='line'>
+</span><span class='line'># check the output
+</span><span class='line'>bin/hdfs dfs -cat output/*</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Hadoop native libraries, build, Bintray, etc</h2>
+
+<p>The Hadoop build process is no easy task &ndash; requires lots of libraries and their right version, protobuf, etc and takes some time &ndash; we have simplified all these, made the build and released a 64b version of Hadoop <code>nativelibs</code> on our <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.6.0/view/files">Bintray repo</a>. Enjoy.</p>
+
+<p>Should you have any questions let us know through our social channels as <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Periscope: time based autoscaling]]></title>
@@ -2501,294 +2587,7 @@ In the benchmark, the jobs were submitted to the <code>default</code> queue and 
 <p>SequenceIQ is an innovative big data startup with the mission statement to simplify and automate provisioning of on-demand Hadoop clusters running on different environments. Leaders in “containerizing” Hadoop, SequenceIQ is the first company who provisions and runs the full Hadoop stack and components on Docker containers. The company has further plans to create the industry’s first cloud agnostic, autoscaling and use case driven Platform as a Service API, and break the common significant barriers of entry that exist with most big data projects through a series of As-a-Service API offerings.
 For more information follow up with us on @SequenceIQ and <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>.</p>
 
-<p><a href="&#x6d;&#97;&#x69;&#x6c;&#116;&#111;&#58;&#105;&#x6e;&#102;&#x6f;&#64;&#115;&#x65;&#x71;&#x75;&#101;&#x6e;&#99;&#x65;&#x69;&#113;&#46;&#99;&#x6f;&#109;">&#105;&#110;&#102;&#x6f;&#x40;&#x73;&#x65;&#x71;&#x75;&#101;&#x6e;&#x63;&#101;&#105;&#x71;&#x2e;&#x63;&#x6f;&#109;</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Apache Spark - create and test jobs]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/09/29/spark-correlation-and-testing/"/>
-    <updated>2014-09-29T13:42:24+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/09/29/spark-correlation-and-testing</id>
-    <content type="html"><![CDATA[<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we use different runtimes (MR2, Spark, Tez) when submitting jobs from <a href="http://docs.banzai.apiary.io/reference">Banzai</a> to a YARN clusters.
-Some of these jobs are quite simple (filtering, sorting, projection etc.), but most of them can be complicated or not so oblivious at first (e.g.: complex machine learning algorithms).
-From Banzai’s perspective/looking from outside a YARN cluster, what only matters is the input and the output dataset &ndash; as we have abstracted all the pipeline steps &ndash;  so testing of this steps properly is a must.
-In this post we’d like to show such an example that &ndash; a correlation job on vectors with <a href="https://spark.apache.org/">Apache Spark</a> and how we test it.</p>
-
-<h2>Correlation example (on vectors) with Apache Spark</h2>
-
-<p>Suppose that we have an input dataset (CSV file for the sake of simplicity of the sample code) and we want to reveal the dependency between all of the columns. (all data is vectorized, if not you will have to vectorize your data first).
-If we want to build a <code>testable</code> job, we have to focus only on the algorithm part. Our goal here is to work only on the Resilient Distributed Dataset and take the context creation outside of the job.
-This way you cab run and create your <code>SparkContext</code>locally and substitute an HDFS data source (or something else) with simple objects.</p>
-
-<p>Interface: (output: vector index pairs with their correlation coefficient)</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">abstract</span> <span class="k">class</span> <span class="nc">CorrelationJob</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="n">computeCorrelation</span><span class="o">(</span><span class="n">input</span><span class="k">:</span> <span class="kt">RDD</span><span class="o">[</span><span class="kt">String</span><span class="o">])</span> <span class="k">:</span> <span class="kt">Array</span><span class="o">[(</span><span class="kt">Int</span>, <span class="kt">Int</span>, <span class="kt">Double</span><span class="o">)]</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="n">d2d</span><span class="o">(</span><span class="n">d</span><span class="k">:</span> <span class="kt">Double</span><span class="o">)</span> <span class="k">:</span> <span class="kt">Double</span> <span class="o">=</span> <span class="k">new</span> <span class="n">java</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="nc">DecimalFormat</span><span class="o">(</span><span class="s">&quot;#.######&quot;</span><span class="o">).</span><span class="n">format</span><span class="o">(</span><span class="n">d</span><span class="o">).</span><span class="n">toDouble</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<!-- more -->
-
-
-<p>Below we show you how a Pearson correlation job implementation looks like with RDD functions. First, you need to gather all combinations of the vector indices and count the size of the dataset.
-After that, the only thing what you need is to compute the <a href="http://www.statisticshowto.com/what-is-the-correlation-coefficient-formula/">correlation coefficient</a> on all column combinations (based on the square, dot product and sum of the fields per line). It takes 1 map and 1 reduce operation per pairs. (<code>iterative</code> &ndash;> typical example where you need to use Spark instead of MR2)</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'>  <span class="k">override</span> <span class="k">def</span> <span class="n">computeCorrelation</span><span class="o">(</span><span class="n">input</span><span class="k">:</span> <span class="kt">RDD</span><span class="o">[</span><span class="kt">String</span><span class="o">])</span> <span class="k">:</span> <span class="kt">Array</span><span class="o">[(</span><span class="kt">Int</span>, <span class="kt">Int</span>, <span class="kt">Double</span><span class="o">)]</span> <span class="k">=</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">val</span> <span class="n">numbersInput</span> <span class="k">=</span> <span class="n">input</span>
-</span><span class='line'>      <span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">line</span> <span class="k">=&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="s">&quot;,&quot;</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">toDouble</span><span class="o">))</span>
-</span><span class='line'>      <span class="o">.</span><span class="n">cache</span><span class="o">()</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">val</span> <span class="n">combinedFields</span> <span class="k">=</span> <span class="o">(</span><span class="mi">0</span> <span class="n">to</span> <span class="n">numbersInput</span><span class="o">.</span><span class="n">first</span><span class="o">().</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="o">).</span><span class="n">combinations</span><span class="o">(</span><span class="mi">2</span><span class="o">)</span>
-</span><span class='line'>    <span class="k">val</span> <span class="n">size</span> <span class="k">=</span> <span class="n">numbersInput</span><span class="o">.</span><span class="n">count</span><span class="o">()</span>
-</span><span class='line'>    <span class="k">val</span> <span class="n">res</span> <span class="k">=</span> <span class="k">for</span> <span class="o">(</span><span class="n">field</span> <span class="k">&lt;-</span> <span class="n">combinedFields</span><span class="o">)</span> <span class="k">yield</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">val</span> <span class="n">col1Index</span> <span class="k">=</span> <span class="n">field</span><span class="o">.</span><span class="n">head</span>
-</span><span class='line'>      <span class="k">val</span> <span class="n">col2Index</span> <span class="k">=</span> <span class="n">field</span><span class="o">.</span><span class="n">last</span>
-</span><span class='line'>      <span class="k">val</span> <span class="n">tempData</span> <span class="k">=</span> <span class="n">numbersInput</span><span class="o">.</span><span class="n">map</span><span class="o">{</span><span class="n">arr</span> <span class="k">=&gt;</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">val</span> <span class="n">data1</span> <span class="k">=</span> <span class="n">arr</span><span class="o">(</span><span class="n">col1Index</span><span class="o">)</span>
-</span><span class='line'>        <span class="k">val</span> <span class="n">data2</span> <span class="k">=</span> <span class="n">arr</span><span class="o">(</span><span class="n">col2Index</span><span class="o">)</span>
-</span><span class='line'>        <span class="o">(</span><span class="n">data1</span><span class="o">,</span> <span class="n">data2</span><span class="o">,</span> <span class="n">data1</span> <span class="o">*</span> <span class="n">data2</span><span class="o">,</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="o">(</span><span class="n">data1</span><span class="o">,</span> <span class="mi">2</span><span class="o">),</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="o">(</span><span class="n">data2</span><span class="o">,</span> <span class="mi">2</span><span class="o">))</span>
-</span><span class='line'>      <span class="o">}}</span>
-</span><span class='line'>      <span class="k">val</span> <span class="o">(</span><span class="n">sum1</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">sum2</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">dotProduct</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">sq1</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">sq2</span><span class="k">:</span> <span class="kt">Double</span><span class="o">)</span> <span class="k">=</span> <span class="n">tempData</span><span class="o">.</span><span class="n">reduce</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">case</span> <span class="o">((</span><span class="n">a1</span><span class="o">,</span> <span class="n">a2</span><span class="o">,</span> <span class="n">aDot</span><span class="o">,</span> <span class="n">a1sq</span><span class="o">,</span> <span class="n">a2sq</span><span class="o">),</span> <span class="o">(</span><span class="n">b1</span><span class="o">,</span> <span class="n">b2</span><span class="o">,</span> <span class="n">bDot</span><span class="o">,</span> <span class="n">b1sq</span><span class="o">,</span> <span class="n">b2sq</span><span class="o">))</span> <span class="k">=&gt;</span>
-</span><span class='line'>          <span class="o">(</span><span class="n">a1</span> <span class="o">+</span> <span class="n">b1</span><span class="o">,</span> <span class="n">a2</span> <span class="o">+</span> <span class="n">b2</span><span class="o">,</span> <span class="n">aDot</span> <span class="o">+</span> <span class="n">bDot</span><span class="o">,</span> <span class="n">a1sq</span> <span class="o">+</span> <span class="n">b1sq</span><span class="o">,</span> <span class="n">a2sq</span> <span class="o">+</span> <span class="n">b2sq</span><span class="o">)</span>
-</span><span class='line'>      <span class="o">}</span>
-</span><span class='line'>      <span class="k">val</span> <span class="n">corr</span> <span class="k">=</span> <span class="n">pearsonCorr</span><span class="o">(</span><span class="n">size</span><span class="o">,</span> <span class="n">sum1</span><span class="o">,</span> <span class="n">sum2</span><span class="o">,</span> <span class="n">sq1</span><span class="o">,</span> <span class="n">sq2</span><span class="o">,</span> <span class="n">dotProduct</span><span class="o">)</span>
-</span><span class='line'>      <span class="o">(</span><span class="n">col1Index</span><span class="o">,</span> <span class="n">col2Index</span><span class="o">,</span> <span class="n">d2d</span><span class="o">(</span><span class="n">corr</span><span class="o">))</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>    <span class="n">res</span><span class="o">.</span><span class="n">toArray</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1">// correlation formula</span>
-</span><span class='line'>  <span class="k">def</span> <span class="n">pearsonCorr</span><span class="o">(</span><span class="n">size</span><span class="k">:</span> <span class="kt">Long</span><span class="o">,</span> <span class="n">sum1</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">sum2</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">sq1</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">sq2</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">dotProduct</span><span class="k">:</span> <span class="kt">Double</span><span class="o">)</span><span class="k">:</span> <span class="kt">Double</span> <span class="o">=</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">val</span> <span class="n">numerator</span> <span class="k">=</span> <span class="o">(</span><span class="n">size</span> <span class="o">*</span> <span class="n">dotProduct</span><span class="o">)</span> <span class="o">-</span> <span class="o">(</span><span class="n">sum1</span> <span class="o">*</span> <span class="n">sum2</span><span class="o">)</span>
-</span><span class='line'>    <span class="k">val</span> <span class="n">denominator</span> <span class="k">=</span> <span class="n">scala</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="o">(</span><span class="n">size</span> <span class="o">*</span> <span class="n">sq1</span> <span class="o">-</span> <span class="n">sum1</span> <span class="o">*</span> <span class="n">sum1</span><span class="o">)</span> <span class="o">*</span> <span class="n">scala</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="o">(</span><span class="n">size</span> <span class="o">*</span> <span class="n">sq2</span> <span class="o">-</span> <span class="n">sum2</span> <span class="o">*</span> <span class="n">sum2</span><span class="o">)</span>
-</span><span class='line'>    <span class="n">numerator</span> <span class="o">/</span> <span class="n">denominator</span>
-</span><span class='line'>  <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>MLlib Statistics</h2>
-
-<p>By the way <a href="https://spark.apache.org/releases/spark-release-1-1-0.html">Spark Release 1.1.0</a> contains an algorithm for correlation computation, thus we now show you how to use that instead of the above one.
-With <a href="https://github.com/apache/spark/blob/master/mllib/src/main/scala/org/apache/spark/mllib/stat/Statistics.scala">Statistics</a> you can produce a correlation matrix from vectors. For obtaining the correlation coefficient pairs, we just need to get the upper triangular matrix without diagonal. It looks much simpler, isn&rsquo;t is?</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'>  <span class="k">override</span> <span class="k">def</span> <span class="n">computeCorrelation</span><span class="o">(</span><span class="n">input</span><span class="k">:</span> <span class="kt">RDD</span><span class="o">[</span><span class="kt">String</span><span class="o">])</span> <span class="k">:</span> <span class="kt">Array</span><span class="o">[(</span><span class="kt">Int</span>, <span class="kt">Int</span>, <span class="kt">Double</span><span class="o">)]</span> <span class="k">=</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">val</span> <span class="n">vectors</span> <span class="k">=</span> <span class="n">input</span>
-</span><span class='line'>      <span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">line</span> <span class="k">=&gt;</span> <span class="nc">Vectors</span><span class="o">.</span><span class="n">dense</span><span class="o">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="s">&quot;,&quot;</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">toDouble</span><span class="o">)))</span>
-</span><span class='line'>      <span class="o">.</span><span class="n">cache</span><span class="o">()</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">val</span> <span class="n">corr</span><span class="k">:</span> <span class="kt">Matrix</span> <span class="o">=</span> <span class="nc">Statistics</span><span class="o">.</span><span class="n">corr</span><span class="o">(</span><span class="n">vectors</span><span class="o">,</span> <span class="s">&quot;pearson&quot;</span><span class="o">)</span>
-</span><span class='line'>    <span class="k">val</span> <span class="n">num</span> <span class="k">=</span> <span class="n">corr</span><span class="o">.</span><span class="n">numRows</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// upper triangular matrix without diagonal</span>
-</span><span class='line'>    <span class="k">val</span> <span class="n">res</span> <span class="k">=</span> <span class="k">for</span> <span class="o">((</span><span class="n">x</span><span class="o">,</span> <span class="n">i</span><span class="o">)</span> <span class="k">&lt;-</span> <span class="n">corr</span><span class="o">.</span><span class="n">toArray</span><span class="o">.</span><span class="n">zipWithIndex</span> <span class="k">if</span> <span class="o">(</span><span class="n">i</span> <span class="o">/</span> <span class="n">num</span><span class="o">)</span> <span class="o">&lt;</span> <span class="n">i</span> <span class="o">%</span> <span class="n">num</span> <span class="o">)</span>
-</span><span class='line'>    <span class="k">yield</span> <span class="o">((</span><span class="n">i</span> <span class="o">/</span> <span class="n">num</span><span class="o">),</span> <span class="o">(</span><span class="n">i</span> <span class="o">%</span> <span class="n">num</span><span class="o">),</span> <span class="n">d2d</span><span class="o">(</span><span class="n">x</span><span class="o">))</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">res</span>
-</span><span class='line'>  <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Testing</h2>
-
-<p>For testing Spark jobs we use the Specs2 framework. We do not want to start a Spark context before every test case, so we just start/end it before/after steps.
-In order to run Spark locally set master to &ldquo;local&rdquo;. In our example (for demonstration purposes) we do not turn off Spark logging (or set to warn level) but it is recommended.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">abstract</span> <span class="k">class</span> <span class="nc">SparkJobSpec</span> <span class="k">extends</span> <span class="nc">SpecificationWithJUnit</span> <span class="k">with</span> <span class="nc">BeforeAfterExample</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="nd">@transient</span> <span class="k">var</span> <span class="n">sc</span><span class="k">:</span> <span class="kt">SparkContext</span> <span class="o">=</span> <span class="k">_</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="n">beforeAll</span> <span class="k">=</span> <span class="o">{</span>
-</span><span class='line'>    <span class="nc">System</span><span class="o">.</span><span class="n">clearProperty</span><span class="o">(</span><span class="s">&quot;spark.driver.port&quot;</span><span class="o">)</span>
-</span><span class='line'>    <span class="nc">System</span><span class="o">.</span><span class="n">clearProperty</span><span class="o">(</span><span class="s">&quot;spark.hostPort&quot;</span><span class="o">)</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">val</span> <span class="n">conf</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">SparkConf</span><span class="o">()</span>
-</span><span class='line'>      <span class="o">.</span><span class="n">setMaster</span><span class="o">(</span><span class="s">&quot;local&quot;</span><span class="o">)</span>
-</span><span class='line'>      <span class="o">.</span><span class="n">setAppName</span><span class="o">(</span><span class="s">&quot;test&quot;</span><span class="o">)</span>
-</span><span class='line'>    <span class="n">sc</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">SparkContext</span><span class="o">(</span><span class="n">conf</span><span class="o">)</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="n">afterAll</span> <span class="k">=</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">sc</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">sc</span><span class="o">.</span><span class="n">stop</span><span class="o">()</span>
-</span><span class='line'>      <span class="n">sc</span> <span class="k">=</span> <span class="kc">null</span>
-</span><span class='line'>      <span class="nc">System</span><span class="o">.</span><span class="n">clearProperty</span><span class="o">(</span><span class="s">&quot;spark.driver.port&quot;</span><span class="o">)</span>
-</span><span class='line'>      <span class="nc">System</span><span class="o">.</span><span class="n">clearProperty</span><span class="o">(</span><span class="s">&quot;spark.hostPort&quot;</span><span class="o">)</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">override</span> <span class="k">def</span> <span class="n">map</span><span class="o">(</span><span class="n">fs</span><span class="k">:</span> <span class="o">=&gt;</span> <span class="nc">Fragments</span><span class="o">)</span> <span class="k">=</span> <span class="nc">Step</span><span class="o">(</span><span class="n">beforeAll</span><span class="o">)</span> <span class="o">^</span> <span class="k">super</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">fs</span><span class="o">)</span> <span class="o">^</span> <span class="nc">Step</span><span class="o">(</span><span class="n">afterAll</span><span class="o">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>In our test specification we check that both correlation implementations are correct or not.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="nd">@RunWith</span><span class="o">(</span><span class="n">classOf</span><span class="o">[</span><span class="kt">JUnitRunner</span><span class="o">])</span>
-</span><span class='line'><span class="k">class</span> <span class="nc">CorrelationJobTest</span> <span class="k">extends</span> <span class="nc">SparkJobSpec</span> <span class="o">{</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="s">&quot;Spark Correlation implementations&quot;</span> <span class="n">should</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">val</span> <span class="n">input</span> <span class="k">=</span> <span class="nc">Seq</span><span class="o">(</span><span class="s">&quot;1,2,9,5&quot;</span><span class="o">,</span> <span class="s">&quot;2,7,5,6&quot;</span><span class="o">,</span><span class="s">&quot;4,5,3,4&quot;</span><span class="o">,</span><span class="s">&quot;6,7,5,6&quot;</span><span class="o">)</span>
-</span><span class='line'>    <span class="k">val</span> <span class="n">correctOutput</span> <span class="k">=</span> <span class="nc">Array</span><span class="o">(</span>
-</span><span class='line'>      <span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mf">0.620299</span><span class="o">),</span>
-</span><span class='line'>      <span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="o">-</span><span class="mf">0.627215</span><span class="o">),</span>
-</span><span class='line'>      <span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mf">0.11776</span><span class="o">),</span>
-</span><span class='line'>      <span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="o">-</span><span class="mf">0.70069</span><span class="o">),</span>
-</span><span class='line'>      <span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mf">0.552532</span><span class="o">),</span>
-</span><span class='line'>      <span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mf">0.207514</span><span class="o">)</span>
-</span><span class='line'>      <span class="o">)</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="s">&quot;case 1 : return with correct output (custom spark correlation)&quot;</span> <span class="n">in</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">val</span> <span class="n">inputRDD</span> <span class="k">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="o">(</span><span class="n">input</span><span class="o">)</span>
-</span><span class='line'>      <span class="k">val</span> <span class="n">customCorr</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">CustomCorrelationJob</span><span class="o">().</span><span class="n">computeCorrelation</span><span class="o">(</span><span class="n">inputRDD</span><span class="o">,</span> <span class="n">sc</span><span class="o">)</span>
-</span><span class='line'>      <span class="n">customCorr</span> <span class="n">must_==</span> <span class="n">correctOutput</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>    <span class="s">&quot;case 2: return with correct output (stats spark correlation)&quot;</span> <span class="n">in</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">val</span> <span class="n">inputRDD</span> <span class="k">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="o">(</span><span class="n">input</span><span class="o">)</span>
-</span><span class='line'>      <span class="k">val</span> <span class="n">statCorr</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">StatsCorrelationJob</span><span class="o">().</span><span class="n">computeCorrelation</span><span class="o">(</span><span class="n">inputRDD</span><span class="o">,</span> <span class="n">sc</span><span class="o">)</span>
-</span><span class='line'>      <span class="n">statCorr</span> <span class="n">must_==</span> <span class="n">correctOutput</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>    <span class="s">&quot;case 3: equal to each other&quot;</span> <span class="n">in</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">val</span> <span class="n">inputRDD</span> <span class="k">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="o">(</span><span class="n">input</span><span class="o">)</span>
-</span><span class='line'>      <span class="k">val</span> <span class="n">statCorr</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">StatsCorrelationJob</span><span class="o">().</span><span class="n">computeCorrelation</span><span class="o">(</span><span class="n">inputRDD</span><span class="o">,</span> <span class="n">sc</span><span class="o">)</span>
-</span><span class='line'>      <span class="k">val</span> <span class="n">customCorr</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">CustomCorrelationJob</span><span class="o">().</span><span class="n">computeCorrelation</span><span class="o">(</span><span class="n">inputRDD</span><span class="o">,</span> <span class="n">sc</span><span class="o">)</span>
-</span><span class='line'>      <span class="n">statCorr</span> <span class="n">must_==</span> <span class="n">customCorr</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>  <span class="o">}</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>To build and test the project use this command from our <a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub examples</a> spark-correlation directory:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>./gradlew clean build
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You can run this correlation example in our free Docker based Apache Spark container as well. (with <a href="https://github.com/apache/spark/blob/master/bin/spark-submit">spark-submit</a> script). You can get the Spark container from the official <a href="https://registry.hub.docker.com/u/sequenceiq/spark/">Docker registry</a> or from our <a href="https://github.com/sequenceiq/docker-spark">GitHub</a> repository. The source code is available at <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/spark-correlation">SequenceIQ&rsquo;s GitHub repository</a>.</p>
-
-<p>If you have any questions or suggestions you can reach us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>,
- <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+<p><a href="&#x6d;&#x61;&#105;&#108;&#116;&#x6f;&#58;&#105;&#x6e;&#102;&#111;&#64;&#115;&#101;&#x71;&#x75;&#101;&#110;&#x63;&#x65;&#105;&#x71;&#46;&#99;&#x6f;&#x6d;">&#105;&#110;&#x66;&#111;&#x40;&#115;&#101;&#113;&#x75;&#101;&#x6e;&#x63;&#101;&#105;&#x71;&#x2e;&#99;&#111;&#x6d;</a></p>
 ]]></content>
   </entry>
   

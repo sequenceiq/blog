@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Hadoop | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/hadoop/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-11-25T06:34:16+00:00</updated>
+  <updated>2014-12-02T15:07:04+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,88 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Running Hadoop 2.6.0 in Docker containers]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/12/02/hadoop-2-6-0-docker/"/>
+    <updated>2014-12-02T18:07:18+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/12/02/hadoop-2-6-0-docker</id>
+    <content type="html"><![CDATA[<p>Yesterday the Hadoop community has released the <code>2.6.0</code> version of Hadoop &ndash; the 4th major release of this year &ndash; and one which contains quite a few new and interesting features:</p>
+
+<ul>
+<li>Rolling upgrades &ndash; the holly grail for enterprises to switch Hadoop versions</li>
+<li>Long running services in YARN</li>
+<li>Heterogeneous storage in HDFS</li>
+</ul>
+
+
+<p>These were the most popular features, though beside these there were quite a few extremely important ones &ndash; at least for us and our our <a href="http://sequenceiq.com/periscope/">Periscope</a> project. As you might be aware we are working on an SLA policy based autoscaling API for Apache YARN and we were closely following/been involved or contributed to these JIRA&rsquo;s below:</p>
+
+<ul>
+<li><a href="https://issues.apache.org/jira/browse/YARN-2248">YARN-2248</a> &ndash; CS changes for moving apps between queues</li>
+<li><a href="https://issues.apache.org/jira/browse/YARN-1051">YARN-1051</a> &ndash; YARN Admission Control/Planner</li>
+</ul>
+
+
+<p>These tasks/subtasks (beside a few others) are all coming with the new major release and opening up brand new opportunities to make Hadoop YARN a more <code>dynamic</code> environment. Considering these and the <a href="http://slider.incubator.apache.org/index.html">Apache Slider</a> project it&rsquo;s pretty clear to see that exciting times are coming.</p>
+
+<p>We have combined all these above with <a href="http://slider.incubator.apache.org/index.html">Docker</a>, our open source projects &ndash; <a href="http://sequenceiq.com/cloudbreak">Cloudbreak</a> and <a href="http://sequenceiq.com/periscope/">Periscope</a> &ndash; and we are leveraging these new innovations, so stay tuned and get the code or our Docker containers to start with.</p>
+
+<p>In the meanwhile (as usuall) we have <a href="https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/">released</a> our Hadoop 2.6.0 container to ease your quick start with Hadoop.</p>
+
+<h3>DIY &ndash; Build the image</h3>
+
+<p>In case you&rsquo;d like to try directly from the <a href="https://github.com/sequenceiq/hadoop-docker/tree/2.6.0">Dockerfile</a> you can build the image as:</p>
+
+<p><code>
+docker build  -t sequenceiq/hadoop-docker:2.6.0 .
+</code></p>
+
+<!-- more -->
+
+
+<h3>Pull the image</h3>
+
+<p>As it is also released as an official Docker image from Docker&rsquo;s automated build repository &ndash; you can always pull or refer the image when launching containers.</p>
+
+<p><code>
+docker pull sequenceiq/hadoop-docker:2.6.0
+</code></p>
+
+<h3>Start the container</h3>
+
+<p>In order to use the Docker image you have just built or pulled use:</p>
+
+<p><code>
+docker run -i -t sequenceiq/hadoop-docker:2.6.0 /etc/bootstrap.sh -bash
+</code></p>
+
+<!-- more -->
+
+
+<h2>Testing</h2>
+
+<p>You can run one of the stock examples:</p>
+
+<p>```
+cd $HADOOP_PREFIX</p>
+
+<h1>run the mapreduce</h1>
+
+<p>bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0.jar grep input output &lsquo;dfs[a-z.]+&rsquo;</p>
+
+<h1>check the output</h1>
+
+<p>bin/hdfs dfs -cat output/*
+```</p>
+
+<h2>Hadoop native libraries, build, Bintray, etc</h2>
+
+<p>The Hadoop build process is no easy task &ndash; requires lots of libraries and their right version, protobuf, etc and takes some time &ndash; we have simplified all these, made the build and released a 64b version of Hadoop <code>nativelibs</code> on our <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.6.0/view/files">Bintray repo</a>. Enjoy.</p>
+
+<p>Should you have any questions let us know through our social channels as <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Apache Hadoop 2.5.2 on Docker]]></title>
@@ -381,169 +463,6 @@ amb-deploy-cluster 4
 <p>Check back next week, as we are releasing <code>real world</code> examples running on three different big data fabrics: Tez, MR2 and Spark.</p>
 
 <p>Should you have any questions let us know through our social channels using <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Cloudbreak new provider implementation - Part I: Build your custom image]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/09/18/custom-image-on-gcc/"/>
-    <updated>2014-09-18T07:42:58+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/09/18/custom-image-on-gcc</id>
-    <content type="html"><![CDATA[<p>Not so long ago we have released <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; the cloud agnostic, open source and Docker based Hadoop as a Service API (with support for <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">autoscaling</a> Hadoop clusters). As we have <code>dockerized</code> the whole Hadoop ecosystem, we are shipping the containers to different cloud providers, such as Amazon AWS, Microsoft Azure and Google Cloud Compute. Also Cloudbreak has an <a href="http://sequenceiq.com/cloudbreak/#add-new-cloud-providers">SDK</a> which allows you to quickly add your favorite cloud provider. In this post (series) we’d like to guide you trough the process, and show you how to create a custom image &ndash; on Google Cloud. We have chose Google Cloud as this is the least documented and has the smallest amount on default images (there are thousand for Amazon, and hundreds for Azure). Nevertheless on all cloud provider usually you’d like to have a custom image with your preferred OS, configuration and potentially installed applications.</p>
-
-<!-- more -->
-
-
-<h3>Why do we need custom images on every cloud?</h3>
-
-<p>All the above are true for us as well &ndash; with some simplifications. We use Docker to run every process/application &ndash; for the benefits we have covered in other posts many times &ndash; and apart from Docker, our (or the customer’s) preferred OS and a few other helper/debugger things (such as <a href="https://registry.hub.docker.com/u/jpetazzo/nsenter/">nsenter</a>)
-we are almost fine. We have made some PAM related fixes/contributions for Docker &ndash; and until they are not in the upstream we have built/derive from our base layer/containers &ndash; so with this and the actual containers included this is pretty much how a cloud base image looks like for us.</p>
-
-<p>As usual we always automate everything &ndash; building custom cloud base images is part of the automation and our CI/CD process as well. For that we use <a href="http://www.ansible.com/home">Ansible</a> as the preferred IT automation tool. So the first step is to define your own <a href="http://docs.ansible.com/playbooks.html">playbook</a> to install everything on the virtual machine.</p>
-
-<p>A simple playbook looks like this:</p>
-
-<p>```
-  &ndash; name: Install Docker</p>
-
-<pre><code>shell: curl -sL https://get.docker.io/ | sh
-when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
-</code></pre>
-
-<ul>
-<li><p>name: Pull sequenceiq/ambari image
-shell: docker pull sequenceiq/ambari:pam-fix</p></li>
-<li><p>name: Pull jpetazzo/nsenter image
-shell: docker pull jpetazzo/nsenter</p></li>
-<li><p>name: Install bridge-utils
-apt: name=bridge-utils state=latest
-when: ansible_distribution == &lsquo;Debian&rsquo; or ansible_distribution == &lsquo;Ubuntu&rsquo;</p></li>
-<li><p>name: install jq
-shell: curl -o /usr/bin/jq <a href="http://stedolan.github.io/jq/download/linux64/jq">http://stedolan.github.io/jq/download/linux64/jq</a> &amp;&amp; chmod +x /usr/bin/jq</p></li>
-</ul>
-
-
-<p>```</p>
-
-<p>Using Google cloud you have 2 choices:</p>
-
-<ol>
-<li> Create snapshots starting from a default image</li>
-<li> Create a custom image</li>
-</ol>
-
-
-<h3>Image creation using snapshots</h3>
-
-<p>We are using Debian as the host OS on Google Cloud, and have created a virtual machine using the default <a href="https://developers.google.com/compute/docs/operating-systems#backported_debian_7_wheezy">Debian</a> image. First thing first, you need to create a persistent disk:</p>
-
-<p><code>
-gcloud compute disks create temporary-disk --zone ZONE
-</code></p>
-
-<p>Then create a virtual machine with the temporary-disk:</p>
-
-<p><code>
-gcloud compute instances create example-instance \
-  --scopes storage-rw --image IMAGE \
-  --disk name=temporary-disk device-name=temporary-disk --zone ZONE
-</code></p>
-
-<p>And attach the disk to the google cloud instance:</p>
-
-<p><code>
-gcloud compute instances attach-disk example-instance
-  --disk temporary-disk --device-name temporary-disk --zone ZONE
-</code></p>
-
-<p>When this is finished then you can <code>shh</code> to the <code>sample-instance</code>. You can now check your mounted volumes with this command:</p>
-
-<p><code>
-ls -l /dev/disk/by-id/google-*
-</code></p>
-
-<p>Now you need to create a folder which will contain your custom built image:</p>
-
-<p><code>
-sudo mkdir /mnt/tmp
-</code></p>
-
-<p>You have to format your partition before the image creation:</p>
-
-<p><code>
-sudo /usr/share/google/safe_format_and_mount -m "mkfs.ext4 -F" /dev/sdb /mnt/tmp
-</code></p>
-
-<p>Now you can start building the image which will last about 10 minutes:</p>
-
-<p><code>
-sudo gcimagebundle -d /dev/sda -o /mnt/tmp/ --log_file=/tmp/imagecreation.log
-</code></p>
-
-<p>You have now an image in /tmp with a special hex number like <code>/tmp/HEX-NUMBER.image.tar.gz</code></p>
-
-<p>Once you uploaded it to a Google bucket you are done, and ready to use it.</p>
-
-<p><code>
-gsutil cp /mnt/tmp/IMAGE_NAME.image.tar.gz gs://BUCKET_NAME
-</code></p>
-
-<h3>Create a custom image &ndash; using your favorite OS</h3>
-
-<p><a href="http://www.ubuntu.com/download/server">Ubuntu server 14.04</a> is many’s preferred Linux distribution &ndash; unluckily there is no default image using Ubuntu as the OS in the Google Cloud](<a href="https://developers.google.com/compute/docs/operating-systems">https://developers.google.com/compute/docs/operating-systems</a>). Luckily this is not that complicated &ndash; the process below works with any other OS as well. In order to start you should have <a href="https://www.virtualbox.org/">Virtualbox</a> installed. Download an Ubuntu server from <a href="http://www.ubuntu.com/server">Ubuntu’s</a> web page.
-Install in into the <a href="https://www.virtualbox.org/">Virtualbox</a> box, start it and <code>ssh</code> into. Once you are inside you will have to install the <a href="https://developers.google.com/cloud/sdk/">Google Cloud SDK</a>. This is needed for the custom image, as contains some extra feature like <code>google-startup-scripts</code>. Remember that Ubuntu (and in general a few cloud providers) support <code>cloud-init</code> scripts, and this is why we need the Google Cloud SDK &ndash; as we ship these images to the <code>cloud</code>.</p>
-
-<p>After the installation add the following kernel options into the <code>/etc/default/grub</code>:</p>
-
-<p>```</p>
-
-<h1>to enable paravirtualization</h1>
-
-<p>CONFIG_KVM_GUEST=y</p>
-
-<h1>to enable the paravirtualized clock.</h1>
-
-<p>CONFIG_KVM_CLOCK=y</p>
-
-<h1>to enable paravirtualized PCI devices.</h1>
-
-<p>CONFIG_VIRTIO_PCI=y</p>
-
-<h1>to enable access to paravirtualized disks.</h1>
-
-<p>CONFIG_SCSI_VIRTIO=y</p>
-
-<h1>to enable access to the networking.</h1>
-
-<p>CONFIG_VIRTIO_NET=y
-```</p>
-
-<p>Now you are ready to prepare an <code>official</code> image into a tar file, by selecting the virtual box image file on your disk and convert it.
-You can convert your <code>vmdk</code> file into the supported raw type by using:</p>
-
-<p><code>
-qemu-img convert -f vmdk -O raw VMDK_FILE_NAME.vmdk disk.img
-</code></p>
-
-<p>The .img file name has to be <code>disk.img</code>. After you have converted the image, you have to make a tar file:</p>
-
-<p><code>
-tar -Szcf &lt;image-tar-name&gt;.tar.gz disk.raw
-</code></p>
-
-<p>Same as before, you have to upload in to a Google Cloud Bucket:</p>
-
-<p><code>
-gsutil cp &lt;image-tar-name&gt;.tar.gz gs://&lt;bucket-name&gt;
-</code></p>
-
-<p>Now you have an <code>official</code> image template but you have to create the image in Google Cloud:</p>
-
-<p><code>
-gcutil addimage my-ubuntu gs://&lt;bucket-name&gt;/ubuntu_image.tar.gz
-</code></p>
-
-<p>Once this is done you have created your custom built Google Cloud image, and you are ready to start cloud instances using it. Let us know how it works for you, and make sure you follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a> for updates.</p>
 ]]></content>
   </entry>
   
