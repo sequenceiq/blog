@@ -130,6 +130,117 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/11/02/spark-on-tez/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">02 November 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/apache-spark/"><span class="label label-warning">Apache Spark</span></a>
+            
+            <a href="/blog/categories/apache-tez/"><span class="label label-warning">Apache Tez</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/11/02/spark-on-tez/">Spark on Tez execution context - running in Docker</a>
+          <span class="badge name-badge">Janos Matyas</span>
+
+      </h1>
+      <p>Last week Hortonworks <a href="http://hortonworks.com/blog/improving-spark-data-pipelines-native-yarn-integration/">announced</a> improvements for running Apache Spark at scale by introducing a new pluggable <code>execution context</code> and has <a href="https://github.com/hortonworks/spark-native-yarn-samples">open sourced</a> it.</p>
+
+<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we are always trying to work and offer the latest technology solutions for our clients and help them to choose their favorite technology/option. We are running a project called <a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> &ndash; to be open sourced soon &ndash; with the goal (among many others) to abstract and allow our customers to use their favorite big data runtime: MR2, Spark or Tez. Along this process we have <code>dockerized</code> most of the Hadoop ecosystem &ndash; we are running MR2, Spark, Storm, Hive, HBase, Pig, Oozie, Drill etc in Docker containers &ndash; on bare metal and in the cloud as well (all of these containers have made <strong>top</strong> downloads on the official Docker repository). For details you can check these older posts/resources:</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th> Name                  </th>
+<th> Description </th>
+<th> Documentation </th>
+<th> GitHub</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td> Apache Hadoop  </td>
+<td> Pseudo distributed container </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/">http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/</a> </td>
+<td> <a href="https://github.com/sequenceiq/hadoop-docker">https://github.com/sequenceiq/hadoop-docker</a></td>
+</tr>
+<tr>
+<td></td>
+<td> Apache Ambari   </td>
+<td> Multi node &ndash; full Hadoop stack, blueprint based </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/</a> </td>
+<td> <a href="https://github.com/sequenceiq/docker-ambari">https://github.com/sequenceiq/docker-ambari</a></td>
+</tr>
+<tr>
+<td></td>
+<td> Cloudbreak         </td>
+<td> Cloud agnostic Hadoop as a Service </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/</a> </td>
+<td> <a href="https://github.com/sequenceiq/cloudbreak">https://github.com/sequenceiq/cloudbreak</a></td>
+</tr>
+<tr>
+<td></td>
+<td> Periscope          </td>
+<td> SLA policy based autoscaling for Hadoop clusters </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/</a> </td>
+<td> <a href="https://github.com/sequenceiq/periscope">https://github.com/sequenceiq/periscope</a></td>
+</tr>
+</tbody>
+</table>
+
+
+<p>We have always been big fans on Apache Spark &ndash; due to the simplicity of development and at the same time we are big fans of Apache Tez, for reasons we have <a href="http://blog.sequenceiq.com/blog/2014/09/23/topn-on-apache-tez/">blogged before</a>.</p>
+
+<p>When the <a href="https://issues.apache.org/jira/browse/SPARK-3561">SPARK-3561</a> has been submitted we were eager to get our hands on the WIP and early implementation &ndash; and this time we&rsquo;d like to help you with a quick ramp-up and easy solution to have a Spark Docker <a href="https://github.com/sequenceiq/docker-spark-native-yarn">container</a> where the <code>execution context</code> has been changed to <a href="http://tez.apache.org/">Apache Tez</a> and everything is preconfigured. The only thing you will need to do is to follow these easy steps.</p>
+
+<h3>Pull the image from the Docker Repository</h3>
+
+<p>We suggest to always pull the container from the official Docker repository &ndash; as this is always maintained and supported by us.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/spark-native-yarn</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once you have pulled the container you are ready to run the image.</p>
+
+<h3>Run the image</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -i -t -h sandbox sequenceiq/spark-native-yarn /etc/bootstrap.sh -bash</span></code></pre></td></tr></table></div></figure>
+
+
+
+      
+       <a href="/blog/2014/11/02/spark-on-tez/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/10/30/cloudbreak-devops/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -833,60 +944,6 @@ this process and made it available in the official Docker
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/09/30/hortonworks-partnership/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">30 September 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/hortonworks/"><span class="label label-warning">Hortonworks</span></a>
-            
-            <a href="/blog/categories/sequenceiq/"><span class="label label-warning">SequenceIQ</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/09/30/hortonworks-partnership/">SequenceIQ Joins Hortonworks Technology Partner Program</a>
-          <span class="badge name-badge">Janos Matyas</span>
-
-      </h1>
-      <p>Integration of Hortonworks Data Platform with Cloudbreak enables Hadoop to run in Docker containers &ndash; shipped to the cloud.</p>
-
-<p><strong>SAN FRANCISCO, September 30, 2014</strong> — <a href="http://sequenceiq.com/">SequenceIQ ,Inc.</a> today announced that it has joined the <a href="http://hortonworks.com/partners/become-a-partner/">Hortonworks® Technology Partner Program</a>. <a href="http://hortonworks.com/">Hortonworks</a> is the leading contributor to and provider of Apache™ Hadoop®. SequenceIQ will integrate <a href="http://hortonworks.com/hdp/">Hortonworks Data Platform</a> (HDP) with Cloudbreak to enable a cloud agnostic, autoscaling and <a href="https://www.docker.com/">Docker</a> container based provisioning of HDP.</p>
-
-<p>By joining the Hortonworks Technology Partner program, SequenceIQ will work to enable and accelerate the deployment of a modern data architecture, integrating with the Hortonworks Data Platform—the industry’s only 100 percent open source Hadoop distribution, explicitly architected, built, and tested for enterprise-grade deployments.</p>
-
-<p>SequenceIQ’s technology enables organizations to have a DevOps friendly way to ease and automate provisioning of on-demand Hadoop clusters and services using their favorite cloud provider. With the integration of HDP, users can now leverage all the available features of a 100 percent open source commercial Hadoop distribution.</p>
-
-<p>“SequenceIQ and Hortonworks share a common goal of making the provisioning of Apache Hadoop clusters easier on different cloud and Docker container based environments,” said Janos Matyas, chief technology officer of SequenceIQ. “Cloudbreak and HDP help enterprises to minimize the cost of their Hadoop deployments, and create on-demand autoscaling Hadoop clusters.”</p>
-
-
-      
-       <a href="/blog/2014/09/30/hortonworks-partnership/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -908,6 +965,10 @@ this process and made it available in the official Docker
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/12/04/multinode-ambari-1-7-0/">Multinode cluster with Ambari 1.7.0 - in Docker</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/12/02/hadoop-2-6-0-docker/">Running Hadoop 2.6.0 in Docker containers</a>

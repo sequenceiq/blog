@@ -130,6 +130,68 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/09/15/hadoop-2-5-1-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">15 September 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/apache/"><span class="label label-warning">Apache</span></a>
+            
+            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+            <a href="/blog/categories/registry/"><span class="label label-warning">Registry</span></a>
+            
+            <a href="/blog/categories/ubuntu/"><span class="label label-warning">Ubuntu</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/09/15/hadoop-2-5-1-docker/">Apache Hadoop 2.5.1 on Docker</a>
+          <span class="badge name-badge">Janos Matyas</span>
+
+      </h1>
+      <p>Following the release cycle of Hadoop, today we are releasing a new <code>2.5.1</code> version of our <a href="https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/">Hadoop Docker container</a>. Up until today the container was only <code>CentOS</code> based, but during the last few months we got lots of requests to release a Hadoop container on <code>Ubuntu</code> as well. From now on we will have both released, supported and published to the official Docker repository. Enjoy.</p>
+
+<h2>Centos</h2>
+
+<h3>Build the image</h3>
+
+<p>In case you&rsquo;d like to try directly from the <a href="https://github.com/sequenceiq/hadoop-docker/tree/2.5.1">Dockerfile</a> you can build the image as:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker build  -t sequenceiq/hadoop-docker:2.5.1 .</span></code></pre></td></tr></table></div></figure>
+
+
+
+      
+       <a href="/blog/2014/09/15/hadoop-2-5-1-docker/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/09/11/apache-drill-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -884,68 +946,6 @@ Stay tuned and follow us on <a href="https://www.linkedin.com/company/sequenceiq
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/08/16/fairplay/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">16 August 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
-            
-            <a href="/blog/categories/fair-scheduler/"><span class="label label-warning">Fair scheduler</span></a>
-            
-            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
-            
-            <a href="/blog/categories/r/"><span class="label label-warning">R</span></a>
-            
-            <a href="/blog/categories/yarn/"><span class="label label-warning">YARN</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/08/16/fairplay/">Fair play</a>
-          <span class="badge name-badge">Janos Matyas</span>
-
-      </h1>
-      <p>Recently we’ve been asked an interesting question &ndash; how fair is the YARN <a href="http://hadoop.apache.org/docs/r2.4.1/hadoop-yarn/hadoop-yarn-site/FairScheduler.html">FairScheduler</a> &ndash; while we never use internally the fair scheduler after a quick test the short answer is &ndash; <strong>very fair</strong>.</p>
-
-<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we always use the <a href="http://hadoop.apache.org/docs/r2.4.1/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html">CapacityScheduler</a> &ndash; actually an enhanced version of it (coming with the 2.6.0 release of Hadoop). Since the emergence of YARN and the new schedulers we were working on a solution to bring SLA to Hadoop &ndash; and part of this work was our contribution to <a href="https://issues.apache.org/jira/browse/YARN-1495">Apache YARN schedulers</a> and <a href="http://ambari.apache.org/">Apache Ambari</a>. Anyway, we decided to configure a FairScheduler in one of our 20 node test cluster and run a quick test.</p>
-
-<h3>Fair scheduler</h3>
-
-<p>Remember than before YARN only one resource represented a resource on a cluster &ndash; the <code>slot</code>. Every node had slots, and your MR job was taking up slots , regardless of their actual resource usage (CPU, memory). It worked but for sure it wasn’t a fair game &ndash; and caused lots of frustration between administrators of applications competing for <code>slots</code>. We have seen many over and undersubscribed nodes in terms of CPU and memory. YARN introduced the concept of containers and the ability to request/attach resources to them (vCores and memory).</p>
-
-<p>While this seams already a big step forward comparing with slots, it brought up other problems &ndash; with multiple resources as <code>vCores</code> and <code>memory</code> and <code>disk</code> and <code>network i/o</code> in the future it’s pretty challenging to share them fairly. With a single resource it would we pretty straightforward &ndash; nevertheless the community based on a <a href="http://static.usenix.org/event/nsdi11/tech/full_papers/Ghodsi.pdf">research paper</a> coming out from UC Berkeley (Ghodsi et al) managed to get this working through (again a community effort) this <a href="https://issues.apache.org/jira/browse/YARN-326">YARN ticket</a>.</p>
-
-<p>Now let’s battle test how fair is the scheduler when running two MR application with changing resource usage &ndash; how well the dominant resource fairness works.</p>
-
-
-      
-       <a href="/blog/2014/08/16/fairplay/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -967,6 +967,10 @@ Stay tuned and follow us on <a href="https://www.linkedin.com/company/sequenceiq
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/12/04/multinode-ambari-1-7-0/">Multinode cluster with Ambari 1.7.0 - in Docker</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/12/02/hadoop-2-6-0-docker/">Running Hadoop 2.6.0 in Docker containers</a>

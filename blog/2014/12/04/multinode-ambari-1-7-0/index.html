@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: Hortonworks - SequenceIQ Blog</title>
+  <title>Multinode cluster with Ambari 1.7.0 - in Docker - SequenceIQ Blog</title>
   <meta name="author" content="SequenceIQ">
 
    
-  <meta name="description" content="Category: Hortonworks">
+  <meta name="description" content="">
   
   <meta name="keywords" content="">
 
@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.sequenceiq.comblog/categories/hortonworks">
+  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2014/12/04/multinode-ambari-1-7-0">
   <link href="/favicon.png" rel="icon">
   <link href='http://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
@@ -117,167 +117,201 @@
               <div class="col-md-9" id="">
                   <div class="">
                    <!-- <div id="content">-->
-                      <article role="article">
+                      <div>
+
+<div class="container-fluid">
+     <div class="row">
+       
+         
+       
+       
+
+       
+         
+       
+       <h1 class="article-style"> Multinode cluster with Ambari 1.7.0 - in Docker
+
+       <span class="badge name-badge">Janos Matyas</span>
+       <span class="badge name-badge">04 December 2014</span>
+       </h1>
+
+
+
+</div>
+</div>
+<article class="hentry" role="article">
   
- <!-- <header>
+
+
+  <div class="row-fluid">
+    <div class="span12">
+      <p>Two days ago the latest <a href="http://ambari.apache.org/">version</a> of Ambari (1.7.0) has been released and now is time for us to release our automated process to deploy Hadoop clusters with Ambari in Docker containers.</p>
+
+<p>The release contains lots of new features (follow <a href="http://ambari.apache.org/whats-new.html#">this</a> link) &ndash; we will highlight a few we consider important for us:</p>
+
+<ul>
+<li>Ambari Views &ndash; a systematic way to plug-in UI capabilities to surface custom visualization, management and monitoring features in Ambari Web.</li>
+<li>Extended/new stack definitions &ndash; support for Hortonworks HDP and Apache Bigtop stacks</li>
+<li>Apache Slider integration &ndash; ease deployments of existing applications into a YARN cluster</li>
+</ul>
+
+
+<p>As usual we have <code>dockerized</code> the whole Ambari 1.7.0 thus you can take the container and provision your arbitrary size Hadoop cluster.</p>
+
+<h3>Get the Docker container</h3>
+
+<p>In case you don’t have Docker browse among our previous posts &ndash; we have a few posts about howto’s, examples and best practices in general for Docker and in particular about how to run the full Hadoop stack on Docker.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/ambari:1.7.0</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!--more-->
+
+
+<p>Once you have the container you are almost ready to go &ndash; we always automate everything and <strong>over simplify</strong> Hadoop provisioning.</p>
+
+<h3>Get ambari-functions</h3>
+
+<p>Get the following <code>ambari-functions</code> <a href="https://github.com/sequenceiq/docker-ambari/blob/1.7.0/ambari-functions">file</a> from our GitHub.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -Lo .amb j.mp/docker-ambari-170 && . .amb</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Create your cluster &ndash; manually</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>amb-start-cluster 3</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This will start a 3 node Ambari cluster where all the containers are preconfigured and the Ambari agants are running.</p>
+
+<p>Now lets get familiar with a <a href="http://sequenceiq.com">SequenceIQ</a> contribution for Ambari: the <a href="https://cwiki.apache.org/confluence/display/AMBARI/Ambari+Shell">Ambari Shell</a>.</p>
+
+<p>Type the following command</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>amb-shell</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This will start the Ambari shell. After the welcome screen
+Now lets quickly create a cluster. Since two days ago Hortonworks released <a href="http://hortonworks.com/blog/available-now-hdp-2-2/">HDP 2.2</a> let set up an HDP 2.2 cluster. For that we will use this <a href="https://gist.github.com/matyix/aeb8837012b5fa253fa5">blueprint</a>.</p>
+
+<p>In the shell type the following &ndash; note that throughout the process you can use <code>hint</code> or <code>help</code> for guidance and <code>tab completion</code> as well.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>blueprint add --url https://gist.githubusercontent.com/matyix/aeb8837012b5fa253fa5/raw/3476b538c8ba0c16363dbfd9634f0b9fe88cb36e/multi-node-hdfs-yarn
+</span><span class='line'>cluster build --blueprint multi-node-hdfs-yarn
+</span><span class='line'>cluster autoAssign
+</span><span class='line'>cluster create</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can track the progress either from the shell or log into the Ambari UI. If you use <code>boot2docker</code> you should add routing from your host into the container:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo route add -net 172.17.0.0/16 192.168.59.103</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In order to learn the Ambari UI IP address (IPAddres) use:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>docker inspect --format<span class="o">=</span><span class="s1">&#39;{{.NetworkSettings.IPAddress}}&#39;</span> amb0
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That&rsquo;s it.</p>
+
+<h2>Create your cluster &ndash; automated</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>amb-deploy-cluster 3
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>Whaaat?</strong> No really, that’s it &ndash; we have just provisioned you a 3 node Hadoop cluster in less than 2 minutes. Docker, Apache Ambari and Ambari Shell combined is quite powerful, isn&rsquo;t it? You can always start playing with your desired services by changing the <a href="https://github.com/sequenceiq/ambari-rest-client/tree/master/src/main/resources/blueprints">blueprints</a> &ndash; the full Hadoop stack is supported.</p>
+
+<p>If you’d like to play around and understand how this works check our previous blog posts &ndash; a good start is this first post about one of our contribution, the <a href="http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell/">Ambari Shell</a>.</p>
+
+<p>You have just seen how easy is to provision a Hadoop cluster on your laptop, if you’d like to see how we provision a Hadoop cluster in the cloud using the very same Docker image you can check our open source, cloud agnostic Hadoop as a Service API &ndash; <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a>. Also we have released a project called <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> &ndash; the industry&rsquo;s first open source autoscaling API for Hadoop.</p>
+
+<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+
+    </div>
+  </div>
+
+
+
+  <footer>
+    <hr>
+    
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Janos Matyas</span></span>
 
     
-  </header>-->
+    <div class="row">
+      
+      <div class="col-md-6 span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/ambari/"><span class="label label-warning">Ambari</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="col-md-5 social-sharing pull-right">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
   
-  <div id="blog-archives" class="category">
-
+  <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
   
-  <div class="row">
-    <div class="col-md-1">
-  	
-  	
-  	  
-  	    <h2>2014</h2>
-  	
-    </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-09-30T16:00:00+00:00" pubdate><span class='month'>Sep</span> <span class='day'>30</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/09/30/hortonworks-partnership/">SequenceIQ Joins Hortonworks Technology Partner Program</a></h1>
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
-
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/hortonworks/'>Hortonworks</a>, <a class='category' href='/blog/categories/sequenceiq/'>SequenceIQ</a></span>
-		</footer>
-		
-	</div>
-</div>
-
-
-  	</article>
-    </div>
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
   </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
 
-  
-  <div class="row">
-    <div class="col-md-1">
-  	
-  	
+      </div>
+      
+      
     </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-03-31T10:22:09+00:00" pubdate><span class='month'>Mar</span> <span class='day'>31</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/03/31/mahout-on-tez/">Using Mahout with Tez</a></h1>
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
-
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/hortonworks/'>Hortonworks</a>, <a class='category' href='/blog/categories/mahout/'>Mahout</a>, <a class='category' href='/blog/categories/tez/'>Tez</a>, <a class='category' href='/blog/categories/yarn/'>YARN</a></span>
-		</footer>
-		
-	</div>
-</div>
-
-
-  	</article>
+    
+    <div class="row">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2014/12/02/hadoop-2-6-0-docker/" title="Previous Post: Running Hadoop 2.6.0 in Docker containers">&laquo; Running Hadoop 2.6.0 in Docker containers</a>
+          
+          
+        </p>
+      </div>
     </div>
-  </div>
-
-  
-  <div class="row">
-    <div class="col-md-1">
-  	
-  	
-    </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-03-24T03:54:09+00:00" pubdate><span class='month'>Mar</span> <span class='day'>24</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/03/24/hoya-at-sequenceiq/">Using Hortonworks Hoya at SequenceIQ</a></h1>
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
-
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/hbase/'>HBase</a>, <a class='category' href='/blog/categories/hortonworks/'>Hortonworks</a>, <a class='category' href='/blog/categories/hoya/'>Hoya</a>, <a class='category' href='/blog/categories/yarn/'>YARN</a></span>
-		</footer>
-		
-	</div>
-</div>
-
-
-  	</article>
-    </div>
-  </div>
-
-  
-  <div class="row">
-    <div class="col-md-1">
-  	
-  	
-    </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-02-07T16:17:04+00:00" pubdate><span class='month'>Feb</span> <span class='day'>07</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/02/07/hdp2-on-amazon/">Set up HDP2 on Amazon EC2</a></h1>
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
-
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/ec2/'>EC2</a>, <a class='category' href='/blog/categories/hdp2/'>HDP2</a>, <a class='category' href='/blog/categories/hortonworks/'>Hortonworks</a></span>
-		</footer>
-		
-	</div>
-</div>
-
-
-  	</article>
-    </div>
-  </div>
-
-</div>
-
+  </footer>
 </article>
 
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
+</div>
 
 
                     <!--</div>-->
@@ -641,7 +675,10 @@
       var disqus_shortname = 'sequenceiqblog';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2014/12/04/multinode-ambari-1-7-0/';
+        var disqus_url = 'http://blog.sequenceiq.com/blog/2014/12/04/multinode-ambari-1-7-0/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

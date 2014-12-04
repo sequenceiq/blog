@@ -130,6 +130,89 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/07/05/docker-debug-with-nsenter-on-boot2docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">05 July 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/boot2docker/"><span class="label label-warning">Boot2docker</span></a>
+            
+            <a href="/blog/categories/devops/"><span class="label label-warning">DevOps</span></a>
+            
+            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
+            
+            <a href="/blog/categories/nsenter/"><span class="label label-warning">nsenter</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/07/05/docker-debug-with-nsenter-on-boot2docker/">Docker debug with nsenter on boot2docker</a>
+          <span class="badge name-badge">Lajos Papp</span>
+
+      </h1>
+      <p><code>nsenter</code> is a small tool allowing to <code>enter</code> into <code>n</code>ame<code>s</code>paces. Specifically
+when you work with docker, it means you can <em>enter</em> any docker container, even
+it they don&rsquo;t run any sshd. Running sshd in a docker container for debuging
+<a href="http://jpetazzo.github.io/2014/06/23/docker-ssh-considered-evil/">considered evil</a>.</p>
+
+<h2>Nsenter with Boot2docker</h2>
+
+<p>Docker doesn&rsquo;t run directly on OS X and on Windows, so you need
+<a href="http://boot2docker.io/">boot2docker</a>. To get <code>nsenter</code> working with boot2docker
+is a bit trickier.</p>
+
+<p>For the impatient here is a simple function, which lets you enter any docker
+container directly from OS X (or any boot2docker host):</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker-enter() {
+</span><span class='line'>  boot2docker ssh '[ -f /var/lib/boot2docker/nsenter ] || docker run --rm -v /var/lib/boot2docker/:/target jpetazzo/nsenter'
+</span><span class='line'>  boot2docker ssh -t sudo /var/lib/boot2docker/docker-enter "$@"
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>the first line installs <code>nsenter</code> and <code>docker-enter</code> if missing and the second line
+does the actual call.</p>
+
+<p>once you declared the function, you can use it as:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker-enter &lt;CONTAINER-ID/CONTAINER-NAME&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+
+      
+       <a href="/blog/2014/07/05/docker-debug-with-nsenter-on-boot2docker/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/07/02/move-applications-between-queues/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -827,52 +910,6 @@ When we started to build our own process, we decided that we don&rsquo;t want to
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/04/17/apache-phoenix-sneak-peak/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">17 April 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/apache-phoenix/"><span class="label label-warning">Apache Phoenix</span></a>
-            
-            <a href="/blog/categories/hbase/"><span class="label label-warning">HBase</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/04/17/apache-phoenix-sneak-peak/">Apache Phoenix (sneak peak)</a>
-          <span class="badge name-badge">Krisztian Horvath</span>
-
-      </h1>
-      <script type="text/javascript" src="https://asciinema.org/a/8982.js" id="asciicast-8982" async></script>
-
-
-      
-      
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -894,6 +931,10 @@ When we started to build our own process, we decided that we don&rsquo;t want to
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/12/04/multinode-ambari-1-7-0/">Multinode cluster with Ambari 1.7.0 - in Docker</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/12/02/hadoop-2-6-0-docker/">Running Hadoop 2.6.0 in Docker containers</a>

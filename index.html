@@ -130,6 +130,71 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/12/04/multinode-ambari-1-7-0/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">04 December 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/ambari/"><span class="label label-warning">Ambari</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/12/04/multinode-ambari-1-7-0/">Multinode cluster with Ambari 1.7.0 - in Docker</a>
+          <span class="badge name-badge">Janos Matyas</span>
+
+      </h1>
+      <p>Two days ago the latest <a href="http://ambari.apache.org/">version</a> of Ambari (1.7.0) has been released and now is time for us to release our automated process to deploy Hadoop clusters with Ambari in Docker containers.</p>
+
+<p>The release contains lots of new features (follow <a href="http://ambari.apache.org/whats-new.html#">this</a> link) &ndash; we will highlight a few we consider important for us:</p>
+
+<ul>
+<li>Ambari Views &ndash; a systematic way to plug-in UI capabilities to surface custom visualization, management and monitoring features in Ambari Web.</li>
+<li>Extended/new stack definitions &ndash; support for Hortonworks HDP and Apache Bigtop stacks</li>
+<li>Apache Slider integration &ndash; ease deployments of existing applications into a YARN cluster</li>
+</ul>
+
+
+<p>As usual we have <code>dockerized</code> the whole Ambari 1.7.0 thus you can take the container and provision your arbitrary size Hadoop cluster.</p>
+
+<h3>Get the Docker container</h3>
+
+<p>In case you don’t have Docker browse among our previous posts &ndash; we have a few posts about howto’s, examples and best practices in general for Docker and in particular about how to run the full Hadoop stack on Docker.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/ambari:1.7.0</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+
+      
+       <a href="/blog/2014/12/04/multinode-ambari-1-7-0/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/12/02/hadoop-2-6-0-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -689,117 +754,6 @@ Cloudbreak shell is written in Java but let&rsquo;s see a basic <code>curl</code
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/11/02/spark-on-tez/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">02 November 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/apache-spark/"><span class="label label-warning">Apache Spark</span></a>
-            
-            <a href="/blog/categories/apache-tez/"><span class="label label-warning">Apache Tez</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/11/02/spark-on-tez/">Spark on Tez execution context - running in Docker</a>
-          <span class="badge name-badge">Janos Matyas</span>
-
-      </h1>
-      <p>Last week Hortonworks <a href="http://hortonworks.com/blog/improving-spark-data-pipelines-native-yarn-integration/">announced</a> improvements for running Apache Spark at scale by introducing a new pluggable <code>execution context</code> and has <a href="https://github.com/hortonworks/spark-native-yarn-samples">open sourced</a> it.</p>
-
-<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we are always trying to work and offer the latest technology solutions for our clients and help them to choose their favorite technology/option. We are running a project called <a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> &ndash; to be open sourced soon &ndash; with the goal (among many others) to abstract and allow our customers to use their favorite big data runtime: MR2, Spark or Tez. Along this process we have <code>dockerized</code> most of the Hadoop ecosystem &ndash; we are running MR2, Spark, Storm, Hive, HBase, Pig, Oozie, Drill etc in Docker containers &ndash; on bare metal and in the cloud as well (all of these containers have made <strong>top</strong> downloads on the official Docker repository). For details you can check these older posts/resources:</p>
-
-<table>
-<thead>
-<tr>
-<th></th>
-<th> Name                  </th>
-<th> Description </th>
-<th> Documentation </th>
-<th> GitHub</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td> Apache Hadoop  </td>
-<td> Pseudo distributed container </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/">http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/</a> </td>
-<td> <a href="https://github.com/sequenceiq/hadoop-docker">https://github.com/sequenceiq/hadoop-docker</a></td>
-</tr>
-<tr>
-<td></td>
-<td> Apache Ambari   </td>
-<td> Multi node &ndash; full Hadoop stack, blueprint based </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/</a> </td>
-<td> <a href="https://github.com/sequenceiq/docker-ambari">https://github.com/sequenceiq/docker-ambari</a></td>
-</tr>
-<tr>
-<td></td>
-<td> Cloudbreak         </td>
-<td> Cloud agnostic Hadoop as a Service </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/</a> </td>
-<td> <a href="https://github.com/sequenceiq/cloudbreak">https://github.com/sequenceiq/cloudbreak</a></td>
-</tr>
-<tr>
-<td></td>
-<td> Periscope          </td>
-<td> SLA policy based autoscaling for Hadoop clusters </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/</a> </td>
-<td> <a href="https://github.com/sequenceiq/periscope">https://github.com/sequenceiq/periscope</a></td>
-</tr>
-</tbody>
-</table>
-
-
-<p>We have always been big fans on Apache Spark &ndash; due to the simplicity of development and at the same time we are big fans of Apache Tez, for reasons we have <a href="http://blog.sequenceiq.com/blog/2014/09/23/topn-on-apache-tez/">blogged before</a>.</p>
-
-<p>When the <a href="https://issues.apache.org/jira/browse/SPARK-3561">SPARK-3561</a> has been submitted we were eager to get our hands on the WIP and early implementation &ndash; and this time we&rsquo;d like to help you with a quick ramp-up and easy solution to have a Spark Docker <a href="https://github.com/sequenceiq/docker-spark-native-yarn">container</a> where the <code>execution context</code> has been changed to <a href="http://tez.apache.org/">Apache Tez</a> and everything is preconfigured. The only thing you will need to do is to follow these easy steps.</p>
-
-<h3>Pull the image from the Docker Repository</h3>
-
-<p>We suggest to always pull the container from the official Docker repository &ndash; as this is always maintained and supported by us.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/spark-native-yarn</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Once you have pulled the container you are ready to run the image.</p>
-
-<h3>Run the image</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -i -t -h sandbox sequenceiq/spark-native-yarn /etc/bootstrap.sh -bash</span></code></pre></td></tr></table></div></figure>
-
-
-
-      
-       <a href="/blog/2014/11/02/spark-on-tez/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -819,6 +773,10 @@ Cloudbreak shell is written in Java but let&rsquo;s see a basic <code>curl</code
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/12/04/multinode-ambari-1-7-0/">Multinode cluster with Ambari 1.7.0 - in Docker</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/12/02/hadoop-2-6-0-docker/">Running Hadoop 2.6.0 in Docker containers</a>
