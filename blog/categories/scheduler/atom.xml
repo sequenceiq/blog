@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Scheduler | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/scheduler/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-12-12T17:00:37+00:00</updated>
+  <updated>2014-12-12T19:29:02+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -49,7 +49,7 @@ Cross application priorites can&rsquo;t be configured yet, only priorities betwe
 <p>Currently this operation is supported only by the FairScheduler. Why is it not implemented? Let us know in a comment and you might receive a surprise present from us :). In the meantime if we&rsquo;d like
 to implement it what would be the steps? Lets start with the following queue hierarchy and their capabilities taken from the integration tests:</p>
 
-<p>{% img <a href="http://yuml.me/1fe68e90">http://yuml.me/1fe68e90</a> %}</p>
+<p><img class="<a" src="href="http://yuml.me/1fe68e90">http://yuml.me/1fe68e90</a>"></p>
 
 <p>Assume we&rsquo;ve submitted 2 applications, <strong>app1</strong> to <code>b2</code> and <strong>app2</strong> to <code>a2</code> (submitting applications is only allowed to leaf queues). What if <strong>app2</strong> is
 pending for so long because of the queue capacity and my friend&rsquo;s friend&rsquo;s dog cannot wait anymore to see his data clustering result? We could play with the queue capacities and max capacities, but then other apps might get scheduled as well and we don&rsquo;t want that.

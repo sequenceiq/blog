@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-12-12T16:49:26+00:00</updated>
+  <updated>2014-12-12T19:29:02+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -18,13 +18,13 @@
     <link href="http://blog.sequenceiq.com/blog/2014/12/12/cloudbreak-got-periscope/"/>
     <updated>2014-12-12T14:13:33+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/12/12/cloudbreak-got-periscope</id>
-    <content type="html"><![CDATA[<p>Today we have pushed out a new release of <a href="http://cloudbreak.sequenceiq.com/">Cloudbreak</a> &ndash; our Docker container based and cloud agnostic Hadoop as a Service solution &ndash; containing a few major changes. While there are many significant changes (both functiona and architectural) in this blog post we&rsquo;d like to describe one of most expected one &ndash; the <code>autoscaling</code> of Hadoop clusters.</p>
+    <content type="html"><![CDATA[<p>Today we have pushed out a new release of <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> &ndash; our Docker container based and cloud agnostic Hadoop as a Service solution &ndash; containing a few major changes. While there are many significant changes (both functional and architectural) in this blog post we&rsquo;d like to describe one of most expected one &ndash; the <code>autoscaling</code> of Hadoop clusters.</p>
 
 <p>Just to quickly recap, Cloudbreak allows you to provision clusters &ndash; <code>full stacks</code> &ndash; in all major cloud providers using a unified API, UI or CLI/shell. Currently we support provisioning of clusters in <code>AWS</code>, <code>Google Cloud</code> and <code>Azure</code> and <code>OpenStack</code> (in private beta) &ndash; new cloud providers can be added quite easily (as everything runs in Docker) using our SDK.</p>
 
-<p><a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> allows you to configure SLA policies for your Hadoop cluster and scale up or down on demand. You are able to set alarms and notifications for different metrics like <code>pending containers</code>, <code>lost nodes</code> or <code>memory usage</code>, etc and set SLA scaling policies based on these alarms.</p>
+<p><a href="http://sequenceiq.com/periscope/">Periscope</a> allows you to configure SLA policies for your Hadoop cluster and scale up or down on demand. You are able to set alarms and notifications for different metrics like <code>pending containers</code>, <code>lost nodes</code> or <code>memory usage</code>, etc and set SLA scaling policies based on these alarms.</p>
 
-<p>Today&rsquo;s <a href="http://cloudbreak.sequenceiq.com/">release</a> made available the integration between the two projects (they work independently as well) and allows subscibers to enable autoscaling for their already deployed or newly created Hadoop cluster.</p>
+<p>Today&rsquo;s <a href="http://cloudbreak.sequenceiq.com/">release</a> made available the integration between the two projects (they work independently as well) and allows subscribers to enable autoscaling for their already deployed or newly created Hadoop cluster.</p>
 
 <p>We would like to guide you through the UI and help you to set up an autoscaling Hadoop cluster.</p>
 
@@ -56,7 +56,7 @@
 </ul>
 
 
-<p><strong>Time based</strong> alarms allow autoscaling of clusters based on thge configured time. We have <a href="http://blog.sequenceiq.com/blog/2014/11/25/periscope-scale-your-cluster-on-time/">bloged</a> about this new feature recently &ndash; with this new release of <a href="http://cloudbreak.sequenceiq.com/">Cloudbreak</a> this feature is available through UI as well.</p>
+<p><strong>Time based</strong> alarms allow autoscaling of clusters based on the configured time. We have <a href="http://blog.sequenceiq.com/blog/2014/11/25/periscope-scale-your-cluster-on-time/">blogged</a> about this new feature recently &ndash; with this new release of <a href="http://cloudbreak.sequenceiq.com/">Cloudbreak</a> this feature is available through UI as well.</p>
 
 <p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/alarm-time.png" alt="" /></p>
 
@@ -71,7 +71,7 @@
 
 <h2>Scaling policies</h2>
 
-<p>Once you have an alarm you can configure scaling policies based on it. Sclaing policies defines the actions you&rsquo;d like Periscope to take in case of a triggered alarm.</p>
+<p>Once you have an alarm you can configure scaling policies based on it. Scaling policies defines the actions you&rsquo;d like Periscope to take in case of a triggered alarm.</p>
 
 <p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/scaling.png" alt="" /></p>
 
@@ -85,13 +85,13 @@
 
 <h2>Cluster scaling configurations</h2>
 
-<p>A cluster has a default configuration which Periscope scaling policies can&rsquo;t override. This is due to avoid over or underscaling a Hadoop cluster with policies and also to definde a cooldown time period between two scaling actions.</p>
+<p>A cluster has a default configuration which Periscope scaling policies can&rsquo;t override. This is due to avoid over or under scaling a Hadoop cluster with policies and also to definde a cooldown time period between two scaling actions.</p>
 
 <p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/cluster-config.png" alt="" /></p>
 
 <ul>
 <li>cooldown time &ndash; the time spent between two scaling actions</li>
-<li>cluster size min. &ndash; the minimun size (in nodes) of a cluster</li>
+<li>cluster size min. &ndash; the minimum size (in nodes) of a cluster</li>
 <li>cluster size max. &ndash; the maximum size (in nodes) of a cluster</li>
 </ul>
 

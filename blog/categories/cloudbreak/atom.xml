@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Cloudbreak | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/cloudbreak/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-12-12T17:00:37+00:00</updated>
+  <updated>2014-12-12T19:29:02+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -18,17 +18,7 @@
     <link href="http://blog.sequenceiq.com/blog/2014/12/12/cloudbreak-got-periscope/"/>
     <updated>2014-12-12T14:13:33+00:00</updated>
     <id>http://blog.sequenceiq.com/blog/2014/12/12/cloudbreak-got-periscope</id>
-    <content type="html"><![CDATA[<p>Today we have pushed out a new release of [Cloudbreak](&mdash;&ndash;
-layout: post
-title: &ldquo;Cloudbreak welcomes Periscope&rdquo;
-date: 2014-12-12 15:13:33 +0100
-comments: true
-categories: [Cloudbreak]
-author: Richard Doktorics</p>
-
-<h2>published: true</h2>
-
-<p>Today we have pushed out a new release of <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> &ndash; our Docker container based and cloud agnostic Hadoop as a Service solution &ndash; containing a few major changes. While there are many significant changes (both functional and architectural) in this blog post we&rsquo;d like to describe one of most expected one &ndash; the <code>autoscaling</code> of Hadoop clusters.</p>
+    <content type="html"><![CDATA[<p>Today we have pushed out a new release of <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> &ndash; our Docker container based and cloud agnostic Hadoop as a Service solution &ndash; containing a few major changes. While there are many significant changes (both functional and architectural) in this blog post we&rsquo;d like to describe one of most expected one &ndash; the <code>autoscaling</code> of Hadoop clusters.</p>
 
 <p>Just to quickly recap, Cloudbreak allows you to provision clusters &ndash; <code>full stacks</code> &ndash; in all major cloud providers using a unified API, UI or CLI/shell. Currently we support provisioning of clusters in <code>AWS</code>, <code>Google Cloud</code> and <code>Azure</code> and <code>OpenStack</code> (in private beta) &ndash; new cloud providers can be added quite easily (as everything runs in Docker) using our SDK.</p>
 
@@ -101,123 +91,7 @@ author: Richard Doktorics</p>
 
 <ul>
 <li>cooldown time &ndash; the time spent between two scaling actions</li>
-<li>cluster size min. &ndash; the minimun size (in nodes) of a cluster</li>
-<li>cluster size max. &ndash; the maximum size (in nodes) of a cluster</li>
-</ul>
-
-
-<p>It&rsquo;s that simple. Happy autoscaling.</p>
-
-<p>In case you&rsquo;d like to test autoscaling and generate some load on your cluster you can use these <code>stock</code> Hadoop examples and the scripts below:</p>
-
-<p>```test.sh</p>
-
-<h1>!/bin/bash</h1>
-
-<p>export HADOOP_LIBS=/usr/lib/hadoop-mapreduce
-export JAR_JOBCLIENT=$HADOOP_LIBS/hadoop-mapreduce-client-jobclient-2.4.0.2.1.2.0-402-tests.jar</p>
-
-<p>smalljobs(){
-  echo &ldquo;############################################&rdquo;
-  echo Running smalljobs tests..
-  echo &ldquo;############################################&rdquo;</p>
-
-<p>  CMD=&ldquo;hadoop jar $JAR_JOBCLIENT mrbench -baseDir /user/hrt_qa/smallJobsBenchmark -numRuns 2 -maps 10 -reduces 5 -inputLines 10 -inputType ascending&rdquo;
-  echo TEST 1: $CMD
-  su hdfs -c &ldquo;$CMD&rdquo; 1> smalljobs-time.log 2> smalljobs.log
-}</p>
-
-<p>smalljobs
-```</p>
-
-<p>To test it you can run it with the following script:</p>
-
-<p>```</p>
-
-<h1>!/bin/bash</h1>
-
-<p>for i in {1..10}
-do
-nohup /test.sh &amp;
-done
-```</p>
-
-<p>Make sure you check back soon to our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
-on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.
-) &ndash; our Docker container based and cloud agnostic Hadoop as a Service solution &ndash; containing a few major changes. While there are many significant changes (both functiona and architectural) in this blog post we&rsquo;d like to describe one of most expected one &ndash; the <code>autoscaling</code> of Hadoop clusters.</p>
-
-<p>Just to quickly recap, Cloudbreak allows you to provision clusters &ndash; <code>full stacks</code> &ndash; in all major cloud providers using a unified API, UI or CLI/shell. Currently we support provisioning of clusters in <code>AWS</code>, <code>Google Cloud</code> and <code>Azure</code> and <code>OpenStack</code> (in private beta) &ndash; new cloud providers can be added quite easily (as everything runs in Docker) using our SDK.</p>
-
-<p><a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> allows you to configure SLA policies for your Hadoop cluster and scale up or down on demand. You are able to set alarms and notifications for different metrics like <code>pending containers</code>, <code>lost nodes</code> or <code>memory usage</code>, etc and set SLA scaling policies based on these alarms.</p>
-
-<p>Today&rsquo;s <a href="http://cloudbreak.sequenceiq.com/">release</a> made available the integration between the two projects (they work independently as well) and allows subscibers to enable autoscaling for their already deployed or newly created Hadoop cluster.</p>
-
-<p>We would like to guide you through the UI and help you to set up an autoscaling Hadoop cluster.</p>
-
-<!--more-->
-
-
-<h2>Using Periscope</h2>
-
-<p>Once you have created your Hadoop clusters with Cloudbreak you will now how the option to configure autoscaling policies.</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/select.png" alt="" /></p>
-
-<p>In order to configure autoscaling for your cluster you should go to <code>autoscaling SLA policies</code> tab and hit the <code>enable</code> button.</p>
-
-<h3>Alarms</h3>
-
-<p>Periscope allows you to configure two types of <code>alarms</code>.</p>
-
-<p><strong>Metric based</strong> alarms are alarms based on different <code>YARN</code> metrics. A plugin mechanism will be available in case you&rsquo;d like to plug your own metrics. As a quick note, we have another project called <a href="http://blog.sequenceiq.com/blog/2014/10/07/hadoop-monitoring/">Baywatch</a> where we collect around 400 Hadoop metrics &ndash; and those will be all pluggable in Periscope.</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/alarm-metric.png" alt="" /></p>
-
-<ul>
-<li>alarm name &ndash; name of the alarm</li>
-<li>description &ndash; description of the alarm</li>
-<li>metrics &ndash; currently the default YARN metrics we support are: <code>pending containers</code>, <code>pending applications</code>, <code>lost nodes</code>, <code>unhealthy nodes</code> and <code>global resources</code></li>
-<li>period &ndash;  the time that the metric has to be sustained in order for an alarm to be triggered</li>
-<li>notification email (optional) &ndash; address where Periscope sends an email in case the alarm is triggered</li>
-</ul>
-
-
-<p><strong>Time based</strong> alarms allow autoscaling of clusters based on thge configured time. We have <a href="http://blog.sequenceiq.com/blog/2014/11/25/periscope-scale-your-cluster-on-time/">bloged</a> about this new feature recently &ndash; with this new release of <a href="http://cloudbreak.sequenceiq.com/">Cloudbreak</a> this feature is available through UI as well.</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/alarm-time.png" alt="" /></p>
-
-<ul>
-<li>alarm name &ndash; name of the alarm</li>
-<li>description &ndash; description of the alarm</li>
-<li>time zone &ndash; the timezone for the <code>cron</code> expression</li>
-<li>cron expression &ndash; the cron expression</li>
-<li>notification email (optional) &ndash; address where Periscope sends an email in case the alarm is triggered</li>
-</ul>
-
-
-<h2>Scaling policies</h2>
-
-<p>Once you have an alarm you can configure scaling policies based on it. Sclaing policies defines the actions you&rsquo;d like Periscope to take in case of a triggered alarm.</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/scaling.png" alt="" /></p>
-
-<ul>
-<li>policy name &ndash; the name of the SLA scaling policy</li>
-<li>scaling adjustment &ndash; the adjustment counted in <code>nodes</code>, <code>percentage</code> or <code>exact</code> numbers of cluster nodes</li>
-<li>host group &ndash; the <code>autoscaled</code> Ambari hostgroup</li>
-<li>alarm &ndash; the configured alarm</li>
-</ul>
-
-
-<h2>Cluster scaling configurations</h2>
-
-<p>A cluster has a default configuration which Periscope scaling policies can&rsquo;t override. This is due to avoid over or underscaling a Hadoop cluster with policies and also to definde a cooldown time period between two scaling actions.</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/cluster-config.png" alt="" /></p>
-
-<ul>
-<li>cooldown time &ndash; the time spent between two scaling actions</li>
-<li>cluster size min. &ndash; the minimun size (in nodes) of a cluster</li>
+<li>cluster size min. &ndash; the minimum size (in nodes) of a cluster</li>
 <li>cluster size max. &ndash; the maximum size (in nodes) of a cluster</li>
 </ul>
 
@@ -481,7 +355,7 @@ Usage:
 <p>Options:
   &mdash;cloudbreak.address=&lt;http[s]://HOSTNAME:PORT>  Address of the Cloudbreak Server [default: <a href="https://cloudbreak-api.sequenceiq.com">https://cloudbreak-api.sequenceiq.com</a>].
   &mdash;identity.address=&lt;http[s]://HOSTNAME:PORT>    Address of the SequenceIQ identity server [default: <a href="https://identity.sequenceiq.com">https://identity.sequenceiq.com</a>].
-  &mdash;sequenceiq.user=<USER>                        Username of the SequenceIQ user [default: <a href="&#x6d;&#x61;&#105;&#x6c;&#x74;&#x6f;&#58;&#117;&#115;&#x65;&#114;&#64;&#115;&#x65;&#113;&#x75;&#101;&#x6e;&#99;&#x65;&#x69;&#x71;&#46;&#x63;&#x6f;&#x6d;">&#117;&#115;&#101;&#x72;&#64;&#x73;&#101;&#113;&#x75;&#101;&#x6e;&#x63;&#101;&#x69;&#113;&#46;&#x63;&#x6f;&#109;</a>].
+  &mdash;sequenceiq.user=<USER>                        Username of the SequenceIQ user [default: <a href="&#x6d;&#97;&#105;&#x6c;&#116;&#x6f;&#x3a;&#117;&#x73;&#x65;&#114;&#x40;&#x73;&#x65;&#113;&#x75;&#101;&#x6e;&#99;&#101;&#105;&#x71;&#x2e;&#99;&#111;&#x6d;">&#x75;&#x73;&#x65;&#x72;&#x40;&#115;&#x65;&#113;&#x75;&#101;&#x6e;&#99;&#101;&#105;&#113;&#46;&#x63;&#x6f;&#x6d;</a>].
   &mdash;sequenceiq.password=<PASSWORD>                Password of the SequenceIQ user [default: password].</p>
 
 <p>Note:

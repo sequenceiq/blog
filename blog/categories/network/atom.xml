@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Network | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/network/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-12-12T17:00:37+00:00</updated>
+  <updated>2014-12-12T19:29:02+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -127,7 +127,7 @@ The host networking is very powerful solution for inter-container communication,
 <p>So far we have seen methods where the containers have used the IP address of host to communicate with each other, but there are solutions to inter-connect the containers by using their own IPs. If we are using the containers own IPs for routing then it is important that we shall be able to distinguish based on IP which container is running on vm1 and which one is running on on vm2, this was the reason why the bridge0 interface was created as explained in &ldquo;Setting up bridge0&rdquo; section.
 To make the things a bit easier to understand I have created a simplified diagram of the network interfaces in our current test setup. If I would like to oversimplify the thing then I would say that, we shall setup the routing in that way that the packets from one container are following the red lines shown on the diagram.</p>
 
-<p style="text-align:center;"> {% img <a href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/docker-networking/img/routing.png">https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/docker-networking/img/routing.png</a> %}</p>
+<p style="text-align:center;"> <img class="<a" src="href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/docker-networking/img/routing.png">https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/docker-networking/img/routing.png</a>"></p>
 
 <p>To achive this we need to configure the routing table on hosts in that way that every packet which destination is 172.17.51.0/24 is forwarded to vm1 and every IP packet where the destination is 172.17.52.0/24 is forwarded to vm2. To repeat it shortly, the containers running on vm1 are placed to subnet 172.17.51.0/24, containers on vm2 are on subnet 172.17.52.0/24.</p>
 
@@ -172,7 +172,7 @@ sudo docker run -it &mdash;rm &mdash;name cont2  ubuntu /bin/bash</p>
 <p>GRE is a tunneling protocol that can encapsulate a wide variety of network layer protocols inside virtual point-to-point links.
 The main idea is to create a GRE tunnel between the VMs and send all traffic through it:</p>
 
-<p style="text-align:center;"> {% img <a href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/docker-networking/img/gre.png">https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/docker-networking/img/gre.png</a> %}</p>
+<p style="text-align:center;"> <img class="<a" src="href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/docker-networking/img/gre.png">https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/docker-networking/img/gre.png</a>"></p>
 
 <p>In order to create a tunnel you need to specify the name, the type (which is gre in our case) and the IP address of local and the remote end. Consequently the tun2 name used for the tunnel on on vm1 since from vm1 perspective that is the tunnel endpoint which leads to vm2 and every packet sent to tun2 to will eventually come out on vm2 end.</p>
 
@@ -224,7 +224,7 @@ sudo docker run -it &mdash;rm &mdash;name cont2  ubuntu /bin/bash</p>
 
 <h1>execute on vm1</h1>
 
-<p>sudo ssh -f -N -w 2:1 <a href="&#109;&#97;&#x69;&#108;&#x74;&#111;&#58;&#114;&#x6f;&#111;&#x74;&#64;&#49;&#x39;&#x32;&#46;&#x31;&#54;&#56;&#x2e;&#x34;&#x30;&#x2e;&#x31;&#x32;">&#114;&#111;&#111;&#x74;&#x40;&#x31;&#x39;&#50;&#46;&#49;&#x36;&#x38;&#46;&#x34;&#48;&#46;&#49;&#50;</a>
+<p>sudo ssh -f -N -w 2:1 <a href="&#x6d;&#97;&#x69;&#108;&#x74;&#x6f;&#x3a;&#114;&#111;&#111;&#x74;&#64;&#49;&#57;&#50;&#x2e;&#x31;&#54;&#56;&#x2e;&#x34;&#48;&#x2e;&#x31;&#50;">&#x72;&#x6f;&#x6f;&#116;&#x40;&#49;&#x39;&#x32;&#46;&#x31;&#54;&#x38;&#46;&#52;&#48;&#x2e;&#x31;&#50;</a>
 sudo ifconfig tun2 up
 sudo route add -net 172.17.52.0 netmask 255.255.255.0 dev tun2
 sudo iptables -t nat -F POSTROUTING

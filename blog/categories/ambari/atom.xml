@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ambari | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/ambari/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-12-12T17:00:37+00:00</updated>
+  <updated>2014-12-12T19:29:02+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -88,11 +88,11 @@ sudo route add -net 172.17.0.0/16 192.168.59.103
 
 <p>In order to learn the Ambari UI IP address (IPAddres) use:</p>
 
-<p>{% raw %}
+<p>
 <code>bash
 docker inspect --format='{{.NetworkSettings.IPAddress}}' amb0
 </code>
-{% endraw %}</p>
+</p>
 
 <p>That&rsquo;s it.</p>
 
