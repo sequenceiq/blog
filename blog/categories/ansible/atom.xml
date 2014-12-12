@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ansible | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/ansible/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-12-04T15:17:25+00:00</updated>
+  <updated>2014-12-12T17:00:37+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -59,7 +59,7 @@ So let&rsquo;s see how the Ansible script works exactly.</p>
 <p>```</p>
 
 <p>The ec2 role requests an EC2 spot priced instance and associates it with an elastic IP. We can easily use a spot priced instance because if it gets shut down by AWS we can recreate it in a few minutes! Ansible has a few <a href="http://docs.ansible.com/list_of_cloud_modules.html">cloud modules</a> which makes it quite easy to manage EC2 instances. Requesting a spot priced instance looks like this (the placeholders come from Ansible group variables):
-
+{% raw %}
 <code>yaml
 - name: Create an EC2 spot priced instance
   local_action:
@@ -74,7 +74,7 @@ So let&rsquo;s see how the Ansible script works exactly.</p>
   id: "{{ ec2.idempotent_id }}"
   register: ec2result
 </code>
-</p>
+{% endraw %}</p>
 
 <h3>Provisioning the build server</h3>
 
@@ -131,7 +131,7 @@ nginx_sites:
 &ndash; Configure the global Jenkins properties like the mail server, or the properties needed for the Github pull request builder plugin &ndash; it is simply achieved by copying a global config.xml to the Jenkins home directory using Ansible&rsquo;s copy module.
 &ndash; Install and update plugins through the Jenkins CLI. Installing plugins looks like this:</p>
 
-<p>
+<p>{% raw %}
 <code>yaml
 - name: Install plugins
   sudo: yes
@@ -141,7 +141,7 @@ nginx_sites:
   notify:
   - 'Restart Jenkins'
 </code>
-</p>
+{% endraw %}</p>
 
 <ul>
 <li>Configure security (we use Github OAuth). The Jenkins CLI doesn&rsquo;t have any dedicated commands for setting security, but it can be configured with a Groovy script that can be invoked from the CLI:</li>
@@ -163,14 +163,14 @@ jenkins.model.Jenkins.instance.save()</p>
 </ul>
 
 
-<p>
+<p>{% raw %}
 <code>yaml
 - name: Create jenkins jobs
   shell: java -jar {{ jenkins.cli_dest }} -s http://localhost:8080/ create-job {{ item }} &lt; {{ jenkins.dest }}/{{item}}.xml
   with_items: jenkins_jobs
   when: existing_jobs.changed and existing_jobs.stdout.find('{{ item }}') == -1
 </code>
-</p>
+{% endraw %}</p>
 
 <h2>Docker</h2>
 

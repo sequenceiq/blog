@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Cloudbreak | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/cloudbreak/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-12-04T15:17:25+00:00</updated>
+  <updated>2014-12-12T17:00:37+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,256 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Cloudbreak welcomes Periscope]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/12/12/cloudbreak-got-periscope/"/>
+    <updated>2014-12-12T14:13:33+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/12/12/cloudbreak-got-periscope</id>
+    <content type="html"><![CDATA[<p>Today we have pushed out a new release of [Cloudbreak](&mdash;&ndash;
+layout: post
+title: &ldquo;Cloudbreak welcomes Periscope&rdquo;
+date: 2014-12-12 15:13:33 +0100
+comments: true
+categories: [Cloudbreak]
+author: Richard Doktorics</p>
+
+<h2>published: true</h2>
+
+<p>Today we have pushed out a new release of <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> &ndash; our Docker container based and cloud agnostic Hadoop as a Service solution &ndash; containing a few major changes. While there are many significant changes (both functional and architectural) in this blog post we&rsquo;d like to describe one of most expected one &ndash; the <code>autoscaling</code> of Hadoop clusters.</p>
+
+<p>Just to quickly recap, Cloudbreak allows you to provision clusters &ndash; <code>full stacks</code> &ndash; in all major cloud providers using a unified API, UI or CLI/shell. Currently we support provisioning of clusters in <code>AWS</code>, <code>Google Cloud</code> and <code>Azure</code> and <code>OpenStack</code> (in private beta) &ndash; new cloud providers can be added quite easily (as everything runs in Docker) using our SDK.</p>
+
+<p><a href="http://sequenceiq.com/periscope/">Periscope</a> allows you to configure SLA policies for your Hadoop cluster and scale up or down on demand. You are able to set alarms and notifications for different metrics like <code>pending containers</code>, <code>lost nodes</code> or <code>memory usage</code>, etc and set SLA scaling policies based on these alarms.</p>
+
+<p>Today&rsquo;s <a href="http://cloudbreak.sequenceiq.com/">release</a> made available the integration between the two projects (they work independently as well) and allows subscribers to enable autoscaling for their already deployed or newly created Hadoop cluster.</p>
+
+<p>We would like to guide you through the UI and help you to set up an autoscaling Hadoop cluster.</p>
+
+<!--more-->
+
+
+<h2>Using Periscope</h2>
+
+<p>Once you have created your Hadoop clusters with Cloudbreak you will now how the option to configure autoscaling policies.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/select.png" alt="" /></p>
+
+<p>In order to configure autoscaling for your cluster you should go to <code>autoscaling SLA policies</code> tab and hit the <code>enable</code> button.</p>
+
+<h3>Alarms</h3>
+
+<p>Periscope allows you to configure two types of <code>alarms</code>.</p>
+
+<p><strong>Metric based</strong> alarms are alarms based on different <code>YARN</code> metrics. A plugin mechanism will be available in case you&rsquo;d like to plug your own metrics. As a quick note, we have another project called <a href="http://blog.sequenceiq.com/blog/2014/10/07/hadoop-monitoring/">Baywatch</a> where we collect around 400 Hadoop metrics &ndash; and those will be all pluggable in Periscope.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/alarm-metric.png" alt="" /></p>
+
+<ul>
+<li>alarm name &ndash; name of the alarm</li>
+<li>description &ndash; description of the alarm</li>
+<li>metrics &ndash; currently the default YARN metrics we support are: <code>pending containers</code>, <code>pending applications</code>, <code>lost nodes</code>, <code>unhealthy nodes</code> and <code>global resources</code></li>
+<li>period &ndash;  the time that the metric has to be sustained in order for an alarm to be triggered</li>
+<li>notification email (optional) &ndash; address where Periscope sends an email in case the alarm is triggered</li>
+</ul>
+
+
+<p><strong>Time based</strong> alarms allow autoscaling of clusters based on the configured time. We have <a href="http://blog.sequenceiq.com/blog/2014/11/25/periscope-scale-your-cluster-on-time/">blogged</a> about this new feature recently &ndash; with this new release of <a href="http://cloudbreak.sequenceiq.com/">Cloudbreak</a> this feature is available through UI as well.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/alarm-time.png" alt="" /></p>
+
+<ul>
+<li>alarm name &ndash; name of the alarm</li>
+<li>description &ndash; description of the alarm</li>
+<li>time zone &ndash; the timezone for the <code>cron</code> expression</li>
+<li>cron expression &ndash; the cron expression</li>
+<li>notification email (optional) &ndash; address where Periscope sends an email in case the alarm is triggered</li>
+</ul>
+
+
+<h2>Scaling policies</h2>
+
+<p>Once you have an alarm you can configure scaling policies based on it. Scaling policies defines the actions you&rsquo;d like Periscope to take in case of a triggered alarm.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/scaling.png" alt="" /></p>
+
+<ul>
+<li>policy name &ndash; the name of the SLA scaling policy</li>
+<li>scaling adjustment &ndash; the adjustment counted in <code>nodes</code>, <code>percentage</code> or <code>exact</code> numbers of cluster nodes</li>
+<li>host group &ndash; the <code>autoscaled</code> Ambari hostgroup</li>
+<li>alarm &ndash; the configured alarm</li>
+</ul>
+
+
+<h2>Cluster scaling configurations</h2>
+
+<p>A cluster has a default configuration which Periscope scaling policies can&rsquo;t override. This is due to avoid over or under scaling a Hadoop cluster with policies and also to definde a cooldown time period between two scaling actions.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/cluster-config.png" alt="" /></p>
+
+<ul>
+<li>cooldown time &ndash; the time spent between two scaling actions</li>
+<li>cluster size min. &ndash; the minimun size (in nodes) of a cluster</li>
+<li>cluster size max. &ndash; the maximum size (in nodes) of a cluster</li>
+</ul>
+
+
+<p>It&rsquo;s that simple. Happy autoscaling.</p>
+
+<p>In case you&rsquo;d like to test autoscaling and generate some load on your cluster you can use these <code>stock</code> Hadoop examples and the scripts below:</p>
+
+<p>```test.sh</p>
+
+<h1>!/bin/bash</h1>
+
+<p>export HADOOP_LIBS=/usr/lib/hadoop-mapreduce
+export JAR_JOBCLIENT=$HADOOP_LIBS/hadoop-mapreduce-client-jobclient-2.4.0.2.1.2.0-402-tests.jar</p>
+
+<p>smalljobs(){
+  echo &ldquo;############################################&rdquo;
+  echo Running smalljobs tests..
+  echo &ldquo;############################################&rdquo;</p>
+
+<p>  CMD=&ldquo;hadoop jar $JAR_JOBCLIENT mrbench -baseDir /user/hrt_qa/smallJobsBenchmark -numRuns 2 -maps 10 -reduces 5 -inputLines 10 -inputType ascending&rdquo;
+  echo TEST 1: $CMD
+  su hdfs -c &ldquo;$CMD&rdquo; 1> smalljobs-time.log 2> smalljobs.log
+}</p>
+
+<p>smalljobs
+```</p>
+
+<p>To test it you can run it with the following script:</p>
+
+<p>```</p>
+
+<h1>!/bin/bash</h1>
+
+<p>for i in {1..10}
+do
+nohup /test.sh &amp;
+done
+```</p>
+
+<p>Make sure you check back soon to our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
+on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.
+) &ndash; our Docker container based and cloud agnostic Hadoop as a Service solution &ndash; containing a few major changes. While there are many significant changes (both functiona and architectural) in this blog post we&rsquo;d like to describe one of most expected one &ndash; the <code>autoscaling</code> of Hadoop clusters.</p>
+
+<p>Just to quickly recap, Cloudbreak allows you to provision clusters &ndash; <code>full stacks</code> &ndash; in all major cloud providers using a unified API, UI or CLI/shell. Currently we support provisioning of clusters in <code>AWS</code>, <code>Google Cloud</code> and <code>Azure</code> and <code>OpenStack</code> (in private beta) &ndash; new cloud providers can be added quite easily (as everything runs in Docker) using our SDK.</p>
+
+<p><a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> allows you to configure SLA policies for your Hadoop cluster and scale up or down on demand. You are able to set alarms and notifications for different metrics like <code>pending containers</code>, <code>lost nodes</code> or <code>memory usage</code>, etc and set SLA scaling policies based on these alarms.</p>
+
+<p>Today&rsquo;s <a href="http://cloudbreak.sequenceiq.com/">release</a> made available the integration between the two projects (they work independently as well) and allows subscibers to enable autoscaling for their already deployed or newly created Hadoop cluster.</p>
+
+<p>We would like to guide you through the UI and help you to set up an autoscaling Hadoop cluster.</p>
+
+<!--more-->
+
+
+<h2>Using Periscope</h2>
+
+<p>Once you have created your Hadoop clusters with Cloudbreak you will now how the option to configure autoscaling policies.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/select.png" alt="" /></p>
+
+<p>In order to configure autoscaling for your cluster you should go to <code>autoscaling SLA policies</code> tab and hit the <code>enable</code> button.</p>
+
+<h3>Alarms</h3>
+
+<p>Periscope allows you to configure two types of <code>alarms</code>.</p>
+
+<p><strong>Metric based</strong> alarms are alarms based on different <code>YARN</code> metrics. A plugin mechanism will be available in case you&rsquo;d like to plug your own metrics. As a quick note, we have another project called <a href="http://blog.sequenceiq.com/blog/2014/10/07/hadoop-monitoring/">Baywatch</a> where we collect around 400 Hadoop metrics &ndash; and those will be all pluggable in Periscope.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/alarm-metric.png" alt="" /></p>
+
+<ul>
+<li>alarm name &ndash; name of the alarm</li>
+<li>description &ndash; description of the alarm</li>
+<li>metrics &ndash; currently the default YARN metrics we support are: <code>pending containers</code>, <code>pending applications</code>, <code>lost nodes</code>, <code>unhealthy nodes</code> and <code>global resources</code></li>
+<li>period &ndash;  the time that the metric has to be sustained in order for an alarm to be triggered</li>
+<li>notification email (optional) &ndash; address where Periscope sends an email in case the alarm is triggered</li>
+</ul>
+
+
+<p><strong>Time based</strong> alarms allow autoscaling of clusters based on thge configured time. We have <a href="http://blog.sequenceiq.com/blog/2014/11/25/periscope-scale-your-cluster-on-time/">bloged</a> about this new feature recently &ndash; with this new release of <a href="http://cloudbreak.sequenceiq.com/">Cloudbreak</a> this feature is available through UI as well.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/alarm-time.png" alt="" /></p>
+
+<ul>
+<li>alarm name &ndash; name of the alarm</li>
+<li>description &ndash; description of the alarm</li>
+<li>time zone &ndash; the timezone for the <code>cron</code> expression</li>
+<li>cron expression &ndash; the cron expression</li>
+<li>notification email (optional) &ndash; address where Periscope sends an email in case the alarm is triggered</li>
+</ul>
+
+
+<h2>Scaling policies</h2>
+
+<p>Once you have an alarm you can configure scaling policies based on it. Sclaing policies defines the actions you&rsquo;d like Periscope to take in case of a triggered alarm.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/scaling.png" alt="" /></p>
+
+<ul>
+<li>policy name &ndash; the name of the SLA scaling policy</li>
+<li>scaling adjustment &ndash; the adjustment counted in <code>nodes</code>, <code>percentage</code> or <code>exact</code> numbers of cluster nodes</li>
+<li>host group &ndash; the <code>autoscaled</code> Ambari hostgroup</li>
+<li>alarm &ndash; the configured alarm</li>
+</ul>
+
+
+<h2>Cluster scaling configurations</h2>
+
+<p>A cluster has a default configuration which Periscope scaling policies can&rsquo;t override. This is due to avoid over or underscaling a Hadoop cluster with policies and also to definde a cooldown time period between two scaling actions.</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/cluster-config.png" alt="" /></p>
+
+<ul>
+<li>cooldown time &ndash; the time spent between two scaling actions</li>
+<li>cluster size min. &ndash; the minimun size (in nodes) of a cluster</li>
+<li>cluster size max. &ndash; the maximum size (in nodes) of a cluster</li>
+</ul>
+
+
+<p>It&rsquo;s that simple. Happy autoscaling.</p>
+
+<p>In case you&rsquo;d like to test autoscaling and generate some load on your cluster you can use these <code>stock</code> Hadoop examples and the scripts below:</p>
+
+<p>```</p>
+
+<h1>!/bin/bash</h1>
+
+<p>export HADOOP_LIBS=/usr/lib/hadoop-mapreduce
+export JAR_JOBCLIENT=$HADOOP_LIBS/hadoop-mapreduce-client-jobclient-2.4.0.2.1.2.0-402-tests.jar</p>
+
+<p>smalljobs(){
+  echo &ldquo;############################################&rdquo;
+  echo Running smalljobs tests..
+  echo &ldquo;############################################&rdquo;</p>
+
+<p>  CMD=&ldquo;hadoop jar $JAR_JOBCLIENT mrbench -baseDir /user/hrt_qa/smallJobsBenchmark -numRuns 2 -maps 10 -reduces 5 -inputLines 10 -inputType ascending&rdquo;
+  echo TEST 1: $CMD
+  su hdfs -c &ldquo;$CMD&rdquo; 1> smalljobs-time.log 2> smalljobs.log
+}</p>
+
+<p>smalljobs
+```</p>
+
+<p>To test it you can run it with the following script:</p>
+
+<p>```</p>
+
+<h1>!/bin/bash</h1>
+
+<p>for i in {1..10}
+do
+nohup /test.sh &amp;
+done
+```</p>
+
+<p>Make sure you check back soon to our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
+on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Building the data lake in the cloud - Part2]]></title>
@@ -231,7 +481,7 @@ Usage:
 <p>Options:
   &mdash;cloudbreak.address=&lt;http[s]://HOSTNAME:PORT>  Address of the Cloudbreak Server [default: <a href="https://cloudbreak-api.sequenceiq.com">https://cloudbreak-api.sequenceiq.com</a>].
   &mdash;identity.address=&lt;http[s]://HOSTNAME:PORT>    Address of the SequenceIQ identity server [default: <a href="https://identity.sequenceiq.com">https://identity.sequenceiq.com</a>].
-  &mdash;sequenceiq.user=<USER>                        Username of the SequenceIQ user [default: <a href="&#109;&#97;&#105;&#x6c;&#116;&#x6f;&#58;&#x75;&#x73;&#x65;&#114;&#x40;&#x73;&#x65;&#x71;&#x75;&#x65;&#110;&#99;&#101;&#x69;&#x71;&#x2e;&#99;&#111;&#x6d;">&#117;&#x73;&#101;&#114;&#x40;&#115;&#101;&#x71;&#x75;&#101;&#x6e;&#99;&#x65;&#105;&#x71;&#46;&#x63;&#111;&#x6d;</a>].
+  &mdash;sequenceiq.user=<USER>                        Username of the SequenceIQ user [default: <a href="&#x6d;&#x61;&#105;&#x6c;&#x74;&#x6f;&#58;&#117;&#115;&#x65;&#114;&#64;&#115;&#x65;&#113;&#x75;&#101;&#x6e;&#99;&#x65;&#x69;&#x71;&#46;&#x63;&#x6f;&#x6d;">&#117;&#115;&#101;&#x72;&#64;&#x73;&#101;&#113;&#x75;&#101;&#x6e;&#x63;&#101;&#x69;&#113;&#46;&#x63;&#x6f;&#109;</a>].
   &mdash;sequenceiq.password=<PASSWORD>                Password of the SequenceIQ user [default: password].</p>
 
 <p>Note:
@@ -588,169 +838,6 @@ UAA handles scopes as groups, but groups can also be used for other things like 
 We&rsquo;ll also have another blog post soon where I&rsquo;ll show some code examples of the OAuth2 flows we&rsquo;re using with UAA as an identity server so check back in a few days if you&rsquo;re interested.</p>
 
 <p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Cloudbreak new provider implementation - Part I: Build your custom image]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/09/18/custom-image-on-gcc/"/>
-    <updated>2014-09-18T07:42:58+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/09/18/custom-image-on-gcc</id>
-    <content type="html"><![CDATA[<p>Not so long ago we have released <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; the cloud agnostic, open source and Docker based Hadoop as a Service API (with support for <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">autoscaling</a> Hadoop clusters). As we have <code>dockerized</code> the whole Hadoop ecosystem, we are shipping the containers to different cloud providers, such as Amazon AWS, Microsoft Azure and Google Cloud Compute. Also Cloudbreak has an <a href="http://sequenceiq.com/cloudbreak/#add-new-cloud-providers">SDK</a> which allows you to quickly add your favorite cloud provider. In this post (series) we’d like to guide you trough the process, and show you how to create a custom image &ndash; on Google Cloud. We have chose Google Cloud as this is the least documented and has the smallest amount on default images (there are thousand for Amazon, and hundreds for Azure). Nevertheless on all cloud provider usually you’d like to have a custom image with your preferred OS, configuration and potentially installed applications.</p>
-
-<!-- more -->
-
-
-<h3>Why do we need custom images on every cloud?</h3>
-
-<p>All the above are true for us as well &ndash; with some simplifications. We use Docker to run every process/application &ndash; for the benefits we have covered in other posts many times &ndash; and apart from Docker, our (or the customer’s) preferred OS and a few other helper/debugger things (such as <a href="https://registry.hub.docker.com/u/jpetazzo/nsenter/">nsenter</a>)
-we are almost fine. We have made some PAM related fixes/contributions for Docker &ndash; and until they are not in the upstream we have built/derive from our base layer/containers &ndash; so with this and the actual containers included this is pretty much how a cloud base image looks like for us.</p>
-
-<p>As usual we always automate everything &ndash; building custom cloud base images is part of the automation and our CI/CD process as well. For that we use <a href="http://www.ansible.com/home">Ansible</a> as the preferred IT automation tool. So the first step is to define your own <a href="http://docs.ansible.com/playbooks.html">playbook</a> to install everything on the virtual machine.</p>
-
-<p>A simple playbook looks like this:</p>
-
-<p>```
-  &ndash; name: Install Docker</p>
-
-<pre><code>shell: curl -sL https://get.docker.io/ | sh
-when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
-</code></pre>
-
-<ul>
-<li><p>name: Pull sequenceiq/ambari image
-shell: docker pull sequenceiq/ambari:pam-fix</p></li>
-<li><p>name: Pull jpetazzo/nsenter image
-shell: docker pull jpetazzo/nsenter</p></li>
-<li><p>name: Install bridge-utils
-apt: name=bridge-utils state=latest
-when: ansible_distribution == &lsquo;Debian&rsquo; or ansible_distribution == &lsquo;Ubuntu&rsquo;</p></li>
-<li><p>name: install jq
-shell: curl -o /usr/bin/jq <a href="http://stedolan.github.io/jq/download/linux64/jq">http://stedolan.github.io/jq/download/linux64/jq</a> &amp;&amp; chmod +x /usr/bin/jq</p></li>
-</ul>
-
-
-<p>```</p>
-
-<p>Using Google cloud you have 2 choices:</p>
-
-<ol>
-<li> Create snapshots starting from a default image</li>
-<li> Create a custom image</li>
-</ol>
-
-
-<h3>Image creation using snapshots</h3>
-
-<p>We are using Debian as the host OS on Google Cloud, and have created a virtual machine using the default <a href="https://developers.google.com/compute/docs/operating-systems#backported_debian_7_wheezy">Debian</a> image. First thing first, you need to create a persistent disk:</p>
-
-<p><code>
-gcloud compute disks create temporary-disk --zone ZONE
-</code></p>
-
-<p>Then create a virtual machine with the temporary-disk:</p>
-
-<p><code>
-gcloud compute instances create example-instance \
-  --scopes storage-rw --image IMAGE \
-  --disk name=temporary-disk device-name=temporary-disk --zone ZONE
-</code></p>
-
-<p>And attach the disk to the google cloud instance:</p>
-
-<p><code>
-gcloud compute instances attach-disk example-instance
-  --disk temporary-disk --device-name temporary-disk --zone ZONE
-</code></p>
-
-<p>When this is finished then you can <code>shh</code> to the <code>sample-instance</code>. You can now check your mounted volumes with this command:</p>
-
-<p><code>
-ls -l /dev/disk/by-id/google-*
-</code></p>
-
-<p>Now you need to create a folder which will contain your custom built image:</p>
-
-<p><code>
-sudo mkdir /mnt/tmp
-</code></p>
-
-<p>You have to format your partition before the image creation:</p>
-
-<p><code>
-sudo /usr/share/google/safe_format_and_mount -m "mkfs.ext4 -F" /dev/sdb /mnt/tmp
-</code></p>
-
-<p>Now you can start building the image which will last about 10 minutes:</p>
-
-<p><code>
-sudo gcimagebundle -d /dev/sda -o /mnt/tmp/ --log_file=/tmp/imagecreation.log
-</code></p>
-
-<p>You have now an image in /tmp with a special hex number like <code>/tmp/HEX-NUMBER.image.tar.gz</code></p>
-
-<p>Once you uploaded it to a Google bucket you are done, and ready to use it.</p>
-
-<p><code>
-gsutil cp /mnt/tmp/IMAGE_NAME.image.tar.gz gs://BUCKET_NAME
-</code></p>
-
-<h3>Create a custom image &ndash; using your favorite OS</h3>
-
-<p><a href="http://www.ubuntu.com/download/server">Ubuntu server 14.04</a> is many’s preferred Linux distribution &ndash; unluckily there is no default image using Ubuntu as the OS in the Google Cloud](<a href="https://developers.google.com/compute/docs/operating-systems">https://developers.google.com/compute/docs/operating-systems</a>). Luckily this is not that complicated &ndash; the process below works with any other OS as well. In order to start you should have <a href="https://www.virtualbox.org/">Virtualbox</a> installed. Download an Ubuntu server from <a href="http://www.ubuntu.com/server">Ubuntu’s</a> web page.
-Install in into the <a href="https://www.virtualbox.org/">Virtualbox</a> box, start it and <code>ssh</code> into. Once you are inside you will have to install the <a href="https://developers.google.com/cloud/sdk/">Google Cloud SDK</a>. This is needed for the custom image, as contains some extra feature like <code>google-startup-scripts</code>. Remember that Ubuntu (and in general a few cloud providers) support <code>cloud-init</code> scripts, and this is why we need the Google Cloud SDK &ndash; as we ship these images to the <code>cloud</code>.</p>
-
-<p>After the installation add the following kernel options into the <code>/etc/default/grub</code>:</p>
-
-<p>```</p>
-
-<h1>to enable paravirtualization</h1>
-
-<p>CONFIG_KVM_GUEST=y</p>
-
-<h1>to enable the paravirtualized clock.</h1>
-
-<p>CONFIG_KVM_CLOCK=y</p>
-
-<h1>to enable paravirtualized PCI devices.</h1>
-
-<p>CONFIG_VIRTIO_PCI=y</p>
-
-<h1>to enable access to paravirtualized disks.</h1>
-
-<p>CONFIG_SCSI_VIRTIO=y</p>
-
-<h1>to enable access to the networking.</h1>
-
-<p>CONFIG_VIRTIO_NET=y
-```</p>
-
-<p>Now you are ready to prepare an <code>official</code> image into a tar file, by selecting the virtual box image file on your disk and convert it.
-You can convert your <code>vmdk</code> file into the supported raw type by using:</p>
-
-<p><code>
-qemu-img convert -f vmdk -O raw VMDK_FILE_NAME.vmdk disk.img
-</code></p>
-
-<p>The .img file name has to be <code>disk.img</code>. After you have converted the image, you have to make a tar file:</p>
-
-<p><code>
-tar -Szcf &lt;image-tar-name&gt;.tar.gz disk.raw
-</code></p>
-
-<p>Same as before, you have to upload in to a Google Cloud Bucket:</p>
-
-<p><code>
-gsutil cp &lt;image-tar-name&gt;.tar.gz gs://&lt;bucket-name&gt;
-</code></p>
-
-<p>Now you have an <code>official</code> image template but you have to create the image in Google Cloud:</p>
-
-<p><code>
-gcutil addimage my-ubuntu gs://&lt;bucket-name&gt;/ubuntu_image.tar.gz
-</code></p>
-
-<p>Once this is done you have created your custom built Google Cloud image, and you are ready to start cloud instances using it. Let us know how it works for you, and make sure you follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a> for updates.</p>
 ]]></content>
   </entry>
   

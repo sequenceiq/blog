@@ -130,6 +130,58 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/12/12/cloudbreak-got-periscope/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">12 December 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/12/12/cloudbreak-got-periscope/">Cloudbreak welcomes Periscope</a>
+          <span class="badge name-badge">Richard Doktorics</span>
+
+      </h1>
+      <p>Today we have pushed out a new release of <a href="http://cloudbreak.sequenceiq.com/">Cloudbreak</a> &ndash; our Docker container based and cloud agnostic Hadoop as a Service solution &ndash; containing a few major changes. While there are many significant changes (both functiona and architectural) in this blog post we&rsquo;d like to describe one of most expected one &ndash; the <code>autoscaling</code> of Hadoop clusters.</p>
+
+<p>Just to quickly recap, Cloudbreak allows you to provision clusters &ndash; <code>full stacks</code> &ndash; in all major cloud providers using a unified API, UI or CLI/shell. Currently we support provisioning of clusters in <code>AWS</code>, <code>Google Cloud</code> and <code>Azure</code> and <code>OpenStack</code> (in private beta) &ndash; new cloud providers can be added quite easily (as everything runs in Docker) using our SDK.</p>
+
+<p><a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> allows you to configure SLA policies for your Hadoop cluster and scale up or down on demand. You are able to set alarms and notifications for different metrics like <code>pending containers</code>, <code>lost nodes</code> or <code>memory usage</code>, etc and set SLA scaling policies based on these alarms.</p>
+
+<p>Today&rsquo;s <a href="http://cloudbreak.sequenceiq.com/">release</a> made available the integration between the two projects (they work independently as well) and allows subscibers to enable autoscaling for their already deployed or newly created Hadoop cluster.</p>
+
+<p>We would like to guide you through the UI and help you to set up an autoscaling Hadoop cluster.</p>
+
+
+      
+       <a href="/blog/2014/12/12/cloudbreak-got-periscope/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/12/04/multinode-ambari-1-7-0/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -696,64 +748,6 @@ Cloudbreak shell is written in Java but let&rsquo;s see a basic <code>curl</code
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/11/04/yarn-timeline-service-tez/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">04 November 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/timeline-service/"><span class="label label-warning">Timeline service</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/11/04/yarn-timeline-service-tez/">YARN Timeline Service</a>
-          <span class="badge name-badge">Laszlo Puskas</span>
-
-      </h1>
-      <p>As you may know from our earlier <a href="http://blog.sequenceiq.com/blog/2014/10/07/hadoop-monitoring/">blogposts</a> we are continuously monitoring and trying to find out what happens inside our YARN clusters, let it be MapReduce jobs, TEZ DAGs, etc&hellip; We&rsquo;ve analyzed our clusters from various aspects so far; now it&rsquo;s the time to take a look at the information provided by the built YARN <code>timeline</code> service.</p>
-
-<p>This post is about how to set up a YARN cluster so that the Timeline Server is available and how to configure applications running in the cluster to report information to it. As an example we&rsquo;ve chosen to run a simple TEZ example. (MapReduce2 also reports to the <code>timeline</code> service)</p>
-
-<p>As a playground we will use a multinode cluster set up on the local machine; alternatively one could do the same on a cluster provisioned with <a href="http://sequenceiq.com/cloudbreak">Cloudbreak</a>. Cluster nodes run in Docker containers, YARN / TEZ provisioning and configuration is done with <a href="http://ambari.apache.org/">Apache Ambari</a>.</p>
-
-<h2>Building a multinode cluster</h2>
-
-<p>To build a multinode cluster we use a set of commodity functions that you can install by running the following in a terminal:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl -Lo .amb j.mp/docker-ambari && . .amb</span></code></pre></td></tr></table></div></figure>
-
-
-<p>(The commodity functions use our docker-ambari image: sequenceiq/ambari:1.6.0)</p>
-
-
-      
-       <a href="/blog/2014/11/04/yarn-timeline-service-tez/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -773,6 +767,10 @@ Cloudbreak shell is written in Java but let&rsquo;s see a basic <code>curl</code
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/12/12/cloudbreak-got-periscope/">Cloudbreak welcomes Periscope</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/12/04/multinode-ambari-1-7-0/">Multinode cluster with Ambari 1.7.0 - in Docker</a>

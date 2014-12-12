@@ -4,7 +4,7 @@
   <title><![CDATA[Category: DevOps | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/devops/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-12-04T15:17:25+00:00</updated>
+  <updated>2014-12-12T17:00:37+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -359,7 +359,7 @@ docker run -e BLUEPRINT=single-node-hdfs-yarn --link ambari-singlenode:ambariser
 To find out the IP of the Ambari server run:</p>
 
 <p><code>
-docker inspect -f "" ambari-singlenode
+docker inspect -f "{{.NetworkSettings.IPAddress}}" ambari-singlenode
 </code></p>
 
 <p>To start with you can browse ambari web ui on <code>port 8080</code>. The default username/password is admin/admin.</p>
