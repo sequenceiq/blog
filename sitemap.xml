@@ -148,7 +148,7 @@
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/08/22/spark-submit-in-java/</loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/</loc>
@@ -204,7 +204,7 @@
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/09/24/edit-files-docker/</loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/09/25/euroventures-invests-in-sequenceiq/</loc>
@@ -228,97 +228,97 @@
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/10/07/hadoop-monitoring/</loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/10/09/ngrok-docker/</loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/10/15/hadoop-metrics/</loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/10/16/using-uaa-as-an-identity-server/</loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/10/17/boot2docker-tls-workaround/</loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/10/20/cascading-on-tez/</loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/10/23/spark-operations-overview/</loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/10/28/datalake-cloudbreak/</loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/10/30/cloudbreak-devops/</loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/11/02/spark-on-tez/</loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/11/04/yarn-timeline-service-tez/</loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>
             http://blog.sequenceiq.com/blog/2014/11/06/securing-cloudbreak-with-oauth2-part-2/
         </loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>
             http://blog.sequenceiq.com/blog/2014/11/10/new-yarn-features-part-1-label-based-scheduling/
         </loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/11/13/kylin-on-docker/</loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/11/17/datalake-cloudbreak-2/</loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/11/20/yarn-containers-and-docker/</loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/11/24/hadoop-252-docker/</loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>
             http://blog.sequenceiq.com/blog/2014/11/25/periscope-scale-your-cluster-on-time/
         </loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/12/02/hadoop-2-6-0-docker/</loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/12/04/multinode-ambari-1-7-0/</loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/2014/12/12/cloudbreak-got-periscope/</loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/</loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/categories/</loc>
@@ -326,7 +326,7 @@
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/blog/archives/</loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/404.html</loc>
@@ -338,6 +338,6 @@
     </url>
     <url>
         <loc>http://blog.sequenceiq.com/archives/</loc>
-        <lastmod>2014-12-12T19:28:57+00:00</lastmod>
+        <lastmod>2014-12-13T23:32:24+00:00</lastmod>
     </url>
 </urlset>
