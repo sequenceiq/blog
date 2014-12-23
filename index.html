@@ -130,6 +130,57 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/12/23/cloudbreak-on-hdp-2-dot-2/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">23 December 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/12/23/cloudbreak-on-hdp-2-dot-2/">New Cloudbreak release - support for HDP 2.2</a>
+          <span class="badge name-badge">Krisztian Horvath</span>
+
+      </h1>
+      <p>The last two weeks were pretty busy for us &ndash; we have <a href="http://blog.sequenceiq.com/blog/2014/12/04/multinode-ambari-1-7-0/">Dockerized</a> the new release of Ambari (1.7.0), <a href="http://blog.sequenceiq.com/blog/2014/12/12/cloudbreak-got-periscope/">integrated</a> Periscope with <a href="http://blog.sequenceiq.com/blog/2014/12/12/cloudbreak-got-periscope/">Cloudbreak</a> and just now we are announcing a new Cloudbreak <a href="https://cloudbreak.sequenceiq.com">release</a> which uses Ambari 1.7.0 and has full support for Hortonworks HDP 2.2 and Apache Bigtop stacks. But first &ndash; since this has been asked many times &ndash; see a <code>short</code> movie about Cloudbreak and Periscope in action.</p>
+
+<h2>On-demand Hadoop cluster with autoscaling</h2>
+
+<iframe width="640" height="480" src="//www.youtube.com/embed/E6bnEW76H_E" frameborder="0" allowfullscreen></iframe>
+
+
+
+
+
+      
+       <a href="/blog/2014/12/23/cloudbreak-on-hdp-2-dot-2/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/12/12/cloudbreak-got-periscope/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -672,82 +723,6 @@ to scale out with nodes that are marked with <code>cpu</code>.</p>
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/11/06/securing-cloudbreak-with-oauth2-part-2/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">06 November 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/oauth2/"><span class="label label-warning">OAuth2</span></a>
-            
-            <a href="/blog/categories/uaa/"><span class="label label-warning">UAA</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/11/06/securing-cloudbreak-with-oauth2-part-2/">Securing Cloudbreak with OAuth2 - part 2</a>
-          <span class="badge name-badge">Marton Sereg</span>
-
-      </h1>
-      <p>A few weeks ago we&rsquo;ve published a <a href="http://blog.sequenceiq.com/blog/2014/10/16/using-uaa-as-an-identity-server/">blog post</a> about securing our <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> infrastructure with OAuth2.
-We&rsquo;ve discussed how we were setting up and configuring a new UAA OAuth2 identity server with Docker but we haven&rsquo;t detailed how to use this identity server in client applications.
-And that&rsquo;s exactly what we&rsquo;ll do now: we&rsquo;ll show some code examples about how to obtain tokens from different clients and how to check these tokens in resource servers.</p>
-
-<p>We&rsquo;re using almost every type of the OAuth2 flows in our infrastructure: Cloudbreak and <a href="http://sequenceiq.com/periscope/">Periscope</a> act as resource servers while <a href="https://github.com/sequenceiq/uluwatu">Uluwatu</a> and <a href="https://github.com/sequenceiq/cloudbreak-shell">Cloudbreak shell</a> for example are clients for these APIs.</p>
-
-<h2>Obtaining an access token</h2>
-
-<p>The main goal of an OAuth2 flow is to obtain an access token for the resource owner that can be used to access a resource server later.
-There are multiple common flows depending on the client type, we&rsquo;ll have examples for three of them now: <em>implicit</em>, <em>authorization code</em> and <em>client credentials</em>.
-If you&rsquo;re not familiar with the roles and expressions that take part in the OAuth2 flows I suggest to check out some <a href="http://aaronparecki.com/articles/2012/07/29/1/oauth2-simplified">&ldquo;Getting started&rdquo; resources</a> first before going forward with this post.</p>
-
-<h3>Implicit flow</h3>
-
-<p>This is not the most common flow with OAuth2 but it is the most simple one because only one request should be made to the identity server and the token will arrive directly in the response.
-Two different types of this flow is supported by UAA. One for browser-based applications and one for those scenarios when there is no browser interaction (e.g.: CLIs).
-The common part of these scenarios is that it would be useless to have a client secret because it couldn&rsquo;t be kept as a secret.</p>
-
-<p>We are using the <em>implicit flow with credentials</em> in the <a href="https://github.com/sequenceiq/cloudbreak-shell">Cloudbreak Shell</a>.
-When using the shell you must provide your SequenceIQ credentials as environment variables and the shell uses those to obtain an access token.
-Cloudbreak shell is written in Java but let&rsquo;s see a basic <code>curl</code> example instead &ndash; it does exactly the same as the Java code. (If you&rsquo;re still eager you can check out the code <a href="https://github.com/sequenceiq/cloudbreak-shell/blob/master/src/main/java/com/sequenceiq/cloudbreak/shell/configuration/ShellConfiguration.java#L122">here</a>)</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl -iX POST -H "accept: application/x-www-form-urlencoded"  \
-</span><span class='line'> -d 'credentials={"username":"admin","password":"periscope"}' \
-</span><span class='line'> "http://localhost:8080/oauth/authorize?response_type=token&client_id=cli&scope.0=openid&redirect_uri=http://cli"</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-
-      
-       <a href="/blog/2014/11/06/securing-cloudbreak-with-oauth2-part-2/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -767,6 +742,10 @@ Cloudbreak shell is written in Java but let&rsquo;s see a basic <code>curl</code
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2014/12/23/cloudbreak-on-hdp-2-dot-2/">New Cloudbreak release - support for HDP 2.2</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2014/12/12/cloudbreak-got-periscope/">Cloudbreak welcomes Periscope</a>

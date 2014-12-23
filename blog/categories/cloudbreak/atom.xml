@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Cloudbreak | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/cloudbreak/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-12-13T23:32:28+00:00</updated>
+  <updated>2014-12-23T11:29:34+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,347 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[New Cloudbreak release - support for HDP 2.2]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/12/23/cloudbreak-on-hdp-2-dot-2/"/>
+    <updated>2014-12-23T12:59:42+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/12/23/cloudbreak-on-hdp-2-dot-2</id>
+    <content type="html"><![CDATA[<p>The last two weeks were pretty busy for us &ndash; we have <a href="http://blog.sequenceiq.com/blog/2014/12/04/multinode-ambari-1-7-0/">Dockerized</a> the new release of Ambari (1.7.0), <a href="http://blog.sequenceiq.com/blog/2014/12/12/cloudbreak-got-periscope/">integrated</a> Periscope with <a href="http://blog.sequenceiq.com/blog/2014/12/12/cloudbreak-got-periscope/">Cloudbreak</a> and just now we are announcing a new Cloudbreak <a href="https://cloudbreak.sequenceiq.com">release</a> which uses Ambari 1.7.0 and has full support for Hortonworks HDP 2.2 and Apache Bigtop stacks. But first &ndash; since this has been asked many times &ndash; see a <code>short</code> movie about Cloudbreak and Periscope in action.</p>
+
+<h2>On-demand Hadoop cluster with autoscaling</h2>
+
+<iframe width="640" height="480" src="//www.youtube.com/embed/E6bnEW76H_E" frameborder="0" allowfullscreen></iframe>
+
+
+
+
+<!--more-->
+
+
+<h2>Ambari 1.7.0</h2>
+
+<p>The Ambari community recently released the 1.7.0 version which comes with lots of new features and bug fixes. We&rsquo;ve been testing the new version
+internally for a while now and finally made it to Cloudbreak. Just to highlight the important ones:</p>
+
+<ul>
+<li>Ambari Views framework</li>
+<li>Ambari Administration
+
+<ul>
+<li>Management of users/groups</li>
+<li>Management of view instances</li>
+<li>Management of cluster permissions</li>
+</ul>
+</li>
+<li>Cancel/Abort background operation requests</li>
+<li>Expose Ambari UI for config versioning, history and rollback</li>
+<li>Ability to manage -env.sh configuration files</li>
+<li>Recommendations and validations (via a &ldquo;Stack Advisor&rdquo;)</li>
+<li>Export service configurations via Blueprint</li>
+<li>Install + Manage Flume</li>
+<li>HDFS Rebalance</li>
+<li>ResourceManager HA</li>
+</ul>
+
+
+<p>These are nice features but for us one of the most important thing is that it allows you to install the latest versions of the Hadoop ecosystem.
+As usual the Docker image is available for <em>local</em> deployments as well, described <a href="http://blog.sequenceiq.com/blog/2014/12/04/multinode-ambari-1-7-0/">here</a>.</p>
+
+<p><code>Note: There were small changes around the API so if you built an application on top of it check your REST calls. The Ambari Shell and the
+underlying Groovy rest client have been updated and will go into the Apache repository once it's passed the reviews.</code></p>
+
+<h2>Hadoop 2.6</h2>
+
+<p>Since with Ambari 1.7.0 we&rsquo;re able to install Hadoop 2.6 let&rsquo;s see what happened in <code>YARN</code> in the last couple of months (it&rsquo;s stunning):</p>
+
+<ul>
+<li>Support for long running services &ndash; install <em>Slider</em> with Ambari and scale your Hadoop services!
+
+<ul>
+<li>Service Registry for applications</li>
+</ul>
+</li>
+<li>Support for rolling upgrades &ndash; wow!
+
+<ul>
+<li>Work-preserving restarts of ResourceManager</li>
+<li>Container-preserving restart of NodeManager</li>
+</ul>
+</li>
+<li>Supports node labels during scheduling &ndash; label based scaling is on the way with <a href="http://blog.sequenceiq.com/blog/2014/12/12/cloudbreak-got-periscope/">Periscope</a></li>
+<li>Support for time-based resource reservations in Capacity Scheduler (beta) &ndash; more on this awesome feature soon</li>
+<li>Support running of applications natively in Docker containers (alpha) &ndash; <a href="http://blog.sequenceiq.com/blog/2014/12/02/hadoop-2-6-0-docker/">Docker in Docker</a></li>
+</ul>
+
+
+<p>I&rsquo;m excited about these great innovations (not, because we&rsquo;re involved in a few of them), but because people can leverage them by using Cloudbreak.</p>
+
+<h2>HDP 2.2 blueprint</h2>
+
+<p>I have created a blueprint which is not an <code>official</code> one, but it contains a few from the new services like: <code>SLIDER</code>, <code>KAFKA</code>, <code>FLUME</code>.
+```
+{
+  &ldquo;configurations&rdquo;: [
+  {</p>
+
+<pre><code>"nagios-env": {
+  "nagios_contact": "admin@localhost"
+}
+},
+{
+  "hive-site": {
+    "javax.jdo.option.ConnectionUserName": "hive",
+    "javax.jdo.option.ConnectionPassword": "hive"
+  }
+}
+</code></pre>
+
+<p>  ],
+  &ldquo;host_groups&rdquo;: [</p>
+
+<pre><code>{
+  "name": "master_1",
+  "components": [
+    {
+      "name": "NAMENODE"
+    },
+    {
+      "name": "ZOOKEEPER_SERVER"
+    },
+    {
+      "name": "HBASE_MASTER"
+    },
+    {
+      "name": "GANGLIA_SERVER"
+    },
+    {
+      "name": "HDFS_CLIENT"
+    },
+    {
+      "name": "YARN_CLIENT"
+    },
+    {
+      "name": "HCAT"
+    },
+    {
+      "name": "GANGLIA_MONITOR"
+    },
+    {
+      "name": "FALCON_SERVER"
+    },
+    {
+      "name": "FLUME_HANDLER"
+    },
+    {
+      "name": "KAFKA_BROKER"
+    }
+  ],
+  "cardinality": "1"
+},
+{
+  "name": "master_2",
+  "components": [
+    {
+      "name": "ZOOKEEPER_CLIENT"
+    },
+    {
+      "name": "HISTORYSERVER"
+    },
+    {
+      "name": "HIVE_SERVER"
+    },
+    {
+      "name": "SECONDARY_NAMENODE"
+    },
+    {
+      "name": "HIVE_METASTORE"
+    },
+    {
+      "name": "HDFS_CLIENT"
+    },
+    {
+      "name": "HIVE_CLIENT"
+    },
+    {
+      "name": "YARN_CLIENT"
+    },
+    {
+      "name": "MYSQL_SERVER"
+    },
+    {
+      "name": "GANGLIA_MONITOR"
+    },
+    {
+      "name": "WEBHCAT_SERVER"
+    }
+  ],
+  "cardinality": "1"
+},
+{
+  "name": "master_3",
+  "components": [
+    {
+      "name": "RESOURCEMANAGER"
+    },
+    {
+      "name": "APP_TIMELINE_SERVER"
+    },
+    {
+      "name": "SLIDER"
+    },
+    {
+      "name": "ZOOKEEPER_SERVER"
+    },
+    {
+      "name": "GANGLIA_MONITOR"
+    }
+  ],
+  "cardinality": "1"
+},
+{
+  "name": "master_4",
+  "components": [
+    {
+      "name": "OOZIE_SERVER"
+    },
+    {
+      "name": "ZOOKEEPER_SERVER"
+    },
+    {
+      "name": "GANGLIA_MONITOR"
+    }
+  ],
+  "cardinality": "1"
+},
+{
+  "name": "slave_1",
+  "components": [
+    {
+      "name": "HBASE_REGIONSERVER"
+    },
+    {
+      "name": "NODEMANAGER"
+    },
+    {
+      "name": "DATANODE"
+    },
+    {
+      "name": "GANGLIA_MONITOR"
+    },
+    {
+      "name": "FALCON_CLIENT"
+    },
+    {
+      "name": "OOZIE_CLIENT"
+    }
+  ],
+  "cardinality": "${slavesCount}"
+},
+{
+  "name": "gateway",
+  "components": [
+    {
+      "name": "AMBARI_SERVER"
+    },
+    {
+      "name": "NAGIOS_SERVER"
+    },
+    {
+      "name": "ZOOKEEPER_CLIENT"
+    },
+    {
+      "name": "PIG"
+    },
+    {
+      "name": "OOZIE_CLIENT"
+    },
+    {
+      "name": "HBASE_CLIENT"
+    },
+    {
+      "name": "HCAT"
+    },
+    {
+      "name": "SQOOP"
+    },
+    {
+      "name": "HDFS_CLIENT"
+    },
+    {
+      "name": "HIVE_CLIENT"
+    },
+    {
+      "name": "YARN_CLIENT"
+    },
+    {
+      "name": "MAPREDUCE2_CLIENT"
+    },
+    {
+      "name": "GANGLIA_MONITOR"
+    },
+    {
+      "name": "KNOX_GATEWAY"
+    }
+  ],
+  "cardinality": "1"
+}
+],
+"Blueprints": {
+  "blueprint_name": "hdp-multinode-sequenceiq",
+  "stack_name": "HDP",
+  "stack_version": "2.2"
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<h2>What&rsquo;s next?</h2>
+
+<p><blockquote><p>Do the difficult things while they are easy and do the great things while they are small. A journey of a thousand miles must begin with a single step.</p></blockquote></p>
+
+<p>We&rsquo;ve walked a long journey since we started the company almost a year ago to reach where we are now, but our products are not complete yet. We have big plans
+with our product stacks. A couple of things from our roadmap:</p>
+
+<h3>Cloudbreak</h3>
+
+<ul>
+<li>Cloudbreak currently supports homogeneous cluster deployments which we&rsquo;re going to change. The heterogeneous stack structure is more convenient
+from Hadoop&rsquo;s perspective. The ability to define different type of cloud instances is a must, giving the users the option to use much more
+powerful instances for the <code>ResourceManager</code> and <code>NameNodes</code>.</li>
+<li>Service discovery and decentralization is always a key aspect. At the moment we&rsquo;re using Serf and dnsmasq, but we&rsquo;re already started the
+integration with <a href="https://consul.io">Consul</a> which generally is a better fit. It provides service registration via DNS, key-value store and
+decentralization across datacenters.</li>
+<li>The deployment of Cloudbreak itself is going to change and use Consul with other side projects like <code>Consul templates</code> or <code>Registrator</code>. The
+deployment is already based on Docker, but will be much more simplified.</li>
+<li>Custom stack deployments with Ambari will be supported as <code>"recipes"</code>.</li>
+<li>Generating reports of cloud instance usages and cost calculation.</li>
+<li>Web hooks to subscribe to different cluster events.</li>
+<li>Shared/company accounts.</li>
+</ul>
+
+
+<h3>Periscope</h3>
+
+<ul>
+<li>Add more <code>YARN</code> and <code>NameNode</code> related metrics.</li>
+<li>Node label based scaling.</li>
+<li>Pluggable metric system for custom metrics.</li>
+<li>Application movement in Capacity Scheduler queues enforcing SLAs.</li>
+<li>Time-based resource reservations in Capacity Scheduler for Applications.</li>
+<li>Integration with <a href="http://blog.sequenceiq.com/blog/2014/10/07/hadoop-monitoring/">ELK</a>.</li>
+</ul>
+
+
+<h2>Happy Holidays</h2>
+
+<p>We&rsquo;re taking a short break of writing new blog posts until next year. You can still reach us on the usual social sites, but you can expect
+small delays for answering questions. <code>Happy Holidays everyone.</code></p>
+
+<p><a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a> <a href="https://twitter.com/sequenceiq">Twitter</a> <a href="https://www.facebook">Facebook</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Cloudbreak welcomes Periscope]]></title>
@@ -355,7 +696,7 @@ Usage:
 <p>Options:
   &mdash;cloudbreak.address=&lt;http[s]://HOSTNAME:PORT>  Address of the Cloudbreak Server [default: <a href="https://cloudbreak-api.sequenceiq.com">https://cloudbreak-api.sequenceiq.com</a>].
   &mdash;identity.address=&lt;http[s]://HOSTNAME:PORT>    Address of the SequenceIQ identity server [default: <a href="https://identity.sequenceiq.com">https://identity.sequenceiq.com</a>].
-  &mdash;sequenceiq.user=<USER>                        Username of the SequenceIQ user [default: <a href="&#x6d;&#x61;&#x69;&#x6c;&#116;&#x6f;&#x3a;&#x75;&#115;&#x65;&#114;&#x40;&#115;&#x65;&#113;&#x75;&#x65;&#110;&#99;&#101;&#x69;&#x71;&#x2e;&#x63;&#111;&#x6d;">&#117;&#x73;&#101;&#114;&#x40;&#x73;&#101;&#113;&#117;&#101;&#x6e;&#x63;&#x65;&#105;&#113;&#x2e;&#x63;&#x6f;&#109;</a>].
+  &mdash;sequenceiq.user=<USER>                        Username of the SequenceIQ user [default: <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#x3a;&#x75;&#x73;&#101;&#x72;&#x40;&#x73;&#101;&#x71;&#x75;&#x65;&#110;&#x63;&#x65;&#x69;&#x71;&#x2e;&#x63;&#111;&#109;">&#x75;&#115;&#x65;&#x72;&#x40;&#x73;&#101;&#113;&#117;&#101;&#110;&#x63;&#x65;&#x69;&#113;&#x2e;&#x63;&#x6f;&#x6d;</a>].
   &mdash;sequenceiq.password=<PASSWORD>                Password of the SequenceIQ user [default: password].</p>
 
 <p>Note:
@@ -574,144 +915,6 @@ As for the supported Hadoop distribution we provision <strong>Apache Hadoop and 
 
 <p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or
 <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Securing Cloudbreak with OAuth2]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/10/16/using-uaa-as-an-identity-server/"/>
-    <updated>2014-10-16T14:23:59+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/10/16/using-uaa-as-an-identity-server</id>
-    <content type="html"><![CDATA[<p>When we first released <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> &ndash; our Hadoop as a Service API &ndash; it contained its own authentication and user management layer.
-We were using basic authentication for the API calls so every request had to contain a username and a password <em>Base64</em> encoded in the authorization header.
-Cloudbreak also had its own user representation and we were binding the resources &ndash; like clusters &ndash; to these users.</p>
-
-<p>This approach had multiple flaws. As we were starting to develop multiple <a href="http://sequenceiq.com/periscope/">projects</a> for our future Platform as a Service solution it became obvious that we will have to refactor our whole user management layer out from Cloudbreak and <strong>share it across our projects</strong>.
-Base64 encoding of usernames and passwords is not the best solution either even if transport layer security is working.</p>
-
-<p>What comes into play almost instantly when dealing with these kind of problems is <strong>OAuth2</strong> but it&rsquo;s not as trivial as it first sounds.</p>
-
-<h2>OAuth2</h2>
-
-<p>The main &ldquo;problem&rdquo; with OAuth2 is that its <a href="http://tools.ietf.org/html/rfc6749">specification</a> leaves a lot of decisions up to the implementations.
-First of all it does not speak at all about authentication, only authorization. It also leaves out details such as how to manage users, how scopes and tokens look like or how these tokens should be checked by a resource server.</p>
-
-<p>Because of all these reasons implementing a full OAuth2 solution from scratch means a <em>lot</em> of work and reinventing the wheel and of course we didn&rsquo;t want to do that.
-Luckily there are a few specifications that complement the original standard and there are also some solutions that implement not only the basic specification but these complementary specifications too.</p>
-
-<p><strong><a href="https://github.com/cloudfoundry/uaa">UAA</a> is CloudFoundry&rsquo;s fully open source identity management service.</strong>
-According to the documentation its primary role is as an OAuth2 provider that can issue tokens for client applications, but it can also authenticate users and can manage user accounts and OAuth2 clients through an HTTP API.
-To achieve these things it uses these specifications:</p>
-
-<ul>
-<li><p><a href="http://openid.net/connect/">OpenID Connect</a> for authentication</p></li>
-<li><p><a href="http://www.simplecloud.info/">SCIM</a> for user management</p></li>
-<li><p><a href="http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html">JWT</a> for token representation</p></li>
-</ul>
-
-
-<p>UAA adds a few more things on top of these like client management endpoints which makes it a complete solution as an identity server.
-And the best thing is that it is <strong>fully configurable through environment variables and a YAML file</strong>.</p>
-
-<!-- more -->
-
-
-<h2>Deploying the UAA server</h2>
-
-<p>UAA is a Spring-based Java web application that runs on Tomcat. The first thing we did was to create a <a href="https://registry.hub.docker.com/u/sequenceiq/uaa/">Docker image</a> that deploys a UAA server so it became this easy:
-<code>
-docker run -d --link uaa-db:db -e UAA_CONFIG_URL=https://raw.githubusercontent.com/sequenceiq/docker-uaa/master/uaa.yml sequenceiq/uaa:1.8.1
-</code>
-There are two ways to provide an UAA configuration file: you can specify an URL like above, or via volume sharing. You can simply put your configuration in the shared directory (<code>/tmp/uaa</code> in the example):
-<code>
-docker run -d --name uaa --link uaa-db:db -v /tmp/uaa:/uaa sequenceiq/uaa:1.8.1
-</code>
-Linking a database container is only necessary if you&rsquo;re using a configuration like we did <a href="https://github.com/sequenceiq/docker-uaa/blob/master/uaa.yml">in this example</a>.
-If you&rsquo;d like to create a postgresql database to try out the sample configuration on your local environment run the following command first that creates a default postgresql database:
-<code>
-docker run -d --name uaa-db postgres
-</code></p>
-
-<h2>UAA Configuration</h2>
-
-<p>The UAA <a href="https://github.com/cloudfoundry/uaa/blob/master/docs/Sysadmin-Guide.rst#configuration">documentation</a> covers the configuration part pretty well, but I&rsquo;ll share my own experiences through some examples.</p>
-
-<h3>Database</h3>
-
-<p>The first part of the configuration file describes where the data will be stored. Environment variables can be used inside the YAML file, they will be expanded when UAA processes the file.
-When linking Docker containers the address and the exposed ports of the linked container show up as environment variables in the other container so we can make use of it and provide the postgresql address like this:
-<code>
-database:
-  driverClassName: org.postgresql.Driver
-  url: jdbc:postgresql://${DB_PORT_5432_TCP_ADDR}:${DB_PORT_5432_TCP_PORT}/${DB_ENV_DB:postgres}
-  username: ${DB_ENV_USER:postgres}
-  password: ${DB_ENV_PASS:}
-</code></p>
-
-<h3>Default clients</h3>
-
-<p>Default clients and users can also be described in the configuration, but they can be added or modified later through the <a href="https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-APIs.rst#user-account-management-apis">User Management API</a> and the <a href="https://github.com/cloudfoundry/uaa/blob/master/docs/UAA-APIs.rst#client-registration-administration-apis">Client Administration API</a>.</p>
-
-<p>```
-oauth:
-  clients:</p>
-
-<pre><code>mywebapp:
-  id: mywebapp
-  secret: changeme
-  authorized-grant-types: authorization_code
-  scope: myresourceserver.scope1,myresourceserver.scope2,openid,password.write
-  authorities: uaa.none
-  redirect-uri: http://localhost:3000/authorize
-</code></pre>
-
-<p><code>``
-Every client should have an</code>authorized-grant-types<code>attribute that tells which OAuth2 flow the client can use to obtain a token. The most common is the *authorization code flow* that is typically used by web applications. The other possible values are</code>implicit<code>,</code>password<code>and</code>client_credentials`.</p>
-
-<p>A <code>secret</code> is not needed for a client with an implicit grant type (implicit flow is typically used from client-side web apps where a secret cannot be used), and of course a <code>redirect-uri</code> is not needed for a client with a <code>client_credentials</code> grant type.</p>
-
-<p>The client can request the <code>scopes</code> described here from the user. These scopes are arbitrary strings that mean something only to the resource server, but UAA uses the base name (anything before the first dot) of the scopes as the <a href="http://tools.ietf.org/html/draft-ietf-oauth-json-web-token-25#section-4.1.3">audience field</a> in the JWT token, so it&rsquo;s recommended to use this kind of naming convention.</p>
-
-<p><code>authorities</code> are basically scopes but only used when the token represents the client itself. It can be useful for example when a client wants to use the SCIM endpoints of the UAA server &ndash; there are built-in scopes for that: <code>scim.read</code> and <code>scim.write</code>.</p>
-
-<p>There are some clients where the user should not be asked to approve a token grant explicitly (e.g.: a command line shell). To surpass the confirmation and accept the permission request automatically, add the following to the <code>oauth</code> section:
-```
-client:</p>
-
-<pre><code>override: true
-autoapprove:
-  - mycommandlineshell
-</code></pre>
-
-<p>```</p>
-
-<h3>Default users</h3>
-
-<p>The users defined in this section are populated in the database after startup.</p>
-
-<p>```
-scim:
-  username_pattern: &lsquo;[a-z0-9+-_.@]+&rsquo;
-  users:</p>
-
-<pre><code>- paul|wombat|paul@test.org|Paul|Smith|openid,myresourceserver.scope1,myresourceserver.scope2
-</code></pre>
-
-<p>```</p>
-
-<p>This one is quite straightforward. The users are added in the specified format:
-<code>
-username|password|email|given name|last name|groups
-</code>
-The SCIM specification does not speak about roles, scopes or accounts, it only knows <em><a href="http://www.simplecloud.info/specs/draft-scim-core-schema-01.html#group-resource">groups</a></em> besides <em>users</em> where users can be <em>members</em> of a group.
-UAA handles scopes as groups, but groups can also be used for other things like adding users to a company account.</p>
-
-<h2>Resources</h2>
-
-<p>If you&rsquo;d like to learn more about UAA, check out its <a href="https://github.com/cloudfoundry/uaa/tree/master/docs">documentation</a> or its <a href="https://github.com/cloudfoundry/uaa/tree/master/samples">sample applications</a>.
-We&rsquo;ll also have another blog post soon where I&rsquo;ll show some code examples of the OAuth2 flows we&rsquo;re using with UAA as an identity server so check back in a few days if you&rsquo;re interested.</p>
-
-<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   

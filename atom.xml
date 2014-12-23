@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-12-13T23:32:28+00:00</updated>
+  <updated>2014-12-23T11:29:34+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,550 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[New Cloudbreak release - support for HDP 2.2]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2014/12/23/cloudbreak-on-hdp-2-dot-2/"/>
+    <updated>2014-12-23T12:59:42+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2014/12/23/cloudbreak-on-hdp-2-dot-2</id>
+    <content type="html"><![CDATA[<p>The last two weeks were pretty busy for us &ndash; we have <a href="http://blog.sequenceiq.com/blog/2014/12/04/multinode-ambari-1-7-0/">Dockerized</a> the new release of Ambari (1.7.0), <a href="http://blog.sequenceiq.com/blog/2014/12/12/cloudbreak-got-periscope/">integrated</a> Periscope with <a href="http://blog.sequenceiq.com/blog/2014/12/12/cloudbreak-got-periscope/">Cloudbreak</a> and just now we are announcing a new Cloudbreak <a href="https://cloudbreak.sequenceiq.com">release</a> which uses Ambari 1.7.0 and has full support for Hortonworks HDP 2.2 and Apache Bigtop stacks. But first &ndash; since this has been asked many times &ndash; see a <code>short</code> movie about Cloudbreak and Periscope in action.</p>
+
+<h2>On-demand Hadoop cluster with autoscaling</h2>
+
+<iframe width="640" height="480" src="//www.youtube.com/embed/E6bnEW76H_E" frameborder="0" allowfullscreen></iframe>
+
+
+
+
+<!--more-->
+
+
+<h2>Ambari 1.7.0</h2>
+
+<p>The Ambari community recently released the 1.7.0 version which comes with lots of new features and bug fixes. We&rsquo;ve been testing the new version
+internally for a while now and finally made it to Cloudbreak. Just to highlight the important ones:</p>
+
+<ul>
+<li>Ambari Views framework</li>
+<li>Ambari Administration
+
+<ul>
+<li>Management of users/groups</li>
+<li>Management of view instances</li>
+<li>Management of cluster permissions</li>
+</ul>
+</li>
+<li>Cancel/Abort background operation requests</li>
+<li>Expose Ambari UI for config versioning, history and rollback</li>
+<li>Ability to manage -env.sh configuration files</li>
+<li>Recommendations and validations (via a &ldquo;Stack Advisor&rdquo;)</li>
+<li>Export service configurations via Blueprint</li>
+<li>Install + Manage Flume</li>
+<li>HDFS Rebalance</li>
+<li>ResourceManager HA</li>
+</ul>
+
+
+<p>These are nice features but for us one of the most important thing is that it allows you to install the latest versions of the Hadoop ecosystem.
+As usual the Docker image is available for <em>local</em> deployments as well, described <a href="http://blog.sequenceiq.com/blog/2014/12/04/multinode-ambari-1-7-0/">here</a>.</p>
+
+<p><code>Note: There were small changes around the API so if you built an application on top of it check your REST calls. The Ambari Shell and the
+underlying Groovy rest client have been updated and will go into the Apache repository once it's passed the reviews.</code></p>
+
+<h2>Hadoop 2.6</h2>
+
+<p>Since with Ambari 1.7.0 we&rsquo;re able to install Hadoop 2.6 let&rsquo;s see what happened in <code>YARN</code> in the last couple of months (it&rsquo;s stunning):</p>
+
+<ul>
+<li>Support for long running services &ndash; install <em>Slider</em> with Ambari and scale your Hadoop services!
+
+<ul>
+<li>Service Registry for applications</li>
+</ul>
+</li>
+<li>Support for rolling upgrades &ndash; wow!
+
+<ul>
+<li>Work-preserving restarts of ResourceManager</li>
+<li>Container-preserving restart of NodeManager</li>
+</ul>
+</li>
+<li>Supports node labels during scheduling &ndash; label based scaling is on the way with <a href="http://blog.sequenceiq.com/blog/2014/12/12/cloudbreak-got-periscope/">Periscope</a></li>
+<li>Support for time-based resource reservations in Capacity Scheduler (beta) &ndash; more on this awesome feature soon</li>
+<li>Support running of applications natively in Docker containers (alpha) &ndash; <a href="http://blog.sequenceiq.com/blog/2014/12/02/hadoop-2-6-0-docker/">Docker in Docker</a></li>
+</ul>
+
+
+<p>I&rsquo;m excited about these great innovations (not, because we&rsquo;re involved in a few of them), but because people can leverage them by using Cloudbreak.</p>
+
+<h2>HDP 2.2 blueprint</h2>
+
+<p>I have created a blueprint which is not an <code>official</code> one, but it contains a few from the new services like: <code>SLIDER</code>, <code>KAFKA</code>, <code>FLUME</code>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+<span class='line-number'>168</span>
+<span class='line-number'>169</span>
+<span class='line-number'>170</span>
+<span class='line-number'>171</span>
+<span class='line-number'>172</span>
+<span class='line-number'>173</span>
+<span class='line-number'>174</span>
+<span class='line-number'>175</span>
+<span class='line-number'>176</span>
+<span class='line-number'>177</span>
+<span class='line-number'>178</span>
+<span class='line-number'>179</span>
+<span class='line-number'>180</span>
+<span class='line-number'>181</span>
+<span class='line-number'>182</span>
+<span class='line-number'>183</span>
+<span class='line-number'>184</span>
+<span class='line-number'>185</span>
+<span class='line-number'>186</span>
+<span class='line-number'>187</span>
+<span class='line-number'>188</span>
+<span class='line-number'>189</span>
+<span class='line-number'>190</span>
+<span class='line-number'>191</span>
+<span class='line-number'>192</span>
+<span class='line-number'>193</span>
+<span class='line-number'>194</span>
+<span class='line-number'>195</span>
+<span class='line-number'>196</span>
+<span class='line-number'>197</span>
+<span class='line-number'>198</span>
+<span class='line-number'>199</span>
+<span class='line-number'>200</span>
+<span class='line-number'>201</span>
+<span class='line-number'>202</span>
+<span class='line-number'>203</span>
+<span class='line-number'>204</span>
+<span class='line-number'>205</span>
+<span class='line-number'>206</span>
+<span class='line-number'>207</span>
+<span class='line-number'>208</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>{
+</span><span class='line'>  "configurations": [
+</span><span class='line'>  {
+</span><span class='line'>    "nagios-env": {
+</span><span class='line'>      "nagios_contact": "admin@localhost"
+</span><span class='line'>    }
+</span><span class='line'>    },
+</span><span class='line'>    {
+</span><span class='line'>      "hive-site": {
+</span><span class='line'>        "javax.jdo.option.ConnectionUserName": "hive",
+</span><span class='line'>        "javax.jdo.option.ConnectionPassword": "hive"
+</span><span class='line'>      }
+</span><span class='line'>    }
+</span><span class='line'>  ],
+</span><span class='line'>  "host_groups": [
+</span><span class='line'>    {
+</span><span class='line'>      "name": "master_1",
+</span><span class='line'>      "components": [
+</span><span class='line'>        {
+</span><span class='line'>          "name": "NAMENODE"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "ZOOKEEPER_SERVER"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "HBASE_MASTER"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "GANGLIA_SERVER"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "HDFS_CLIENT"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "YARN_CLIENT"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "HCAT"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "GANGLIA_MONITOR"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "FALCON_SERVER"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "FLUME_HANDLER"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "KAFKA_BROKER"
+</span><span class='line'>        }
+</span><span class='line'>      ],
+</span><span class='line'>      "cardinality": "1"
+</span><span class='line'>    },
+</span><span class='line'>    {
+</span><span class='line'>      "name": "master_2",
+</span><span class='line'>      "components": [
+</span><span class='line'>        {
+</span><span class='line'>          "name": "ZOOKEEPER_CLIENT"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "HISTORYSERVER"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "HIVE_SERVER"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "SECONDARY_NAMENODE"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "HIVE_METASTORE"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "HDFS_CLIENT"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "HIVE_CLIENT"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "YARN_CLIENT"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "MYSQL_SERVER"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "GANGLIA_MONITOR"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "WEBHCAT_SERVER"
+</span><span class='line'>        }
+</span><span class='line'>      ],
+</span><span class='line'>      "cardinality": "1"
+</span><span class='line'>    },
+</span><span class='line'>    {
+</span><span class='line'>      "name": "master_3",
+</span><span class='line'>      "components": [
+</span><span class='line'>        {
+</span><span class='line'>          "name": "RESOURCEMANAGER"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "APP_TIMELINE_SERVER"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "SLIDER"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "ZOOKEEPER_SERVER"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "GANGLIA_MONITOR"
+</span><span class='line'>        }
+</span><span class='line'>      ],
+</span><span class='line'>      "cardinality": "1"
+</span><span class='line'>    },
+</span><span class='line'>    {
+</span><span class='line'>      "name": "master_4",
+</span><span class='line'>      "components": [
+</span><span class='line'>        {
+</span><span class='line'>          "name": "OOZIE_SERVER"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "ZOOKEEPER_SERVER"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "GANGLIA_MONITOR"
+</span><span class='line'>        }
+</span><span class='line'>      ],
+</span><span class='line'>      "cardinality": "1"
+</span><span class='line'>    },
+</span><span class='line'>    {
+</span><span class='line'>      "name": "slave_1",
+</span><span class='line'>      "components": [
+</span><span class='line'>        {
+</span><span class='line'>          "name": "HBASE_REGIONSERVER"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "NODEMANAGER"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "DATANODE"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "GANGLIA_MONITOR"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "FALCON_CLIENT"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "OOZIE_CLIENT"
+</span><span class='line'>        }
+</span><span class='line'>      ],
+</span><span class='line'>      "cardinality": "${slavesCount}"
+</span><span class='line'>    },
+</span><span class='line'>    {
+</span><span class='line'>      "name": "gateway",
+</span><span class='line'>      "components": [
+</span><span class='line'>        {
+</span><span class='line'>          "name": "AMBARI_SERVER"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "NAGIOS_SERVER"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "ZOOKEEPER_CLIENT"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "PIG"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "OOZIE_CLIENT"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "HBASE_CLIENT"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "HCAT"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "SQOOP"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "HDFS_CLIENT"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "HIVE_CLIENT"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "YARN_CLIENT"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "MAPREDUCE2_CLIENT"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "GANGLIA_MONITOR"
+</span><span class='line'>        },
+</span><span class='line'>        {
+</span><span class='line'>          "name": "KNOX_GATEWAY"
+</span><span class='line'>        }
+</span><span class='line'>      ],
+</span><span class='line'>      "cardinality": "1"
+</span><span class='line'>    }
+</span><span class='line'>    ],
+</span><span class='line'>    "Blueprints": {
+</span><span class='line'>      "blueprint_name": "hdp-multinode-sequenceiq",
+</span><span class='line'>      "stack_name": "HDP",
+</span><span class='line'>      "stack_version": "2.2"
+</span><span class='line'>    }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>What&rsquo;s next?</h2>
+
+<blockquote><p>Do the difficult things while they are easy and do the great things while they are small. A journey of a thousand miles must begin with a single step.</p></blockquote>
+
+
+<p>We&rsquo;ve walked a long journey since we started the company almost a year ago to reach where we are now, but our products are not complete yet. We have big plans
+with our product stacks. A couple of things from our roadmap:</p>
+
+<h3>Cloudbreak</h3>
+
+<ul>
+<li>Cloudbreak currently supports homogeneous cluster deployments which we&rsquo;re going to change. The heterogeneous stack structure is more convenient
+from Hadoop&rsquo;s perspective. The ability to define different type of cloud instances is a must, giving the users the option to use much more
+powerful instances for the <code>ResourceManager</code> and <code>NameNodes</code>.</li>
+<li>Service discovery and decentralization is always a key aspect. At the moment we&rsquo;re using Serf and dnsmasq, but we&rsquo;re already started the
+integration with <a href="https://consul.io">Consul</a> which generally is a better fit. It provides service registration via DNS, key-value store and
+decentralization across datacenters.</li>
+<li>The deployment of Cloudbreak itself is going to change and use Consul with other side projects like <code>Consul templates</code> or <code>Registrator</code>. The
+deployment is already based on Docker, but will be much more simplified.</li>
+<li>Custom stack deployments with Ambari will be supported as <code>"recipes"</code>.</li>
+<li>Generating reports of cloud instance usages and cost calculation.</li>
+<li>Web hooks to subscribe to different cluster events.</li>
+<li>Shared/company accounts.</li>
+</ul>
+
+
+<h3>Periscope</h3>
+
+<ul>
+<li>Add more <code>YARN</code> and <code>NameNode</code> related metrics.</li>
+<li>Node label based scaling.</li>
+<li>Pluggable metric system for custom metrics.</li>
+<li>Application movement in Capacity Scheduler queues enforcing SLAs.</li>
+<li>Time-based resource reservations in Capacity Scheduler for Applications.</li>
+<li>Integration with <a href="http://blog.sequenceiq.com/blog/2014/10/07/hadoop-monitoring/">ELK</a>.</li>
+</ul>
+
+
+<h2>Happy Holidays</h2>
+
+<p>We&rsquo;re taking a short break of writing new blog posts until next year. You can still reach us on the usual social sites, but you can expect
+small delays for answering questions. <code>Happy Holidays everyone.</code></p>
+
+<p><a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a> <a href="https://twitter.com/sequenceiq">Twitter</a> <a href="https://www.facebook">Facebook</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Cloudbreak welcomes Periscope]]></title>
@@ -2547,178 +3091,6 @@ just like we did with Baywatch. To which to use depends on you&rsquo;re needs.</
 <p>For updates follow us
 on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or
 <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Self hosted ngrok server in Docker]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/10/09/ngrok-docker/"/>
-    <updated>2014-10-09T08:00:00+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/10/09/ngrok-docker</id>
-    <content type="html"><![CDATA[<p><a href="vhttps://ngrok.com/">Ngrok</a> is used for <code>introspected</code> tunnels to localhost.
-In integration testing situations is really common that you want to bind some webhooks
-to localhost. For example you want AWS SNS deliver messages to your service,
-but is not reachable publicly, as it runs only on localhost.</p>
-
-<p>So its really 2 in 1: <strong>local tunnel</strong> and <strong>introspection</strong>. Sometimes you
-just want to use its <strong>introspection</strong> feature, to get insight about how a
-specific API works. It&rsquo;s like a local <a href="https://www.runscope.com/">runscope</a>.</p>
-
-<p>While you can always use the free hosted version: <a href="https://ngrok.com/">ngrok</a>,
-there are reasons to roll you own:</p>
-
-<ul>
-<li>Sometimes the free hosted version has <strong>availability</strong> issues,when it gets heavy traffic</li>
-<li>Yo don&rsquo;t want your messages/calls go through a public free service, for
-<strong>security</strong> concerns</li>
-<li>You just want to use its <strong>introspection</strong> feature, and want to avoid the
-extra <strong>network</strong> round trip to ngrok.com and back.</li>
-</ul>
-
-
-<p>There is documentation about <a href="https://github.com/inconshreveable/ngrok/blob/master/docs/SELFHOSTING.md">self hosting ngrok</a>
-But it include steps, like:</p>
-
-<ul>
-<li>create an SSL certificate</li>
-<li>build server/client binaries using the cert above</li>
-<li>configure, and install it on your server</li>
-</ul>
-
-
-<p>How about using a <strong>single click</strong> version of this? Easy: we have already containerized
-this process and made it available in the official Docker
-<a href="https://registry.hub.docker.com/u/sequenceiq/ngrokd/">repository</a>.</p>
-
-<!-- more -->
-
-
-<h2>Running</h2>
-
-<p>To launch the ngrok daemon, you just have to start the <code>sequenceiq/ngrokd</code> Docker image:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -d --name ngrokd \
-</span><span class='line'>  -p 4480:4480 \
-</span><span class='line'>  -p 4444:4444 \
-</span><span class='line'>  -p 4443:4443 \
-</span><span class='line'>  sequenceiq/ngrokd \
-</span><span class='line'>    -httpAddr=:4480 \
-</span><span class='line'>    -httpsAddr=:4444 \
-</span><span class='line'>    -domain=ngrok.mydomain.com</span></code></pre></td></tr></table></div></figure>
-
-
-<p>It will expose 3 ports:</p>
-
-<ul>
-<li><strong>4444</strong>: that is the so called control port, ngrok clients connect there</li>
-<li><strong>4480/4443</strong>: this to port is used for the tunneled http/https connections</li>
-<li><strong>domain</strong>: this is the domain name, clients need to use to connect to the
-server, and the ngrok server will assign <code>&lt;SUBDOMAIN&gt;.ngrok.mydomain.com</code>
-addresses to each tunnel.</li>
-</ul>
-
-
-<h2>Install the custom <code>ngrok</code> client</h2>
-
-<p>You remember we have a custom ngrok daemon inside the Docker image. Based on the
-<a href="https://gist.github.com/lyoshenka/002b7fbd801d0fd21f2f">self hosting documentation</a></p>
-
-<blockquote><p>Since the client and server executables are paired, you won&rsquo;t be able to use
-  any other ngrok to connect to this ngrokd, and vice versa.</p></blockquote>
-
-<p>So we need the <em>paired</em> ngrok client</p>
-
-<h3>OSX</h3>
-
-<p>If you use brew:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>brew cask install https://raw.githubusercontent.com/sequenceiq/docker-ngrokd/master/ngrok.rb</span></code></pre></td></tr></table></div></figure>
-
-
-<p>otherwise:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl -o /usr/local/bin/ngrok https://s3-eu-west-1.amazonaws.com/sequenceiq/ngrok_darwin
-</span><span class='line'>chmod +x /usr/local/bin/ngrok</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Linux</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl -o /usr/local/bin/ngrok https://s3-eu-west-1.amazonaws.com/sequenceiq/ngrok_linux
-</span><span class='line'>chmod +x /usr/local/bin/ngrok</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Please make sure you check the ngrok version:</p>
-
-<p>You should see the <code>1.7.2</code> on client side:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&gt; ngrok version
-</span><span class='line'>
-</span><span class='line'>1.7.2</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Client configuration</h2>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>cat &gt; ~/.ngrok &lt;&lt;EOF
-</span><span class='line'>server_addr: ngrok.mydomain.com:4443
-</span><span class='line'>trust_host_root_certs: false
-</span><span class='line'>EOF</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Hostname workaround</h2>
-
-<p>If you want to run ngrokd internally just use a new entry
-in <code>/etc/hosts</code></p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;NGROKD_IP&gt; ngrok.mydomain.com subdomain1.mydomain.com subdomain2.mydomain.com</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If you want a proper subdomain you need an <code>A record</code> such as:
-<code>*.ngrok.mydomain.com 54.72.21.93</code></p>
-
-<h2>Usage</h2>
-
-<p>Starting ngrok is business as usual, just use <code>ngrok &lt;port&gt;</code>.
-Pretty much that’s it, you have a self-hosted ngrok server in Docker.
-Then you can introspect the tunnel on <a href="http://127.0.0.0:4444">http://127.0.0.0:4444</a></p>
-
-<h2>Sample use case</h2>
-
-<p>To fully understand how Docker works, sometimes it&rsquo;s useful to see how the
-Docker client communicates with the Docker server. You can just use ngrok
-to introspect the Docker API.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ngrok -subdomain=docker 127.0.0.1:2375</span></code></pre></td></tr></table></div></figure>
-
-
-<p>then if you want to record API calls you have to configure</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>alias docker='docker --host=tcp://docker.ngrok.mydomain.com:4480'</span></code></pre></td></tr></table></div></figure>
-
-
-<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   
