@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2015-01-07T14:18:26+00:00</updated>
+  <updated>2015-01-07T14:28:40+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -46,6 +46,9 @@
 
 
 <p>As the documentations states the DockerContainerExecutor requires the Docker daemon to be running on the NodeManagers and the Docker client must be also available, but at <a href="http://sequenceiq.com">SequenceIQ</a> we have already packaged and running the whole Hadoop ecosystem into Docker containers and therefore we already have a Docker daemon and Docker client, the only problem is that they are outside of our Hadoop container and therefore the NodeManager or any other process running inside the container does not have access to them. In one of our <a href="http://blog.sequenceiq.com/blog/2014/11/20/yarn-containers-and-docker/">earlier post</a> we have considered  to run Docker daemon inside Docker, but instead of running Docker in Docker it is much more simpler just to reuse the Docker daemon and Docker client what was used for launching the <a href="http://sequenceiq.com">SequenceIQ</a> containers.</p>
+
+<!--more-->
+
 
 <h2>Reuse of Docker daemon and client</h2>
 
