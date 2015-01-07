@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2014-12-23T11:29:34+00:00</updated>
+  <updated>2015-01-07T14:18:26+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,124 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Docker containers as Apache YARN containers]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2015/01/07/yarn-containers-docker/"/>
+    <updated>2015-01-07T09:00:00+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2015/01/07/yarn-containers-docker</id>
+    <content type="html"><![CDATA[<p>The Hadoop 2.6 release contains a new <a href="https://issues.apache.org/jira/browse/YARN-1964">feature</a> that allows to launch Docker containers directly as YARN containers. Basically this solution let the developers package their applications and all of the dependencies into a Docker container in order to provide a consistent environment for execution and also provides isolation from other applications or softwares installed on host.</p>
+
+<h2>Configuration</h2>
+
+<p>To launch YARN containers as Docker containers the  <a href="http://hadoop.apache.org/docs/stable/hadoop-yarn/hadoop-yarn-site/DockerContainerExecutor.html">DockerContainerExecutor</a> and the Docker client needs to be set up in the <code>yarn-site.xml</code> configuration file:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;property&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;name&gt;</span>yarn.nodemanager.container-executor.class<span class="nt">&lt;/name&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;value&gt;</span>org.apache.hadoop.yarn.server.nodemanager.DockerContainerExecutor<span class="nt">&lt;/value&gt;</span>
+</span><span class='line'><span class="nt">&lt;/property&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;property&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;name&gt;</span>yarn.nodemanager.docker-container-executor.exec-name<span class="nt">&lt;/name&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;value&gt;</span>/usr/local/bin/docker<span class="nt">&lt;/value&gt;</span>
+</span><span class='line'><span class="nt">&lt;/property&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As the documentations states the DockerContainerExecutor requires the Docker daemon to be running on the NodeManagers and the Docker client must be also available, but at <a href="http://sequenceiq.com">SequenceIQ</a> we have already packaged and running the whole Hadoop ecosystem into Docker containers and therefore we already have a Docker daemon and Docker client, the only problem is that they are outside of our Hadoop container and therefore the NodeManager or any other process running inside the container does not have access to them. In one of our <a href="http://blog.sequenceiq.com/blog/2014/11/20/yarn-containers-and-docker/">earlier post</a> we have considered  to run Docker daemon inside Docker, but instead of running Docker in Docker it is much more simpler just to reuse the Docker daemon and Docker client what was used for launching the <a href="http://sequenceiq.com">SequenceIQ</a> containers.</p>
+
+<h2>Reuse of Docker daemon and client</h2>
+
+<p>The problem what needs to be solved is to connect to Docker daemon (running on host) from a process running inside the container. It is possible to make the Docker daemon to listen on a specific TCP port, but it is not recommended due to security reasons since exposing the port might allow other clients to connect it and accidentally start/stop containers or even gain root access to the host where the daemon is running. Luckily the Docker daemon can listen on Unix domain socket on <code>unix:///var/run/docker.sock</code> to allow local connections and this can be mounted as Docker volume from the container.</p>
+
+<p>For setting up the Docker client we also have multiple options, e.g. we can install it into the container or we can just mount the Docker client as a volume since it is just a single binary executable file.</p>
+
+<p>These configuration has already been set up in the <a href="https://github.com/sequenceiq/hadoop-docker/tree/dce">dce branch of hadoop-docker repository</a> and also made available in the Docker Registry under the name sequenceiq/hadoop-docker:2.6.0-dce, therefore the command to try out the DockerContainerExecutor would look like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'>docker run -i -t -v /usr/local/bin/docker:/usr/local/bin/docker -v /var/run/docker.sock:/var/run/docker.sock --net=host sequenceiq/hadoop-docker:2.6.0-dce /etc/bootstrap.sh -bash
+</span><span class='line'>
+</span><span class='line'># To verify it just launch the following command inside the container
+</span><span class='line'>docker ps
+</span><span class='line'>CONTAINER ID        IMAGE                                COMMAND ...
+</span><span class='line'>c07914786e78        sequenceiq/hadoop-docker:2.6.0-dce   &quot;/etc/bootstrap.sh ...
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>From the first look this seems sufficient, but if you try to execute any Hadoop example it will fail, because the DockerContainerExecutor passes launch configuration and shares log files with YARN containers trough Docker volumes and in our configuration the Docker daemon is running outside of the sequenceiq/hadoop-docker container in other words it is not running on the same place where the NodeManager, therefore directories that are intended to be mounted as Docker volumes for YARN containers will not be there since the NodeManager is running inside a container and the directories are mounted from host. The workaround for this is to create the directories directly on host machine and mount them to sequenceiq/hadoop-docker container and the same directories will be mounted to YARN containers by DockerContainerExecutor.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'># On host machine where the Docker daemon is running (if you are using OS X then on boot2docker)
+</span><span class='line'>mkdir -p /tmp/hadoop-root/nm-local-dir
+</span><span class='line'>mkdir -p /usr/local/hadoop/logs/userlogs/
+</span><span class='line'>
+</span><span class='line'>docker run -i -t -v /usr/local/bin/docker:/usr/local/bin/docker -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/hadoop-root/nm-local-dir:/tmp/hadoop-root/nm-local-dir -v /usr/local/hadoop/logs/userlogs:/usr/local/hadoop/logs/userlogs --net=host sequenceiq/hadoop-docker:2.6.0-dce /etc/bootstrap.sh -bash
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is clearly a workaround and we are considering to create a patch for DockerContainerExecutor to make the volume sharing seamless by using Data Volume Container.</p>
+
+<h2>Starting a MapReduce Job</h2>
+
+<p>Starting a stock example also requires a few extra parameters like <code>mapreduce.map.env</code>, <code>mapreduce.reduce.env</code> and <code>yarn.app.mapreduce.am.env</code>, since the DockerContainerExecutor needs to know which Docker container shall be executed as YARN container.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'># run the grep with 2.6.0
+</span><span class='line'>cd $HADOOP_PREFIX
+</span><span class='line'>
+</span><span class='line'>bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0.jar grep -Dmapreduce.map.env=&quot;yarn.nodemanager.docker-container-executor.image-name=sequenceiq/hadoop-docker:2.6.0-dce&quot; -Dmapreduce.reduce.env=&quot;yarn.nodemanager.docker-container-executor.image-name=sequenceiq/hadoop-docker:2.6.0-dce&quot; -Dyarn.app.mapreduce.am.env=&quot;yarn.nodemanager.docker-container-executor.image-name=sequenceiq/hadoop-docker:2.6.0-dce&quot; input output &#39;dfs[a-z.]+&#39;
+</span><span class='line'>
+</span><span class='line'># check the output of grep
+</span><span class='line'>bin/hdfs dfs -cat output/*
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see the sequenceiq/hadoop-docker:2.6.0-dce image has been specified as parameters and not the sequenceiq/hadoop-docker:2.6.0, but basically there is no difference in this case, since when it is launched as YARN container then only the libraries are are used from the image and the bootstrap.sh or configuration files like yarn-site.xml are ignored.</p>
+
+<p>In order to make it easier to understand you can take a look at the diagram which shows the relationship between containers, processes and volumes.</p>
+
+<ul>
+<li>green box: shows the container started by <code>docker run</code> command which is defined above</li>
+<li>blue boxes: represent the containers started by DockerContainerExecutor</li>
+<li>red boxes: processes started inside the individual containers or directly on host in case of Docker daemon</li>
+<li>yellow boxes: mounted Docker volumes</li>
+</ul>
+
+
+<p> <img src="https://raw.githubusercontent.com/sequenceiq/blog-test/source/source/images/yarn-container/process_map.png" alt="" /></p>
+
+<h2>Summary</h2>
+
+<p>We hope that the above example provides you a good start to play with DockerContainerExecutor, but it is important to know that this new feature has been put to Hadoop 2.6 release only in the last minute and it is still in alpha state, therefore using it in production is not recommended.</p>
+
+<p>Make sure you check back soon to our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
+on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[New Cloudbreak release - support for HDP 2.2]]></title>
@@ -2869,228 +2987,6 @@ UAA handles scopes as groups, but groups can also be used for other things like 
 We&rsquo;ll also have another blog post soon where I&rsquo;ll show some code examples of the OAuth2 flows we&rsquo;re using with UAA as an identity server so check back in a few days if you&rsquo;re interested.</p>
 
 <p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Real-time adjustments with Hadoop metrics]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/10/15/hadoop-metrics/"/>
-    <updated>2014-10-15T13:56:32+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/10/15/hadoop-metrics</id>
-    <content type="html"><![CDATA[<p>To properly understand and to be fully aware of the state of our Hadoop clusters at any time we needed a scalable and flexible solution
-to monitor our Hadoop nodes. After investigating the possible solutions we realized that there is no available solution which satisfies
-all our needs thus we&rsquo;ve created one and recently just open sourced it, called <a href="http://sequenceiq.com/periscope/#monitoring">Baywatch</a>. Baywatch is capable to capture and visualize real-time changes on Hadoop clusters to understand and make adjustments based on the submitted jobs resource
-allocation needs. To plan ahead, viewing and comparing old and new metrics is just as
-important as analyzing real-time ones, not to mention that we can find possible weaknesses and defects in our clusters.</p>
-
-<p>To be able to do all of the above mentioned, Baywatch processes the metrics information produced by the Hadoop daemons. This might already sound familiar as we have another project called <a href="http://sequenceiq.com/periscope/">Periscope</a> where you can create alarms and cluster scaling activities making use of the same metrics, but just consuming it in a different way. Combine these 2
-components and you&rsquo;ll have a powerful tool and you&rsquo;ll be able to view your cluster&rsquo;s state and based on that <code>make smart decisions</code>
-to scale up or down, or simply just set alarms. If you&rsquo;re thrilled to see it in action we are at <a href="http://strataconf.com/stratany2014">Strata</a> and happy to show you a quick demo.</p>
-
-<h2>Hadoop metrics</h2>
-
-<p>So what are these metrics? As I mentioned it earlier metrics are collections of information about Hadoop daemons, e.g:
-the <code>ResourceManager</code> produces information about the queue statuses which we use in Periscope when we <code>re-prioritise applications</code>.
-To distinguish these metrics they are grouped into named contexts, e.g <code>jvm</code> for java virtual machine metrics, <code>rpc</code> for debugging
-rcp calls, but there are many more:</p>
-
-<ul>
-<li>yarn</li>
-<li>rpcdetailed</li>
-<li>metricssystem</li>
-<li>mapred</li>
-<li>dfs</li>
-<li>ugi</li>
-</ul>
-
-
-<p>This <code>Metrics2</code> framework is designed to collect and dispatch per-process metrics to monitor the overall status of the Hadoop system.
-In Hadoop related technologies it is a common design to use sources and sinks, just like in this case. Metrics sources are where the
-metrics are generated and metrics sinks consume the records generated by the metrics sources. A metrics system would poll the metrics
-sources periodically and pass the metrics records to metrics sinks.</p>
-
-<p><img src="http://yuml.me/0faf3738"></p>
-
-<!-- more -->
-
-
-<p>It is really easy to implement new sinks and sources, just for reference here&rsquo;s the <code>FileSink</code>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'>  <span class="nd">@Override</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">putMetrics</span><span class="o">(</span><span class="n">MetricsRecord</span> <span class="n">record</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">writer</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">record</span><span class="o">.</span><span class="na">timestamp</span><span class="o">());</span>
-</span><span class='line'>    <span class="n">writer</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="s">&quot; &quot;</span><span class="o">);</span>
-</span><span class='line'>    <span class="n">writer</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">record</span><span class="o">.</span><span class="na">context</span><span class="o">());</span>
-</span><span class='line'>    <span class="n">writer</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="s">&quot;.&quot;</span><span class="o">);</span>
-</span><span class='line'>    <span class="n">writer</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">record</span><span class="o">.</span><span class="na">name</span><span class="o">());</span>
-</span><span class='line'>    <span class="n">String</span> <span class="n">separator</span> <span class="o">=</span> <span class="s">&quot;: &quot;</span><span class="o">;</span>
-</span><span class='line'>    <span class="k">for</span> <span class="o">(</span><span class="n">MetricsTag</span> <span class="n">tag</span> <span class="o">:</span> <span class="n">record</span><span class="o">.</span><span class="na">tags</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">writer</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">separator</span><span class="o">);</span>
-</span><span class='line'>      <span class="n">separator</span> <span class="o">=</span> <span class="s">&quot;, &quot;</span><span class="o">;</span>
-</span><span class='line'>      <span class="n">writer</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">tag</span><span class="o">.</span><span class="na">name</span><span class="o">());</span>
-</span><span class='line'>      <span class="n">writer</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="s">&quot;=&quot;</span><span class="o">);</span>
-</span><span class='line'>      <span class="n">writer</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">tag</span><span class="o">.</span><span class="na">value</span><span class="o">());</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>    <span class="k">for</span> <span class="o">(</span><span class="n">AbstractMetric</span> <span class="n">metric</span> <span class="o">:</span> <span class="n">record</span><span class="o">.</span><span class="na">metrics</span><span class="o">())</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">writer</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">separator</span><span class="o">);</span>
-</span><span class='line'>      <span class="n">separator</span> <span class="o">=</span> <span class="s">&quot;, &quot;</span><span class="o">;</span>
-</span><span class='line'>      <span class="n">writer</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">metric</span><span class="o">.</span><span class="na">name</span><span class="o">());</span>
-</span><span class='line'>      <span class="n">writer</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="s">&quot;=&quot;</span><span class="o">);</span>
-</span><span class='line'>      <span class="n">writer</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">metric</span><span class="o">.</span><span class="na">value</span><span class="o">());</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>    <span class="n">writer</span><span class="o">.</span><span class="na">println</span><span class="o">();</span>
-</span><span class='line'>  <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>and the <code>FairSchedulerQueueMetrics</code>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'>  <span class="nd">@Metric</span><span class="o">(</span><span class="s">&quot;Fair share of memory in MB&quot;</span><span class="o">)</span> <span class="n">MutableGaugeInt</span> <span class="n">fairShareMB</span><span class="o">;</span>
-</span><span class='line'>  <span class="nd">@Metric</span><span class="o">(</span><span class="s">&quot;Fair share of CPU in vcores&quot;</span><span class="o">)</span> <span class="n">MutableGaugeInt</span> <span class="n">fairShareVCores</span><span class="o">;</span>
-</span><span class='line'>  <span class="nd">@Metric</span><span class="o">(</span><span class="s">&quot;Steady fair share of memory in MB&quot;</span><span class="o">)</span> <span class="n">MutableGaugeInt</span> <span class="n">steadyFairShareMB</span><span class="o">;</span>
-</span><span class='line'>  <span class="nd">@Metric</span><span class="o">(</span><span class="s">&quot;Steady fair share of CPU in vcores&quot;</span><span class="o">)</span> <span class="n">MutableGaugeInt</span> <span class="n">steadyFairShareVCores</span><span class="o">;</span>
-</span><span class='line'>  <span class="nd">@Metric</span><span class="o">(</span><span class="s">&quot;Minimum share of memory in MB&quot;</span><span class="o">)</span> <span class="n">MutableGaugeInt</span> <span class="n">minShareMB</span><span class="o">;</span>
-</span><span class='line'>  <span class="nd">@Metric</span><span class="o">(</span><span class="s">&quot;Minimum share of CPU in vcores&quot;</span><span class="o">)</span> <span class="n">MutableGaugeInt</span> <span class="n">minShareVCores</span><span class="o">;</span>
-</span><span class='line'>  <span class="nd">@Metric</span><span class="o">(</span><span class="s">&quot;Maximum share of memory in MB&quot;</span><span class="o">)</span> <span class="n">MutableGaugeInt</span> <span class="n">maxShareMB</span><span class="o">;</span>
-</span><span class='line'>  <span class="nd">@Metric</span><span class="o">(</span><span class="s">&quot;Maximum share of CPU in vcores&quot;</span><span class="o">)</span> <span class="n">MutableGaugeInt</span> <span class="n">maxShareVCores</span><span class="o">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Hadoop comes by default with 3 sinks:</p>
-
-<ul>
-<li>FileSink</li>
-<li>GraphiteSink</li>
-<li>GangliaSink30</li>
-</ul>
-
-
-<h2>Configuration</h2>
-
-<p>The Metrics2 framework uses the <code>PropertiesConfiguration</code> thus the metrics sinks needs to be defined in a configuration-file:
-<code>hadoop-metrics2.properties</code>. The declaration should be familiar for those who used <code>Apache Flume</code> before. Here is an example
-taken from our <a href="link">Ambari docker image</a>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="o">*.</span><span class="na">sink</span><span class="o">.</span><span class="na">logstash</span><span class="o">.</span><span class="na">class</span><span class="o">=</span><span class="n">org</span><span class="o">.</span><span class="na">apache</span><span class="o">.</span><span class="na">hadoop</span><span class="o">.</span><span class="na">metrics2</span><span class="o">.</span><span class="na">sink</span><span class="o">.</span><span class="na">FileSink</span>
-</span><span class='line'><span class="n">namenode</span><span class="o">.</span><span class="na">sink</span><span class="o">.</span><span class="na">logstash</span><span class="o">.</span><span class="na">filename</span><span class="o">=/</span><span class="n">var</span><span class="o">/</span><span class="n">log</span><span class="o">/</span><span class="n">hadoop</span><span class="o">-</span><span class="n">metrics</span><span class="o">/</span><span class="n">namenode</span><span class="o">-</span><span class="n">metrics</span><span class="o">.</span><span class="na">out</span>
-</span><span class='line'><span class="n">secondarynamenode</span><span class="o">.</span><span class="na">sink</span><span class="o">.</span><span class="na">logstash</span><span class="o">.</span><span class="na">filename</span><span class="o">=/</span><span class="n">var</span><span class="o">/</span><span class="n">log</span><span class="o">/</span><span class="n">hadoop</span><span class="o">-</span><span class="n">metrics</span><span class="o">/</span><span class="n">secondarynamenode</span><span class="o">-</span><span class="n">metrics</span><span class="o">.</span><span class="na">out</span>
-</span><span class='line'><span class="n">datanode</span><span class="o">.</span><span class="na">sink</span><span class="o">.</span><span class="na">logstash</span><span class="o">.</span><span class="na">filename</span><span class="o">=/</span><span class="n">var</span><span class="o">/</span><span class="n">log</span><span class="o">/</span><span class="n">hadoop</span><span class="o">-</span><span class="n">metrics</span><span class="o">/</span><span class="n">datanode</span><span class="o">-</span><span class="n">metrics</span><span class="o">.</span><span class="na">out</span>
-</span><span class='line'><span class="n">resourcemanager</span><span class="o">.</span><span class="na">sink</span><span class="o">.</span><span class="na">logstash</span><span class="o">.</span><span class="na">filename</span><span class="o">=/</span><span class="n">var</span><span class="o">/</span><span class="n">log</span><span class="o">/</span><span class="n">hadoop</span><span class="o">-</span><span class="n">metrics</span><span class="o">/</span><span class="n">resourcemanager</span><span class="o">-</span><span class="n">metrics</span><span class="o">.</span><span class="na">out</span>
-</span><span class='line'><span class="n">nodemanager</span><span class="o">.</span><span class="na">sink</span><span class="o">.</span><span class="na">logstash</span><span class="o">.</span><span class="na">filename</span><span class="o">=/</span><span class="n">var</span><span class="o">/</span><span class="n">log</span><span class="o">/</span><span class="n">hadoop</span><span class="o">-</span><span class="n">metrics</span><span class="o">/</span><span class="n">nodemanager</span><span class="o">-</span><span class="n">metrics</span><span class="o">.</span><span class="na">out</span>
-</span><span class='line'><span class="n">maptask</span><span class="o">.</span><span class="na">sink</span><span class="o">.</span><span class="na">logstash</span><span class="o">.</span><span class="na">filename</span><span class="o">=/</span><span class="n">var</span><span class="o">/</span><span class="n">log</span><span class="o">/</span><span class="n">hadoop</span><span class="o">-</span><span class="n">metrics</span><span class="o">/</span><span class="n">maptask</span><span class="o">-</span><span class="n">metrics</span><span class="o">.</span><span class="na">out</span>
-</span><span class='line'><span class="n">reducetask</span><span class="o">.</span><span class="na">sink</span><span class="o">.</span><span class="na">logstash</span><span class="o">.</span><span class="na">filename</span><span class="o">=/</span><span class="n">var</span><span class="o">/</span><span class="n">log</span><span class="o">/</span><span class="n">hadoop</span><span class="o">-</span><span class="n">metrics</span><span class="o">/</span><span class="n">reducetask</span><span class="o">-</span><span class="n">metrics</span><span class="o">.</span><span class="na">out</span>
-</span><span class='line'><span class="n">mrappmaster</span><span class="o">.</span><span class="na">sink</span><span class="o">.</span><span class="na">logstash</span><span class="o">.</span><span class="na">filename</span><span class="o">=/</span><span class="n">var</span><span class="o">/</span><span class="n">log</span><span class="o">/</span><span class="n">hadoop</span><span class="o">-</span><span class="n">metrics</span><span class="o">/</span><span class="n">mrappmaster</span><span class="o">-</span><span class="n">metrics</span><span class="o">.</span><span class="na">out</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Hadoop WebServices</h3>
-
-<p>There is another way to obtain these metrics without any configuration which the Periscope leverages. It&rsquo;s the <code>WebServices</code> provided
-by Hadoop. <code>Jax-RS</code> is used to define the mappings, e.g collect the <code>ResourceManager</code> queue related metrics on mapping <code>/ws/v1/cluster</code>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'>  <span class="nd">@GET</span>
-</span><span class='line'>  <span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/scheduler&quot;</span><span class="o">)</span>
-</span><span class='line'>  <span class="nd">@Produces</span><span class="o">({</span> <span class="n">MediaType</span><span class="o">.</span><span class="na">APPLICATION_JSON</span><span class="o">,</span> <span class="n">MediaType</span><span class="o">.</span><span class="na">APPLICATION_XML</span> <span class="o">})</span>
-</span><span class='line'>  <span class="kd">public</span> <span class="n">SchedulerTypeInfo</span> <span class="nf">getSchedulerInfo</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>    <span class="n">init</span><span class="o">();</span>
-</span><span class='line'>    <span class="n">ResourceScheduler</span> <span class="n">rs</span> <span class="o">=</span> <span class="n">rm</span><span class="o">.</span><span class="na">getResourceScheduler</span><span class="o">();</span>
-</span><span class='line'>    <span class="n">SchedulerInfo</span> <span class="n">sinfo</span><span class="o">;</span>
-</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">rs</span> <span class="k">instanceof</span> <span class="n">CapacityScheduler</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">CapacityScheduler</span> <span class="n">cs</span> <span class="o">=</span> <span class="o">(</span><span class="n">CapacityScheduler</span><span class="o">)</span> <span class="n">rs</span><span class="o">;</span>
-</span><span class='line'>      <span class="n">CSQueue</span> <span class="n">root</span> <span class="o">=</span> <span class="n">cs</span><span class="o">.</span><span class="na">getRootQueue</span><span class="o">();</span>
-</span><span class='line'>      <span class="n">sinfo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CapacitySchedulerInfo</span><span class="o">(</span><span class="n">root</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">rs</span> <span class="k">instanceof</span> <span class="n">FairScheduler</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">FairScheduler</span> <span class="n">fs</span> <span class="o">=</span> <span class="o">(</span><span class="n">FairScheduler</span><span class="o">)</span> <span class="n">rs</span><span class="o">;</span>
-</span><span class='line'>      <span class="n">sinfo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FairSchedulerInfo</span><span class="o">(</span><span class="n">fs</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">rs</span> <span class="k">instanceof</span> <span class="n">FifoScheduler</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>      <span class="n">sinfo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FifoSchedulerInfo</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">rm</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-</span><span class='line'>      <span class="k">throw</span> <span class="k">new</span> <span class="nf">NotFoundException</span><span class="o">(</span><span class="s">&quot;Unknown scheduler configured&quot;</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nf">SchedulerTypeInfo</span><span class="o">(</span><span class="n">sinfo</span><span class="o">);</span>
-</span><span class='line'>  <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The only difference is that you&rsquo;re application have to poll now, while the other way you can create forwarders to create push events
-just like we did with Baywatch. To which to use depends on you&rsquo;re needs.</p>
-
-<h2>Summary and resources</h2>
-
-<p>As you see using <strong>Baywatch</strong> and <strong>Periscope</strong> you can monitor and scale your cluster based on the configured policies &ndash; all available open sources in our <a href="https://github.com/sequenceiq">GitHub</a> page.</p>
-
-<ul>
-<li><a href="http://sequenceiq.com/periscope/">Periscope</a></li>
-<li><a href="https://github.com/sequenceiq/docker-baywatch-client">Baywatch client</a></li>
-<li><a href="https://github.com/sequenceiq/docker-baywatch">Baywatch</a></li>
-</ul>
-
-
-<p>For updates follow us
-on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or
-<a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   
