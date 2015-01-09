@@ -130,6 +130,54 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/11/13/kylin-on-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">13 November 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/olap/"><span class="label label-warning">OLAP</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/11/13/kylin-on-docker/">Extreme OLAP Engine running in Docker</a>
+          <span class="badge name-badge">Krisztian Horvath</span>
+
+      </h1>
+      <p><em><a href="https://github.com/KylinOLAP/Kylin">Kylin</a> is an open source Distributed Analytics Engine from eBay Inc. that provides SQL interface and multi-dimensional analysis (OLAP) on Hadoop supporting extremely large datasets.</em></p>
+
+<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we are always interested in the latest emerging technologies, and try to offer those to our customers and the open source community. A few weeks ago <a href="http://www.ebayinc.com/">eBay Inc.</a> released <a href="https://github.com/KylinOLAP/Kylin">Kylin</a> as an open source product and made available for the community under an Apache 2 license. Since we share the approach towards <code>open source</code> software we have partnered with them to <code>Dockerize</code> Kylin &ndash; and made it extremely easy for people to deploy a Kylin locally or in the cloud, using our Hadoop as a Service API &ndash; <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>.</p>
+
+<p>While there is a pretty good <a href="http://www.kylin.io/document.html">documentation</a> available for Kylin we&rsquo;d like to give you a really short introduction and overview.</p>
+
+
+      
+       <a href="/blog/2014/11/13/kylin-on-docker/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/11/10/new-yarn-features-part-1-label-based-scheduling/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -822,87 +870,6 @@ socket file <code>/var/run/docker.sock</code> as a tcp port. It is containerized
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/10/16/using-uaa-as-an-identity-server/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">16 October 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/cloudfoundry/"><span class="label label-warning">CloudFoundry</span></a>
-            
-            <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
-            
-            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
-            
-            <a href="/blog/categories/oauth2/"><span class="label label-warning">OAuth2</span></a>
-            
-            <a href="/blog/categories/uaa/"><span class="label label-warning">UAA</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/10/16/using-uaa-as-an-identity-server/">Securing Cloudbreak with OAuth2</a>
-          <span class="badge name-badge">Marton Sereg</span>
-
-      </h1>
-      <p>When we first released <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> &ndash; our Hadoop as a Service API &ndash; it contained its own authentication and user management layer.
-We were using basic authentication for the API calls so every request had to contain a username and a password <em>Base64</em> encoded in the authorization header.
-Cloudbreak also had its own user representation and we were binding the resources &ndash; like clusters &ndash; to these users.</p>
-
-<p>This approach had multiple flaws. As we were starting to develop multiple <a href="http://sequenceiq.com/periscope/">projects</a> for our future Platform as a Service solution it became obvious that we will have to refactor our whole user management layer out from Cloudbreak and <strong>share it across our projects</strong>.
-Base64 encoding of usernames and passwords is not the best solution either even if transport layer security is working.</p>
-
-<p>What comes into play almost instantly when dealing with these kind of problems is <strong>OAuth2</strong> but it&rsquo;s not as trivial as it first sounds.</p>
-
-<h2>OAuth2</h2>
-
-<p>The main &ldquo;problem&rdquo; with OAuth2 is that its <a href="http://tools.ietf.org/html/rfc6749">specification</a> leaves a lot of decisions up to the implementations.
-First of all it does not speak at all about authentication, only authorization. It also leaves out details such as how to manage users, how scopes and tokens look like or how these tokens should be checked by a resource server.</p>
-
-<p>Because of all these reasons implementing a full OAuth2 solution from scratch means a <em>lot</em> of work and reinventing the wheel and of course we didn&rsquo;t want to do that.
-Luckily there are a few specifications that complement the original standard and there are also some solutions that implement not only the basic specification but these complementary specifications too.</p>
-
-<p><strong><a href="https://github.com/cloudfoundry/uaa">UAA</a> is CloudFoundry&rsquo;s fully open source identity management service.</strong>
-According to the documentation its primary role is as an OAuth2 provider that can issue tokens for client applications, but it can also authenticate users and can manage user accounts and OAuth2 clients through an HTTP API.
-To achieve these things it uses these specifications:</p>
-
-<ul>
-<li><p><a href="http://openid.net/connect/">OpenID Connect</a> for authentication</p></li>
-<li><p><a href="http://www.simplecloud.info/">SCIM</a> for user management</p></li>
-<li><p><a href="http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html">JWT</a> for token representation</p></li>
-</ul>
-
-
-<p>UAA adds a few more things on top of these like client management endpoints which makes it a complete solution as an identity server.
-And the best thing is that it is <strong>fully configurable through environment variables and a YAML file</strong>.</p>
-
-
-      
-       <a href="/blog/2014/10/16/using-uaa-as-an-identity-server/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -924,6 +891,10 @@ And the best thing is that it is <strong>fully configurable through environment 
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2015/01/09/spark-1-2-0-docker/">Apache Spark 1.2.0 on Docker</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2015/01/07/yarn-containers-docker/">Docker containers as Apache YARN containers</a>

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Apache Spark | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/apache-spark/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2015-01-07T14:28:40+00:00</updated>
+  <updated>2015-01-09T09:37:16+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,86 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Apache Spark 1.2.0 on Docker]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2015/01/09/spark-1-2-0-docker/"/>
+    <updated>2015-01-09T18:07:18+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2015/01/09/spark-1-2-0-docker</id>
+    <content type="html"><![CDATA[<p>In this current post we’d like to help you to start with the <code>latest - 1.2.0</code> Spark release in minutes &ndash; using Docker. Though we have released and pushed the container between the holidays into the official Docker repository, we were still due with the post. Here are the details &hellip;</p>
+
+<p>Docker and Spark are two technologies which are very <code>hyped</code> these days. At <a href="http://sequenceiq.com/">SequenceIQ</a> we use both quite a lot, thus we put together a Docker container and sharing it with the community.</p>
+
+<p>The container’s code is available in our <a href="https://github.com/sequenceiq/docker-spark/tree/v1.2.0onHadoop2.6.0">GitHub</a> repository.</p>
+
+<h3>Pull the image from Docker Repository</h3>
+
+<p>We suggest to always pull the container from the official Docker repository &ndash; as this is always maintained and supported by us.</p>
+
+<p><code>
+docker pull sequenceiq/spark:1.2.0
+</code></p>
+
+<!-- more -->
+
+
+<h2>Building the image</h2>
+
+<p>Alternatively you can always build your own container based on our Dockerfile.</p>
+
+<p><code>
+docker build --rm -t sequenceiq/spark:1.2.0 .
+</code></p>
+
+<h2>Running the image</h2>
+
+<p>Once you have pulled or built the container, you are ready to start with Spark.</p>
+
+<p><code>
+docker run -i -t -h sandbox sequenceiq/spark:1.2.0 /etc/bootstrap.sh -bash
+</code></p>
+
+<h3>Testing</h3>
+
+<p>In order to check whether everything is OK, you can run one of the stock examples, coming with Spark. Check our previous blog posts and examples about Spark <a href="http://blog.sequenceiq.com/blog/2014/07/31/spark-mllib/">here</a> and <a href="http://blog.sequenceiq.com/blog/2014/08/22/spark-submit-in-java/">here</a>.</p>
+
+<p>```
+cd /usr/local/spark</p>
+
+<h1>run the spark shell</h1>
+
+<p>./bin/spark-shell &mdash;master yarn-client &mdash;driver-memory 1g &mdash;executor-memory 1g &mdash;executor-cores 1</p>
+
+<h1>execute the the following command which should return 1000</h1>
+
+<p>scala> sc.parallelize(1 to 1000).count()
+```</p>
+
+<p>There are two deploy modes that can be used to launch Spark applications on YARN. In yarn-cluster mode, the Spark driver runs inside an application master process which is managed by YARN on the cluster, and the client can go away after initiating the application. In yarn-client mode, the driver runs in the client process, and the application master is only used for requesting resources from YARN.</p>
+
+<p>Estimating Pi (yarn-cluster mode):</p>
+
+<p>```
+cd /usr/local/spark</p>
+
+<h1>execute the the following command which should write the &ldquo;Pi is roughly 3.1418&rdquo; into the logs</h1>
+
+<p>./bin/spark-submit &mdash;class org.apache.spark.examples.SparkPi &mdash;master yarn-cluster &mdash;driver-memory 1g &mdash;executor-memory 1g &mdash;executor-cores 1 ./lib/spark-examples-1.2.0-hadoop2.4.0.jar
+```</p>
+
+<p>Estimating Pi (yarn-client mode):</p>
+
+<p>```
+cd /usr/local/spark</p>
+
+<h1>execute the the following command which should print the &ldquo;Pi is roughly 3.1418&rdquo; to the screen</h1>
+
+<p>./bin/spark-submit &mdash;class org.apache.spark.examples.SparkPi &mdash;master yarn-client &mdash;driver-memory 1g &mdash;executor-memory 1g &mdash;executor-cores 1 ./lib/spark-examples-1.2.0-hadoop2.4.0.jar
+```</p>
+
+<p>Should you have any questions let us know through our social channels using <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Spark on Tez execution context - running in Docker]]></title>

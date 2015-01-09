@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Multinode cluster with Ambari 1.7.0 - in Docker - SequenceIQ Blog</title>
+  <title>Apache Spark 1.2.0 on Docker - SequenceIQ Blog</title>
   <meta name="author" content="SequenceIQ">
 
    
@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2014/12/04/multinode-ambari-1-7-0">
+  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2015/01/09/spark-1-2-0-docker">
   <link href="/favicon.png" rel="icon">
   <link href='http://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
@@ -129,10 +129,10 @@
        
          
        
-       <h1 class="article-style"> Multinode cluster with Ambari 1.7.0 - in Docker
+       <h1 class="article-style"> Apache Spark 1.2.0 on Docker
 
        <span class="badge name-badge">Janos Matyas</span>
-       <span class="badge name-badge">04 December 2014</span>
+       <span class="badge name-badge">09 January 2015</span>
        </h1>
 
 
@@ -145,102 +145,86 @@
 
   <div class="row-fluid">
     <div class="span12">
-      <p>Two days ago the latest <a href="http://ambari.apache.org/">version</a> of Ambari (1.7.0) has been released and now is time for us to release our automated process to deploy Hadoop clusters with Ambari in Docker containers.</p>
+      <p>In this current post we’d like to help you to start with the <code>latest - 1.2.0</code> Spark release in minutes &ndash; using Docker. Though we have released and pushed the container between the holidays into the official Docker repository, we were still due with the post. Here are the details &hellip;</p>
 
-<p>The release contains lots of new features (follow <a href="http://ambari.apache.org/whats-new.html#">this</a> link) &ndash; we will highlight a few we consider important for us:</p>
+<p>Docker and Spark are two technologies which are very <code>hyped</code> these days. At <a href="http://sequenceiq.com/">SequenceIQ</a> we use both quite a lot, thus we put together a Docker container and sharing it with the community.</p>
 
-<ul>
-<li>Ambari Views &ndash; a systematic way to plug-in UI capabilities to surface custom visualization, management and monitoring features in Ambari Web.</li>
-<li>Extended/new stack definitions &ndash; support for Hortonworks HDP and Apache Bigtop stacks</li>
-<li>Apache Slider integration &ndash; ease deployments of existing applications into a YARN cluster</li>
-</ul>
+<p>The container’s code is available in our <a href="https://github.com/sequenceiq/docker-spark/tree/v1.2.0onHadoop2.6.0">GitHub</a> repository.</p>
 
+<h3>Pull the image from Docker Repository</h3>
 
-<p>As usual we have <code>dockerized</code> the whole Ambari 1.7.0 thus you can take the container and provision your arbitrary size Hadoop cluster.</p>
-
-<h3>Get the Docker container</h3>
-
-<p>In case you don’t have Docker browse among our previous posts &ndash; we have a few posts about howto’s, examples and best practices in general for Docker and in particular about how to run the full Hadoop stack on Docker.</p>
+<p>We suggest to always pull the container from the official Docker repository &ndash; as this is always maintained and supported by us.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/ambari:1.7.0</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/spark:1.2.0</span></code></pre></td></tr></table></div></figure>
 
 
 
 
-<!--more-->
+<!-- more -->
 
 
-<p>Once you have the container you are almost ready to go &ndash; we always automate everything and <strong>over simplify</strong> Hadoop provisioning.</p>
+<h2>Building the image</h2>
 
-<h3>Get ambari-functions</h3>
-
-<p>Get the following <code>ambari-functions</code> <a href="https://github.com/sequenceiq/docker-ambari/blob/1.7.0/ambari-functions">file</a> from our GitHub.</p>
+<p>Alternatively you can always build your own container based on our Dockerfile.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl -Lo .amb j.mp/docker-ambari-170 && . .amb</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker build --rm -t sequenceiq/spark:1.2.0 .</span></code></pre></td></tr></table></div></figure>
 
 
-<h3>Create your cluster &ndash; manually</h3>
+<h2>Running the image</h2>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>amb-start-cluster 3</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This will start a 3 node Ambari cluster where all the containers are preconfigured and the Ambari agants are running.</p>
-
-<p>Now lets get familiar with a <a href="http://sequenceiq.com">SequenceIQ</a> contribution for Ambari: the <a href="https://cwiki.apache.org/confluence/display/AMBARI/Ambari+Shell">Ambari Shell</a>.</p>
-
-<p>Type the following command</p>
+<p>Once you have pulled or built the container, you are ready to start with Spark.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>amb-shell</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -i -t -h sandbox sequenceiq/spark:1.2.0 /etc/bootstrap.sh -bash</span></code></pre></td></tr></table></div></figure>
 
 
-<p>This will start the Ambari shell. After the welcome screen
-Now lets quickly create a cluster. Since two days ago Hortonworks released <a href="http://hortonworks.com/blog/available-now-hdp-2-2/">HDP 2.2</a> let set up an HDP 2.2 cluster. For that we will use this <a href="https://gist.github.com/matyix/aeb8837012b5fa253fa5">blueprint</a>.</p>
+<h3>Testing</h3>
 
-<p>In the shell type the following &ndash; note that throughout the process you can use <code>hint</code> or <code>help</code> for guidance and <code>tab completion</code> as well.</p>
+<p>In order to check whether everything is OK, you can run one of the stock examples, coming with Spark. Check our previous blog posts and examples about Spark <a href="http://blog.sequenceiq.com/blog/2014/07/31/spark-mllib/">here</a> and <a href="http://blog.sequenceiq.com/blog/2014/08/22/spark-submit-in-java/">here</a>.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>blueprint add --url https://gist.githubusercontent.com/matyix/aeb8837012b5fa253fa5/raw/3476b538c8ba0c16363dbfd9634f0b9fe88cb36e/multi-node-hdfs-yarn
-</span><span class='line'>cluster build --blueprint multi-node-hdfs-yarn
-</span><span class='line'>cluster autoAssign
-</span><span class='line'>cluster create</span></code></pre></td></tr></table></div></figure>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cd /usr/local/spark
+</span><span class='line'># run the spark shell
+</span><span class='line'>./bin/spark-shell --master yarn-client --driver-memory 1g --executor-memory 1g --executor-cores 1
+</span><span class='line'>
+</span><span class='line'># execute the the following command which should return 1000
+</span><span class='line'>scala&gt; sc.parallelize(1 to 1000).count()</span></code></pre></td></tr></table></div></figure>
 
 
-<p>You can track the progress either from the shell or log into the Ambari UI. If you use <code>boot2docker</code> you should add routing from your host into the container:</p>
+<p>There are two deploy modes that can be used to launch Spark applications on YARN. In yarn-cluster mode, the Spark driver runs inside an application master process which is managed by YARN on the cluster, and the client can go away after initiating the application. In yarn-client mode, the driver runs in the client process, and the application master is only used for requesting resources from YARN.</p>
+
+<p>Estimating Pi (yarn-cluster mode):</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sudo route add -net 172.17.0.0/16 192.168.59.103</span></code></pre></td></tr></table></div></figure>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cd /usr/local/spark
+</span><span class='line'>
+</span><span class='line'># execute the the following command which should write the "Pi is roughly 3.1418" into the logs
+</span><span class='line'>./bin/spark-submit --class org.apache.spark.examples.SparkPi --master yarn-cluster --driver-memory 1g --executor-memory 1g --executor-cores 1 ./lib/spark-examples-1.2.0-hadoop2.4.0.jar</span></code></pre></td></tr></table></div></figure>
 
 
-<p>In order to learn the Ambari UI IP address (IPAddres) use:</p>
+<p>Estimating Pi (yarn-client mode):</p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>docker inspect --format<span class="o">=</span><span class="s1">&#39;{{.NetworkSettings.IPAddress}}&#39;</span> amb0
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>That&rsquo;s it.</p>
-
-<h2>Create your cluster &ndash; automated</h2>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>amb-deploy-cluster 3
-</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>cd /usr/local/spark
+</span><span class='line'>
+</span><span class='line'># execute the the following command which should print the "Pi is roughly 3.1418" to the screen
+</span><span class='line'>./bin/spark-submit --class org.apache.spark.examples.SparkPi --master yarn-client --driver-memory 1g --executor-memory 1g --executor-cores 1 ./lib/spark-examples-1.2.0-hadoop2.4.0.jar</span></code></pre></td></tr></table></div></figure>
 
 
-<p><strong>Whaaat?</strong> No really, that’s it &ndash; we have just provisioned you a 3 node Hadoop cluster in less than 2 minutes. Docker, Apache Ambari and Ambari Shell combined is quite powerful, isn&rsquo;t it? You can always start playing with your desired services by changing the <a href="https://github.com/sequenceiq/ambari-rest-client/tree/master/src/main/resources/blueprints">blueprints</a> &ndash; the full Hadoop stack is supported.</p>
-
-<p>If you’d like to play around and understand how this works check our previous blog posts &ndash; a good start is this first post about one of our contribution, the <a href="http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell/">Ambari Shell</a>.</p>
-
-<p>You have just seen how easy is to provision a Hadoop cluster on your laptop, if you’d like to see how we provision a Hadoop cluster in the cloud using the very same Docker image you can check our open source, cloud agnostic Hadoop as a Service API &ndash; <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a>. Also we have released a project called <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">Periscope</a> &ndash; the industry&rsquo;s first open source autoscaling API for Hadoop.</p>
-
-<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+<p>Should you have any questions let us know through our social channels using <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 
     </div>
   </div>
@@ -264,7 +248,9 @@ Now lets quickly create a cluster. Since two days ago Hortonworks released <a hr
 
 
 
-  <a href="/blog/categories/ambari/"><span class="label label-warning">Ambari</span></a>
+  <a href="/blog/categories/apache-spark/"><span class="label label-warning">Apache Spark</span></a>
+
+  <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
 
 
 
@@ -296,10 +282,8 @@ Now lets quickly create a cluster. Since two days ago Hortonworks released <a hr
       <div class="span12">
         <p class="meta">
           
-            <a class="basic-alignment left" href="/blog/2014/12/02/hadoop-2-6-0-docker/" title="Previous Post: Running Hadoop 2.6.0 in Docker containers">&laquo; Running Hadoop 2.6.0 in Docker containers</a>
+            <a class="basic-alignment left" href="/blog/2015/01/07/yarn-containers-docker/" title="Previous Post: Docker containers as Apache YARN containers">&laquo; Docker containers as Apache YARN containers</a>
           
-          
-            <a class=" basic-alignment pull-right" href="/blog/2014/12/12/cloudbreak-got-periscope/" title="Next Post: Cloudbreak welcomes Periscope">Cloudbreak welcomes Periscope &raquo;</a>
           
         </p>
       </div>
@@ -694,8 +678,8 @@ Now lets quickly create a cluster. Since two days ago Hortonworks released <a hr
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2014/12/04/multinode-ambari-1-7-0/';
-        var disqus_url = 'http://blog.sequenceiq.com/blog/2014/12/04/multinode-ambari-1-7-0/';
+        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2015/01/09/spark-1-2-0-docker/';
+        var disqus_url = 'http://blog.sequenceiq.com/blog/2015/01/09/spark-1-2-0-docker/';
         var disqus_script = 'embed.js';
       
     (function () {
