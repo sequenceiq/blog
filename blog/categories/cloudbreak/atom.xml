@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Cloudbreak | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/cloudbreak/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2015-01-09T09:37:16+00:00</updated>
+  <updated>2015-01-29T11:56:19+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,62 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Cloudbreak - new release available]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2015/01/28/cloudbreak-last-beta/"/>
+    <updated>2015-01-28T09:00:00+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2015/01/28/cloudbreak-last-beta</id>
+    <content type="html"><![CDATA[<p>We are happy to announce that the <code>Release Candidate</code> version of Cloudbreak is almost around the corner. This major release is the last one in the <code>public beta program</code> and contains quite a few new features and architectural changes.</p>
+
+<p>All theses new major features will be covered in the coming weeks on our blog, but in the meantime let us do a quick skim through.</p>
+
+<h3>Accounts</h3>
+
+<p>We have introduced the concept of <code>accounts</code> &ndash; after a user registers/signs in the first time will have the option to invite other people in the <code>account</code>. Being the administrator of the account, will have the option to activate, deactive and give admin rights for all the invited users.</p>
+
+<p>Users can share <code>resources</code> (such as: cloud credentials, templates, blueprints, clusters) within the account by making it <code>public in account</code> but at the same time can create his own private resources as well. As you might be already aware, we use OAuth2 to make all these possible.</p>
+
+<h3>Usage explorer</h3>
+
+<p>We have built a unified (accross all cloud providers) usage explorer tool, where you can drill down into details to learn your (or in your account if you have admin rights) usage history. You can filter by date, users, cloud providers, region, etc &ndash; and generate a consolidated table/chart overview.</p>
+
+<h3>Heterogenous clusters</h3>
+
+<p>This was a feature many have asked &ndash; and we are happy to deliver it. Up till now all the nodes in your YARN clusters were built on the same cloud <code>instance types</code>. While this was an easy an convenient way to build a cluster (as far as we are aware all the Hadoop as a Service providers are doing it this way) back in the MR1 era, times changed now and with the emergence of <code>YARN</code> different workloads are running within a cluster.</p>
+
+<p>While for example Spark jobs require a high memory instance a legacy MR2 code might require a high CPU instance, whereas a HBase RegionServer likes better a high I/O throughput one.</p>
+
+<p>At SequenceIQ we have quickly realized this and the new release allows you to apply different <code>stack templates</code> to all these YARN services/components. We do the heavy lifting for you in the background &ndash; the only thing you will have to do is to associate stack templates to Ambari <code>hostgroups</code>.</p>
+
+<p>This is a major step forward when you are using and running different workloads on your YARN cluster &ndash; and not just saving on costs but at the same time increasing your cluster throughput.</p>
+
+<!--more-->
+
+
+<h3>Hostgroup based autoscaling</h3>
+
+<p>Cloudbreak now integrates with <a href="http://sequenceiq.com/periscope">Periscope</a> &ndash; and allows you to set up alarms and autoscaling SLA policies based on YARN metrics. Having done the heterogenous cluster integration, now it&rsquo;s time to apply <code>autoscaleing</code> for those nodes based on Ambari Blueprints.</p>
+
+<h3>Recipes</h3>
+
+<p>While Cloudbreak and Ambari combined are a pretty powerful way to configure your Hadoop cluster, sometimes there are manuall steps required to reconfigure services, build dependent cluster architectures (e.g.: permanent and ephemeral clusters), etc &ndash; the list can be long.
+Even a simple configuration on a large (thousands nodes) cluster is a tedious job &ndash; and usually people use Ansible, Chef, Puppet or Saltstack to do so &ndash; however these all have some drawback and are not integrated with Cloudbreak. As Cloudbreak under the hood uses Consul, we came up with a simple solution which facilitates creating, applying and running <code>recipes</code> on your already provisioned cluster &ndash; pre/post Ambari installation. A follow up blog post will be released in the coming days whch will explain the concept, architecture and gives you a few sample recipes.</p>
+
+<h3>OpenStack</h3>
+
+<p>This was one of the other highly desired features &ndash; and a perfect use case for Docker. You might be aware that we run the full Hadoop stack inside Docker container &ndash; and Cloudbreak&rsquo;s integration with the cloud provider is pretty thin. This gives us the option to add quick integration with a new cloud provider &ndash; the full OpenStack integration with Cloudbreak took few weeks only.</p>
+
+<p>Long story short &ndash; Cloudbreak now support and automates provisioning of Hadoop clusters with custom blueprints on OpenStack. Give it a try and let us know how it works for you.</p>
+
+<h3>Ambari 1.7 integration</h3>
+
+<p>Shortly after Ambari 1.7 came out we have upgraded Cloudbreak to use this new version. Ambari 1.7 supports HDP and Bigtop stacks and an increased number of Hadoop services/components.</p>
+
+<p>Make sure you check back soon to our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
+on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[New Cloudbreak release - support for HDP 2.2]]></title>
@@ -696,7 +752,7 @@ Usage:
 <p>Options:
   &mdash;cloudbreak.address=&lt;http[s]://HOSTNAME:PORT>  Address of the Cloudbreak Server [default: <a href="https://cloudbreak-api.sequenceiq.com">https://cloudbreak-api.sequenceiq.com</a>].
   &mdash;identity.address=&lt;http[s]://HOSTNAME:PORT>    Address of the SequenceIQ identity server [default: <a href="https://identity.sequenceiq.com">https://identity.sequenceiq.com</a>].
-  &mdash;sequenceiq.user=<USER>                        Username of the SequenceIQ user [default: <a href="&#109;&#x61;&#x69;&#x6c;&#x74;&#x6f;&#58;&#x75;&#x73;&#101;&#114;&#64;&#115;&#101;&#113;&#117;&#101;&#x6e;&#x63;&#101;&#105;&#x71;&#x2e;&#x63;&#111;&#x6d;">&#117;&#115;&#x65;&#114;&#x40;&#x73;&#101;&#x71;&#117;&#x65;&#110;&#99;&#x65;&#x69;&#x71;&#x2e;&#x63;&#x6f;&#109;</a>].
+  &mdash;sequenceiq.user=<USER>                        Username of the SequenceIQ user [default: <a href="&#109;&#x61;&#105;&#x6c;&#x74;&#111;&#x3a;&#117;&#x73;&#101;&#x72;&#x40;&#x73;&#101;&#x71;&#x75;&#101;&#110;&#99;&#101;&#105;&#113;&#x2e;&#99;&#111;&#109;">&#x75;&#x73;&#101;&#114;&#64;&#115;&#x65;&#113;&#117;&#x65;&#110;&#x63;&#x65;&#105;&#113;&#46;&#x63;&#x6f;&#109;</a>].
   &mdash;sequenceiq.password=<PASSWORD>                Password of the SequenceIQ user [default: password].</p>
 
 <p>Note:
@@ -802,119 +858,6 @@ You are done &ndash; you can check the progress through the Ambari UI. If you lo
 
 <p>As usual for us &ndash; being committed to 100% open source &ndash; we are always open sourcing everything thus you can get the details on our <a href="https://github.com/sequenceiq/cloudbreak-shell">GitHub</a> repository.
 Should you have any questions feel free to engage with us on our <a href="http://blog.sequenceiq.com/">blog</a> or follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Building the data lake in the cloud - Part1]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/10/28/datalake-cloudbreak/"/>
-    <updated>2014-10-28T13:56:32+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/10/28/datalake-cloudbreak</id>
-    <content type="html"><![CDATA[<p>A while ago we have released our cloud agnostic and Docker container based Hadoop as a Service API &ndash; <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>. Though the purpose of <a href="https://cloudbreak.sequenceiq.com">Cloudbreak</a> is to quickly provision arbitrary sized Hadoop clusters in the cloud, the project emerged from bare metal Hadoop provisioning in Docker containers. We were (still doing it) <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">provisioning</a> Hadoop on bare metal using Docker &ndash; and because of this legacy the data was always stored in HDFS. Recently we have been asked to run a proof-of-concept project and build an <code>always on</code> data lake using a cloud <code>object storage</code>.</p>
-
-<p>This post is the first in this series and will cover the connectivity, interoperability and access of data from an <code>object storage</code> and work with that in Hadoop. For this post we choose to create a <code>data lake</code> on Google Cloud Compute and guide you through the steps, run performance tests and understand the benefits/drawbacks of such a setup.</p>
-
-<p><em>Next post will be about sharing the <code>data lake</code> among multiple clusters, using <a href="http://hortonworks.com/hadoop/hcatalog/">Apache HCatalog</a>.</em></p>
-
-<h2>Object storage</h2>
-
-<p>An object storage usually is an <code>internet service</code> to store data in the cloud and comes with a programming interface which allows to retrieve data in a secure, durable and highly-scalable way. The most well know object storage is <strong>Amazon S3</strong> &ndash; with a pretty well covered literature, thus in this example we will use the <strong>Google Cloud Storage</strong>. Google Cloud Storage enables application developers to store their data on Google’s infrastructure with very high reliability, performance and availability, and can be used to distribute large data objects &ndash; like HDFS. In many occasions companies stores their data in objects storages &ndash; but for analytics they would like to access it from their Hadoop cluster. There are several options available:</p>
-
-<ul>
-<li>replicate the full dataset in HDFS</li>
-<li>read and write from <code>object storage</code> at start/stop of the flow and use HDFS for intermediary data</li>
-<li>use a connector such as Google Cloud Storage Connector for Hadoop</li>
-</ul>
-
-
-<h2>Google Cloud Storage Connector for Hadoop</h2>
-
-<p>Using <a href="https://cloud.google.com/hadoop/google-cloud-storage-connector">this</a> connector developed by Google allows you to choose <code>Google Cloud Storage</code> as the default file system for Hadoop, and run all your jobs on top (we will come up with MR2 and Spark examples). Using the connector can have several benefits, to name a few:</p>
-
-<ul>
-<li>Direct data access &ndash; data is stored in GCS, no need to transfer it into HDFS</li>
-<li>HDFS compatibility &ndash; data stored in HDFS can be accessed through the connector</li>
-<li>Data accessibility &ndash; data is always accessible, even when the Hadoop cluster is shut down</li>
-<li>High data availability &ndash; data is highly available and globally replicated</li>
-</ul>
-
-
-<!-- more -->
-
-
-<h2>DIY &ndash; build your data lake</h2>
-
-<p>Follow these steps in order to create your own <code>data lake</code>.</p>
-
-<ol>
-<li>Create your <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak account</a></li>
-<li>Configure your Google Cloud account following these <a href="http://sequenceiq.com/cloudbreak/#accounts">steps</a></li>
-<li>Copy the appropriate version of the <a href="https://cloud.google.com/hadoop/google-cloud-storage-connector">connector jar</a> to the Hadoop classpath and the key file for auth on every node of the cluster &ndash; use this <a href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/data-lake/copyscripts.sh">script</a> to automate the process</li>
-<li>Use this Ambari <a href="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/data-lake/gcs-con-multi-node-hdfs-yarn.blueprint">blueprint</a> to configure the connector</li>
-<li>Restart the following services: HDFS, YARN and MapReduce2</li>
-</ol>
-
-
-<p>That&rsquo;s it &ndash; you are done, you can work on your data stored in Google Storage. The next release of <a href="https://github.com/sequenceiq/cloudbreak">Cloudbreak</a> will incorporate and automate these steps for you &ndash; and will use HCatalog to allow you to configure an <code>always on</code> data store using object storages.</p>
-
-<h2>Performance results</h2>
-
-<p>We configured two identical clusters with <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> on Google Cloud with the following parameters</p>
-
-<ul>
-<li>Number of nodes: 1 master node + 10 slave nodes</li>
-<li>2 * 200 GB rotating HDD (where appropriate)</li>
-<li>2 Virtual CPU</li>
-<li>7.5 GB of memory</li>
-</ul>
-
-
-<p>First of all we run all the Hadoop and the certification tests in order to validate the correctness of the setups. For the tests we have provisioned an <strong>Hortonwork&rsquo;s HDP 2.1</strong> cluster.</p>
-
-<p>After these steps we have switched to the <code>standard</code> performance test &ndash; <strong>TeraGen, TeraSort and TeraValidate</strong>. Please see the results below.</p>
-
-<table>
-<thead>
-<tr>
-<th></th>
-<th> File System           </th>
-<th> TeraGen </th>
-<th> TeraSort </th>
-<th> TeraValidate</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td> HDFS                  </td>
-<td>58mins, 58sec</td>
-<td>4hrs, 59mins, 6sec</td>
-<td>35mins, 58sec</td>
-</tr>
-<tr>
-<td></td>
-<td> Google Cloud Storage  </td>
-<td>34mins, 36sec</td>
-<td>4hrs, 34mins, 52sec</td>
-<td> 29mins, 22sec</td>
-</tr>
-</tbody>
-</table>
-
-
-<h2>Summary</h2>
-
-<p>There is a pretty good literature about HDFS and object storages and lots of debates around. At <a href="http://sequenceiq.com">SequenceIQ</a> we support both &ndash; and we also believe that each and every company or use case has his own rationale behind choosing one of them. When we came up with the mission statement of simplifying how people work with Hadoop and stated that we&rsquo;d like to give the broadest available options to developers we were pretty serious about.</p>
-
-<p><a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> was designed around being cloud agnostic &ndash; running on Docker and being able to ship those containers to bare metal or any cloud provider with a very easy integration process: currently we support <strong>Amazon AWS, Microsoft Azure and Google Cloud</strong> in public beta and <strong>OpenStack, Digital Ocean</strong> integration in progress/private beta.
-As for the supported Hadoop distribution we provision <strong>Apache Hadoop and Hortonworks HDP</strong> in public and <strong>Cloudera CDH</strong> in private beta.</p>
-
-<p>All the private betas will emerge into public programs and will be in GA &ndash; and open sourced under an Apache2 license during Q4.</p>
-
-<p><a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> will be released quite soon &ndash; stay tuned &ndash; will support one API/representation of your big data pipeline and running on multiple runtimes: <strong>MR2, Spark and Tez</strong>.</p>
-
-<p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or
-<a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   

@@ -130,6 +130,72 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2015/01/28/cloudbreak-last-beta/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">28 January 2015</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2015/01/28/cloudbreak-last-beta/">Cloudbreak - new release available</a>
+          <span class="badge name-badge">Janos Matyas</span>
+
+      </h1>
+      <p>We are happy to announce that the <code>Release Candidate</code> version of Cloudbreak is almost around the corner. This major release is the last one in the <code>public beta program</code> and contains quite a few new features and architectural changes.</p>
+
+<p>All theses new major features will be covered in the coming weeks on our blog, but in the meantime let us do a quick skim through.</p>
+
+<h3>Accounts</h3>
+
+<p>We have introduced the concept of <code>accounts</code> &ndash; after a user registers/signs in the first time will have the option to invite other people in the <code>account</code>. Being the administrator of the account, will have the option to activate, deactive and give admin rights for all the invited users.</p>
+
+<p>Users can share <code>resources</code> (such as: cloud credentials, templates, blueprints, clusters) within the account by making it <code>public in account</code> but at the same time can create his own private resources as well. As you might be already aware, we use OAuth2 to make all these possible.</p>
+
+<h3>Usage explorer</h3>
+
+<p>We have built a unified (accross all cloud providers) usage explorer tool, where you can drill down into details to learn your (or in your account if you have admin rights) usage history. You can filter by date, users, cloud providers, region, etc &ndash; and generate a consolidated table/chart overview.</p>
+
+<h3>Heterogenous clusters</h3>
+
+<p>This was a feature many have asked &ndash; and we are happy to deliver it. Up till now all the nodes in your YARN clusters were built on the same cloud <code>instance types</code>. While this was an easy an convenient way to build a cluster (as far as we are aware all the Hadoop as a Service providers are doing it this way) back in the MR1 era, times changed now and with the emergence of <code>YARN</code> different workloads are running within a cluster.</p>
+
+<p>While for example Spark jobs require a high memory instance a legacy MR2 code might require a high CPU instance, whereas a HBase RegionServer likes better a high I/O throughput one.</p>
+
+<p>At SequenceIQ we have quickly realized this and the new release allows you to apply different <code>stack templates</code> to all these YARN services/components. We do the heavy lifting for you in the background &ndash; the only thing you will have to do is to associate stack templates to Ambari <code>hostgroups</code>.</p>
+
+<p>This is a major step forward when you are using and running different workloads on your YARN cluster &ndash; and not just saving on costs but at the same time increasing your cluster throughput.</p>
+
+
+      
+       <a href="/blog/2015/01/28/cloudbreak-last-beta/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2015/01/09/spark-1-2-0-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -657,86 +723,6 @@ Now let&rsquo;s do the math:</p>
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/11/17/datalake-cloudbreak-2/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">17 November 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/11/17/datalake-cloudbreak-2/">Building the data lake in the cloud - Part2</a>
-          <span class="badge name-badge">Marton Sereg</span>
-
-      </h1>
-      <p>Few weeks ago we had a <a href="http://blog.sequenceiq.com/blog/2014/10/28/datalake-cloudbreak/">post</a> about building a <code>data lake</code> in the cloud using a cloud based <code>object storage</code> as the primary file system.
-In this post we&rsquo;d like to move forward and show you how to create an <code>always on</code> persistent datalake with <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> and create <code>ephemeral</code> clusters which can be scaled up and down based on configured SLA policies using <a href="http://sequenceiq.com/periscope/">Periscope</a>.</p>
-
-<p>Just as a quick reminder &ndash; both are open source projects under Apache2 license and the documentation and code is available following these links below.</p>
-
-<table>
-<thead>
-<tr>
-<th></th>
-<th> Name                  </th>
-<th> Description </th>
-<th> Documentation </th>
-<th> GitHub</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td> Cloudbreak         </td>
-<td> Cloud agnostic Hadoop as a Service </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/</a> </td>
-<td> <a href="https://github.com/sequenceiq/cloudbreak">https://github.com/sequenceiq/cloudbreak</a></td>
-</tr>
-<tr>
-<td></td>
-<td> Periscope          </td>
-<td> SLA policy based autoscaling for Hadoop clusters </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/</a> </td>
-<td> <a href="https://github.com/sequenceiq/periscope">https://github.com/sequenceiq/periscope</a></td>
-</tr>
-</tbody>
-</table>
-
-
-<h2>Sample architecture</h2>
-
-<p>For the sample use case we will create a <code>datalake</code> on <strong>AWS</strong> and <strong>Google Cloud</strong> as well &ndash; and use the most popular data warehouse software with an SQL interface &ndash; <a href="https://hive.apache.org/">Apache Hive</a>.</p>
-
-
-      
-       <a href="/blog/2014/11/17/datalake-cloudbreak-2/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -756,6 +742,10 @@ In this post we&rsquo;d like to move forward and show you how to create an <code
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2015/01/28/cloudbreak-last-beta/">Cloudbreak - new release available</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2015/01/09/spark-1-2-0-docker/">Apache Spark 1.2.0 on Docker</a>

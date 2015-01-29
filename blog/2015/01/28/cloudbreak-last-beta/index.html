@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: Apache Ambari - SequenceIQ Blog</title>
+  <title>Cloudbreak - new release available - SequenceIQ Blog</title>
   <meta name="author" content="SequenceIQ">
 
    
-  <meta name="description" content="Category: Apache Ambari">
+  <meta name="description" content="">
   
   <meta name="keywords" content="">
 
@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.sequenceiq.comblog/categories/apache-ambari">
+  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2015/01/28/cloudbreak-last-beta">
   <link href="/favicon.png" rel="icon">
   <link href='http://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
@@ -117,203 +117,153 @@
               <div class="col-md-9" id="">
                   <div class="">
                    <!-- <div id="content">-->
-                      <article role="article">
+                      <div>
+
+<div class="container-fluid">
+     <div class="row">
+       
+         
+       
+       
+
+       
+         
+       
+       <h1 class="article-style"> Cloudbreak - new release available
+
+       <span class="badge name-badge">Janos Matyas</span>
+       <span class="badge name-badge">28 January 2015</span>
+       </h1>
+
+
+
+</div>
+</div>
+<article class="hentry" role="article">
   
- <!-- <header>
+
+
+  <div class="row-fluid">
+    <div class="span12">
+      <p>We are happy to announce that the <code>Release Candidate</code> version of Cloudbreak is almost around the corner. This major release is the last one in the <code>public beta program</code> and contains quite a few new features and architectural changes.</p>
+
+<p>All theses new major features will be covered in the coming weeks on our blog, but in the meantime let us do a quick skim through.</p>
+
+<h3>Accounts</h3>
+
+<p>We have introduced the concept of <code>accounts</code> &ndash; after a user registers/signs in the first time will have the option to invite other people in the <code>account</code>. Being the administrator of the account, will have the option to activate, deactive and give admin rights for all the invited users.</p>
+
+<p>Users can share <code>resources</code> (such as: cloud credentials, templates, blueprints, clusters) within the account by making it <code>public in account</code> but at the same time can create his own private resources as well. As you might be already aware, we use OAuth2 to make all these possible.</p>
+
+<h3>Usage explorer</h3>
+
+<p>We have built a unified (accross all cloud providers) usage explorer tool, where you can drill down into details to learn your (or in your account if you have admin rights) usage history. You can filter by date, users, cloud providers, region, etc &ndash; and generate a consolidated table/chart overview.</p>
+
+<h3>Heterogenous clusters</h3>
+
+<p>This was a feature many have asked &ndash; and we are happy to deliver it. Up till now all the nodes in your YARN clusters were built on the same cloud <code>instance types</code>. While this was an easy an convenient way to build a cluster (as far as we are aware all the Hadoop as a Service providers are doing it this way) back in the MR1 era, times changed now and with the emergence of <code>YARN</code> different workloads are running within a cluster.</p>
+
+<p>While for example Spark jobs require a high memory instance a legacy MR2 code might require a high CPU instance, whereas a HBase RegionServer likes better a high I/O throughput one.</p>
+
+<p>At SequenceIQ we have quickly realized this and the new release allows you to apply different <code>stack templates</code> to all these YARN services/components. We do the heavy lifting for you in the background &ndash; the only thing you will have to do is to associate stack templates to Ambari <code>hostgroups</code>.</p>
+
+<p>This is a major step forward when you are using and running different workloads on your YARN cluster &ndash; and not just saving on costs but at the same time increasing your cluster throughput.</p>
+
+<!--more-->
+
+
+<h3>Hostgroup based autoscaling</h3>
+
+<p>Cloudbreak now integrates with <a href="http://sequenceiq.com/periscope">Periscope</a> &ndash; and allows you to set up alarms and autoscaling SLA policies based on YARN metrics. Having done the heterogenous cluster integration, now it&rsquo;s time to apply <code>autoscaleing</code> for those nodes based on Ambari Blueprints.</p>
+
+<h3>Recipes</h3>
+
+<p>While Cloudbreak and Ambari combined are a pretty powerful way to configure your Hadoop cluster, sometimes there are manuall steps required to reconfigure services, build dependent cluster architectures (e.g.: permanent and ephemeral clusters), etc &ndash; the list can be long.
+Even a simple configuration on a large (thousands nodes) cluster is a tedious job &ndash; and usually people use Ansible, Chef, Puppet or Saltstack to do so &ndash; however these all have some drawback and are not integrated with Cloudbreak. As Cloudbreak under the hood uses Consul, we came up with a simple solution which facilitates creating, applying and running <code>recipes</code> on your already provisioned cluster &ndash; pre/post Ambari installation. A follow up blog post will be released in the coming days whch will explain the concept, architecture and gives you a few sample recipes.</p>
+
+<h3>OpenStack</h3>
+
+<p>This was one of the other highly desired features &ndash; and a perfect use case for Docker. You might be aware that we run the full Hadoop stack inside Docker container &ndash; and Cloudbreak&rsquo;s integration with the cloud provider is pretty thin. This gives us the option to add quick integration with a new cloud provider &ndash; the full OpenStack integration with Cloudbreak took few weeks only.</p>
+
+<p>Long story short &ndash; Cloudbreak now support and automates provisioning of Hadoop clusters with custom blueprints on OpenStack. Give it a try and let us know how it works for you.</p>
+
+<h3>Ambari 1.7 integration</h3>
+
+<p>Shortly after Ambari 1.7 came out we have upgraded Cloudbreak to use this new version. Ambari 1.7 supports HDP and Bigtop stacks and an increased number of Hadoop services/components.</p>
+
+<p>Make sure you check back soon to our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
+on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
+
+    </div>
+  </div>
+
+
+
+  <footer>
+    <hr>
+    
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Janos Matyas</span></span>
 
     
-  </header>-->
+    <div class="row">
+      
+      <div class="col-md-6 span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="col-md-5 social-sharing pull-right">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
   
-  <div id="blog-archives" class="category">
-
+  <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
   
-  <div class="row">
-    <div class="col-md-1">
-  	
-  	
-  	  
-  	    <h2>2014</h2>
-  	
-    </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-09-05T16:37:37+00:00" pubdate><span class='month'>Sep</span> <span class='day'>05</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/09/05/apache-ambari-1-7-0-ea/">Apache Ambari 1.7.0 early access</a></h1>
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
-
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/apache-ambari/'>Apache Ambari</a>, <a class='category' href='/blog/categories/early-access/'>Early access</a>, <a class='category' href='/blog/categories/hadoop/'>Hadoop</a>, <a class='category' href='/blog/categories/provisioning/'>Provisioning</a></span>
-		</footer>
-		
-	</div>
-</div>
-
-
-  	</article>
-    </div>
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
   </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
 
-  
-  <div class="row">
-    <div class="col-md-1">
-  	
-  	
+      </div>
+      
+      
     </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-06-19T20:29:10+00:00" pubdate><span class='month'>Jun</span> <span class='day'>19</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">Multi-node Hadoop cluster on Docker</a></h1>
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
-
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/apache-ambari/'>Apache Ambari</a>, <a class='category' href='/blog/categories/devops/'>DevOps</a>, <a class='category' href='/blog/categories/docker/'>Docker</a>, <a class='category' href='/blog/categories/hadoop/'>Hadoop</a>, <a class='category' href='/blog/categories/multi-node/'>Multi-node</a></span>
-		</footer>
-		
-	</div>
-</div>
-
-
-  	</article>
+    
+    <div class="row">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2015/01/09/spark-1-2-0-docker/" title="Previous Post: Apache Spark 1.2.0 on Docker">&laquo; Apache Spark 1.2.0 on Docker</a>
+          
+          
+        </p>
+      </div>
     </div>
-  </div>
-
-  
-  <div class="row">
-    <div class="col-md-1">
-  	
-  	
-    </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-06-17T08:51:14+00:00" pubdate><span class='month'>Jun</span> <span class='day'>17</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/06/17/ambari-cluster-on-docker/">Ambari provisioned Hadoop cluster on Docker</a></h1>
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
-
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/apache-ambari/'>Apache Ambari</a>, <a class='category' href='/blog/categories/devops/'>DevOps</a>, <a class='category' href='/blog/categories/docker/'>Docker</a>, <a class='category' href='/blog/categories/hadoop/'>Hadoop</a></span>
-		</footer>
-		
-	</div>
-</div>
-
-
-  	</article>
-    </div>
-  </div>
-
-  
-  <div class="row">
-    <div class="col-md-1">
-  	
-  	
-    </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-06-06T13:42:11+00:00" pubdate><span class='month'>Jun</span> <span class='day'>06</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/06/06/hadoop-summit-slides/">Hadoop Summit 2014 - SequenceIQ slides</a></h1>
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
-
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/apache-ambari/'>Apache Ambari</a>, <a class='category' href='/blog/categories/devops/'>DevOps</a>, <a class='category' href='/blog/categories/docker/'>Docker</a>, <a class='category' href='/blog/categories/hadoop/'>Hadoop</a></span>
-		</footer>
-		
-	</div>
-</div>
-
-
-  	</article>
-    </div>
-  </div>
-
-  
-  <div class="row">
-    <div class="col-md-1">
-  	
-  	
-    </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-05-26T13:42:11+00:00" pubdate><span class='month'>May</span> <span class='day'>26</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/05/26/ambari-shell/">Apache Ambari + Spring Shell = Ambari Shell</a></h1>
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
-
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/apache-ambari/'>Apache Ambari</a>, <a class='category' href='/blog/categories/hadoop/'>Hadoop</a>, <a class='category' href='/blog/categories/spring-shell/'>Spring Shell</a></span>
-		</footer>
-		
-	</div>
-</div>
-
-
-  	</article>
-    </div>
-  </div>
-
-</div>
-
+  </footer>
 </article>
 
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
+</div>
 
 
                     <!--</div>-->
@@ -697,7 +647,10 @@
       var disqus_shortname = 'sequenceiqblog';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2015/01/28/cloudbreak-last-beta/';
+        var disqus_url = 'http://blog.sequenceiq.com/blog/2015/01/28/cloudbreak-last-beta/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

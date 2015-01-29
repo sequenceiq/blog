@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2015-01-09T09:37:16+00:00</updated>
+  <updated>2015-01-29T11:56:19+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,62 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Cloudbreak - new release available]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2015/01/28/cloudbreak-last-beta/"/>
+    <updated>2015-01-28T09:00:00+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2015/01/28/cloudbreak-last-beta</id>
+    <content type="html"><![CDATA[<p>We are happy to announce that the <code>Release Candidate</code> version of Cloudbreak is almost around the corner. This major release is the last one in the <code>public beta program</code> and contains quite a few new features and architectural changes.</p>
+
+<p>All theses new major features will be covered in the coming weeks on our blog, but in the meantime let us do a quick skim through.</p>
+
+<h3>Accounts</h3>
+
+<p>We have introduced the concept of <code>accounts</code> &ndash; after a user registers/signs in the first time will have the option to invite other people in the <code>account</code>. Being the administrator of the account, will have the option to activate, deactive and give admin rights for all the invited users.</p>
+
+<p>Users can share <code>resources</code> (such as: cloud credentials, templates, blueprints, clusters) within the account by making it <code>public in account</code> but at the same time can create his own private resources as well. As you might be already aware, we use OAuth2 to make all these possible.</p>
+
+<h3>Usage explorer</h3>
+
+<p>We have built a unified (accross all cloud providers) usage explorer tool, where you can drill down into details to learn your (or in your account if you have admin rights) usage history. You can filter by date, users, cloud providers, region, etc &ndash; and generate a consolidated table/chart overview.</p>
+
+<h3>Heterogenous clusters</h3>
+
+<p>This was a feature many have asked &ndash; and we are happy to deliver it. Up till now all the nodes in your YARN clusters were built on the same cloud <code>instance types</code>. While this was an easy an convenient way to build a cluster (as far as we are aware all the Hadoop as a Service providers are doing it this way) back in the MR1 era, times changed now and with the emergence of <code>YARN</code> different workloads are running within a cluster.</p>
+
+<p>While for example Spark jobs require a high memory instance a legacy MR2 code might require a high CPU instance, whereas a HBase RegionServer likes better a high I/O throughput one.</p>
+
+<p>At SequenceIQ we have quickly realized this and the new release allows you to apply different <code>stack templates</code> to all these YARN services/components. We do the heavy lifting for you in the background &ndash; the only thing you will have to do is to associate stack templates to Ambari <code>hostgroups</code>.</p>
+
+<p>This is a major step forward when you are using and running different workloads on your YARN cluster &ndash; and not just saving on costs but at the same time increasing your cluster throughput.</p>
+
+<!--more-->
+
+
+<h3>Hostgroup based autoscaling</h3>
+
+<p>Cloudbreak now integrates with <a href="http://sequenceiq.com/periscope">Periscope</a> &ndash; and allows you to set up alarms and autoscaling SLA policies based on YARN metrics. Having done the heterogenous cluster integration, now it&rsquo;s time to apply <code>autoscaleing</code> for those nodes based on Ambari Blueprints.</p>
+
+<h3>Recipes</h3>
+
+<p>While Cloudbreak and Ambari combined are a pretty powerful way to configure your Hadoop cluster, sometimes there are manuall steps required to reconfigure services, build dependent cluster architectures (e.g.: permanent and ephemeral clusters), etc &ndash; the list can be long.
+Even a simple configuration on a large (thousands nodes) cluster is a tedious job &ndash; and usually people use Ansible, Chef, Puppet or Saltstack to do so &ndash; however these all have some drawback and are not integrated with Cloudbreak. As Cloudbreak under the hood uses Consul, we came up with a simple solution which facilitates creating, applying and running <code>recipes</code> on your already provisioned cluster &ndash; pre/post Ambari installation. A follow up blog post will be released in the coming days whch will explain the concept, architecture and gives you a few sample recipes.</p>
+
+<h3>OpenStack</h3>
+
+<p>This was one of the other highly desired features &ndash; and a perfect use case for Docker. You might be aware that we run the full Hadoop stack inside Docker container &ndash; and Cloudbreak&rsquo;s integration with the cloud provider is pretty thin. This gives us the option to add quick integration with a new cloud provider &ndash; the full OpenStack integration with Cloudbreak took few weeks only.</p>
+
+<p>Long story short &ndash; Cloudbreak now support and automates provisioning of Hadoop clusters with custom blueprints on OpenStack. Give it a try and let us know how it works for you.</p>
+
+<h3>Ambari 1.7 integration</h3>
+
+<p>Shortly after Ambari 1.7 came out we have upgraded Cloudbreak to use this new version. Ambari 1.7 supports HDP and Bigtop stacks and an increased number of Hadoop services/components.</p>
+
+<p>Make sure you check back soon to our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
+on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Apache Spark 1.2.0 on Docker]]></title>
@@ -2839,88 +2895,6 @@ First, we group by user ids (count them with every operation), then in the secon
 <p>We have put together a Tez enabled Docker container, you can get it from <a href="https://github.com/sequenceiq/docker-tez">here</a>. Pull the container, and follow the instructions.</p>
 
 <p>If you have any questions or suggestions you can reach us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Boot2docker TLS workaround]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/10/17/boot2docker-tls-workaround/"/>
-    <updated>2014-10-17T16:46:39+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/10/17/boot2docker-tls-workaround</id>
-    <content type="html"><![CDATA[<p>Docker 1.3.0 has been released with the invaluable <code>docker exec</code>
-<a href="https://docs.docker.com/reference/commandline/cli/#exec">command</a>.</p>
-
-<p>Boot2docker 1.3.0 delivered also some really neat features such
-as <a href="https://github.com/boot2docker/boot2docker#virtualbox-guest-additions">Folder sharing</a>
-with virtualbox guest additions. So finally OSX users are able to for example serve local html files in a container:
-<code>docker run -v /Users/lalyos/webapp/:/usr/share/nginx/html:ro nginx</code></p>
-
-<h2>Issue</h2>
-
-<p>Boot2docker also changed Docker listening from <a href="http://0.0.0.0:2375">http://0.0.0.0:2375</a> to <a href="https://0.0.0.0:2376.">https://0.0.0.0:2376.</a>
-While switching on TLS is highly recommended, but its not backward compatible.
-Some tools or environments are relying to be able to connect to Docker
-via simple http. So after upgrading to 1.3.0 something might be broken.</p>
-
-<h2>Workaround</h2>
-
-<h3>Update 2014-11-01</h3>
-
-<p>Please note that since Boot2docker 1.3.1 is released, you can simply use <code>DOCKER_TLS=no</code>.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ boot2docker ssh -t 'sudo vi /var/lib/boot2docker/profile'</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If you still want to run the daemon with TLS enabled, but need temporary access on
-plain http, read on:</p>
-
-<h3>Socat</h3>
-
-<p>One alternative solution is to start a container which uses <code>socat</code> to proxy the unix
-socket file <code>/var/run/docker.sock</code> as a tcp port. It is containerized for you:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$(docker run sequenceiq/socat)</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now you can reach Docker the <em>old</em> way:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl http://192.168.59.103:2375/_ping
-</span><span class='line'>OK</span></code></pre></td></tr></table></div></figure>
-
-
-<!-- more -->
-
-
-<h2>tl;dr</h2>
-
-<p>The one-liner <code>$(docker run sequenceiq/socat)</code> does the following trick under the hood:</p>
-
-<ul>
-<li>it start the <strong>sequenceiq/socat</strong> container without any volume/port or CMD specification</li>
-<li>so the default <code>/start</code> bash script takes command</li>
-<li>the <code>/start</code> script (<a href="https://github.com/sequenceiq/docker-socat/blob/master/start">see source</a>) recognizes that it didn&rsquo;t started the proper way, so it
-<strong>prints the correct docker command</strong> to stdout (see below)</li>
-<li>the <code>$( ... )</code> notation executes the correct docker command</li>
-</ul>
-
-
-<p>So for reference, or you want to start it by hand, here is the full command:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -d \
-</span><span class='line'>  -p 2375:2375
-</span><span class='line'>  --volume=/var/run/docker.sock:/var/run/docker.sock \
-</span><span class='line'>  --name=docker-http \
-</span><span class='line'>  sequenceiq/socat</span></code></pre></td></tr></table></div></figure>
-
 ]]></content>
   </entry>
   
