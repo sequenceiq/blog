@@ -130,6 +130,71 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2015/01/30/spark-with-cloudbreak/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">30 January 2015</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/apache-spark/"><span class="label label-warning">Apache Spark</span></a>
+            
+            <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2015/01/30/spark-with-cloudbreak/">Install Apache Spark with Cloudbreak</a>
+          <span class="badge name-badge">Oliver Szabo</span>
+
+      </h1>
+      <p>In the previous weeks many of you often asked us how to run our Apache Spark Docker <a href="https://github.com/sequenceiq/docker-spark">container</a> on a multi node cluster or how to install Spark and use it with <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>.
+Cloudbreak uses Ambari (1.7) blueprints to provision multi node HDP clusters (on different cloud providers: AWS, Google Cloud, Azure, Openstack &ndash; with Rackspace and HP Helion coming soon).</p>
+
+<p>In this post we&rsquo;d like to help you with installing Spark on <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> in a quick and easy way.</p>
+
+<p>First of all you will have to create a cluster using Cloudbreak on your favorite cloud provider &ndash; Google Cloud, AWS, Azure or Openstack (check this <a href="http://blog.sequenceiq.com/blog/2014/12/23/cloudbreak-on-hdp-2-dot-2/">post</a>) using a simple <code>multi-node-hdfs-yarn</code> blueprint. After your cluster is ready, you can install Apache Spark with the following steps:</p>
+
+<h3>Install from the cloud instance</h3>
+
+<p>First, you need to enter to one of your cloud instances. Then use the one-liner below:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -Lo .docker-spark-install j.mp/spark-hdp-docker-install && . .docker-spark-install</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After the file is downloaded it will be sourced, then you can use the following command:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>install-spark ambari-agent install</span></code></pre></td></tr></table></div></figure>
+
+
+
+      
+       <a href="/blog/2015/01/30/spark-with-cloudbreak/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2015/01/28/cloudbreak-last-beta/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -673,56 +738,6 @@ Now let&rsquo;s do the math:</p>
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/11/20/yarn-containers-and-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">20 November 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/yarn/"><span class="label label-warning">YARN</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/11/20/yarn-containers-and-docker/">YARN containers as Docker containers in Docker</a>
-          <span class="badge name-badge">Janos Matyas</span>
-
-      </h1>
-      <p>The new Hadoop 2.6 <a href="https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310240&amp;version=12327179">release</a> is almost here with an impressive set of new features and collaboration from the community &ndash; including <a href="http://sequenceiq.com">SequenceIQ</a> as well. It&rsquo;s not a new information that we use Docker quite a lot &ndash; and have <code>containerized</code> the full Hadoop ecosystem, and the <strong>2.6</strong> release will contain a new feature: <a href="https://issues.apache.org/jira/browse/YARN-1964">YARN-1964</a>.</p>
-
-<h2>YARN containers as .. Docker containers</h2>
-
-<p><a href="https://issues.apache.org/jira/browse/MAPREDUCE-279">Introduction</a> of YARN has revolutionized Hadoop &ndash; extending it with a new resource management, opening up Hadoop to different workloads, etc. &ndash; it&rsquo;s all history and we know it. With the emergence and wide adoption of Docker these days we are part of another <code>interesting</code> times again. Hadoop 2.6 will introduce (though in <code>alpha</code>) an analogy of YARN containers as Docker containers.</p>
-
-<p>Just to remember, a container is the resource allocation which is the successful result of the ResourceManager granting a specific ResourceRequest. A Container grants rights to an application to use a specific amount of resources (memory, cpu etc.) on a specific host, and isolates it from other containers. Sounds familiar &ndash; well, among few others this is what exactly Docker does &ndash; with the additional benefit of <code>packaging</code> and <code>shipping</code> applications the easy way.</p>
-
-
-      
-       <a href="/blog/2014/11/20/yarn-containers-and-docker/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -742,6 +757,10 @@ Now let&rsquo;s do the math:</p>
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2015/01/30/spark-with-cloudbreak/">Install Apache Spark with Cloudbreak</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2015/01/28/cloudbreak-last-beta/">Cloudbreak - new release available</a>

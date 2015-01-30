@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Apache Spark | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/apache-spark/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2015-01-29T12:35:46+00:00</updated>
+  <updated>2015-01-30T21:05:31+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,94 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Install Apache Spark with Cloudbreak]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2015/01/30/spark-with-cloudbreak/"/>
+    <updated>2015-01-30T12:04:22+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2015/01/30/spark-with-cloudbreak</id>
+    <content type="html"><![CDATA[<p>In the previous weeks many of you often asked us how to run our Apache Spark Docker <a href="https://github.com/sequenceiq/docker-spark">container</a> on a multi node cluster or how to install Spark and use it with <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>.
+Cloudbreak uses Ambari (1.7) blueprints to provision multi node HDP clusters (on different cloud providers: AWS, Google Cloud, Azure, Openstack &ndash; with Rackspace and HP Helion coming soon).</p>
+
+<p>In this post we&rsquo;d like to help you with installing Spark on <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> in a quick and easy way.</p>
+
+<p>First of all you will have to create a cluster using Cloudbreak on your favorite cloud provider &ndash; Google Cloud, AWS, Azure or Openstack (check this <a href="http://blog.sequenceiq.com/blog/2014/12/23/cloudbreak-on-hdp-2-dot-2/">post</a>) using a simple <code>multi-node-hdfs-yarn</code> blueprint. After your cluster is ready, you can install Apache Spark with the following steps:</p>
+
+<h3>Install from the cloud instance</h3>
+
+<p>First, you need to enter to one of your cloud instances. Then use the one-liner below:</p>
+
+<p><code>
+curl -Lo .docker-spark-install j.mp/spark-hdp-docker-install &amp;&amp; . .docker-spark-install
+</code></p>
+
+<p>After the file is downloaded it will be sourced, then you can use the following command:</p>
+
+<p><code>
+install-spark ambari-agent install
+</code></p>
+
+<!--more-->
+
+
+<p>Alternatively you can install it without uploading the Spark assembly <code>uberjar</code> using :</p>
+
+<p><code>
+install-spark ambari-agent install-local
+</code></p>
+
+<p>After it is done, enter into the ambari-agent container:</p>
+
+<p><code>
+docker exec -it ambari-agent bash
+</code></p>
+
+<p>Apache Spark will be installed at /usr/local/spark in the container. If you want to try it you need to configure a few environment variables such as YARN_CONF_DIR or SPARK_JAR (see the Install from container option)</p>
+
+<h3>Install from container</h3>
+
+<p>If you entered in one of your cloud instances, enter into the ambari-agent container: (same as you seen above):</p>
+
+<p><code>
+docker exec -it ambari-agent bash
+</code></p>
+
+<p>Inside the container use the following command:</p>
+
+<p><code>
+curl -Lo .spark-install j.mp/spark-hdp-install &amp;&amp; . .spark-install
+</code></p>
+
+<p>Then you can install spark with &ldquo;install-spark &lt;install/install-local>&rdquo; command:</p>
+
+<p><code>
+install-spark install
+</code></p>
+
+<p>With this approach you do not need to set up your environment variables. The script will do it for you.</p>
+
+<h2>Run examples</h2>
+
+<p><code>
+spark-submit --class org.apache.spark.examples.SparkPi    --master yarn-cluster  --num-executors 3 --driver-memory 512m  --executor-memory 512m  --executor-cores 1  /usr/local/spark/lib/spark-examples*.jar 10
+</code></p>
+
+<h2>Issues</h2>
+
+<ul>
+<li>You need to install Spark into every node (you can use it only on 1, but it is not the best approach).</li>
+<li>You do not want to enter docker container or even cloud instances to do things like this.</li>
+</ul>
+
+
+<p>As you see until Ambari will not fully support Spark installation with Blueprints this is not an ideal situation.</p>
+
+<p>Nevertheless we understood this and with the introduction of <strong>recipes</strong> in the latest Cloudbreak release we are going to publish a new Cloudbreal Spark recipe next week. In the meanwhile stay tuned as we are publishing a post early next week about the concept and architecture of <code>recipes</code>, how to use it and will publish a few custom ones (by request).</p>
+
+<p>Make sure you check back soon to our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
+on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Apache Spark 1.2.0 on Docker]]></title>

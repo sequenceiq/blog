@@ -130,6 +130,94 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/09/04/sql-on-hbase-with-apache-phoenix/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">04 September 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/apache-phoenix/"><span class="label label-warning">Apache Phoenix</span></a>
+            
+            <a href="/blog/categories/hbase/"><span class="label label-warning">HBase</span></a>
+            
+            <a href="/blog/categories/jooq/"><span class="label label-warning">Jooq</span></a>
+            
+            <a href="/blog/categories/sql/"><span class="label label-warning">SQL</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/09/04/sql-on-hbase-with-apache-phoenix/">SQL on HBase with Apache Phoenix</a>
+          <span class="badge name-badge">Krisztian Horvath</span>
+
+      </h1>
+      <p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we use HBase to store large amounts of high velocity data and interact with them &ndash; many times we use native HBase interfaces but recently there was a need (internal and external) to access the data through an SQL interface.</p>
+
+<h2>Introduction</h2>
+
+<p>HBase is an open-source, distributed, versioned, non-relational database modeled after Google&rsquo;s Bigtable. It&rsquo;s designed to handle
+billions of rows and millions of columns. However, using it as a relational database where you would store your data normalized,
+split into multiple tables is not easy and most likely you will struggle with it as you would do in any other non-relational database.
+Here comes <a href="http://phoenix.apache.org/">Apache Phoenix</a> in the picture. It&rsquo;s an SQL skin over HBase delivered as a
+client-embedded JDBC driver targeting low latency queries. The project is in incubating state and under heavy development, but you
+can already start embracing it.</p>
+
+<h2>Installation</h2>
+
+<p>Download the appropriate distribution from <a href="http://xenia.sote.hu/ftp/mirrors/www.apache.org/phoenix/">here</a>:</p>
+
+<ul>
+<li>Phoenix 3.x &ndash; HBase 0.94.x</li>
+<li>Phoenix 4.x &ndash; HBase 0.98.1+</li>
+</ul>
+
+
+<p><em>Note the compatibilities between the HBase and Phoenix versions</em></p>
+
+<p>Alternatively you can clone the <a href="https://github.com/apache/phoenix/tree/4.0">repository</a> and build it yourself (mvn clean install -DskipTests).
+It should produce a jar file like this: phoenix-<code>version</code>-client.jar. Copy it to HBase&rsquo;s classpath (easiest way is to copy into
+HBASE_HOME/lib). If you have multiple nodes it has to be there on every node. Restart the RegionServers and you are good to go. That&rsquo;s it?
+Yes!</p>
+
+<h2>Sample</h2>
+
+<p>We&rsquo;ve pre-cooked a <a href="https://github.com/sequenceiq/phoenix-docker">Docker</a> image for you so you can follow this sample and play with it (the image is based on Hadoop 2.5, HBase 0.98.5, Phoenix 4.1.0):</p>
+
+<h3>Normal launch</h3>
+
+<p><code>docker run -it sequenceiq/phoenix:v4.1onHbase-0.98.5</code></p>
+
+<h3>Alternative launch with sqlline</h3>
+
+<p><code>docker run -it sequenceiq/phoenix:v4.1onHbase-0.98.5 /etc/bootstrap-phoenix.sh -sqlline</code></p>
+
+
+      
+       <a href="/blog/2014/09/04/sql-on-hbase-with-apache-phoenix/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/09/01/sla-samples-periscope/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -835,75 +923,6 @@ So how are we doing this?</p>
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/07/31/spark-mllib/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">31 July 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/kmeans/"><span class="label label-warning">KMeans</span></a>
-            
-            <a href="/blog/categories/mllib/"><span class="label label-warning">MLlib</span></a>
-            
-            <a href="/blog/categories/spark/"><span class="label label-warning">Spark</span></a>
-            
-            <a href="/blog/categories/tez/"><span class="label label-warning">Tez</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/07/31/spark-mllib/">Apache Spark - MLlib Introduction</a>
-          <span class="badge name-badge">Oliver Szabo</span>
-
-      </h1>
-      <h3>Introduction</h3>
-
-<p>In one of our earlier posts we have mentioned that we use Scalding (among others) for writing MR jobs. Scala/Scalding simplifies the implementation of many MR patterns and makes it easy to implement quite complex jobs like machine learning algorithms. Map Reduce is a mature and widely used framework and it is a good choice for processing large amounts of data &ndash; but not as great if you’d like to use it for fast iterative algorithms/processing. This is a use case where <a href="https://spark.apache.org/">Apache Spark</a> can be quite handy. Spark is fit for these kind of algorithms, because it tries to keep everything in memory (in case of you run out of memory, you can switch to another <a href="http://spark.apache.org/docs/latest/programming-guide.html#rdd-persistence">storage levels</a>).</p>
-
-<h3>Apache Spark &ndash; MLlib library</h3>
-
-<p><a href="https://spark.apache.org/docs/latest/mllib-guide.html">MLlib</a> is a machine learning library which ships with Apache Spark, and can run on any Hadoop2/YARN cluster without any pre-installation. At SequenceIQ we use MLlib in Scala &ndash; but you could use it from Java and Python as well. Let us quickly show you an MLlib clustering algorithm with code examples.</p>
-
-<h3>KMeans example</h3>
-
-<p>K-Means (Lloyd&rsquo;s algorithm) is a simple NP-hard unsupervised learning algorithm that solve well known clustering problems. The essence of the algorithm is to separate your data into K cluster. In simple terms it needs 4 steps. First of all you have to vectorize your data. (you can do that with text values too). The code looks like this:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">val</span> <span class="n">data</span> <span class="k">=</span> <span class="n">context</span><span class="o">.</span><span class="n">textFile</span><span class="o">(</span><span class="n">input</span><span class="o">).</span><span class="n">map</span> <span class="o">{</span>
-</span><span class='line'>  <span class="n">line</span> <span class="k">=&gt;</span> <span class="nc">Vectors</span><span class="o">.</span><span class="n">dense</span><span class="o">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="sc">&#39;,&#39;</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">toDouble</span><span class="o">))</span>
-</span><span class='line'><span class="o">}.</span><span class="n">cache</span><span class="o">()</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-      
-       <a href="/blog/2014/07/31/spark-mllib/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -925,6 +944,10 @@ So how are we doing this?</p>
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2015/01/30/spark-with-cloudbreak/">Install Apache Spark with Cloudbreak</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2015/01/28/cloudbreak-last-beta/">Cloudbreak - new release available</a>

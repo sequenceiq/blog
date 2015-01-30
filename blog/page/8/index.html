@@ -130,6 +130,125 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/03/24/hoya-at-sequenceiq/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">24 March 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/hbase/"><span class="label label-warning">HBase</span></a>
+            
+            <a href="/blog/categories/hortonworks/"><span class="label label-warning">Hortonworks</span></a>
+            
+            <a href="/blog/categories/hoya/"><span class="label label-warning">Hoya</span></a>
+            
+            <a href="/blog/categories/yarn/"><span class="label label-warning">YARN</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/03/24/hoya-at-sequenceiq/">Using Hortonworks Hoya at SequenceIQ</a>
+          <span class="badge name-badge">Janos Matyas</span>
+
+      </h1>
+      <p>With this blog post we are starting a series of articles where we&rsquo;d like to describe how we use YARN, why it is central to our product stack and why we believe that Hortonworks Hoya will be a determining building block in the Hadoop ecosystem.</p>
+
+<p>While we don&rsquo;t want to get in details about <a href="http://hortonworks.com/hadoop/yarn/">YARN</a>, we&rsquo;d like to briefly explain the advantages of running an application on YARN, and introduce you to <a href="https://github.com/hortonworks/hoya">Hortonworks Hoya</a>.</p>
+
+<p>At SequenceIQ we are building a multi-tenant, scale on demand data platform, with unpredictable batch and streaming workloads.
+Before YARN we have tried different cluster management frameworks with Hadoop and managed to have pretty good results with <a href="http://aws.amazon.com/autoscaling/">Amazon EC2 Autoscaling groups</a>. Being true believers in open source and the need to diversify of provisioning Hadoop on different environments we needed to find an open source and &lsquo;standardised&rsquo; solution &ndash; welcome YARN.
+(for example we provision Hadoop on <a href="http://blog.sequenceiq.com/blog/2014/03/19/hadoop-2-dot-3-with-docker/">Docker</a>).</p>
+
+<p>YARN separates the processing engine from the resource management &ndash; and acting effectively as an OS for Hadoop.
+With YARN, you can now run multiple applications in Hadoop, all sharing a common resource management and improving cluster utilisation (we will release some metrics soon).
+YARN also provides the following features out of the box:</p>
+
+<ul>
+<li>Multi-tenancy</li>
+<li>Management and monitoring</li>
+<li>High availability</li>
+<li>Security</li>
+<li>Failover and recovery</li>
+</ul>
+
+
+<p>All of the above and the effort of the Hadoop community and the wide adoption convinced us to start implementing our platform to run on top of YARN.
+During our proof of concepts we went as far as starting all our non Hadoop (and not YARN compatible) applications on YARN &ndash; using <a href="https://github.com/hortonworks/hoya">Hoya</a>.</p>
+
+<p>Hoya was introduced by Hortonworks mid last year &ndash; with the purpose to create Apache HBase clusters on YARN (since than it supports Apache Accumulo as well).
+The code evolved pretty fast and now Hoya is a framework/application which allows you to deploy existing distributed applications on YARN &ndash; and benefit all the nice features of YARN.</p>
+
+<p>In order to support different applications Hoya has a plugin provider architecture (supported plugins are in the <em>org.apache.hoya.providers</em> package).
+Once a plugin is implemented (pretty straightforward, took us a few days only to understand and build a Flume and Tomcat plugin), the application is started in a YARN container and is monitored and controlled by YARN/Hoya.
+The clusters can be started, stopped, frozen and re-sized dynamically &ndash; and in case of container failures Hoya deploys a replacement.</p>
+
+<p>For a better architectural understanding of Hoya please read the following blog <a href="http://hortonworks.com/blog/hoya-hbase-on-yarn-application-architecture/">post</a>.</p>
+
+<p>In this first post we would like to help you to get familiar with the benefits offered by Hoya and start an HBase cluster, re-scale it dynamically, freeze and stop.
+First and foremost you will need an installation of Hadoop (2.3), the latest Hoya release (0.13.1) and HBase (0.98).
+For your convenience we have put together an automated install script which lets you start with Hoya in a few minutes.</p>
+
+<p>The script is available from our <a href="https://github.com/sequenceiq/hoya-docker/blob/master/hoya-centos-install.sh">GitHub page</a>. Also an official docker.io image is available at <a href="https://index.docker.io/u/sequenceiq/hoya-docker/">hoya-docker</a>, and the Dockerfile can be downloaded from our <a href="https://github.com/sequenceiq/hoya-docker">GitHub</a> page.</p>
+
+<p>Once Hadoop, HBase and Hoya are installed you can create an HBase cluster.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>create-hoya-cluster<span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>  hoya create hbase --role master 1 --role worker 1
+</span><span class='line'>    --manager localhost:8032
+</span><span class='line'>    --filesystem hdfs://localhost:9000 --image hdfs://localhost:9000/hbase.tar.gz
+</span><span class='line'>    --appconf file:///tmp/hoya-master/hoya-core/src/main/resources/org/apache/hoya/providers/hbase/conf
+</span><span class='line'>    --zkhosts localhost
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This will launch a 2 node HBase cluster (1 Master and 1 RegionServer). Now lets increase the number of RegionServers.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>flex-hoya-cluster<span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>  <span class="nv">num_of_workers</span><span class="o">=</span><span class="nv">$1</span>
+</span><span class='line'>  hoya flex hbase --role worker <span class="nv">$num_of_workers</span> --manager localhost:8032 --filesystem hdfs://localhost:9000
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+      
+       <a href="/blog/2014/03/24/hoya-at-sequenceiq/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/03/19/hadoop-2-dot-3-with-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -894,6 +1013,10 @@ SequenceIQ</p>
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2015/01/30/spark-with-cloudbreak/">Install Apache Spark with Cloudbreak</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2015/01/28/cloudbreak-last-beta/">Cloudbreak - new release available</a>

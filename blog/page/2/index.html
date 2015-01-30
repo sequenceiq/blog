@@ -130,6 +130,56 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/11/20/yarn-containers-and-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">20 November 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/yarn/"><span class="label label-warning">YARN</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/11/20/yarn-containers-and-docker/">YARN containers as Docker containers in Docker</a>
+          <span class="badge name-badge">Janos Matyas</span>
+
+      </h1>
+      <p>The new Hadoop 2.6 <a href="https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12310240&amp;version=12327179">release</a> is almost here with an impressive set of new features and collaboration from the community &ndash; including <a href="http://sequenceiq.com">SequenceIQ</a> as well. It&rsquo;s not a new information that we use Docker quite a lot &ndash; and have <code>containerized</code> the full Hadoop ecosystem, and the <strong>2.6</strong> release will contain a new feature: <a href="https://issues.apache.org/jira/browse/YARN-1964">YARN-1964</a>.</p>
+
+<h2>YARN containers as .. Docker containers</h2>
+
+<p><a href="https://issues.apache.org/jira/browse/MAPREDUCE-279">Introduction</a> of YARN has revolutionized Hadoop &ndash; extending it with a new resource management, opening up Hadoop to different workloads, etc. &ndash; it&rsquo;s all history and we know it. With the emergence and wide adoption of Docker these days we are part of another <code>interesting</code> times again. Hadoop 2.6 will introduce (though in <code>alpha</code>) an analogy of YARN containers as Docker containers.</p>
+
+<p>Just to remember, a container is the resource allocation which is the successful result of the ResourceManager granting a specific ResourceRequest. A Container grants rights to an application to use a specific amount of resources (memory, cpu etc.) on a specific host, and isolates it from other containers. Sounds familiar &ndash; well, among few others this is what exactly Docker does &ndash; with the additional benefit of <code>packaging</code> and <code>shipping</code> applications the easy way.</p>
+
+
+      
+       <a href="/blog/2014/11/20/yarn-containers-and-docker/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/11/17/datalake-cloudbreak-2/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -792,77 +842,6 @@ Cloudbreak shell is written in Java but let&rsquo;s see a basic <code>curl</code
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/10/20/cascading-on-tez/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">20 October 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/apache-tez/"><span class="label label-warning">Apache Tez</span></a>
-            
-            <a href="/blog/categories/cascading/"><span class="label label-warning">Cascading</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/10/20/cascading-on-tez/">Cascading on Apache Tez</a>
-          <span class="badge name-badge">Oliver Szabo</span>
-
-      </h1>
-      <p>In one of our previous <a href="http://blog.sequenceiq.com/blog/2014/09/23/topn-on-apache-tez/">posts</a> we showed how to do a TopK using directly the Apache Tez API. In this post we’d like to show how to do a similarly complex algorithm with Cascading &ndash; running on Apache Tez.
-At <a href="http://sequenceiq.com">SequenceIQ</a> we use Scalding, Cascading and Spark to write most of our jobs. For a while our big data pipeline API called <a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> offers a unified API over different runtimes: MR2, Spark and Tez; recently Cascading has announced support for Apache Tez and we’d like to show you that by writing a detailed example.</p>
-
-<h2>Cascading Application &ndash; GroupBy, Each, Every</h2>
-
-<p>Cascading data flows are to be constructed from Source taps (input), Sink taps (output) and Pipes.
-At first, we have to setup our properties for the Cascading flow.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="n">Properties</span> <span class="n">properties</span> <span class="o">=</span> <span class="n">AppProps</span><span class="o">.</span><span class="na">appProps</span><span class="o">()</span>
-</span><span class='line'>            <span class="o">.</span><span class="na">setJarClass</span><span class="o">(</span><span class="n">Main</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
-</span><span class='line'>            <span class="o">.</span><span class="na">buildProperties</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">properties</span> <span class="o">=</span> <span class="n">FlowRuntimeProps</span><span class="o">.</span><span class="na">flowRuntimeProps</span><span class="o">()</span>
-</span><span class='line'>            <span class="o">.</span><span class="na">setGatherPartitions</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span>
-</span><span class='line'>            <span class="o">.</span><span class="na">buildProperties</span><span class="o">(</span><span class="n">properties</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Then in order to use Apache Tez, setup the Tez specific <code>Flow Connector</code>.</p>
-
-
-      
-       <a href="/blog/2014/10/20/cascading-on-tez/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -884,6 +863,10 @@ At first, we have to setup our properties for the Cascading flow.</p>
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2015/01/30/spark-with-cloudbreak/">Install Apache Spark with Cloudbreak</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2015/01/28/cloudbreak-last-beta/">Cloudbreak - new release available</a>

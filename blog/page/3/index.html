@@ -130,6 +130,77 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/10/20/cascading-on-tez/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">20 October 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/apache-tez/"><span class="label label-warning">Apache Tez</span></a>
+            
+            <a href="/blog/categories/cascading/"><span class="label label-warning">Cascading</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/10/20/cascading-on-tez/">Cascading on Apache Tez</a>
+          <span class="badge name-badge">Oliver Szabo</span>
+
+      </h1>
+      <p>In one of our previous <a href="http://blog.sequenceiq.com/blog/2014/09/23/topn-on-apache-tez/">posts</a> we showed how to do a TopK using directly the Apache Tez API. In this post we’d like to show how to do a similarly complex algorithm with Cascading &ndash; running on Apache Tez.
+At <a href="http://sequenceiq.com">SequenceIQ</a> we use Scalding, Cascading and Spark to write most of our jobs. For a while our big data pipeline API called <a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> offers a unified API over different runtimes: MR2, Spark and Tez; recently Cascading has announced support for Apache Tez and we’d like to show you that by writing a detailed example.</p>
+
+<h2>Cascading Application &ndash; GroupBy, Each, Every</h2>
+
+<p>Cascading data flows are to be constructed from Source taps (input), Sink taps (output) and Pipes.
+At first, we have to setup our properties for the Cascading flow.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="n">Properties</span> <span class="n">properties</span> <span class="o">=</span> <span class="n">AppProps</span><span class="o">.</span><span class="na">appProps</span><span class="o">()</span>
+</span><span class='line'>            <span class="o">.</span><span class="na">setJarClass</span><span class="o">(</span><span class="n">Main</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+</span><span class='line'>            <span class="o">.</span><span class="na">buildProperties</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">properties</span> <span class="o">=</span> <span class="n">FlowRuntimeProps</span><span class="o">.</span><span class="na">flowRuntimeProps</span><span class="o">()</span>
+</span><span class='line'>            <span class="o">.</span><span class="na">setGatherPartitions</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span>
+</span><span class='line'>            <span class="o">.</span><span class="na">buildProperties</span><span class="o">(</span><span class="n">properties</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then in order to use Apache Tez, setup the Tez specific <code>Flow Connector</code>.</p>
+
+
+      
+       <a href="/blog/2014/10/20/cascading-on-tez/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/10/17/boot2docker-tls-workaround/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -776,55 +847,6 @@ the complexity of these tasks grow proportionally. This happens here at Sequence
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/09/25/euroventures-invests-in-sequenceiq/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">25 September 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/euroventures/"><span class="label label-warning">Euroventures</span></a>
-            
-            <a href="/blog/categories/press-release/"><span class="label label-warning">Press release</span></a>
-            
-            <a href="/blog/categories/sequenceiq/"><span class="label label-warning">SequenceIQ</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/09/25/euroventures-invests-in-sequenceiq/">Euroventures invests in SequenceIQ</a>
-          <span class="badge name-badge">Janos Matyas</span>
-
-      </h1>
-      <p>We are happy to announce that Euroventures has invested in SequenceIQ. Euroventure&rsquo;s investment is intended to foster the company&rsquo;s growth in terms of staffing, technology stack and expansion into the U.S. market.</p>
-
-<p>Euroventures&#8217; press release is available <a href="http://www.euroventures.hu/news.php?id=296">here</a>.</p>
-
-      
-      
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -846,6 +868,10 @@ the complexity of these tasks grow proportionally. This happens here at Sequence
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2015/01/30/spark-with-cloudbreak/">Install Apache Spark with Cloudbreak</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2015/01/28/cloudbreak-last-beta/">Cloudbreak - new release available</a>

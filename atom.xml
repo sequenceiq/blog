@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2015-01-29T12:35:46+00:00</updated>
+  <updated>2015-01-30T21:05:31+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,94 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Install Apache Spark with Cloudbreak]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2015/01/30/spark-with-cloudbreak/"/>
+    <updated>2015-01-30T12:04:22+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2015/01/30/spark-with-cloudbreak</id>
+    <content type="html"><![CDATA[<p>In the previous weeks many of you often asked us how to run our Apache Spark Docker <a href="https://github.com/sequenceiq/docker-spark">container</a> on a multi node cluster or how to install Spark and use it with <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>.
+Cloudbreak uses Ambari (1.7) blueprints to provision multi node HDP clusters (on different cloud providers: AWS, Google Cloud, Azure, Openstack &ndash; with Rackspace and HP Helion coming soon).</p>
+
+<p>In this post we&rsquo;d like to help you with installing Spark on <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> in a quick and easy way.</p>
+
+<p>First of all you will have to create a cluster using Cloudbreak on your favorite cloud provider &ndash; Google Cloud, AWS, Azure or Openstack (check this <a href="http://blog.sequenceiq.com/blog/2014/12/23/cloudbreak-on-hdp-2-dot-2/">post</a>) using a simple <code>multi-node-hdfs-yarn</code> blueprint. After your cluster is ready, you can install Apache Spark with the following steps:</p>
+
+<h3>Install from the cloud instance</h3>
+
+<p>First, you need to enter to one of your cloud instances. Then use the one-liner below:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -Lo .docker-spark-install j.mp/spark-hdp-docker-install && . .docker-spark-install</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After the file is downloaded it will be sourced, then you can use the following command:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>install-spark ambari-agent install</span></code></pre></td></tr></table></div></figure>
+
+
+<!--more-->
+
+
+<p>Alternatively you can install it without uploading the Spark assembly <code>uberjar</code> using :</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>install-spark ambari-agent install-local</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After it is done, enter into the ambari-agent container:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker exec -it ambari-agent bash</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Apache Spark will be installed at /usr/local/spark in the container. If you want to try it you need to configure a few environment variables such as YARN_CONF_DIR or SPARK_JAR (see the Install from container option)</p>
+
+<h3>Install from container</h3>
+
+<p>If you entered in one of your cloud instances, enter into the ambari-agent container: (same as you seen above):</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker exec -it ambari-agent bash</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Inside the container use the following command:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -Lo .spark-install j.mp/spark-hdp-install && . .spark-install</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then you can install spark with &ldquo;install-spark &lt;install/install-local>&rdquo; command:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>install-spark install</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With this approach you do not need to set up your environment variables. The script will do it for you.</p>
+
+<h2>Run examples</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>spark-submit --class org.apache.spark.examples.SparkPi    --master yarn-cluster  --num-executors 3 --driver-memory 512m  --executor-memory 512m  --executor-cores 1  /usr/local/spark/lib/spark-examples*.jar 10</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Issues</h2>
+
+<ul>
+<li>You need to install Spark into every node (you can use it only on 1, but it is not the best approach).</li>
+<li>You do not want to enter docker container or even cloud instances to do things like this.</li>
+</ul>
+
+
+<p>As you see until Ambari will not fully support Spark installation with Blueprints this is not an ideal situation.</p>
+
+<p>Nevertheless we understood this and with the introduction of <strong>recipes</strong> in the latest Cloudbreak release we are going to publish a new Cloudbreal Spark recipe next week. In the meanwhile stay tuned as we are publishing a post early next week about the concept and architecture of <code>recipes</code>, how to use it and will publish a few custom ones (by request).</p>
+
+<p>Make sure you check back soon to our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
+on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Cloudbreak - new release available]]></title>
@@ -2764,135 +2852,6 @@ As for the supported Hadoop distribution we provision <strong>Apache Hadoop and 
 
 
 <p>In order to help you get on going with Spark on YARN read our previous blog post about how to <a href="http://blog.sequenceiq.com/blog/2014/08/22/spark-submit-in-java/">submit a Spark</a> job into a cluster.</p>
-
-<p>If you have any questions or suggestions you can reach us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Cascading on Apache Tez]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/10/20/cascading-on-tez/"/>
-    <updated>2014-10-20T16:00:00+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/10/20/cascading-on-tez</id>
-    <content type="html"><![CDATA[<p>In one of our previous <a href="http://blog.sequenceiq.com/blog/2014/09/23/topn-on-apache-tez/">posts</a> we showed how to do a TopK using directly the Apache Tez API. In this post we’d like to show how to do a similarly complex algorithm with Cascading &ndash; running on Apache Tez.
-At <a href="http://sequenceiq.com">SequenceIQ</a> we use Scalding, Cascading and Spark to write most of our jobs. For a while our big data pipeline API called <a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> offers a unified API over different runtimes: MR2, Spark and Tez; recently Cascading has announced support for Apache Tez and we’d like to show you that by writing a detailed example.</p>
-
-<h2>Cascading Application &ndash; GroupBy, Each, Every</h2>
-
-<p>Cascading data flows are to be constructed from Source taps (input), Sink taps (output) and Pipes.
-At first, we have to setup our properties for the Cascading flow.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="n">Properties</span> <span class="n">properties</span> <span class="o">=</span> <span class="n">AppProps</span><span class="o">.</span><span class="na">appProps</span><span class="o">()</span>
-</span><span class='line'>            <span class="o">.</span><span class="na">setJarClass</span><span class="o">(</span><span class="n">Main</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
-</span><span class='line'>            <span class="o">.</span><span class="na">buildProperties</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">properties</span> <span class="o">=</span> <span class="n">FlowRuntimeProps</span><span class="o">.</span><span class="na">flowRuntimeProps</span><span class="o">()</span>
-</span><span class='line'>            <span class="o">.</span><span class="na">setGatherPartitions</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span>
-</span><span class='line'>            <span class="o">.</span><span class="na">buildProperties</span><span class="o">(</span><span class="n">properties</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Then in order to use Apache Tez, setup the Tez specific <code>Flow Connector</code>.</p>
-
-<!-- more -->
-
-
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">FlowConnector</span> <span class="n">flowConnector</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Hadoop2TezFlowConnector</span><span class="o">(</span><span class="n">properties</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>After that we do the algorithm part of the flow. We need an input and output which comes as command-line arguments.
-We are going to work on CSV files for the sake of simplicity, so we will use the <code>TextDelimited</code> scheme. Also we need to define our input pipe and taps (<code>source/sink</code>).
-Suppose that we want to count the occurrences of users and keep them only if they occur more than once. We can compute this with 2 <a href="http://docs.cascading.org/cascading/2.5/userguide/html/ch03s03.html#N205A3">GroupBy</a>, 1 <a href="http://docs.cascading.org/cascading/2.5/userguide/html/ch03s03.html#N20438">Every</a> and 1 <a href="http://docs.cascading.org/cascading/2.5/userguide/html/ch03s03.html#N20438">Each</a> operation.
-First, we group by user ids (count them with every operation), then in the second grouping we need to sort on the whole data set (by <code>count</code>) and use the <a href="http://docs.cascading.org/cascading/2.5/javadoc/cascading/operation/Filter.html">Filter</a> operation to remove the unneeded lines. (here we grouping by <code>Fields.NONE</code>, that means we take all data into 1 group, in other words we force to use 1 reducer)</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="kd">final</span> <span class="n">String</span> <span class="n">inputPath</span> <span class="o">=</span> <span class="n">args</span><span class="o">[</span><span class="mi">0</span><span class="o">];</span>
-</span><span class='line'>    <span class="kd">final</span> <span class="n">String</span> <span class="n">outputPath</span> <span class="o">=</span> <span class="n">args</span><span class="o">[</span><span class="mi">1</span><span class="o">];</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kd">final</span> <span class="n">Fields</span> <span class="n">fields</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;userId&quot;</span><span class="o">,</span> <span class="s">&quot;data1&quot;</span><span class="o">,</span> <span class="s">&quot;data2&quot;</span><span class="o">,</span> <span class="s">&quot;data3&quot;</span><span class="o">);</span>
-</span><span class='line'>    <span class="kd">final</span> <span class="n">Scheme</span> <span class="n">scheme</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TextDelimited</span><span class="o">(</span><span class="n">fields</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="s">&quot;,&quot;</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kd">final</span> <span class="n">Pipe</span> <span class="n">inPipe</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Pipe</span><span class="o">(</span><span class="s">&quot;inPipe&quot;</span><span class="o">);</span>
-</span><span class='line'>    <span class="kd">final</span> <span class="n">Tap</span> <span class="n">inTap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Hfs</span><span class="o">(</span><span class="n">scheme</span><span class="o">,</span> <span class="n">inputPath</span><span class="o">);</span>
-</span><span class='line'>    <span class="kd">final</span> <span class="n">Fields</span> <span class="n">groupFields</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;userId&quot;</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">Pipe</span> <span class="n">usersPipe</span> <span class="o">=</span> <span class="k">new</span> <span class="n">GroupBy</span><span class="o">(</span><span class="s">&quot;usersWithCount&quot;</span><span class="o">,</span> <span class="n">inPipe</span><span class="o">,</span> <span class="n">groupFields</span><span class="o">);</span>
-</span><span class='line'>    <span class="n">usersPipe</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Every</span><span class="o">(</span><span class="n">usersPipe</span><span class="o">,</span> <span class="n">groupFields</span><span class="o">,</span> <span class="k">new</span> <span class="n">Count</span><span class="o">(),</span> <span class="n">Fields</span><span class="o">.</span><span class="na">ALL</span><span class="o">);</span>
-</span><span class='line'>    <span class="n">usersPipe</span> <span class="o">=</span> <span class="k">new</span> <span class="n">GroupBy</span><span class="o">(</span><span class="n">usersPipe</span><span class="o">,</span> <span class="n">Fields</span><span class="o">.</span><span class="na">NONE</span><span class="o">,</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;count&quot;</span><span class="o">,</span> <span class="s">&quot;userId&quot;</span><span class="o">),</span> <span class="kc">true</span><span class="o">);</span>
-</span><span class='line'>    <span class="n">usersPipe</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Each</span><span class="o">(</span><span class="n">usersPipe</span><span class="o">,</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;count&quot;</span><span class="o">),</span> <span class="k">new</span> <span class="n">RegexFilter</span><span class="o">(</span> <span class="s">&quot;^(?:[2-9]|(?:[1-9][0-9]+))&quot;</span> <span class="o">));</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kd">final</span> <span class="n">Fields</span> <span class="n">resultFields</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Fields</span><span class="o">(</span><span class="s">&quot;userId&quot;</span><span class="o">,</span> <span class="s">&quot;count&quot;</span><span class="o">);</span>
-</span><span class='line'>    <span class="kd">final</span> <span class="n">Scheme</span> <span class="n">outputScheme</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TextDelimited</span><span class="o">(</span><span class="n">resultFields</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="kc">true</span><span class="o">,</span> <span class="s">&quot;,&quot;</span><span class="o">);</span>
-</span><span class='line'>    <span class="n">Tap</span> <span class="n">sinkTap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Hfs</span><span class="o">(</span><span class="n">outputScheme</span><span class="o">,</span> <span class="n">outputPath</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Finally, setup the flow:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="n">FlowDef</span> <span class="n">flowDef</span> <span class="o">=</span> <span class="n">FlowDef</span><span class="o">.</span><span class="na">flowDef</span><span class="o">()</span>
-</span><span class='line'>            <span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">&quot;Cascading-TEZ&quot;</span><span class="o">)</span>
-</span><span class='line'>            <span class="o">.</span><span class="na">addSource</span><span class="o">(</span><span class="n">inPipe</span><span class="o">,</span> <span class="n">inTap</span><span class="o">)</span>
-</span><span class='line'>            <span class="o">.</span><span class="na">addTailSink</span><span class="o">(</span><span class="n">usersPipe</span><span class="o">,</span> <span class="n">sinkTap</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">Flow</span> <span class="n">flow</span> <span class="o">=</span> <span class="n">flowConnector</span><span class="o">.</span><span class="na">connect</span><span class="o">(</span><span class="n">flowDef</span><span class="o">);</span>
-</span><span class='line'>    <span class="n">flow</span><span class="o">.</span><span class="na">complete</span><span class="o">();</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>As you can see the codebase is a bit simpler than using directly the Apache Tez API, however you loose the low level features of the expressive data flow API. Basically it&rsquo;s up to the personal preference of a developer whether to use and build directly on top of the Tez API or use Cascading (we have our own internal debate among colleagues) &ndash; as Apache Tez improves the performance by multiple times.</p>
-
-<p>Get the code from our GitHub repository <a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub examples</a> and build the project inside the <code>cascading-tez-sample</code> directory:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>./gradlew clean build
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Once your jar is ready upload it onto a Tez cluster and run the following command:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>hadoop jar cascading-tez-sample-1.0.jar /input /output
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Sample data can be generated in the same way as in <a href="http://blog.sequenceiq.com/blog/2014/09/23/topn-on-apache-tez">this</a> example.</p>
-
-<p>We have put together a Tez enabled Docker container, you can get it from <a href="https://github.com/sequenceiq/docker-tez">here</a>. Pull the container, and follow the instructions.</p>
 
 <p>If you have any questions or suggestions you can reach us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>

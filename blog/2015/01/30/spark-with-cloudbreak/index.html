@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: Registry - SequenceIQ Blog</title>
+  <title>Install Apache Spark with Cloudbreak - SequenceIQ Blog</title>
   <meta name="author" content="SequenceIQ">
 
    
-  <meta name="description" content="Category: Registry">
+  <meta name="description" content="">
   
   <meta name="keywords" content="">
 
@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.sequenceiq.comblog/categories/registry">
+  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2015/01/30/spark-with-cloudbreak">
   <link href="/favicon.png" rel="icon">
   <link href='http://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
@@ -117,131 +117,187 @@
               <div class="col-md-9" id="">
                   <div class="">
                    <!-- <div id="content">-->
-                      <article role="article">
+                      <div>
+
+<div class="container-fluid">
+     <div class="row">
+       
+         
+       
+       
+
+       
+         
+       
+       <h1 class="article-style"> Install Apache Spark with Cloudbreak
+
+       <span class="badge name-badge">Oliver Szabo</span>
+       <span class="badge name-badge">30 January 2015</span>
+       </h1>
+
+
+
+</div>
+</div>
+<article class="hentry" role="article">
   
- <!-- <header>
+
+
+  <div class="row-fluid">
+    <div class="span12">
+      <p>In the previous weeks many of you often asked us how to run our Apache Spark Docker <a href="https://github.com/sequenceiq/docker-spark">container</a> on a multi node cluster or how to install Spark and use it with <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>.
+Cloudbreak uses Ambari (1.7) blueprints to provision multi node HDP clusters (on different cloud providers: AWS, Google Cloud, Azure, Openstack &ndash; with Rackspace and HP Helion coming soon).</p>
+
+<p>In this post we&rsquo;d like to help you with installing Spark on <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> in a quick and easy way.</p>
+
+<p>First of all you will have to create a cluster using Cloudbreak on your favorite cloud provider &ndash; Google Cloud, AWS, Azure or Openstack (check this <a href="http://blog.sequenceiq.com/blog/2014/12/23/cloudbreak-on-hdp-2-dot-2/">post</a>) using a simple <code>multi-node-hdfs-yarn</code> blueprint. After your cluster is ready, you can install Apache Spark with the following steps:</p>
+
+<h3>Install from the cloud instance</h3>
+
+<p>First, you need to enter to one of your cloud instances. Then use the one-liner below:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -Lo .docker-spark-install j.mp/spark-hdp-docker-install && . .docker-spark-install</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After the file is downloaded it will be sourced, then you can use the following command:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>install-spark ambari-agent install</span></code></pre></td></tr></table></div></figure>
+
+
+<!--more-->
+
+
+<p>Alternatively you can install it without uploading the Spark assembly <code>uberjar</code> using :</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>install-spark ambari-agent install-local</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After it is done, enter into the ambari-agent container:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker exec -it ambari-agent bash</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Apache Spark will be installed at /usr/local/spark in the container. If you want to try it you need to configure a few environment variables such as YARN_CONF_DIR or SPARK_JAR (see the Install from container option)</p>
+
+<h3>Install from container</h3>
+
+<p>If you entered in one of your cloud instances, enter into the ambari-agent container: (same as you seen above):</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker exec -it ambari-agent bash</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Inside the container use the following command:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -Lo .spark-install j.mp/spark-hdp-install && . .spark-install</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then you can install spark with &ldquo;install-spark &lt;install/install-local>&rdquo; command:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>install-spark install</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With this approach you do not need to set up your environment variables. The script will do it for you.</p>
+
+<h2>Run examples</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>spark-submit --class org.apache.spark.examples.SparkPi    --master yarn-cluster  --num-executors 3 --driver-memory 512m  --executor-memory 512m  --executor-cores 1  /usr/local/spark/lib/spark-examples*.jar 10</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Issues</h2>
+
+<ul>
+<li>You need to install Spark into every node (you can use it only on 1, but it is not the best approach).</li>
+<li>You do not want to enter docker container or even cloud instances to do things like this.</li>
+</ul>
+
+
+<p>As you see until Ambari will not fully support Spark installation with Blueprints this is not an ideal situation.</p>
+
+<p>Nevertheless we understood this and with the introduction of <strong>recipes</strong> in the latest Cloudbreak release we are going to publish a new Cloudbreal Spark recipe next week. In the meanwhile stay tuned as we are publishing a post early next week about the concept and architecture of <code>recipes</code>, how to use it and will publish a few custom ones (by request).</p>
+
+<p>Make sure you check back soon to our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
+on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
+
+    </div>
+  </div>
+
+
+
+  <footer>
+    <hr>
+    
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Oliver Szabo</span></span>
 
     
-  </header>-->
+    <div class="row">
+      
+      <div class="col-md-6 span6">
+        <p class="meta">
+        
+        
+
+
+
+  <a href="/blog/categories/apache-spark/"><span class="label label-warning">Apache Spark</span></a>
+
+  <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
+
+
+
+
+        </p>
+      </div>
+      
+      <div class="col-md-5 social-sharing pull-right">
+        <div class="sharing">
+  <div class="addthis_toolbox addthis_default_style ">
   
-  <div id="blog-archives" class="category">
-
+  <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
   
-  <div class="row">
-    <div class="col-md-1">
-  	
-  	
-  	  
-  	    <h2>2014</h2>
-  	
-    </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-09-15T18:07:18+00:00" pubdate><span class='month'>Sep</span> <span class='day'>15</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/09/15/hadoop-2-5-1-docker/">Apache Hadoop 2.5.1 on Docker</a></h1>
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
-
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/apache/'>Apache</a>, <a class='category' href='/blog/categories/docker/'>Docker</a>, <a class='category' href='/blog/categories/hadoop/'>Hadoop</a>, <a class='category' href='/blog/categories/registry/'>Registry</a>, <a class='category' href='/blog/categories/ubuntu/'>Ubuntu</a></span>
-		</footer>
-		
-	</div>
-</div>
-
-
-  	</article>
-    </div>
+  
+  <a class="addthis_button_tweet"></a>
+  
+  
+  <a class="addthis_counter addthis_pill_style"></a>
   </div>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid="></script>
+</div>
 
-  
-  <div class="row">
-    <div class="col-md-1">
-  	
-  	
+      </div>
+      
+      
     </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-08-18T18:07:18+00:00" pubdate><span class='month'>Aug</span> <span class='day'>18</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/08/18/hadoop-2-5-0-docker/">Apache Hadoop 2.5.0 on Docker</a></h1>
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
-
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/apache/'>Apache</a>, <a class='category' href='/blog/categories/docker/'>Docker</a>, <a class='category' href='/blog/categories/hadoop/'>Hadoop</a>, <a class='category' href='/blog/categories/registry/'>Registry</a></span>
-		</footer>
-		
-	</div>
-</div>
-
-
-  	</article>
+    
+    <div class="row">
+      <div class="span12">
+        <p class="meta">
+          
+            <a class="basic-alignment left" href="/blog/2015/01/28/cloudbreak-last-beta/" title="Previous Post: Cloudbreak - new release available">&laquo; Cloudbreak - new release available</a>
+          
+          
+        </p>
+      </div>
     </div>
-  </div>
-
-  
-  <div class="row">
-    <div class="col-md-1">
-  	
-  	
-    </div>
-    <div class="col-md-11">
-      <article>
-  	
-<div class="row">
-	<div class="col-md-2">
-		<h1 class="date-time"><time datetime="2014-06-25T18:07:18+00:00" pubdate><span class='month'>Jun</span> <span class='day'>25</span><span class='year'><!--2014--></span></time></h1>
-	</div>
-	<div class="col-md-10">
-		<h1 class="article-style"><a href="/blog/2014/06/25/hadoop-2-4-0-docker/">Apache Hadoop 2.4.1 on Docker</a></h1>
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-md-2">
-	</div>
-	<div class="col-md-10">
-		
-
-		<footer class="archive">
-		  <span class="categories">posted in <a class='category' href='/blog/categories/apache/'>Apache</a>, <a class='category' href='/blog/categories/docker/'>Docker</a>, <a class='category' href='/blog/categories/hadoop/'>Hadoop</a>, <a class='category' href='/blog/categories/registry/'>Registry</a></span>
-		</footer>
-		
-	</div>
-</div>
-
-
-  	</article>
-    </div>
-  </div>
-
-</div>
-
+  </footer>
 </article>
 
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
+</div>
 
 
                     <!--</div>-->
@@ -629,7 +685,10 @@
       var disqus_shortname = 'sequenceiqblog';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2015/01/30/spark-with-cloudbreak/';
+        var disqus_url = 'http://blog.sequenceiq.com/blog/2015/01/30/spark-with-cloudbreak/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
