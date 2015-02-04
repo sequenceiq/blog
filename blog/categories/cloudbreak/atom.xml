@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Cloudbreak | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/cloudbreak/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2015-01-30T21:05:31+00:00</updated>
+  <updated>2015-02-02T18:07:58+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,98 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Cluster extensions with Cloudbreak recipes]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2015/02/02/cluster-extensions-with-cloudbreak-recipes/"/>
+    <updated>2015-02-02T14:59:18+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2015/02/02/cluster-extensions-with-cloudbreak-recipes</id>
+    <content type="html"><![CDATA[<p>With the help of <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> it is very easy to provision Hadoop clusters in the cloud from an Apache Ambari <a href="https://cwiki.apache.org/confluence/display/AMBARI/Blueprints">blueprint</a>. That&rsquo;s cool but it is often needed to make some additional changes on the nodes, like putting a JAR file on the Hadoop classpath or run some custom scripts. To help with these kind of situations we are introducing the concept of Cloudbreak <code>recipes</code>. Recipes are basically script extensions to a cluster that run on a set of nodes before or after the Ambari cluster installation.</p>
+
+<h2>How does it work?</h2>
+
+<p>Since the latest release, Cloudbreak uses <a href="https://consul.io">Consul</a> for cluster membership instead of Serf so we can make use of Consul’s other features, namely <code>events</code> and the <code>key-value</code> store. It won’t be detailed here how these features of Consul work, a whole post about Consul based clusters is coming soon. Recipes are using one more additional thing: the small <a href="https://github.com/progrium/plugn">plugn</a> project.</p>
+
+<p>The main concept behind this is the following: before the cluster install is started, a <code>recipe-pre-install</code> Consul event is sent to the cluster that triggers the <code>recipe-pre-install</code> hook of the enabled plugins, therefore executing the plugins' <code>recipe-pre-install</code> script. After the cluster installation is finished the same happens but with the <code>recipe-post-install</code> event and hook. The key-value store is used to signal plugin success or failure &ndash; after the plugins finished execution on a node, a new Consul key is added in the format <code>/events/&lt;event-id&gt;/&lt;node-hostname&gt;</code> that contains the exit status. Cloudbreak is able to check the key-value store if the recipe finished successfully or not.</p>
+
+<!-- more -->
+
+
+<h2>Register plugins for a cluster install</h2>
+
+<p>We cannot predict all the custom use cases that can come up when installing a Hadoop cluster in the cloud, so we were focusing on making this feature easily extendable. We had to find a solution that enables someone to write their own script that will be run by Cloudbreak later. That&rsquo;s where the <em>plugn</em> project comes handy. With a simple <code>plugn install</code> command, a new plugin can be installed from <em>Github</em> so we only need to make one plugin available by default on every node &ndash; the <a href="https://github.com/sequenceiq/consul-plugins-install">one</a> that can install other plugins from a Github source. The other plugins are installed as the first step of a Cloudbreak cluster setup. This uses the same mechanism to trigger this plugin &ndash; it sends <code>plugin-install</code> events to Consul’s HTTP interface with the plugin source and name passed as parameters in the Consul event’s payload.</p>
+
+<h3>Creating a plugin</h3>
+
+<p>We’ve created an <a href="https://github.com/sequenceiq/consul-plugins-gcs-connector">example plugin</a> that downloads the <a href="https://cloud.google.com/hadoop/google-cloud-storage-connector">Google Cloud Storage connector for Hadoop</a> and puts it on the Hadoop classpath. As you can see a plugin is quite simple &ndash; it consists of a <code>.toml</code> descriptor, and the hook scripts. In the example only the <code>recipe-pre-install</code> hook is implemented, there is nothing to do after the cluster installation is done. Make sure that the hook scripts are executable when pushing them to Github.</p>
+
+<h3>Adding properties to plugins</h3>
+
+<p>Properties can be passed to plugins by using environment variables, but we use Consul&rsquo;s key-value store for that purpose instead. The GCS connector mentioned above needs a few more things to work besides the JAR on the classpath. To be able to authenticate to the Google Cloud Platform the connector also needs a private key in <code>p12</code> format. We have a <a href="https://github.com/sequenceiq/consul-plugins-gcp-p12">plugin</a> that does exactly this &ndash; it reads a <em>base64</em> encoded private key file located under the <code>recipes.gcp-p12.p12-encoded</code> key in the key-value store (using <code>curl</code> and some environment variables containing Consul’s HTTP address) and saves it in a local folder on the node.</p>
+
+<h2>Putting things together</h2>
+
+<p>We already know how to write plugins, how to get properties from the key-value store inside a plugin and how these things are triggered from Cloudbreak, but the key piece is missing: how do we tell <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> which plugins to install on our cluster and which properties to use. With the latest release a new resource is available on the API, the <em>recipe</em>. To create a new recipe make a <code>POST</code> to the <code>account/recipes</code> endpoint like this one:</p>
+
+<p>```
+{
+  &ldquo;name&rdquo;: &ldquo;gcp-extension&rdquo;,
+  &ldquo;description&rdquo;: &ldquo;sets up Google Cloud Storage connector on an Ambari cluster&rdquo;,
+  &ldquo;properties&rdquo;: {</p>
+
+<pre><code>"recipes.gcp-p12.p12-encoded": "&lt;base64-encoded-p12-file&gt;"
+</code></pre>
+
+<p>  },
+  &ldquo;plugins&rdquo;: [</p>
+
+<pre><code>"https://github.com/sequenceiq/consul-plugins-gcs-connector.git",
+"https://github.com/sequenceiq/consul-plugins-gcp-p12.git"
+</code></pre>
+
+<p>  ]
+}
+```</p>
+
+<p>To make sure that only trusted plugins are used in Cloudbreak, there is a validation on the source URL &ndash; plugins must come from configurable trusted Github accounts. It can be useful if you deploy your own <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> and want to make sure that only verified scripts can be executed in a cluster. Our hosted solution is configured to accept all Github accounts as trusted, so you can experiment with this feature more easily. After the recipe is created, the API answers with the ID of the created resource, so it can be used to create a cluster. The <code>recipeId</code> field is optional, and no scripts are executed if it is missing from the cluster <code>POST</code> request.</p>
+
+<p><code>
+{
+  "name": "recipe-cluster",
+  "blueprintId": 1400,
+  "recipeId": 3744,
+  "description": "Demonstrates the recipe feature"
+}
+</code></p>
+
+<p>The recipes are not yet available on the Cloudbreak UI, if you’d like to try it out without hacking <code>curl</code> requests with proper authentication then I suggest to try the <a href="https://github.com/sequenceiq/cloudbreak-shell">Cloudbreak Shell</a>. The requests above correspond to the following shell commands (assuming that the above recipe description is saved in <code>/tmp/test-recipe.json</code> and the cluster infrastructure &ndash; the stack &ndash; is already created):</p>
+
+<p><code>
+recipe add --file /tmp/test-recipe.json
+recipe select --id &lt;recipe-id&gt;
+blueprint select --id &lt;blueprint-id&gt;
+</code></p>
+
+<p>```</p>
+
+<p>cluster create &mdash;description &ldquo;Demonstrates the recipe feature&rdquo;
+```</p>
+
+<h2>Future improvements</h2>
+
+<p>This feature is <em>just a preview</em> in its current state, there are a few important parts that are missing. The most important one is that the plugins are currently installed and executed in all of the <code>ambari-agent</code> containers, but there are scenarios where it is not needed or not good at all. Consider the case where you’d like to add a JAR to HDFS &ndash; it should be run on only one of the nodes. It is also possible that a script should be executed only on a set of nodes, typically the nodes in a <code>hostgroup</code>. This means that the API will probably change in the next few weeks, but then we’ll update our blog too.</p>
+
+<p>There are a few more things that you can expect to be implemented in the long run:</p>
+
+<ul>
+<li>install plugins from private sources too along public Github repositories</li>
+<li>validate required properties when creating a new recipe</li>
+</ul>
+
+
+<p>If you have any comments, questions or feature requests about this topic, feel free to create an issue on Cloudbreak’s <a href="https://github.com/sequenceiq/cloudbreak/issues">Github page</a> or use the comments section below.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Install Apache Spark with Cloudbreak]]></title>
@@ -616,145 +708,6 @@ do
 nohup /test.sh &amp;
 done
 ```</p>
-
-<p>Make sure you check back soon to our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
-on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Building the data lake in the cloud - Part2]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/11/17/datalake-cloudbreak-2/"/>
-    <updated>2014-11-17T13:56:32+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/11/17/datalake-cloudbreak-2</id>
-    <content type="html"><![CDATA[<p>Few weeks ago we had a <a href="http://blog.sequenceiq.com/blog/2014/10/28/datalake-cloudbreak/">post</a> about building a <code>data lake</code> in the cloud using a cloud based <code>object storage</code> as the primary file system.
-In this post we&rsquo;d like to move forward and show you how to create an <code>always on</code> persistent datalake with <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> and create <code>ephemeral</code> clusters which can be scaled up and down based on configured SLA policies using <a href="http://sequenceiq.com/periscope/">Periscope</a>.</p>
-
-<p>Just as a quick reminder &ndash; both are open source projects under Apache2 license and the documentation and code is available following these links below.</p>
-
-<table>
-<thead>
-<tr>
-<th></th>
-<th> Name                  </th>
-<th> Description </th>
-<th> Documentation </th>
-<th> GitHub</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td> Cloudbreak         </td>
-<td> Cloud agnostic Hadoop as a Service </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/</a> </td>
-<td> <a href="https://github.com/sequenceiq/cloudbreak">https://github.com/sequenceiq/cloudbreak</a></td>
-</tr>
-<tr>
-<td></td>
-<td> Periscope          </td>
-<td> SLA policy based autoscaling for Hadoop clusters </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/</a> </td>
-<td> <a href="https://github.com/sequenceiq/periscope">https://github.com/sequenceiq/periscope</a></td>
-</tr>
-</tbody>
-</table>
-
-
-<h2>Sample architecture</h2>
-
-<p>For the sample use case we will create a <code>datalake</code> on <strong>AWS</strong> and <strong>Google Cloud</strong> as well &ndash; and use the most popular data warehouse software with an SQL interface &ndash; <a href="https://hive.apache.org/">Apache Hive</a>.</p>
-
-<!--more-->
-
-
-<p>From Hive perspective (simplified) while building the <code>datalake</code> there are tree main components:</p>
-
-<ul>
-<li>Hive warehouse &ndash; the location where the raw data is stored. Usually it&rsquo;s HDFS, in our case it&rsquo;s the <code>object store</code> &ndash; <strong>Amazon S3</strong> or <strong>Google Cloud Storage</strong></li>
-<li>Hive metastore service &ndash; the Hive metastore service stores the metadata for Hive tables and partitions in a relational database &ndash; aka: <strong>metastore DB</strong>, and provides clients (including Hive) access to this information</li>
-<li>Metastore database &ndash; a database implementation where the metastore information is stored and the local/remote metastore services talk to, over a JDBC interface</li>
-</ul>
-
-
-<p>The proposed sample architecture is shown on the diagram below &ndash; we have a <strong>permanent</strong> cluster which contains the <code>metastore database</code> and a local <code>metastore service</code>, an <strong>ephemeral</strong> cluster where the <code>metastore service</code> talks to a remote <code>metastore database</code> and the Hive <code>warehouse</code> with the data being stored in the cloud provider&rsquo;s <code>object store</code>.</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/blog-test/source/source/images/hive-metastore/hive-permanent-ephemeral.jpg" alt="" /></p>
-
-<p>Setting up a an architecture as such can be pretty complicated and involves a few steps &ndash; where many things could go wrong.</p>
-
-<p>At <a href="http://sequenceiq.com">SequenceIQ</a> we try to automate all these steps and build into our product stack &ndash; and we did exactly the same with <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a>. While a default Hive metastore cluster can be created in a fully automated manner using Cloudbreak <code>blueprints</code> in case of different cloud providers (remember we support AWS, Google Cloud and Azure, Open Stack in the pipeline) there are settings which you will need to apply on each nodes, reconfigure services, etc &ndash; and on a large cluster this is pretty awkward.
-Because of these in the next release of Cloudbreak we introduce a new concept called <strong>recipes</strong>. A recipe will embed a full architectural representation of the Hadoop stack &ndash; incorporating all the necessary settings, service configurations &ndash; and allows the end user to bring up clusters as the one(s) discussed in this blog &ndash; with a push of a button, API call or CLI interface.</p>
-
-<h2>Permanent cluster &ndash; on AWS and Google Cloud</h2>
-
-<p>Both Amazon EC2 and Google Cloud allows you to set up a permanent cluster and use their <code>object store</code> for the Hive warehouse. You can set up these clusters with <a href="http://cloudbreak.sequenceiq.com">Cloudbreak</a> &ndash; overriding the default configurations in the blueprints.</p>
-
-<h4>Using AWS S3 as the Hive warehouse</h4>
-
-<p>This setup will use the S3 Block FileSystem &ndash; as a quick note you need to remember that this is not interoperable with other S3 tools.</p>
-
-<p>```</p>
-
-<pre><code>{
-  "core-site": {
-    "fs.s3.awsAccessKeyId": "YOUR ACCESS KEY",
-    "fs.s3.awsSecretAccessKey": "YOUR SECRET KEY"
-  }
-},
-{
-  "hive-site": {
-    "hive.metastore.warehouse.dir": "s3://siq-hadoop/apps/hive/warehouse"
-  }
-}
-</code></pre>
-
-<p>```</p>
-
-<p>You will need to create an S3 <code>bucket</code> first &ndash; <code>siq-hadoop</code> in our example &ndash; that will contain the Hive warehouse. After the cluster is up you can start using Hive as usual. When you create a table its metadata will be stored in the MySQL database configured in the blueprint and if you load data in it, it will be moved to the warehouse location on S3. Note that in order to use the <code>LOAD DATA INPATH</code> hive command the source and target directories must be located on the same filesystem, so a file in local HDFS cannot be used.</p>
-
-<h4>Using Google Storage as the Hive warehouse</h4>
-
-<p>This setup will use the Google Storage &ndash; and the GS to HDFS connector.</p>
-
-<p>```</p>
-
-<pre><code>  "global": {
-    "fs.gs.impl": "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem",
-    "fs.AbstractFileSystem.gs.impl": "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS",
-    "fs.gs.project.id": "siq-haas",
-    "google.cloud.auth.service.account.enable": true,
-    "google.cloud.auth.service.account.email": "YOUR_ACCOUNT_ID@developer.gserviceaccount.com",
-    "google.cloud.auth.service.account.keyfile": "/mnt/fs1/&lt;PRIVATE_KEY_FILE&gt;.p12"
-  }
-</code></pre>
-
-<p>```</p>
-
-<p>Note that in case of Google being used as an object store you will need to add your account details and the path towards your P12 file. You&rsquo;ll also have to copy the connector JAR to the classpath and the p12 file to every node as mentioned in our previous <a href="http://blog.sequenceiq.com/blog/2014/10/28/datalake-cloudbreak/">post</a>.</p>
-
-<h2>Ephemeral cluster &ndash; on AWS and Google Cloud</h2>
-
-<p>Ephemeral Hive clusters are using a very similar configuration: they also have to reach the object store as HDFS so the corresponding configurations must be there in the blueprint. The only <a href="http://docs.hortonworks.com/HDPDocuments/HDP1/HDP-1.2.2/bk_installing_manually_book/content/rpm-chap6-3.html">additional parameters</a> needed are the ones that configure how the metastore service of the ephemeral cluster will reach the Hive <code>metastore DB</code> in the permanent cluster. Note: on the permanent cluster you will have to configure the <code>metastore DB</code> to allow connections from remote clusters.</p>
-
-<p>```</p>
-
-<pre><code>{
-  "hive-site": {
-    "hive.metastore.warehouse.dir": "s3://siq-hadoop/apps/hive/warehouse",
-    "javax.jdo.option.ConnectionURL": "jdbc:mysql://$mysql.full.hostname:3306/$database.name?createDatabaseIfNotExist=true",
-    "javax.jdo.option.ConnectionDriverName": "com.mysql.jdbc.Driver",
-    "javax.jdo.option.ConnectionUserName": "dbusername",
-    "javax.jdo.option.ConnectionPassword": "dbpassword"
-  }
-}
-</code></pre>
-
-<p>```</p>
-
-<h2>Conclusion</h2>
-
-<p>As highlighted in this example, building a data lake or data warehouse is pretty simple and can be automated with <a href="http://cloudbreak.sequenceiq.com">Cloudbreak</a> &ndash; also with the new <code>recipe</code> feature we are standardizing the provisioning of different Hadoop clusters. One of the coming posts will highlight the new architectural changes &ndash; and the components we use for service discovery/registry, failure detection, key/value store for dynamic configuration, feature flagging, coordination, leader election and more.</p>
 
 <p>Make sure you check back soon to our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
 on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>

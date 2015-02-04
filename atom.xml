@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2015-01-30T21:05:31+00:00</updated>
+  <updated>2015-02-02T18:07:58+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,112 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Cluster extensions with Cloudbreak recipes]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2015/02/02/cluster-extensions-with-cloudbreak-recipes/"/>
+    <updated>2015-02-02T14:59:18+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2015/02/02/cluster-extensions-with-cloudbreak-recipes</id>
+    <content type="html"><![CDATA[<p>With the help of <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> it is very easy to provision Hadoop clusters in the cloud from an Apache Ambari <a href="https://cwiki.apache.org/confluence/display/AMBARI/Blueprints">blueprint</a>. That&rsquo;s cool but it is often needed to make some additional changes on the nodes, like putting a JAR file on the Hadoop classpath or run some custom scripts. To help with these kind of situations we are introducing the concept of Cloudbreak <code>recipes</code>. Recipes are basically script extensions to a cluster that run on a set of nodes before or after the Ambari cluster installation.</p>
+
+<h2>How does it work?</h2>
+
+<p>Since the latest release, Cloudbreak uses <a href="https://consul.io">Consul</a> for cluster membership instead of Serf so we can make use of Consul’s other features, namely <code>events</code> and the <code>key-value</code> store. It won’t be detailed here how these features of Consul work, a whole post about Consul based clusters is coming soon. Recipes are using one more additional thing: the small <a href="https://github.com/progrium/plugn">plugn</a> project.</p>
+
+<p>The main concept behind this is the following: before the cluster install is started, a <code>recipe-pre-install</code> Consul event is sent to the cluster that triggers the <code>recipe-pre-install</code> hook of the enabled plugins, therefore executing the plugins&#8217; <code>recipe-pre-install</code> script. After the cluster installation is finished the same happens but with the <code>recipe-post-install</code> event and hook. The key-value store is used to signal plugin success or failure &ndash; after the plugins finished execution on a node, a new Consul key is added in the format <code>/events/&lt;event-id&gt;/&lt;node-hostname&gt;</code> that contains the exit status. Cloudbreak is able to check the key-value store if the recipe finished successfully or not.</p>
+
+<!-- more -->
+
+
+<h2>Register plugins for a cluster install</h2>
+
+<p>We cannot predict all the custom use cases that can come up when installing a Hadoop cluster in the cloud, so we were focusing on making this feature easily extendable. We had to find a solution that enables someone to write their own script that will be run by Cloudbreak later. That&rsquo;s where the <em>plugn</em> project comes handy. With a simple <code>plugn install</code> command, a new plugin can be installed from <em>Github</em> so we only need to make one plugin available by default on every node &ndash; the <a href="https://github.com/sequenceiq/consul-plugins-install">one</a> that can install other plugins from a Github source. The other plugins are installed as the first step of a Cloudbreak cluster setup. This uses the same mechanism to trigger this plugin &ndash; it sends <code>plugin-install</code> events to Consul’s HTTP interface with the plugin source and name passed as parameters in the Consul event’s payload.</p>
+
+<h3>Creating a plugin</h3>
+
+<p>We’ve created an <a href="https://github.com/sequenceiq/consul-plugins-gcs-connector">example plugin</a> that downloads the <a href="https://cloud.google.com/hadoop/google-cloud-storage-connector">Google Cloud Storage connector for Hadoop</a> and puts it on the Hadoop classpath. As you can see a plugin is quite simple &ndash; it consists of a <code>.toml</code> descriptor, and the hook scripts. In the example only the <code>recipe-pre-install</code> hook is implemented, there is nothing to do after the cluster installation is done. Make sure that the hook scripts are executable when pushing them to Github.</p>
+
+<h3>Adding properties to plugins</h3>
+
+<p>Properties can be passed to plugins by using environment variables, but we use Consul&rsquo;s key-value store for that purpose instead. The GCS connector mentioned above needs a few more things to work besides the JAR on the classpath. To be able to authenticate to the Google Cloud Platform the connector also needs a private key in <code>p12</code> format. We have a <a href="https://github.com/sequenceiq/consul-plugins-gcp-p12">plugin</a> that does exactly this &ndash; it reads a <em>base64</em> encoded private key file located under the <code>recipes.gcp-p12.p12-encoded</code> key in the key-value store (using <code>curl</code> and some environment variables containing Consul’s HTTP address) and saves it in a local folder on the node.</p>
+
+<h2>Putting things together</h2>
+
+<p>We already know how to write plugins, how to get properties from the key-value store inside a plugin and how these things are triggered from Cloudbreak, but the key piece is missing: how do we tell <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> which plugins to install on our cluster and which properties to use. With the latest release a new resource is available on the API, the <em>recipe</em>. To create a new recipe make a <code>POST</code> to the <code>account/recipes</code> endpoint like this one:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>{
+</span><span class='line'>  "name": "gcp-extension",
+</span><span class='line'>  "description": "sets up Google Cloud Storage connector on an Ambari cluster",
+</span><span class='line'>  "properties": {
+</span><span class='line'>    "recipes.gcp-p12.p12-encoded": "&lt;base64-encoded-p12-file&gt;"
+</span><span class='line'>  },
+</span><span class='line'>  "plugins": [
+</span><span class='line'>    "https://github.com/sequenceiq/consul-plugins-gcs-connector.git",
+</span><span class='line'>    "https://github.com/sequenceiq/consul-plugins-gcp-p12.git"
+</span><span class='line'>  ]
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To make sure that only trusted plugins are used in Cloudbreak, there is a validation on the source URL &ndash; plugins must come from configurable trusted Github accounts. It can be useful if you deploy your own <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> and want to make sure that only verified scripts can be executed in a cluster. Our hosted solution is configured to accept all Github accounts as trusted, so you can experiment with this feature more easily. After the recipe is created, the API answers with the ID of the created resource, so it can be used to create a cluster. The <code>recipeId</code> field is optional, and no scripts are executed if it is missing from the cluster <code>POST</code> request.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>{
+</span><span class='line'>  "name": "recipe-cluster",
+</span><span class='line'>  "blueprintId": 1400,
+</span><span class='line'>  "recipeId": 3744,
+</span><span class='line'>  "description": "Demonstrates the recipe feature"
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The recipes are not yet available on the Cloudbreak UI, if you’d like to try it out without hacking <code>curl</code> requests with proper authentication then I suggest to try the <a href="https://github.com/sequenceiq/cloudbreak-shell">Cloudbreak Shell</a>. The requests above correspond to the following shell commands (assuming that the above recipe description is saved in <code>/tmp/test-recipe.json</code> and the cluster infrastructure &ndash; the stack &ndash; is already created):</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>recipe add --file /tmp/test-recipe.json
+</span><span class='line'>recipe select --id &lt;recipe-id&gt;
+</span><span class='line'>blueprint select --id &lt;blueprint-id&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>cluster create --description "Demonstrates the recipe feature"</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Future improvements</h2>
+
+<p>This feature is <em>just a preview</em> in its current state, there are a few important parts that are missing. The most important one is that the plugins are currently installed and executed in all of the <code>ambari-agent</code> containers, but there are scenarios where it is not needed or not good at all. Consider the case where you’d like to add a JAR to HDFS &ndash; it should be run on only one of the nodes. It is also possible that a script should be executed only on a set of nodes, typically the nodes in a <code>hostgroup</code>. This means that the API will probably change in the next few weeks, but then we’ll update our blog too.</p>
+
+<p>There are a few more things that you can expect to be implemented in the long run:</p>
+
+<ul>
+<li>install plugins from private sources too along public Github repositories</li>
+<li>validate required properties when creating a new recipe</li>
+</ul>
+
+
+<p>If you have any comments, questions or feature requests about this topic, feel free to create an issue on Cloudbreak’s <a href="https://github.com/sequenceiq/cloudbreak/issues">Github page</a> or use the comments section below.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Install Apache Spark with Cloudbreak]]></title>
@@ -2789,71 +2895,6 @@ As for the supported Hadoop distribution we provision <strong>Apache Hadoop and 
 
 <p>For updates follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or
 <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Apache Spark RDD operation examples]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/10/23/spark-operations-overview/"/>
-    <updated>2014-10-23T14:00:00+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/10/23/spark-operations-overview</id>
-    <content type="html"><![CDATA[<p>Recently we blogged about how you can write simple Apache Spark jobs and how to test them. Now we&rsquo;d like to introduce all basic RDD operations with easy examples (our goal is to come up with examples as simply as possible). The Spark <a href="http://spark.apache.org/docs/latest/programming-guide.html#rdd-operations">documentation</a> explains well what each operations is doing in detail. We made tests for most of the RDD operations with good ol&#8217; <code>TestNG</code>. e.g.:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='scala'><span class='line'> <span class="nd">@Test</span>
-</span><span class='line'>  <span class="k">def</span> <span class="n">testRightOuterJoin</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">val</span> <span class="n">input1</span> <span class="k">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">makeRDD</span><span class="o">(</span><span class="nc">Seq</span><span class="o">((</span><span class="mi">1</span><span class="o">,</span> <span class="mi">4</span><span class="o">)))</span>
-</span><span class='line'>    <span class="k">val</span> <span class="n">input2</span> <span class="k">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">makeRDD</span><span class="o">(</span><span class="nc">Seq</span><span class="o">((</span><span class="mi">1</span><span class="o">,</span> <span class="sc">&#39;1&#39;</span><span class="o">),</span> <span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="sc">&#39;2&#39;</span><span class="o">)))</span>
-</span><span class='line'>    <span class="k">val</span> <span class="n">expectedOutput</span> <span class="k">=</span> <span class="nc">Array</span><span class="o">((</span><span class="mi">1</span><span class="o">,</span> <span class="o">(</span><span class="nc">Some</span><span class="o">(</span><span class="mi">4</span><span class="o">),</span> <span class="sc">&#39;1&#39;</span><span class="o">)),</span> <span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="o">(</span><span class="nc">None</span><span class="o">,</span> <span class="sc">&#39;2&#39;</span><span class="o">)))</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">val</span> <span class="n">output</span> <span class="k">=</span> <span class="n">input1</span><span class="o">.</span><span class="n">rightOuterJoin</span><span class="o">(</span><span class="n">input2</span><span class="o">)</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="nc">Assert</span><span class="o">.</span><span class="n">assertEquals</span><span class="o">(</span><span class="n">output</span><span class="o">.</span><span class="n">collect</span><span class="o">(),</span> <span class="n">expectedOutput</span><span class="o">)</span>
-</span><span class='line'>  <span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<!-- more -->
-
-
-<h2>Sample</h2>
-
-<p>Get the code from our GitHub repository <a href="https://github.com/sequenceiq/sequenceiq-samples">GitHub examples</a> and build the project inside the <code>spark-samples</code> directory. For running the examples, you do not need any pre-installed Hadoop/Spark clusters or anything else.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>git clone https://github.com/sequenceiq/sequenceiq-samples.git
-</span><span class='line'><span class="nb">cd </span>sequenceiq-samples/spark-samples/
-</span><span class='line'>./gradlew clean build
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>All the other RDD operations are covered in the example (makes no sense listing them here).</p>
-
-<h2>Spark on YARN</h2>
-
-<p>Should you want to run your Spark code on a YARN cluster you have several options.</p>
-
-<ul>
-<li>Use our Spark Docker <a href="https://github.com/sequenceiq/docker-spark">container</a></li>
-<li>Use our multi-node Hadoop <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">cluster</a></li>
-<li>Use <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> to provision a YARN cluster on your favorite cloud provider</li>
-</ul>
-
-
-<p>In order to help you get on going with Spark on YARN read our previous blog post about how to <a href="http://blog.sequenceiq.com/blog/2014/08/22/spark-submit-in-java/">submit a Spark</a> job into a cluster.</p>
-
-<p>If you have any questions or suggestions you can reach us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
 ]]></content>
   </entry>
   

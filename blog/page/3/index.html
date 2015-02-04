@@ -130,6 +130,75 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/10/23/spark-operations-overview/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">23 October 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/spark/"><span class="label label-warning">Spark</span></a>
+            
+            <a href="/blog/categories/yarn/"><span class="label label-warning">YARN</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/10/23/spark-operations-overview/">Apache Spark RDD operation examples</a>
+          <span class="badge name-badge">Oliver Szabo</span>
+
+      </h1>
+      <p>Recently we blogged about how you can write simple Apache Spark jobs and how to test them. Now we&rsquo;d like to introduce all basic RDD operations with easy examples (our goal is to come up with examples as simply as possible). The Spark <a href="http://spark.apache.org/docs/latest/programming-guide.html#rdd-operations">documentation</a> explains well what each operations is doing in detail. We made tests for most of the RDD operations with good ol&#8217; <code>TestNG</code>. e.g.:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'> <span class="nd">@Test</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">testRightOuterJoin</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">input1</span> <span class="k">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">makeRDD</span><span class="o">(</span><span class="nc">Seq</span><span class="o">((</span><span class="mi">1</span><span class="o">,</span> <span class="mi">4</span><span class="o">)))</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">input2</span> <span class="k">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">makeRDD</span><span class="o">(</span><span class="nc">Seq</span><span class="o">((</span><span class="mi">1</span><span class="o">,</span> <span class="sc">&#39;1&#39;</span><span class="o">),</span> <span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="sc">&#39;2&#39;</span><span class="o">)))</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">expectedOutput</span> <span class="k">=</span> <span class="nc">Array</span><span class="o">((</span><span class="mi">1</span><span class="o">,</span> <span class="o">(</span><span class="nc">Some</span><span class="o">(</span><span class="mi">4</span><span class="o">),</span> <span class="sc">&#39;1&#39;</span><span class="o">)),</span> <span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="o">(</span><span class="nc">None</span><span class="o">,</span> <span class="sc">&#39;2&#39;</span><span class="o">)))</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">val</span> <span class="n">output</span> <span class="k">=</span> <span class="n">input1</span><span class="o">.</span><span class="n">rightOuterJoin</span><span class="o">(</span><span class="n">input2</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nc">Assert</span><span class="o">.</span><span class="n">assertEquals</span><span class="o">(</span><span class="n">output</span><span class="o">.</span><span class="n">collect</span><span class="o">(),</span> <span class="n">expectedOutput</span><span class="o">)</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+      
+       <a href="/blog/2014/10/23/spark-operations-overview/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/10/20/cascading-on-tez/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -794,59 +863,6 @@ the complexity of these tasks grow proportionally. This happens here at Sequence
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/09/25/strata-hadoop-world-2014/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">25 September 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/hadoop-world/"><span class="label label-warning">Hadoop World</span></a>
-            
-            <a href="/blog/categories/startup/"><span class="label label-warning">Startup</span></a>
-            
-            <a href="/blog/categories/strata/"><span class="label label-warning">Strata</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/09/25/strata-hadoop-world-2014/">Strata + Hadoop World 2014 Startup Showcase</a>
-          <span class="badge name-badge">Janos Matyas</span>
-
-      </h1>
-      <p><a href="http://sequenceiq.com">SequenceIQ</a> is happy to announce that it has been selected among the top 10 leading big data startups by a team of investors, entrepreneurs, and industry analysts and will present live at the Startup Showcase at <strong>Strata + Hadoop World 2014, New York.</strong></p>
-
-<p>We will have a space in the showcase to win over the judges, and pitch our company and innovative technology to the thousands of developers, founders, executives, investors and researchers that attend <a href="http://strataconf.com/stratany2014">Strata</a>.</p>
-
-<p>Come and watch our showcase on Wednesday, October 15 or catch up with us during the conference (@sequenceiq).</p>
-
-<p>Stay in touch with us through <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-
-      
-      
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -868,6 +884,10 @@ the complexity of these tasks grow proportionally. This happens here at Sequence
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2015/02/02/cluster-extensions-with-cloudbreak-recipes/">Cluster extensions with Cloudbreak recipes</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2015/01/30/spark-with-cloudbreak/">Install Apache Spark with Cloudbreak</a>

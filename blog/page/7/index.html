@@ -130,6 +130,89 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/06/23/scalding-correlation-example/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">23 June 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/correlation/"><span class="label label-warning">Correlation</span></a>
+            
+            <a href="/blog/categories/hbase/"><span class="label label-warning">HBase</span></a>
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+            <a href="/blog/categories/scala/"><span class="label label-warning">Scala</span></a>
+            
+            <a href="/blog/categories/scalding/"><span class="label label-warning">Scalding</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/06/23/scalding-correlation-example/">Pearson correlation with Scalding</a>
+          <span class="badge name-badge">Oliver Szabo</span>
+
+      </h1>
+      <h2>Introduction</h2>
+
+<p>At SequenceIQ we are processing data in batch and streaming &ndash; for both we use Scala as our prefered language; for batch processing in particular we use Scalding to build our job and data pipelines. Actually there is <code>Babylon</code> at SequenceIQ as we use Java, Scala, Go, R, Groovy, Ansible, shell, JavaScript and what not &ndash; follow up with us for a post talking about the language heterogeneity.</p>
+
+<p>Scalding is a powerful tool and great choice to simplify the writing and abstracting MapReduce jobs &ndash; an open source project originally developed by Twitter and recently the community.
+In the following detailed example we&rsquo;d like show you an example of how to write and test Scalding jobs, running on Hadoop.</p>
+
+<h2>Writing a Pearson correlation job</h2>
+
+<p>In this example, we&rsquo;d like to calculate a Pearson&rsquo;s product-moment coefficient on 2 columns of a given <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/scalding-correlation/data">input</a>.
+This is a simple computation and the easiest way to find any dependency between two datasets.
+First of all we need all the parameters for the given <a href="http://www.statisticshowto.com/what-is-the-correlation-coefficient-formula/">formula</a>.
+In Scala the code would look like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='scala'><span class='line'><span class="k">trait</span> <span class="nc">CorrelationOp</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">def</span> <span class="n">calculateCorrelation</span><span class="o">(</span><span class="n">size</span><span class="k">:</span> <span class="kt">Long</span><span class="o">,</span> <span class="n">su1</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">su2</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">sq1</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">sq2</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">dotProd</span><span class="k">:</span> <span class="kt">Double</span><span class="o">)</span> <span class="k">:</span> <span class="kt">Double</span> <span class="o">=</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">dividend</span> <span class="k">=</span> <span class="o">(</span><span class="n">size</span> <span class="o">*</span> <span class="n">dotProd</span><span class="o">)</span> <span class="o">-</span> <span class="o">(</span><span class="n">su1</span> <span class="o">*</span> <span class="n">su2</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">val</span> <span class="n">divisor</span> <span class="k">=</span> <span class="n">scala</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="o">(</span><span class="n">size</span> <span class="o">*</span> <span class="n">sq1</span> <span class="o">-</span> <span class="n">su1</span> <span class="o">*</span> <span class="n">su1</span><span class="o">)</span> <span class="o">*</span> <span class="n">scala</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="o">(</span><span class="n">size</span> <span class="o">*</span> <span class="n">sq2</span> <span class="o">-</span> <span class="n">su2</span> <span class="o">*</span> <span class="n">su2</span><span class="o">)</span>
+</span><span class='line'>    <span class="n">dividend</span> <span class="o">/</span> <span class="n">divisor</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+
+      
+       <a href="/blog/2014/06/23/scalding-correlation-example/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -824,70 +907,6 @@ Initialize <em>(boot2docker init)</em> and start <em>(boot2docker up)</em> and y
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/03/31/mahout-on-tez/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">31 March 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/hortonworks/"><span class="label label-warning">Hortonworks</span></a>
-            
-            <a href="/blog/categories/mahout/"><span class="label label-warning">Mahout</span></a>
-            
-            <a href="/blog/categories/tez/"><span class="label label-warning">Tez</span></a>
-            
-            <a href="/blog/categories/yarn/"><span class="label label-warning">YARN</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/03/31/mahout-on-tez/">Using Mahout with Tez</a>
-          <span class="badge name-badge">Marton Sereg</span>
-
-      </h1>
-      <p>At SequenceIQ we are always open to the latest innovations in Hadoop, and trying to find a way to offer a better performance and cluster utilization to our customers. We came in close touch with the <a href="http://hortonworks.com/labs/stinger/">Stinger initiative</a> last year at the Hadoop Summit in Amsterdam &ndash; and ever since we have followed up with the project progress (latest <a href="http://hortonworks.com/blog/apache-tez-0-3-released/">release</a> is 0.3). The project was initiated by Hortonworks with the goal of a 100x performance improvement of Hive.
-Although Hive is not part of our product stack (we use other ways for SQL on Hadoop), there is one particular key component of the Stinger initiative which was very interesting to us: <a href="https://github.com/apache/incubator-tez">Apache Tez</a>.</p>
-
-<p><a href="http://incubator.apache.org/projects/tez.html">Apache Tez</a> is a new application framework built on top of Hadoop Yarn that can execute complex directed acyclic graphs (DAGs) of general data processing tasks. In many ways it can be thought of as a more flexible and powerful successor of the map-reduce framework. This was exactly what draw our attention and made us start thinking about using Tez as our runtime for map-reduce jobs.</p>
-
-<h2>Tez and MapReduce</h2>
-
-<p>At SequenceIQ we have chains of map-reduce jobs which are scheduled individually and read the output of previous jobs from HBase or HDFS. Many times our map-reduce job flow can be represented as a map-reduce-reduce pattern, however building complex job chains with the current map-reduce framework is not that easy (nor saves on performance) &ndash; we combined the ChainMapper/ChainReducer and IdentityMapper trying to build MRR like DAG job flows.</p>
-
-<p>In Tez data coming from reducers&#8217; output can be pipelined together and eliminates IO/sync barriers, as no temporary HDFS write is required. Jobs can also be chained and represented as MRR steps with no restriction.
-In MapReduce disregarding the data size, the shuffle (internal step between the map and reducer) phase writes the sorted partitions to disk, merge-sorts them and feed into the reducers. All these steps are done <em>in memory</em> with Tez and saves on this I/O heavy step, avoiding unnecessary temporary writes and reads.</p>
-
-<h2>Tez and Mahout</h2>
-
-<p>Part of our system is running machine learning algorithms in batch, using Mahout (we do ML on streaming data using Scala, MLlib and Apache Spark as well). To improve the runtime performance of these Mahout algorithms, and decrease the cluster execution time we started to experiment with combining Tez and Mahout, and rewrite a few Mahout drivers in order to build DAGs of MR jobs (MRR in particular where applicable) and submit the jobs in a Tez runtime on a YARN cluster.</p>
-
-
-      
-       <a href="/blog/2014/03/31/mahout-on-tez/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -909,6 +928,10 @@ In MapReduce disregarding the data size, the shuffle (internal step between the 
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2015/02/02/cluster-extensions-with-cloudbreak-recipes/">Cluster extensions with Cloudbreak recipes</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2015/01/30/spark-with-cloudbreak/">Install Apache Spark with Cloudbreak</a>

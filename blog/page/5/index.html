@@ -130,6 +130,70 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/09/05/apache-ambari-1-7-0-ea/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">05 September 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/apache-ambari/"><span class="label label-warning">Apache Ambari</span></a>
+            
+            <a href="/blog/categories/early-access/"><span class="label label-warning">Early access</span></a>
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+            <a href="/blog/categories/provisioning/"><span class="label label-warning">Provisioning</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/09/05/apache-ambari-1-7-0-ea/">Apache Ambari 1.7.0 early access</a>
+          <span class="badge name-badge">Janos Matyas</span>
+
+      </h1>
+      <p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we use <a href="http://ambari.apache.org/">Apache Ambari</a> every day &ndash; it’s our tool to provision Hadoop clusters.</p>
+
+<p>Beside that we are contributors to Ambari, we are so excited about the coming Apache Ambari 1.7.0 new <a href="https://cwiki.apache.org/confluence/pages/viewpage.action?pageId=30755705">features</a> that we could not help and put together an <strong>early access</strong> <a href="https://github.com/sequenceiq/docker-ambari/tree/1.7.0-ea">Ambari 1.7.0 Docker container</a>.</p>
+
+<p>Give it a try, and provision an arbitrary number of Hadoop cluster on your laptop (or production environment), using our container and Ambari shell. Let us know how it works for you. Enjoy.</p>
+
+<h3>Get the Docker container</h3>
+
+<p>In case you don’t have Docker browse among our previous posts &ndash; we have a few posts about howto’s, examples and best practices in general for Docker and in particular about how to run the full Hadoop stack on Docker.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/ambari:1.7.0-ea</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+
+      
+       <a href="/blog/2014/09/05/apache-ambari-1-7-0-ea/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/09/04/sql-on-hbase-with-apache-phoenix/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -859,70 +923,6 @@ For the demonstration we are using VMs on <a href="https://www.virtualbox.org/">
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/08/04/launch-docker-containers-on-azure/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">04 August 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/azure/"><span class="label label-warning">Azure</span></a>
-            
-            <a href="/blog/categories/cloud/"><span class="label label-warning">Cloud</span></a>
-            
-            <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
-            
-            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
-            
-            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
-            
-            <a href="/blog/categories/hadoop-as-a-service/"><span class="label label-warning">Hadoop as a Service</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/08/04/launch-docker-containers-on-azure/">Launch Docker containers on Azure</a>
-          <span class="badge name-badge">Richard Doktorics</span>
-
-      </h1>
-      <p>Two weeks ago we have open sourced our cloud agnostic and Docker based Hadoop as a Service API &ndash; called <a href="http://sequenceiq.com/cloudbreak">Cloudbreak</a>.
-The first public beta version supports Amazon’s AWS and Microsoft’s Azure, while we are already wrapping up a few new cloud provider integrations.</p>
-
-<p>While there is some documentation about running Docker containers on Amazon, there is no detailed description about running Docker on the Azure cloud.
-With this blog post we would like to shed some light on it &ndash; recently there have been lots of announcements from Microsoft about Docker support (Azure CLI, Kubernetes, libswarm) but they are either not finished yet or are not ready to build a robust platform on top.
-We are eagerly waiting for the <a href="http://azure.microsoft.com/blog/2014/07/10/azure-collaboration-with-google-and-docker/">Kubernetes integration</a>.</p>
-
-<p>In the meantime, if you are interested in running a <code>cluster</code> of Docker container, or do some more complex stuff then read on.</p>
-
-<p>Just to briefly recap &ndash; with Cloudbreak we are launching on demand Hadoop clusters (check our <a href="http://blog.sequenceiq.com/blog/2014/07/25/cloudbreak-technology/">blog</a> for further technical details) in Docker containers. These containers are <code>shipped</code> to different cloud VMsm and dynamically find and join each other &ndash; they form a fully functional Hadoop cluster without the need to do anything manually on the host, or apply any manual pre-configuration.
-So how are we doing this?</p>
-
-
-      
-       <a href="/blog/2014/08/04/launch-docker-containers-on-azure/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -944,6 +944,10 @@ So how are we doing this?</p>
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2015/02/02/cluster-extensions-with-cloudbreak-recipes/">Cluster extensions with Cloudbreak recipes</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2015/01/30/spark-with-cloudbreak/">Install Apache Spark with Cloudbreak</a>
