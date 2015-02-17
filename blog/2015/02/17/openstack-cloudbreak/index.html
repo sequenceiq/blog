@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Apache Hadoop 2.5.2 on Docker - SequenceIQ Blog</title>
+  <title>OpenStack integration with Cloudbreak - SequenceIQ Blog</title>
   <meta name="author" content="SequenceIQ">
 
    
@@ -19,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2014/11/24/hadoop-252-docker">
+  <link rel="canonical" href="http://blog.sequenceiq.com/blog/2015/02/17/openstack-cloudbreak">
   <link href="/favicon.png" rel="icon">
   <link href='http://fonts.googleapis.com/css?family=Quicksand:300,400' rel='stylesheet' type='text/css'>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300' rel='stylesheet' type='text/css'>
@@ -129,10 +129,10 @@
        
          
        
-       <h1 class="article-style"> Apache Hadoop 2.5.2 on Docker
+       <h1 class="article-style"> OpenStack integration with Cloudbreak
 
-       <span class="badge name-badge">Janos Matyas</span>
-       <span class="badge name-badge">24 November 2014</span>
+       <span class="badge name-badge">Attila Kanto</span>
+       <span class="badge name-badge">17 February 2015</span>
        </h1>
 
 
@@ -145,65 +145,125 @@
 
   <div class="row-fluid">
     <div class="span12">
-      <p>Following the release cycle of Hadoop -2.5.2 point release- today we are releasing a new <code>2.5.2</code> version of our <a href="https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/">Hadoop Docker container</a>.</p>
+      <p>Cloudbreak can provision HDP clusters on different public cloud providers like Amazon Web Services (AWS), Google Cloud Platform (GCP) and Microsoft Azure. Since the last release Cloudbreak supports provision Hadoop on <a href="https://www.openstack.org/">OpenStack</a> as well. OpenStack is probably the most popular open-source cloud computing platform for private clouds. This blogpost explains in a nutshell how the OpenStack integration was done with Cloudbreak &ndash; in order to provision Hadoop &ndash; but if you are just interested in playing with OpenStack then it is also worth to read as the <strong>Set Up Your Own Private Cloud</strong> section explains how to install DevStack (Openstack suitable for development purposes) with just a few lines of commands.</p>
 
-<h2>Centos</h2>
+<h2>Public and Private Clouds</h2>
 
-<h3>Build the image</h3>
+<p>The overly simplified definition of the two deployment models:</p>
 
-<p>In case you&rsquo;d like to try directly from the <a href="https://github.com/sequenceiq/hadoop-docker/tree/2.5.2">Dockerfile</a> you can build the image as:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker build  -t sequenceiq/hadoop-docker:2.5.2 .</span></code></pre></td></tr></table></div></figure>
-
-
-<!-- more -->
+<ul>
+<li><strong>public cloud</strong> consists of services that are usually purchased on-demand and provided off-site over the Internet by cloud provider</li>
+<li><strong>private cloud</strong> is one in which the services and infrastructure are purchased, maintained and managed within the company</li>
+</ul>
 
 
-<h3>Pull the image</h3>
+<p> <!-- more --></p>
 
-<p>As it is also released as an official Docker image from Docker&rsquo;s automated build repository &ndash; you can always pull or refer the image when launching containers.</p>
+<p>From Cloudbreak&rsquo;s point of view the most important difference is that the services and API of a public cloud is consistent within a provider and it does not really depends on tenants, in other words the AWS provides the same API and same services independently whether Company A or Company B is using it. In case of private cloud, the situation is not so simple, since even if the cloud platform is the same the provided services could be very different. If we take the OpenStack as example then one company can use <a href="http://www.xenproject.org/">XEN</a> as hypervisor, <a href="http://ceph.com/ceph-storage/block-storage/">Ceph</a> as block storage and the Nova network for networking, but another company might use <a href="http://www.linux-kvm.org/">KVM</a>, <a href="https://wiki.openstack.org/wiki/Cinder">Cinder</a> and <a href="https://wiki.openstack.org/wiki/Neutron">Neutron</a> to provide the same functionality. This divergence makes the integration of cloud platforms like OpenStack much more challenging than integrating a public cloud provider.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/hadoop-docker:2.5.2</span></code></pre></td></tr></table></div></figure>
+<h2>Orchestration</h2>
 
+<p>Because of the diversity of OpenStack deployments we decided to use the <a href="https://wiki.openstack.org/wiki/Heat">Heat</a> orchestration service. With the template mechanism of Heat we can describe the infrastructure resources like servers, floating IPs, volumes and security groups for a cloud application in a text file (JSON, YAML or HOT synax) and we can easily adapt this template description in order to support different deployments without changing the code of Cloudbreak.</p>
 
-<h3>Start a container</h3>
+<p>To make it easier to understand you can take a look at the following template snippet:</p>
 
-<p>In order to use the Docker image you have just build or pulled use:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -i -t sequenceiq/hadoop-docker:2.5.2 /etc/bootstrap.sh -bash</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<!-- more -->
-
-
-<h2>Testing</h2>
-
-<p>You can run one of the stock examples:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>cd $HADOOP_PREFIX
-</span><span class='line'># run the mapreduce
-</span><span class='line'>bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.5.2.jar grep input output 'dfs[a-z.]+'
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">heat_template_version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">2014-10-16</span>
 </span><span class='line'>
-</span><span class='line'># check the output
-</span><span class='line'>bin/hdfs dfs -cat output/*</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'><span class="l-Scalar-Plain">resources</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">app_network</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">type</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">OS::Neutron::Net</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">properties</span><span class="p-Indicator">:</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">admin_state_up</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">app_network</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="l-Scalar-Plain">app_subnet</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">type</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">OS::Neutron::Subnet</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">properties</span><span class="p-Indicator">:</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">network_id</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">get_resource</span><span class="p-Indicator">:</span> <span class="nv">app_network</span> <span class="p-Indicator">}</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">cidr</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">10.10.1.0/24</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">gateway_ip</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">10.10.1.1</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">allocation_pools</span><span class="p-Indicator">:</span>
+</span><span class='line'>        <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">start</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">10.10.1.4</span>
+</span><span class='line'>          <span class="l-Scalar-Plain">end</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">10.10.1.254</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="l-Scalar-Plain">... other resources defined here ...</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
-<h2>Hadoop native libraries, build, Bintray, etc</h2>
+<p>In the above Heat template fragment Neutron (OS::Neutron::Subnet) is used to provide networking services, but in deployments where the Neutron is not supported we would use another type of Network resource definition like Rackspace::Cloud::Network in case of <a href="http://www.rackspace.com/cloud/private">Rackspace</a> based deployments:</p>
 
-<p>The Hadoop build process is no easy task &ndash; requires lots of libraries and their right version, protobuf, etc and takes some time &ndash; we have simplified all these, made the build and released a 64b version of Hadoop nativelibs on our <a href="https://bintray.com/sequenceiq/sequenceiq-bin/hadoop-native-64bit/2.5.2/view/files">Bintray repo</a>. Enjoy.</p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">heat_template_version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">2014-10-16</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">resources</span><span class="p-Indicator">:</span>
+</span><span class='line'>  <span class="l-Scalar-Plain">app_network</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">type</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Rackspace::Cloud::Network</span>
+</span><span class='line'>    <span class="l-Scalar-Plain">properties</span><span class="p-Indicator">:</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">cidr</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">10.10.1.0/24</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">label</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">app_network</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="l-Scalar-Plain">... other resources defined here ...</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>Should you have any questions let us know through our social channels as <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
+
+<p>The Heat stack is a model that holds the Heat template, parameters and other meta data related content, when the infrastructure is changed (e.g. new VM is added or removed, or the CIDR of network is changed) then template needs to be modified and can be used to update your existing stack and the Heat knows how to make the necessary changes in the infrastructure in order to satisfy the resource definition described in the updated template.</p>
+
+<p>Although the Heat can manage the whole lifecycle of the application, Cloudbreak uses it only for infrastructure management and the Hadoop provisioning is done by using Ambari and Docker containers exactly in the same way as we do it in other public cloud providers.</p>
+
+<h2>Set Up Your Own Private Cloud</h2>
+
+<p>To try out the OpenStack integration you need to have an OpenStack cluster. If you don&rsquo;t already have one then for development purposes the  <a href="https://wiki.openstack.org/wiki/DevStack">DevStack</a> can be used to quickly deploy an OpenStack cloud. When we started with the integration we have realized that finding a proper configuration and install guide for DevStack is not an easy task. Of course there are plenty of documentations, but rest of them are not very accurate or extremely long or a bit outdated, therefore we have gathered all the necessary pieces of information to set up OpenStack development environment with Neutron, Cinder, Glance, Nova, Horizon and created an <code>Ansible Playbook</code> which we added to a Vagrant config, therefore staring and installing a VM with DevStack is as simple as:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>git clone https://github.com/sequenceiq/sequenceiq-samples
+</span><span class='line'><span class="nv">$ </span><span class="nb">cd </span>sequenceiq-samples/devstack/vagrant/devstack-neutron
+</span><span class='line'><span class="nv">$ </span>vagrant up
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><em>Note: you need to have Vagrant, VirtualBox and Ansible installed before using the <code>vagrant up</code> command</em></p>
+
+<p>The installation takes at least 30mins, but after that the Horizon UI will be available at <a href="http://192.168.60.10/">http://192.168.60.10/</a> and you can login with user <em>admin</em>  and <em>openstack</em> password. The most important configuration values used for setting up the DevStack can be found <a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/devstack/ansible/local-vagrant-vm.yml">here</a>.</p>
+
+<p>So we have launched a whole OpenStack cloud in one single VM running in VirtualBox; as you might guessed already that is just for demonstration purpose of the Ansible install scripts, because as you can see from the configuration <a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/devstack/ansible/local-vagrant-vm.yml">file</a> that in case of OpenStack being launched in VirtualBox the <a href="http://wiki.qemu.org/Main_Page">QEMU</a> emulation is used. These instances of the OpenStack launched VMs will be to slow and not suitable for Hadoop installation. But based on this you can always install and configure configure the  <a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/devstack/ansible/devstack.yml">devstack.yml</a> and <a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/devstack/ansible/hosts">hosts</a> and set up DevStack on a physical machine with KVM virtualization support. After the OpenStack is running you can launch a VM and install Cloudbreak on it and use that Cloudbreak instance to set up VMs and provision HDP on them.</p>
+
+<h2>Future plans</h2>
+
+<p>With the current implementation the Hadoop is provisioned into VMs running on OpenStack, but we are also experimenting with  <a href="http://docs.openstack.org/developer/heat/template_guide/contrib.html#DockerInc::Docker::Container">DockerInc::Docker::Container</a> in order to provision Hadoop cluster directly on the physical machines and avoid the overhead caused by VMs.</p>
+
+<p>Make sure you check back soon to our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
+on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
 
     </div>
   </div>
@@ -215,7 +275,7 @@
     
   
 
-<span class="byline author vcard">Posted by <span class="fn">Janos Matyas</span></span>
+<span class="byline author vcard">Posted by <span class="fn">Attila Kanto</span></span>
 
     
     <div class="row">
@@ -227,7 +287,7 @@
 
 
 
-  <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+  <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
 
 
 
@@ -259,10 +319,8 @@
       <div class="span12">
         <p class="meta">
           
-            <a class="basic-alignment left" href="/blog/2014/11/20/yarn-containers-and-docker/" title="Previous Post: YARN containers as Docker containers in Docker">&laquo; YARN containers as Docker containers in Docker</a>
+            <a class="basic-alignment left" href="/blog/2015/02/02/cluster-extensions-with-cloudbreak-recipes/" title="Previous Post: Cluster extensions with Cloudbreak recipes">&laquo; Cluster extensions with Cloudbreak recipes</a>
           
-          
-            <a class=" basic-alignment pull-right" href="/blog/2014/11/25/periscope-scale-your-cluster-on-time/" title="Next Post: Periscope: time based autoscaling">Periscope: time based autoscaling &raquo;</a>
           
         </p>
       </div>
@@ -673,8 +731,8 @@
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2014/11/24/hadoop-252-docker/';
-        var disqus_url = 'http://blog.sequenceiq.com/blog/2014/11/24/hadoop-252-docker/';
+        var disqus_identifier = 'http://blog.sequenceiq.com/blog/2015/02/17/openstack-cloudbreak/';
+        var disqus_url = 'http://blog.sequenceiq.com/blog/2015/02/17/openstack-cloudbreak/';
         var disqus_script = 'embed.js';
       
     (function () {

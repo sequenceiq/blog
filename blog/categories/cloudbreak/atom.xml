@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Cloudbreak | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/cloudbreak/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2015-02-02T18:07:58+00:00</updated>
+  <updated>2015-02-17T09:37:10+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,106 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[OpenStack integration with Cloudbreak]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2015/02/17/openstack-cloudbreak/"/>
+    <updated>2015-02-17T09:00:00+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2015/02/17/openstack-cloudbreak</id>
+    <content type="html"><![CDATA[<p>Cloudbreak can provision HDP clusters on different public cloud providers like Amazon Web Services (AWS), Google Cloud Platform (GCP) and Microsoft Azure. Since the last release Cloudbreak supports provision Hadoop on <a href="https://www.openstack.org/">OpenStack</a> as well. OpenStack is probably the most popular open-source cloud computing platform for private clouds. This blogpost explains in a nutshell how the OpenStack integration was done with Cloudbreak &ndash; in order to provision Hadoop &ndash; but if you are just interested in playing with OpenStack then it is also worth to read as the <strong>Set Up Your Own Private Cloud</strong> section explains how to install DevStack (Openstack suitable for development purposes) with just a few lines of commands.</p>
+
+<h2>Public and Private Clouds</h2>
+
+<p>The overly simplified definition of the two deployment models:</p>
+
+<ul>
+<li><strong>public cloud</strong> consists of services that are usually purchased on-demand and provided off-site over the Internet by cloud provider</li>
+<li><strong>private cloud</strong> is one in which the services and infrastructure are purchased, maintained and managed within the company</li>
+</ul>
+
+
+<p> <!-- more --></p>
+
+<p>From Cloudbreak&rsquo;s point of view the most important difference is that the services and API of a public cloud is consistent within a provider and it does not really depends on tenants, in other words the AWS provides the same API and same services independently whether Company A or Company B is using it. In case of private cloud, the situation is not so simple, since even if the cloud platform is the same the provided services could be very different. If we take the OpenStack as example then one company can use <a href="http://www.xenproject.org/">XEN</a> as hypervisor, <a href="http://ceph.com/ceph-storage/block-storage/">Ceph</a> as block storage and the Nova network for networking, but another company might use <a href="http://www.linux-kvm.org/">KVM</a>, <a href="https://wiki.openstack.org/wiki/Cinder">Cinder</a> and <a href="https://wiki.openstack.org/wiki/Neutron">Neutron</a> to provide the same functionality. This divergence makes the integration of cloud platforms like OpenStack much more challenging than integrating a public cloud provider.</p>
+
+<h2>Orchestration</h2>
+
+<p>Because of the diversity of OpenStack deployments we decided to use the <a href="https://wiki.openstack.org/wiki/Heat">Heat</a> orchestration service. With the template mechanism of Heat we can describe the infrastructure resources like servers, floating IPs, volumes and security groups for a cloud application in a text file (JSON, YAML or HOT synax) and we can easily adapt this template description in order to support different deployments without changing the code of Cloudbreak.</p>
+
+<p>To make it easier to understand you can take a look at the following template snippet:
+```yaml
+heat_template_version: 2014-10-16</p>
+
+<p>resources:
+  app_network:</p>
+
+<pre><code>type: OS::Neutron::Net
+properties:
+  admin_state_up: true
+  name: app_network
+</code></pre>
+
+<p>  app_subnet:</p>
+
+<pre><code>type: OS::Neutron::Subnet
+properties:
+  network_id: { get_resource: app_network }
+  cidr: 10.10.1.0/24
+  gateway_ip: 10.10.1.1
+  allocation_pools:
+    - start: 10.10.1.4
+      end: 10.10.1.254
+</code></pre>
+
+<p>  &hellip; other resources defined here &hellip;</p>
+
+<p>```</p>
+
+<p>In the above Heat template fragment Neutron (OS::Neutron::Subnet) is used to provide networking services, but in deployments where the Neutron is not supported we would use another type of Network resource definition like Rackspace::Cloud::Network in case of <a href="http://www.rackspace.com/cloud/private">Rackspace</a> based deployments:</p>
+
+<p>```yaml
+heat_template_version: 2014-10-16</p>
+
+<p>resources:
+  app_network:</p>
+
+<pre><code>type: Rackspace::Cloud::Network
+properties:
+  cidr: 10.10.1.0/24
+  label: app_network
+</code></pre>
+
+<p>  &hellip; other resources defined here &hellip;</p>
+
+<p>```</p>
+
+<p>The Heat stack is a model that holds the Heat template, parameters and other meta data related content, when the infrastructure is changed (e.g. new VM is added or removed, or the CIDR of network is changed) then template needs to be modified and can be used to update your existing stack and the Heat knows how to make the necessary changes in the infrastructure in order to satisfy the resource definition described in the updated template.</p>
+
+<p>Although the Heat can manage the whole lifecycle of the application, Cloudbreak uses it only for infrastructure management and the Hadoop provisioning is done by using Ambari and Docker containers exactly in the same way as we do it in other public cloud providers.</p>
+
+<h2>Set Up Your Own Private Cloud</h2>
+
+<p>To try out the OpenStack integration you need to have an OpenStack cluster. If you don&rsquo;t already have one then for development purposes the  <a href="https://wiki.openstack.org/wiki/DevStack">DevStack</a> can be used to quickly deploy an OpenStack cloud. When we started with the integration we have realized that finding a proper configuration and install guide for DevStack is not an easy task. Of course there are plenty of documentations, but rest of them are not very accurate or extremely long or a bit outdated, therefore we have gathered all the necessary pieces of information to set up OpenStack development environment with Neutron, Cinder, Glance, Nova, Horizon and created an <code>Ansible Playbook</code> which we added to a Vagrant config, therefore staring and installing a VM with DevStack is as simple as:</p>
+
+<p><code>bash
+$ git clone https://github.com/sequenceiq/sequenceiq-samples
+$ cd sequenceiq-samples/devstack/vagrant/devstack-neutron
+$ vagrant up
+</code>
+<em>Note: you need to have Vagrant, VirtualBox and Ansible installed before using the <code>vagrant up</code> command</em></p>
+
+<p>The installation takes at least 30mins, but after that the Horizon UI will be available at <a href="http://192.168.60.10/">http://192.168.60.10/</a> and you can login with user <em>admin</em>  and <em>openstack</em> password. The most important configuration values used for setting up the DevStack can be found <a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/devstack/ansible/local-vagrant-vm.yml">here</a>.</p>
+
+<p>So we have launched a whole OpenStack cloud in one single VM running in VirtualBox; as you might guessed already that is just for demonstration purpose of the Ansible install scripts, because as you can see from the configuration <a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/devstack/ansible/local-vagrant-vm.yml">file</a> that in case of OpenStack being launched in VirtualBox the <a href="http://wiki.qemu.org/Main_Page">QEMU</a> emulation is used. These instances of the OpenStack launched VMs will be to slow and not suitable for Hadoop installation. But based on this you can always install and configure configure the  <a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/devstack/ansible/devstack.yml">devstack.yml</a> and <a href="https://github.com/sequenceiq/sequenceiq-samples/blob/master/devstack/ansible/hosts">hosts</a> and set up DevStack on a physical machine with KVM virtualization support. After the OpenStack is running you can launch a VM and install Cloudbreak on it and use that Cloudbreak instance to set up VMs and provision HDP on them.</p>
+
+<h2>Future plans</h2>
+
+<p>With the current implementation the Hadoop is provisioned into VMs running on OpenStack, but we are also experimenting with  <a href="http://docs.openstack.org/developer/heat/template_guide/contrib.html#DockerInc::Docker::Container">DockerInc::Docker::Container</a> in order to provision Hadoop cluster directly on the physical machines and avoid the overhead caused by VMs.</p>
+
+<p>Make sure you check back soon to our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
+on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Cluster extensions with Cloudbreak recipes]]></title>
@@ -587,130 +687,6 @@ deployment is already based on Docker, but will be much more simplified.</li>
 small delays for answering questions. <code>Happy Holidays everyone.</code></p>
 
 <p><a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a> <a href="https://twitter.com/sequenceiq">Twitter</a> <a href="https://www.facebook">Facebook</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Cloudbreak welcomes Periscope]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/12/12/cloudbreak-got-periscope/"/>
-    <updated>2014-12-12T14:13:33+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/12/12/cloudbreak-got-periscope</id>
-    <content type="html"><![CDATA[<p>Today we have pushed out a new release of <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> &ndash; our Docker container based and cloud agnostic Hadoop as a Service solution &ndash; containing a few major changes. While there are many significant changes (both functional and architectural) in this blog post we&rsquo;d like to describe one of the most expected one &ndash; the <code>autoscaling</code> of Hadoop clusters.</p>
-
-<p>Just to quickly recap, Cloudbreak allows you to provision clusters &ndash; <code>full stacks</code> &ndash; in all major cloud providers using a unified API, UI or CLI/shell. Currently we support provisioning of clusters in <code>AWS</code>, <code>Google Cloud</code>, <code>Azure</code> and <code>OpenStack</code> (in private beta) &ndash; new cloud providers can be added quite easily (as everything runs in Docker) using our SDK.</p>
-
-<p><a href="http://sequenceiq.com/periscope/">Periscope</a> allows you to configure SLA policies for your Hadoop cluster and scale up or down on demand. You are able to set alarms and notifications for different metrics like <code>pending containers</code>, <code>lost nodes</code> or <code>memory usage</code>, etc and set SLA scaling policies based on these alarms.</p>
-
-<p>Today&rsquo;s <a href="http://cloudbreak.sequenceiq.com/">release</a> made available the integration between the two projects (they work independently as well) and allows subscribers to enable autoscaling for their already deployed or newly created Hadoop cluster.</p>
-
-<p>We would like to guide you through the UI and help you to set up an autoscaling Hadoop cluster.</p>
-
-<!--more-->
-
-
-<h2>Using Periscope</h2>
-
-<p>Once you have created your Hadoop clusters with Cloudbreak you will now how the option to configure autoscaling policies.</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/select.png" alt="" /></p>
-
-<p>In order to configure autoscaling for your cluster you should go to <code>autoscaling SLA policies</code> tab and hit the <code>enable</code> button.</p>
-
-<h3>Alarms</h3>
-
-<p>Periscope allows you to configure two types of <code>alarms</code>.</p>
-
-<p><strong>Metric based</strong> alarms are alarms based on different <code>YARN</code> metrics. A plugin mechanism will be available in case you&rsquo;d like to plug your own metrics. As a quick note, we have another project called <a href="http://blog.sequenceiq.com/blog/2014/10/07/hadoop-monitoring/">Baywatch</a> where we collect around 400 Hadoop metrics &ndash; and those will be all pluggable in Periscope.</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/alarm-metric.png" alt="" /></p>
-
-<ul>
-<li>alarm name &ndash; name of the alarm</li>
-<li>description &ndash; description of the alarm</li>
-<li>metrics &ndash; currently the default YARN metrics we support are: <code>pending containers</code>, <code>pending applications</code>, <code>lost nodes</code>, <code>unhealthy nodes</code> and <code>global resources</code></li>
-<li>period &ndash;  the time that the metric has to be sustained in order for an alarm to be triggered</li>
-<li>notification email (optional) &ndash; address where Periscope sends an email in case the alarm is triggered</li>
-</ul>
-
-
-<p><strong>Time based</strong> alarms allow autoscaling of clusters based on the configured time. We have <a href="http://blog.sequenceiq.com/blog/2014/11/25/periscope-scale-your-cluster-on-time/">blogged</a> about this new feature recently &ndash; with this new release of <a href="http://cloudbreak.sequenceiq.com/">Cloudbreak</a> this feature is available through UI as well.</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/alarm-time.png" alt="" /></p>
-
-<ul>
-<li>alarm name &ndash; name of the alarm</li>
-<li>description &ndash; description of the alarm</li>
-<li>time zone &ndash; the timezone for the <code>cron</code> expression</li>
-<li>cron expression &ndash; the cron expression</li>
-<li>notification email (optional) &ndash; address where Periscope sends an email in case the alarm is triggered</li>
-</ul>
-
-
-<h2>Scaling policies</h2>
-
-<p>Once you have an alarm you can configure scaling policies based on it. Scaling policies defines the actions you&rsquo;d like Periscope to take in case of a triggered alarm.</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/scaling.png" alt="" /></p>
-
-<ul>
-<li>policy name &ndash; the name of the SLA scaling policy</li>
-<li>scaling adjustment &ndash; the adjustment counted in <code>nodes</code>, <code>percentage</code> or <code>exact</code> numbers of cluster nodes</li>
-<li>host group &ndash; the <code>autoscaled</code> Ambari hostgroup</li>
-<li>alarm &ndash; the configured alarm</li>
-</ul>
-
-
-<h2>Cluster scaling configurations</h2>
-
-<p>A cluster has a default configuration which Periscope scaling policies can&rsquo;t override. This is due to avoid over or under scaling a Hadoop cluster with policies and also to definde a cooldown time period between two scaling actions.</p>
-
-<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/cluster-config.png" alt="" /></p>
-
-<ul>
-<li>cooldown time &ndash; the time spent between two scaling actions</li>
-<li>cluster size min. &ndash; the minimum size (in nodes) of a cluster</li>
-<li>cluster size max. &ndash; the maximum size (in nodes) of a cluster</li>
-</ul>
-
-
-<p>It&rsquo;s that simple. Happy autoscaling.</p>
-
-<p>In case you&rsquo;d like to test autoscaling and generate some load on your cluster you can use these <code>stock</code> Hadoop examples and the scripts below:</p>
-
-<p>```</p>
-
-<h1>!/bin/bash</h1>
-
-<p>export HADOOP_LIBS=/usr/lib/hadoop-mapreduce
-export JAR_JOBCLIENT=$HADOOP_LIBS/hadoop-mapreduce-client-jobclient-2.4.0.2.1.2.0-402-tests.jar</p>
-
-<p>smalljobs(){
-  echo &ldquo;############################################&rdquo;
-  echo Running smalljobs tests..
-  echo &ldquo;############################################&rdquo;</p>
-
-<p>  CMD=&ldquo;hadoop jar $JAR_JOBCLIENT mrbench -baseDir /user/hrt_qa/smallJobsBenchmark -numRuns 2 -maps 10 -reduces 5 -inputLines 10 -inputType ascending&rdquo;
-  echo TEST 1: $CMD
-  su hdfs -c &ldquo;$CMD&rdquo; 1> smalljobs-time.log 2> smalljobs.log
-}</p>
-
-<p>smalljobs
-```</p>
-
-<p>To test it you can run it with the following script:</p>
-
-<p>```</p>
-
-<h1>!/bin/bash</h1>
-
-<p>for i in {1..10}
-do
-nohup /test.sh &amp;
-done
-```</p>
-
-<p>Make sure you check back soon to our <a href="http://blog.sequenceiq.com/">blog</a> or follow us
-on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
 ]]></content>
   </entry>
   
