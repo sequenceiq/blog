@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Periscope | SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/blog/categories/periscope/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2015-02-17T09:37:10+00:00</updated>
+  <updated>2015-03-31T11:19:07+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,173 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Periscope - Ambari 2.0 - scale based on any metric]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2015/03/29/periscope-ambari-2-dot-0-scale-based-on-any-metric/"/>
+    <updated>2015-03-29T09:52:10+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2015/03/29/periscope-ambari-2-dot-0-scale-based-on-any-metric</id>
+    <content type="html"><![CDATA[<p>It&rsquo;s been a while since we discussed <a href="http://sequenceiq.com/periscope/">Periscope</a>&rsquo;s scaling capabilities, but it&rsquo;s time to revisit again as we&rsquo;re introducing a more generalized way to monitor and scale your cluster. In the first public beta release we relied on 5 different YARN metrics obtained straight from the <code>ResourceManager</code> to allow users to experiment with it and plan their capacity needs ahead. The feedbacks were really promising. Some people started extending the portfolio with new metrics and others asked us to add certain types which suits their use cases the best. In the meanwhile the <a href="https://ambari.apache.org">Ambari</a> community started to work on redesigning the <a href="https://issues.apache.org/jira/browse/AMBARI-6354">Alert</a> system which the new version of Periscope is going to leverage.</p>
+
+<h2>Ambari 2.0 alerts</h2>
+
+<p>The next version of <a href="https://ambari.apache.org/">Ambari</a> (going to be released soon) will be able to monitor <code>any</code> type of metrics that the full Hadoop ecosystem provides. It&rsquo;s really powerful since you&rsquo;ll not only be able to define simple metric alerts but aggregated, service level, host level and script based ones. Let&rsquo;s jump into it and see how it looks like to define an <code>alert</code> which triggers if the defined <code>root queue</code>&rsquo;s available memory falls below a certain threshold (basically the available memory in the cluster):
+```json
+{
+  &ldquo;AlertDefinition&rdquo;: {</p>
+
+<pre><code>"cluster_name": "cluster-name",
+"component_name": "RESOURCEMANAGER",
+"description": "This alarm triggers if the free memory falls below a certain threshold. The threshold values are in percent.",
+"enabled": true,
+"ignore_host": false,
+"interval": 1,
+"label": "Allocated memory",
+"name": "allocated_memory",
+"scope": "ANY",
+"service_name": "YARN",
+"source": {
+  "jmx": {
+    "property_list": [
+      "Hadoop:service=ResourceManager,name=QueueMetrics,q0=root/AvailableMB",
+      "Hadoop:service=ResourceManager,name=QueueMetrics,q0=root/AllocatedMB"
+    ],
+    "value": "{0}/({0} + {1}) * 100"
+  },
+  "reporting": {
+    "ok": {
+      "text": "Memory available: {0} MB, allocated: {1} MB"
+    },
+    "warning": {
+      "text": "Memory available: {0} MB, allocated: {1} MB",
+      "value": 50
+    },
+    "critical": {
+      "text": "Memory available: {0} MB, allocated: {1} MB",
+      "value": 35
+    },
+    "units": "%"
+  },
+  "type": "METRIC",
+  "uri": {
+    "http": "",
+    "https": "",
+    "https_property": "",
+    "https_property_value": "HTTPS_ONLY",
+    "default_port": 0,
+    "high_availability": {
+      "alias_key": "",
+      "http_pattern": "}}",
+      "https_pattern": "}}"
+    }
+  }
+}
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<!--more-->
+
+
+<p>Most of the Hadoop components expose its metrics via <code>jmx</code>, but not all of them (later on this). As you can see we&rsquo;re using the RM&rsquo;s <code>jmx</code> as source to obtain the necessary metrics (in this case the <code>AvailableMB</code> and the <code>AllocatedMB</code> to calculate the overall memory usage: <code>"value": "{0}/({0} + {1}) * 100"</code>). So how does <a href="https://ambari.apache.org/">Ambari</a> knows where to look for these values, like: <code>"Hadoop:service=ResourceManager,name=QueueMetrics,q0=root/AvailableMB"</code>? You have to define which property to use in the <code>uri</code> section: <code>yarn-site/yarn.resourcemanager.webapp.address</code>. It tells Ambari to grab the property from the yarn-site and use the RM&rsquo;s web address and on that use the jmx endpoint. It could be problematic if you&rsquo;re using the RM in HA mode as there are multiple RMs. It can be solved if you provide this information as well in the <code>high_availability</code> part. In this way Ambari will always use the active RM and not the ones in <code>standby</code> mode. To make sure these metric values are there you can use the following endpoint on your cluster:
+<code>
+RM_IP:8088/jmx?qry=Hadoop:service=ResourceManager,name=QueueMetrics,q0=root
+</code>
+```</p>
+
+<pre><code>...
+"AllocatedMB" : 0,
+"AllocatedVCores" : 0,
+"AllocatedContainers" : 0,
+"AggregateContainersAllocated" : 0,
+"AggregateContainersReleased" : 0,
+"AvailableMB" : 30720,
+"AvailableVCores" : 48,
+"PendingMB" : 0,
+"PendingVCores" : 0,
+"PendingContainers" : 0,
+...
+</code></pre>
+
+<p><code>
+These are the supported source types: `SCRIPT`, `METRIC`, `AGGREGATE`, `PERCENT` and `PORT`. You can cover anything with these types. Simply check if a process is running and listening on a port:
+</code>
+{
+  &ldquo;uri&rdquo;: &ldquo;config/property_with_host_and_port&rdquo;,
+  &ldquo;default_port&rdquo;: 12345
+}
+<code>
+or a web UI is available:
+</code>
+{
+  &ldquo;uri&rdquo;: {</p>
+
+<pre><code>"http": "hdfs-site/dfs.datanode.http.address",
+"https": "hdfs-site/dfs.datanode.https.address",
+"https_property": "hdfs-site/dfs.http.policy",
+"https_property_value": "HTTPS_ONLY"
+</code></pre>
+
+<p>  }
+}
+<code>
+but the most interesting one besides `jmx` is the `SCRIPT` based:
+</code>
+{
+  &ldquo;location&rdquo;: &ldquo;scripts/alert_check.py&rdquo;,
+  &ldquo;arg1&rdquo;: &ldquo;arg2&rdquo;
+}
+```
+You can define a script to check a metric value for you and Ambari will execute that script. A good example is to check the <a href="https://github.com/apache/ambari/blob/trunk/ambari-server/src/main/resources/common-services/YARN/2.1.0.2.0/package/alerts/alert_nodemanager_health.py">NodeManager&rsquo;s health</a>.</p>
+
+<h3>Dispatchers</h3>
+
+<p>Alerts will produce either <code>OK</code>, <code>WARNING</code> or <code>CRITICAL</code> states. It&rsquo;s possible to send notifications based on these states. For example if an alert reports <code>CRITICAL</code> state an e-mail could be sent or an SNMP message to some network devices. It&rsquo;s also planned to be able to provide such dispatcher by placing the implementation to the <code>classpath</code>.</p>
+
+<h3>Under the hood</h3>
+
+<p>Alerts are fully supported API resources, with sorting, querying and paging:
+<code>bash
+curl -X GET -u "admin:admin" http://127.0.0.1:8080/api/v1/clusters/mycluster/alert_definitions
+curl -X GET -u "admin:admin" http://127.0.0.1:8080/api/v1/clusters/mycluster/alert_history
+curl -X GET -u "admin:admin" http://127.0.0.1:8080/api/v1/clusters/mycluster/alerts
+curl -X GET -u "admin:admin" http://127.0.0.1:8080/api/v1/clusters/mycluster/alert_groups
+</code>
+If you install a cluster there are many pre-defined alerts by default. In order to create new ones you&rsquo;ll have to send a POST request to the appropriate endpoint, the UI doesn&rsquo;t support it.</p>
+
+<p>How does <a href="https://ambari.apache.org/">Ambari</a> collect the metrics?</p>
+
+<p><img src="https://raw.githubusercontent.com/sequenceiq/sequenceiq-samples/master/images/ambari_alrts.png" alt="" /></p>
+
+<p>Each alert definition provides an <code>interval</code> property. This interval defines how often Ambari will check the alert. In the allocated memory example above it&rsquo;s <code>1</code> which means every minutes. A python based library will schedule these alerts on the Ambari agents. Due to the distributed nature of the cluster, checking the different alerts will not overwhelm the cluster causing bottlenecks. You can read more on this <a href="https://issues.apache.org/jira/secure/attachment/12677952/AlertTechDesignPublic.pdf">here</a>.</p>
+
+<h2>Periscope alerts</h2>
+
+<p>Previously you had to configure such alerts in Periscope and Periscope did the heavy lifting collecting the metric values. The new alert system in Ambari will take care of that and it means in Periscope you&rsquo;ll have to configure which Ambari alert you want to use to scale your cluster. Periscope will make its decisions based on the alert&rsquo;s history preventing to trigger a scaling activity unnecessarily. You&rsquo;ll be able to attach scaling actions to <code>Ambari defined alerts</code> the same way you did with Periscope based alerts. For example: enable scaling based on the above defined allocated memory:
+<code>
+{
+  "alertName": "allocatedmemory",
+  "description": "Allocated memory",
+  "period": 5,
+  "alertDefinition": "allocated_memory",
+  "alertState": "CRITICAL"
+}
+</code>
+This alert will trigger if the <code>allocated_memory</code> defined in Ambari reports <code>CRITICAL</code> state for 5 minutes.</p>
+
+<h2>Docker</h2>
+
+<p>Although Ambari 2.0 is not released yet, a preview <a href="https://github.com/sequenceiq/docker-ambari/tree/2.0.0">Docker</a> image is available to try the latest build (<a href="http://blog.sequenceiq.com/blog/2014/12/04/multinode-ambari-1-7-0/">same way as wid did with 1.7.0</a>.</p>
+
+<p><code>Note</code>: More and more people getting involved developing and maintaining the Ambari docker images, so we like to thank for all of them. Keep up the good work guys.</p>
+
+<h2>What&rsquo;s next</h2>
+
+<p>We&rsquo;re steadily working to make both <a href="http://blog.sequenceiq.com/blog/2014/12/23/cloudbreak-on-hdp-2-dot-2/">Cloudbreak</a> and <a href="http://sequenceiq.com/periscope/">Periscope</a> <code>GA</code>. If you&rsquo;re interested helping us simply register and start using them &ndash; every feedback is welcomed. The key aspect we&rsquo;re focusing on at the moment is the security layer (<code>kerberos</code> based security probably worth a blog entry). In the meanwhile follow us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook">Facebook</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Periscope: time based autoscaling]]></title>
@@ -331,7 +498,7 @@ In order to avoid reacting for sudden spikes in the system and apply policies on
 
 <h1>set metric alarms</h1>
 
-<p>curl -X POST -H &ldquo;Content-Type: application/json&rdquo; -d &lsquo;{&ldquo;alarms&rdquo;:[{&ldquo;alarmName&rdquo;:&ldquo;pendingContainerHigh&rdquo;,&ldquo;description&rdquo;:&ldquo;Number of pending containers is high&rdquo;,&ldquo;metric&rdquo;:&ldquo;PENDING_CONTAINERS&rdquo;,&ldquo;threshold&rdquo;:10,&ldquo;comparisonOperator&rdquo;:&ldquo;GREATER_THAN&rdquo;,&ldquo;period&rdquo;:1},{&ldquo;alarmName&rdquo;:&ldquo;freeGlobalResourcesRateLow&rdquo;,&ldquo;description&rdquo;:&ldquo;Low free global resource rate&rdquo;,&ldquo;metric&rdquo;:&ldquo;GLOBAL_RESOURCES&rdquo;,&ldquo;threshold&rdquo;:1,&ldquo;comparisonOperator&rdquo;:&ldquo;EQUALS&rdquo;,&ldquo;period&rdquo;:1,&ldquo;notifications&rdquo;:[{&ldquo;target&rdquo;:[“<a href="&#x6d;&#97;&#105;&#x6c;&#116;&#x6f;&#x3a;&#109;&#105;&#99;&#107;&#x2e;&#102;&#97;&#110;&#110;&#x69;&#x6e;&#103;&#64;&#97;&#x73;&#112;&#119;&#x6f;&#x72;&#x6c;&#100;&#116;&#111;&#117;&#x72;&#46;&#99;&#111;&#109;">&#109;&#x69;&#x63;&#107;&#x2e;&#x66;&#97;&#x6e;&#x6e;&#105;&#x6e;&#103;&#x40;&#x61;&#x73;&#x70;&#x77;&#x6f;&#x72;&#108;&#100;&#116;&#x6f;&#117;&#x72;&#x2e;&#x63;&#x6f;&#x6d;</a>"],&ldquo;notificationType&rdquo;:&ldquo;EMAIL&rdquo;}]}]}&rsquo; localhost:8081/clusters/1/alarms | jq .
+<p>curl -X POST -H &ldquo;Content-Type: application/json&rdquo; -d &lsquo;{&ldquo;alarms&rdquo;:[{&ldquo;alarmName&rdquo;:&ldquo;pendingContainerHigh&rdquo;,&ldquo;description&rdquo;:&ldquo;Number of pending containers is high&rdquo;,&ldquo;metric&rdquo;:&ldquo;PENDING_CONTAINERS&rdquo;,&ldquo;threshold&rdquo;:10,&ldquo;comparisonOperator&rdquo;:&ldquo;GREATER_THAN&rdquo;,&ldquo;period&rdquo;:1},{&ldquo;alarmName&rdquo;:&ldquo;freeGlobalResourcesRateLow&rdquo;,&ldquo;description&rdquo;:&ldquo;Low free global resource rate&rdquo;,&ldquo;metric&rdquo;:&ldquo;GLOBAL_RESOURCES&rdquo;,&ldquo;threshold&rdquo;:1,&ldquo;comparisonOperator&rdquo;:&ldquo;EQUALS&rdquo;,&ldquo;period&rdquo;:1,&ldquo;notifications&rdquo;:[{&ldquo;target&rdquo;:[“<a href="&#109;&#x61;&#x69;&#x6c;&#116;&#x6f;&#58;&#109;&#105;&#99;&#x6b;&#46;&#102;&#x61;&#110;&#x6e;&#x69;&#x6e;&#103;&#x40;&#97;&#115;&#x70;&#x77;&#x6f;&#114;&#x6c;&#100;&#x74;&#x6f;&#x75;&#114;&#x2e;&#99;&#x6f;&#x6d;">&#x6d;&#x69;&#x63;&#x6b;&#46;&#102;&#x61;&#110;&#x6e;&#105;&#x6e;&#103;&#x40;&#x61;&#x73;&#x70;&#119;&#111;&#x72;&#x6c;&#x64;&#116;&#111;&#117;&#114;&#x2e;&#99;&#x6f;&#x6d;</a>"],&ldquo;notificationType&rdquo;:&ldquo;EMAIL&rdquo;}]}]}&rsquo; localhost:8081/clusters/1/alarms | jq .
 curl -X PUT -H &ldquo;Content-Type: application/json&rdquo; -d &lsquo;{&ldquo;alarmName&rdquo;:&ldquo;unhealthyNodesHigh&rdquo;,&ldquo;description&rdquo;:&ldquo;Number of unhealthy nodes is high&rdquo;,&ldquo;metric&rdquo;:&ldquo;UNHEALTHY_NODES&rdquo;,&ldquo;threshold&rdquo;:5,&ldquo;comparisonOperator&rdquo;:&ldquo;GREATER_OR_EQUAL_THAN&rdquo;,&ldquo;period&rdquo;:5}&rsquo; localhost:8081/clusters/1/alarms | jq .
 ```</p>
 

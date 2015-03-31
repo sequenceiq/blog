@@ -130,6 +130,98 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/04/14/mapreduce-with-scalding/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">14 April 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+            <a href="/blog/categories/scalding/"><span class="label label-warning">Scalding</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/04/14/mapreduce-with-scalding/">Writing MapReduce jobs in Scala</a>
+          <span class="badge name-badge">Richard Doktorics</span>
+
+      </h1>
+      <p>At SequenceIQ we have many pre-built and configurable MapReduce jobs (complex math algorithms, filtering, sorting and correlation patterns, samplings, top-n, joins, partitioning, etc) &ndash; as building blocks of our job worklow. We needed to find a quick way to build and test these jobs during developement on &lsquo;local&rsquo; mode and be able to push the same jobs to a large test cluster without any modifications.
+Though in general we use Java, we always strive for efficiency when we need to solve a problem and we use different  languages (not just JVM based) in our stack (e.g. Groovy, Go and R) &ndash; to write MapReduce jobs we have choosen Scala and the Scalding library. Scalding is a Scala library developed by Twitter that abstracts and makes easy to write Hadoop MapReduce jobs. In many ways Scalding is similar to Pig, but it was writen in Scala, bringing the advantages of Scala to your MapReduce jobs (e.g. type safety &ndash; how many times you have submitted a job to a cluster only to learn 5 hours later that you can&rsquo;t convert a String to Double).</p>
+
+<p>This example will show you how you can use Scalding with Hadoop 2.3 and how easy is to write a MapReduce job with few lines of Scala code.</p>
+
+<h2>Build the project</h2>
+
+<p>In our example we will transform a csv file to an other one with a filter step.
+To build the project use:</p>
+
+<p><code>./gradlew clean build</code> in the project library.</p>
+
+<h2>Run the sample</h2>
+
+<p>To run the sample with these parameters in local mode:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>yarn jar scalding-sample-0.1.jar com.sequenceiq.samples.scalding.CsvToCsvFilterJob --local --schema <span class="o">{</span>YOUR_SCHEME<span class="o">}</span> --input <span class="o">{</span>INPUT<span class="o">}</span> --type <span class="o">{</span>TYPE<span class="o">}</span> --operator <span class="o">{</span>OPERATOR<span class="o">}</span> --field <span class="o">{</span>FILTER_FIELD<span class="o">}</span> --operand <span class="o">{</span>OPERAND<span class="o">}</span> --output <span class="o">{</span>OUTPUT_PATH<span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>or if you want to run the exampke using HDFS then use:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>yarn jar scalding-sample-0.1.jar com.sequenceiq.samples.scalding.CsvToCsvFilterJob --hdfs --schema <span class="o">{</span>YOUR_SCHEME<span class="o">}</span> --input <span class="o">{</span>INPUT<span class="o">}</span> --type <span class="o">{</span>TYPE<span class="o">}</span> --operator <span class="o">{</span>OPERATOR<span class="o">}</span> --field <span class="o">{</span>FILTER_FIELD<span class="o">}</span> --operand <span class="o">{</span>OPERAND<span class="o">}</span> --output <span class="o">{</span>OUTPUT_PATH<span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To run the filtering example the parameters are like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>yarn jar scalding-sample-0.1.jar com.sequenceiq.samples.scalding.CsvToCsvFilterJob --hdfs --schema id,name --input /input.csv --type int --operator eq --field id --operand 1 --output /output.csv
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The code looks extremely simple:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">validation</span><span class="o">()</span>
+</span><span class='line'>  <span class="n">input</span><span class="o">(</span><span class="n">args</span><span class="o">)</span>
+</span><span class='line'>    <span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">filterableField</span><span class="o">)</span> <span class="o">{</span><span class="nl">field:</span> <span class="n">String</span> <span class="o">=&gt;</span> <span class="n">createFilterCriterion</span><span class="o">(</span><span class="n">field</span><span class="o">)}</span>
+</span><span class='line'>    <span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">output</span><span class="o">(</span><span class="n">args</span><span class="o">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+      
+       <a href="/blog/2014/04/14/mapreduce-with-scalding/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/04/04/hadoop-docker-introduction/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -925,65 +1017,6 @@ Check this short goal/problem/resolution and code example snippet if you&rsquo;d
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/02/26/vote-for-us/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">26 February 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/hadoop-summit/"><span class="label label-warning">Hadoop Summit</span></a>
-            
-            <a href="/blog/categories/vote/"><span class="label label-warning">Vote</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/02/26/vote-for-us/">Vote for us - 2014 Hadoop Summit San Jose</a>
-          <span class="badge name-badge">Janos Matyas</span>
-
-      </h1>
-      <p>While we are extremely proud that our abstract came 2nd (out of 107) in the 2014 Hadoop Summit in Amsterdam (see you all there in April 2-3), we will not stop there and our plan is to continue the hard work and we&rsquo;re looking forward to meet you at 2014 Hadoop Summit in San Jose.
-We would like to ask for your support by submitting your vote for our session in the largest Hadoop conference in the world.</p>
-
-<p>Please use the following link to vote, or read our abstract below.</p>
-
-<p><a href="http://hadoopsummit.uservoice.com/forums/242807-hadoop-deployment-operations-track/suggestions/5568417-moving-to-hadoop-2-0-yarn-at-sequenceiq">Vote for us</a></p>
-
-<p>Should you have any questions regarding our abstract, the technical solution or implementation detailsm feel free to contact us or
-check our <a href="https://github.com/sequenceiq">GitHub</a> page.</p>
-
-<p><strong>Moving to Hadoop 2.0/YARN at SequenceIQ</strong></p>
-
-<p>A showcase of our efforts to bring all our Hadoop based applications under one common cluster management framework &ndash; YARN.
-Our deployment consists of MR2, HBase, Mahout and Hive-all running within one single auto-scaling cluster. We have faced many challenges such as load imbalances, SLA misses, cluster scheduling and VM container deployments &ndash; and would like to share our struggle and solution with the community.
-As a startup, cost savings is important for us &ndash; switching to Hadoop 2.0 helped us save significant costs through better utilization of our hardware and cloud VMs. Our decision and investment of moving to YARN has paid off &ndash; and opened up new business and technical opportunities.</p>
-
-      
-      
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -1005,6 +1038,10 @@ As a startup, cost savings is important for us &ndash; switching to Hadoop 2.0 h
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2015/03/29/periscope-ambari-2-dot-0-scale-based-on-any-metric/">Periscope - Ambari 2.0 - scale based on any metric</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2015/02/17/openstack-cloudbreak/">OpenStack integration with Cloudbreak</a>

@@ -130,6 +130,79 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/12/02/hadoop-2-6-0-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">02 December 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/12/02/hadoop-2-6-0-docker/">Running Hadoop 2.6.0 in Docker containers</a>
+          <span class="badge name-badge">Janos Matyas</span>
+
+      </h1>
+      <p>Yesterday the Hadoop community has released the <code>2.6.0</code> version of Hadoop &ndash; the 4th major release of this year &ndash; and one which contains quite a few new and interesting features:</p>
+
+<ul>
+<li>Rolling upgrades &ndash; the holly grail for enterprises to switch Hadoop versions</li>
+<li>Long running services in YARN</li>
+<li>Heterogeneous storage in HDFS</li>
+</ul>
+
+
+<p>These were the most popular features, though beside these there were quite a few extremely important ones &ndash; at least for us and our our <a href="http://sequenceiq.com/periscope/">Periscope</a> project. As you might be aware we are working on an SLA policy based autoscaling API for Apache YARN and we were closely following/been involved or contributed to these JIRA&rsquo;s below:</p>
+
+<ul>
+<li><a href="https://issues.apache.org/jira/browse/YARN-2248">YARN-2248</a> &ndash; CS changes for moving apps between queues</li>
+<li><a href="https://issues.apache.org/jira/browse/YARN-1051">YARN-1051</a> &ndash; YARN Admission Control/Planner</li>
+</ul>
+
+
+<p>These tasks/subtasks (beside a few others) are all coming with the new major release and opening up brand new opportunities to make Hadoop YARN a more <code>dynamic</code> environment. Considering these and the <a href="http://slider.incubator.apache.org/index.html">Apache Slider</a> project it&rsquo;s pretty clear to see that exciting times are coming.</p>
+
+<p>We have combined all these above with <a href="http://slider.incubator.apache.org/index.html">Docker</a>, our open source projects &ndash; <a href="http://sequenceiq.com/cloudbreak">Cloudbreak</a> and <a href="http://sequenceiq.com/periscope/">Periscope</a> &ndash; and we are leveraging these new innovations, so stay tuned and get the code or our Docker containers to start with.</p>
+
+<p>In the meanwhile (as usuall) we have <a href="https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/">released</a> our Hadoop 2.6.0 container to ease your quick start with Hadoop.</p>
+
+<h3>DIY &ndash; Build the image</h3>
+
+<p>In case you&rsquo;d like to try directly from the <a href="https://github.com/sequenceiq/hadoop-docker/tree/2.6.0">Dockerfile</a> you can build the image as:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>docker build  -t sequenceiq/hadoop-docker:2.6.0 .</span></code></pre></td></tr></table></div></figure>
+
+
+
+      
+       <a href="/blog/2014/12/02/hadoop-2-6-0-docker/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/11/25/periscope-scale-your-cluster-on-time/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -727,99 +800,6 @@ Cloudbreak shell is written in Java but let&rsquo;s see a basic <code>curl</code
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/10/30/cloudbreak-devops/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">30 October 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/cli/shell/"><span class="label label-warning">CLI/Shell</span></a>
-            
-            <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/10/30/cloudbreak-devops/">Deploying a Hadoop Cluster - DevOps way</a>
-          <span class="badge name-badge">Marton Sereg</span>
-
-      </h1>
-      <p>A while ago we have announced <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">Cloudbreak</a> &ndash; the open source Hadoop as a Service API. Included in the release we open sourced a REST API, REST client, UI and a CLI/shell. In this post we’d like to show you how easy is to use <a href="https://github.com/sequenceiq/cloudbreak-shell">Cloudbreak shell</a> in order to create on demand Hadoop clusters on your favorite cloud provider &ndash; record the process and automate it.</p>
-
-<p>While it’s up to everybody&rsquo;s personal preference whether to use a UI, a command line interface or the REST API directly, at SequenceIQ we prefer to use command line tools whenever it’s possible because it’s much faster than interacting with a web UI and it’s a better candidate for automation. Are we <code>obsessed with automation</code>? Definitely yes &ndash; all the step which are candidates of doing it twice we script or automate it.</p>
-
-<p>This <code>thing</code> with the automation does not affect the effort and quality standards we put on building the UI &ndash; <a href="https://cloudbreak.sequenceiq.com/">Cloudbreak</a> has an extremely intuitive and clean <strong>responsive</strong> UI and it’s built on the latest and greatest web UI framework &ndash; <a href="https://angularjs.org/">Angular JS</a>. We will have a post about the UI, however we consider it so simple to use that we ask you to go ahead and give it a try. You are a signup and a few clicks away from your Hadoop cluster.</p>
-
-<p>Now back to the CLI. Remember one of our Apache contribution &ndash; the <a href="http://blog.sequenceiq.com/blog/2014/05/26/ambari-shell/">Ambari shell and REST API</a>? Well, the Cloudbreak shell is built on the same technology &ndash; Spring Shell. It’s an interactive shell that can be easily extended using a Spring based programming model and battle tested in various projects like Spring Roo, Spring XD, and Spring REST Shell Combine these two projects to create a powerful tool.</p>
-
-<h2>Cloudbreak Shell</h2>
-
-<p>The goal with the CLI was to provide an interactive command line tool which supports:</p>
-
-<ul>
-<li>all functionality available through the REST API or Cloudbreak web UI</li>
-<li>makes possible complete automation of management task via <strong>scripts</strong></li>
-<li>context aware command availability</li>
-<li>tab completion</li>
-<li>required/optional parameter support</li>
-<li><strong>hint</strong> command to guide you on the usual path</li>
-</ul>
-
-
-<h2>Install Cloudbreak Shell</h2>
-
-<p>You have 3 options to give it a try:</p>
-
-<ul>
-<li>use our prepared <a href="https://registry.hub.docker.com/u/sequenceiq/cloudbreak/">docker image</a></li>
-<li>download the latest self-containing executable jar form our maven repo</li>
-<li>build it from source</li>
-</ul>
-
-
-<h3>Build from source</h3>
-
-<p>If want to use the code or extend it with new commands follow the steps below. You will need:
-&ndash; jdk 1.7
-&ndash; maven 3.x.x</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>git clone https://github.com/sequenceiq/cloudbreak-shell.git
-</span><span class='line'>cd cloudbreak-shell
-</span><span class='line'>mvn clean package</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-
-      
-       <a href="/blog/2014/10/30/cloudbreak-devops/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -841,6 +821,10 @@ Cloudbreak shell is written in Java but let&rsquo;s see a basic <code>curl</code
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2015/03/29/periscope-ambari-2-dot-0-scale-based-on-any-metric/">Periscope - Ambari 2.0 - scale based on any metric</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2015/02/17/openstack-cloudbreak/">OpenStack integration with Cloudbreak</a>

@@ -130,6 +130,157 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2015/03/29/periscope-ambari-2-dot-0-scale-based-on-any-metric/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">29 March 2015</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/periscope/"><span class="label label-warning">Periscope</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2015/03/29/periscope-ambari-2-dot-0-scale-based-on-any-metric/">Periscope - Ambari 2.0 - scale based on any metric</a>
+          <span class="badge name-badge">Krisztian Horvath</span>
+
+      </h1>
+      <p>It&rsquo;s been a while since we discussed <a href="http://sequenceiq.com/periscope/">Periscope</a>&rsquo;s scaling capabilities, but it&rsquo;s time to revisit again as we&rsquo;re introducing a more generalized way to monitor and scale your cluster. In the first public beta release we relied on 5 different YARN metrics obtained straight from the <code>ResourceManager</code> to allow users to experiment with it and plan their capacity needs ahead. The feedbacks were really promising. Some people started extending the portfolio with new metrics and others asked us to add certain types which suits their use cases the best. In the meanwhile the <a href="https://ambari.apache.org">Ambari</a> community started to work on redesigning the <a href="https://issues.apache.org/jira/browse/AMBARI-6354">Alert</a> system which the new version of Periscope is going to leverage.</p>
+
+<h2>Ambari 2.0 alerts</h2>
+
+<p>The next version of <a href="https://ambari.apache.org/">Ambari</a> (going to be released soon) will be able to monitor <code>any</code> type of metrics that the full Hadoop ecosystem provides. It&rsquo;s really powerful since you&rsquo;ll not only be able to define simple metric alerts but aggregated, service level, host level and script based ones. Let&rsquo;s jump into it and see how it looks like to define an <code>alert</code> which triggers if the defined <code>root queue</code>&rsquo;s available memory falls below a certain threshold (basically the available memory in the cluster):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="nt">&quot;AlertDefinition&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nt">&quot;cluster_name&quot;</span><span class="p">:</span> <span class="s2">&quot;cluster-name&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;component_name&quot;</span><span class="p">:</span> <span class="s2">&quot;RESOURCEMANAGER&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;This alarm triggers if the free memory falls below a certain threshold. The threshold values are in percent.&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;enabled&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;ignore_host&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;interval&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Allocated memory&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;allocated_memory&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;scope&quot;</span><span class="p">:</span> <span class="s2">&quot;ANY&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;service_name&quot;</span><span class="p">:</span> <span class="s2">&quot;YARN&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;source&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nt">&quot;jmx&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nt">&quot;property_list&quot;</span><span class="p">:</span> <span class="p">[</span>
+</span><span class='line'>          <span class="s2">&quot;Hadoop:service=ResourceManager,name=QueueMetrics,q0=root/AvailableMB&quot;</span><span class="p">,</span>
+</span><span class='line'>          <span class="s2">&quot;Hadoop:service=ResourceManager,name=QueueMetrics,q0=root/AllocatedMB&quot;</span>
+</span><span class='line'>        <span class="p">],</span>
+</span><span class='line'>        <span class="nt">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;{0}/({0} + {1}) * 100&quot;</span>
+</span><span class='line'>      <span class="p">},</span>
+</span><span class='line'>      <span class="nt">&quot;reporting&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nt">&quot;ok&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>          <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;Memory available: {0} MB, allocated: {1} MB&quot;</span>
+</span><span class='line'>        <span class="p">},</span>
+</span><span class='line'>        <span class="nt">&quot;warning&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>          <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;Memory available: {0} MB, allocated: {1} MB&quot;</span><span class="p">,</span>
+</span><span class='line'>          <span class="nt">&quot;value&quot;</span><span class="p">:</span> <span class="mi">50</span>
+</span><span class='line'>        <span class="p">},</span>
+</span><span class='line'>        <span class="nt">&quot;critical&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>          <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;Memory available: {0} MB, allocated: {1} MB&quot;</span><span class="p">,</span>
+</span><span class='line'>          <span class="nt">&quot;value&quot;</span><span class="p">:</span> <span class="mi">35</span>
+</span><span class='line'>        <span class="p">},</span>
+</span><span class='line'>        <span class="nt">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;%&quot;</span>
+</span><span class='line'>      <span class="p">},</span>
+</span><span class='line'>      <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;METRIC&quot;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nt">&quot;uri&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nt">&quot;http&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;https&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;https_property&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;https_property_value&quot;</span><span class="p">:</span> <span class="s2">&quot;HTTPS_ONLY&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;default_port&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span><span class='line'>        <span class="nt">&quot;high_availability&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>          <span class="nt">&quot;alias_key&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+</span><span class='line'>          <span class="nt">&quot;http_pattern&quot;</span><span class="p">:</span> <span class="s2">&quot;}}&quot;</span><span class="p">,</span>
+</span><span class='line'>          <span class="nt">&quot;https_pattern&quot;</span><span class="p">:</span> <span class="s2">&quot;}}&quot;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+      
+       <a href="/blog/2015/03/29/periscope-ambari-2-dot-0-scale-based-on-any-metric/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2015/02/17/openstack-cloudbreak/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -651,79 +802,6 @@ Cloudbreak uses Ambari (1.7) blueprints to provision multi node HDP clusters (on
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/12/02/hadoop-2-6-0-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">02 December 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/12/02/hadoop-2-6-0-docker/">Running Hadoop 2.6.0 in Docker containers</a>
-          <span class="badge name-badge">Janos Matyas</span>
-
-      </h1>
-      <p>Yesterday the Hadoop community has released the <code>2.6.0</code> version of Hadoop &ndash; the 4th major release of this year &ndash; and one which contains quite a few new and interesting features:</p>
-
-<ul>
-<li>Rolling upgrades &ndash; the holly grail for enterprises to switch Hadoop versions</li>
-<li>Long running services in YARN</li>
-<li>Heterogeneous storage in HDFS</li>
-</ul>
-
-
-<p>These were the most popular features, though beside these there were quite a few extremely important ones &ndash; at least for us and our our <a href="http://sequenceiq.com/periscope/">Periscope</a> project. As you might be aware we are working on an SLA policy based autoscaling API for Apache YARN and we were closely following/been involved or contributed to these JIRA&rsquo;s below:</p>
-
-<ul>
-<li><a href="https://issues.apache.org/jira/browse/YARN-2248">YARN-2248</a> &ndash; CS changes for moving apps between queues</li>
-<li><a href="https://issues.apache.org/jira/browse/YARN-1051">YARN-1051</a> &ndash; YARN Admission Control/Planner</li>
-</ul>
-
-
-<p>These tasks/subtasks (beside a few others) are all coming with the new major release and opening up brand new opportunities to make Hadoop YARN a more <code>dynamic</code> environment. Considering these and the <a href="http://slider.incubator.apache.org/index.html">Apache Slider</a> project it&rsquo;s pretty clear to see that exciting times are coming.</p>
-
-<p>We have combined all these above with <a href="http://slider.incubator.apache.org/index.html">Docker</a>, our open source projects &ndash; <a href="http://sequenceiq.com/cloudbreak">Cloudbreak</a> and <a href="http://sequenceiq.com/periscope/">Periscope</a> &ndash; and we are leveraging these new innovations, so stay tuned and get the code or our Docker containers to start with.</p>
-
-<p>In the meanwhile (as usuall) we have <a href="https://registry.hub.docker.com/u/sequenceiq/hadoop-docker/">released</a> our Hadoop 2.6.0 container to ease your quick start with Hadoop.</p>
-
-<h3>DIY &ndash; Build the image</h3>
-
-<p>In case you&rsquo;d like to try directly from the <a href="https://github.com/sequenceiq/hadoop-docker/tree/2.6.0">Dockerfile</a> you can build the image as:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker build  -t sequenceiq/hadoop-docker:2.6.0 .</span></code></pre></td></tr></table></div></figure>
-
-
-
-      
-       <a href="/blog/2014/12/02/hadoop-2-6-0-docker/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -743,6 +821,10 @@ Cloudbreak uses Ambari (1.7) blueprints to provision multi node HDP clusters (on
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2015/03/29/periscope-ambari-2-dot-0-scale-based-on-any-metric/">Periscope - Ambari 2.0 - scale based on any metric</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2015/02/17/openstack-cloudbreak/">OpenStack integration with Cloudbreak</a>

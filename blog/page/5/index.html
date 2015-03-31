@@ -130,6 +130,103 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/09/11/apache-drill-docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">11 September 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/apache-drill/"><span class="label label-warning">Apache Drill</span></a>
+            
+            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
+            
+            <a href="/blog/categories/sql/"><span class="label label-warning">SQL</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/09/11/apache-drill-docker/">Apache Drill on Docker - query as a service </a>
+          <span class="badge name-badge">Janos Matyas</span>
+
+      </h1>
+      <p>As you might be already familiar, we have <code>dockerized</code> most of the Hadoop ecosystem &ndash; we are running MR2, Spark, Storm, Hive, HBase, Pig, Oozie, etc in Docker containers &ndash; on bare metal and in the cloud as well. We have started to use (and contribute) to Docker quite a while ago, and beside the <code>mainstream</code> benefits of containers one feature was extremely appealing to us &ndash; <strong>the SOA way of DevOps</strong>. Before I go on and explore what we mean under this allow me to collect a few links for your reference (all open sourced under an <strong>Apache 2 license</strong>), in case you plan to use Hadoop in Docker containers.</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th> Name                  </th>
+<th> Description </th>
+<th> Documentation </th>
+<th> GitHub</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td> Apache Hadoop  </td>
+<td> Pseudo dist. container </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/">http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/</a> </td>
+<td> <a href="https://github.com/sequenceiq/hadoop-docker">https://github.com/sequenceiq/hadoop-docker</a></td>
+</tr>
+<tr>
+<td></td>
+<td> Apache Ambari   </td>
+<td> Multi node &ndash; full Hadoop stack, blueprint based </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/</a> </td>
+<td> <a href="https://github.com/sequenceiq/docker-ambari">https://github.com/sequenceiq/docker-ambari</a></td>
+</tr>
+<tr>
+<td></td>
+<td> Cloudbreak         </td>
+<td> Cloud agnostic Hadoop as a Service </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/</a> </td>
+<td> <a href="https://github.com/sequenceiq/cloudbreak">https://github.com/sequenceiq/cloudbreak</a></td>
+</tr>
+<tr>
+<td></td>
+<td> Periscope          </td>
+<td> SLA policy based autoscaling for Hadoop clusters </td>
+<td> <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/</a> </td>
+<td> <a href="https://github.com/sequenceiq/periscope">https://github.com/sequenceiq/periscope</a> </td>
+</tr>
+</tbody>
+</table>
+
+
+<h2>Apache Drill at SequenceIQ</h2>
+
+<p><a href="http://incubator.apache.org/drill/">Apache Drill</a> is an open source, low latency SQL query engine for Hadoop and NoSQL. It has many nice and interesting features, but one of the most interesting one (at least for us) is the <a href="https://cwiki.apache.org/confluence/display/DRILL/Storage+Plugin+Registration">storage plugin</a> and the tolerance/support for dynamic schemas. At <a href="http://sequenceiq.com/">SequenceIQ</a> the pre and post processed data ends up in different storage systems/layers. Obliviously we use HDFS, for low latency queries we use HBase and recently (with the emergence of Tez &ndash; which we consider the next big thing) we started to use Hive as well. Quite often there is a need to access the data from <code>legacy</code> systems &ndash; and more often we see <code>SQL</code> coming back in the picture. Just FYI, for SQL on HBase we are using <a href="http://phoenix.apache.org/">Apache Phoenix</a>, and of course we have released and open sourced a <a href="http://blog.sequenceiq.com/blog/2014/09/04/sql-on-hbase-with-apache-phoenix/">Docker container</a>.</p>
+
+<p>As you see there are many storage systems use &ndash; and Drill helps us with aggregating these under one common <code>ANSI SQL syntax</code>. You can query data from HDFS, HBase, Hive, local or remote distributed file system &ndash; or write your own custom storage plugin.</p>
+
+
+      
+       <a href="/blog/2014/09/11/apache-drill-docker/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/09/09/yarn-schedulers-demystified-part-2-fair/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -849,87 +946,6 @@ Stay tuned and follow us on <a href="https://www.linkedin.com/company/sequenceiq
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/08/12/docker-networking/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">12 August 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
-            
-            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
-            
-            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
-            
-            <a href="/blog/categories/linux/"><span class="label label-warning">Linux</span></a>
-            
-            <a href="/blog/categories/network/"><span class="label label-warning">Network</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/08/12/docker-networking/">Docker intercontainer networking explained</a>
-          <span class="badge name-badge">Attila Kanto</span>
-
-      </h1>
-      <p>The purpose of this blog entry is to cover advanced topics regarding Docker networking and explain different concepts to inter-connect Docker containers when the containers are running on different host machines.
-For the demonstration we are using VMs on <a href="https://www.virtualbox.org/">VirtualBox</a> launched with <a href="http://www.vagrantup.com/">Vagrant</a>, but the explained networking concepts work also on Amazon EC2 (with VPC) and Azure unless stated otherwise.</p>
-
-<p>To set up the the test environment clone the <a href="https://github.com/sequenceiq/sequenceiq-samples">SequenceIQ&rsquo;s samples repository</a> and follow the instructions.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>git clone git@github.com:sequenceiq/sequenceiq-samples.git
-</span><span class='line'>cd sequenceiq-samples/docker-networking
-</span><span class='line'>vagrant up</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The <code>vagrant up</code> command launches the test setup, which conatins two Ubuntu 14.04 VMs with the network configuration:</p>
-
-<ul>
-<li><a href="https://www.virtualbox.org/manual/ch06.html#network_nat">NAT</a></li>
-<li><a href="https://docs.vagrantup.com/v2/networking/private_network.html">Private networking</a></li>
-</ul>
-
-
-<p>The NAT (related to eth0 interface on VMs) is used only for access the external network from VMs e.g. download files from debian repository, but it is not used for inter-container communication. The Vagrant sets up a properly configured Host Only Networking in VirtualBox therefore the VMs can communicate with each other on the defined IP addresses:</p>
-
-<ul>
-<li>vm1: 192.168.40.11</li>
-<li>vm2: 192.168.40.12</li>
-</ul>
-
-
-<p>Let&rsquo;s see how Docker containers running on these VMs can send IP packets to each other.</p>
-
-
-      
-       <a href="/blog/2014/08/12/docker-networking/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -951,6 +967,10 @@ For the demonstration we are using VMs on <a href="https://www.virtualbox.org/">
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2015/03/29/periscope-ambari-2-dot-0-scale-based-on-any-metric/">Periscope - Ambari 2.0 - scale based on any metric</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2015/02/17/openstack-cloudbreak/">OpenStack integration with Cloudbreak</a>
