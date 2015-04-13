@@ -130,6 +130,69 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2015/04/13/hortonworks-acquires-sequenceiq/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">13 April 2015</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/hortonworks/"><span class="label label-warning">Hortonworks</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2015/04/13/hortonworks-acquires-sequenceiq/">Hortonworks acquires SequenceIQ</a>
+          <span class="badge name-badge">Janos Matyas</span>
+
+      </h1>
+      <p>Today we are extremely excited to <a href="http://hortonworks.com/press-releases/hortonworks-to-acquire-sequenceiq-to-speed-hadoop-deployments-into-the-cloud/">announce</a> that SequenceIQ has joined forces with Hortonworks to accelerate our work to simplify the provisioning of Hadoop clusters across any environments. The SequenceIQ technologies will be integrated with the Hortonworks Data Platform and contributed to the Apache open source community later this year.</p>
+
+<p>Our journey started late February, 2014 when we got together in a co-working office space and started to work on a few different projects mainly focusing on a big data pipeline which abstracted the underlying runtimes of MR2, Tez and Spark. Alongside this journey we were provisioning large clusters accross different environments using the full Hadoop stack. As we all have a strong DevOps mindset, we always automate every recurring steps  &ndash; and we found Docker a perfect fit for our task.</p>
+
+<p>Around spring 2014, things started to speed up and our innovative vision of running the complete Hadoop ecosystem in containers started to gain traction. The Docker containers for Apache Hadoop, Ambari, and Spark quickly became the most popular/downloaded containers on the Docker Hub (Apache Hadoop over 42000, Apache Ambari over 8200, and Apache Spark over 6600 downloads).</p>
+
+<p>This led to a project we call <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> &ndash; an infrastructure agnostic and secure Hadoop as a Service API for multi-tenant clusters. It was the first beta release (July, 2014) when we started to collaborate with Hortonworks on the project &ndash; and the Docker container based Hadoop provisioning was presented at the Hadoop summit in San Jose. The reception from the open source community was terrific &ndash; and what was even more amazing was that large enterprises started to PoC and deploy Hadoop clusters with Cloudbreak.</p>
+
+<p>As we were focusing mostly on cloud and container-based environments, that raised another idea &ndash; elasticity. As a startup we were extremely cost aware, and provisioning on-demand large (few hundred nodes) clusters daily in all major cloud environments (Amazon AWS, Microsoft Azure, Google Cloud Platform and OpenStack) had a significant financial cost. To address this, we started work on a project we call <a href="http://sequenceiq.com/periscope/">Periscope</a> &ndash; to bring SLA policy based autoscaling to Hadoop and provide QoS for your running applications. Same as Cloudbreak, Periscope is built on top of Apache Ambari and Apache YARN &ndash; and leverages the latest cutting edge features of these projects.</p>
+
+<p>At this point we&rsquo;d like to thank Google for seeing the value in our technology and supporting us with $100,000 Google Cloud Platform credits and our investors from Euroventures who understood the value of elastic cloud technologies such as Cloudbreak and Periscope in managing the cost of cloud providers every month.</p>
+
+<h2>The Power of Open Source Community</h2>
+
+<p>When we started the company, it was very clear that everything we do will be released under an Apache Software License V2. Nevertheless these projects (Cloudbreak and Periscope) would have not been possible without having access to open source technologies such as Apache Ambari. The Apache Ambari community helped us a lot, and our efforts were made easier by having access to the source code and being able to define and take part in the future of project. We became active contributors and ultimately committers into many Apache Software Foundation projects in the Hadoop ecosystem.</p>
+
+<p>We are excited to be joining the Hortonworks team as we continue our work within the Apache open source community to deliver on our founding vision of simplifying and speeding Hadoop adoption.</p>
+
+<p>Thanks to the team and everyone who has helped us in the journey so far. We believe that by bringing this simplified approach of provisioning Hadoop in open source, we can significantly accelerate enterprise adoption of Hadoop even beyond the phenomenal traction we are already seeing.</p>
+
+<p>Stay tuned for more news in the near term.</p>
+
+      
+      
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2015/03/29/periscope-ambari-2-dot-0-scale-based-on-any-metric/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -737,71 +800,6 @@ Cloudbreak uses Ambari (1.7) blueprints to provision multi node HDP clusters (on
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/12/04/multinode-ambari-1-7-0/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">04 December 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/ambari/"><span class="label label-warning">Ambari</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/12/04/multinode-ambari-1-7-0/">Multinode cluster with Ambari 1.7.0 - in Docker</a>
-          <span class="badge name-badge">Janos Matyas</span>
-
-      </h1>
-      <p>Two days ago the latest <a href="http://ambari.apache.org/">version</a> of Ambari (1.7.0) has been released and now is time for us to release our automated process to deploy Hadoop clusters with Ambari in Docker containers.</p>
-
-<p>The release contains lots of new features (follow <a href="http://ambari.apache.org/whats-new.html#">this</a> link) &ndash; we will highlight a few we consider important for us:</p>
-
-<ul>
-<li>Ambari Views &ndash; a systematic way to plug-in UI capabilities to surface custom visualization, management and monitoring features in Ambari Web.</li>
-<li>Extended/new stack definitions &ndash; support for Hortonworks HDP and Apache Bigtop stacks</li>
-<li>Apache Slider integration &ndash; ease deployments of existing applications into a YARN cluster</li>
-</ul>
-
-
-<p>As usual we have <code>dockerized</code> the whole Ambari 1.7.0 thus you can take the container and provision your arbitrary size Hadoop cluster.</p>
-
-<h3>Get the Docker container</h3>
-
-<p>In case you don’t have Docker browse among our previous posts &ndash; we have a few posts about howto’s, examples and best practices in general for Docker and in particular about how to run the full Hadoop stack on Docker.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/ambari:1.7.0</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-
-      
-       <a href="/blog/2014/12/04/multinode-ambari-1-7-0/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -821,6 +819,10 @@ Cloudbreak uses Ambari (1.7) blueprints to provision multi node HDP clusters (on
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2015/04/13/hortonworks-acquires-sequenceiq/">Hortonworks acquires SequenceIQ</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2015/03/29/periscope-ambari-2-dot-0-scale-based-on-any-metric/">Periscope - Ambari 2.0 - scale based on any metric</a>

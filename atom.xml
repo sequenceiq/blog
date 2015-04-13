@@ -4,7 +4,7 @@
   <title><![CDATA[SequenceIQ Blog]]></title>
   <link href="http://blog.sequenceiq.com/atom.xml" rel="self"/>
   <link href="http://blog.sequenceiq.com/"/>
-  <updated>2015-03-31T11:19:07+00:00</updated>
+  <updated>2015-04-13T15:18:25+00:00</updated>
   <id>http://blog.sequenceiq.com/</id>
   <author>
     <name><![CDATA[SequenceIQ]]></name>
@@ -12,6 +12,35 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Hortonworks acquires SequenceIQ]]></title>
+    <link href="http://blog.sequenceiq.com/blog/2015/04/13/hortonworks-acquires-sequenceiq/"/>
+    <updated>2015-04-13T15:00:10+00:00</updated>
+    <id>http://blog.sequenceiq.com/blog/2015/04/13/hortonworks-acquires-sequenceiq</id>
+    <content type="html"><![CDATA[<p>Today we are extremely excited to <a href="http://hortonworks.com/press-releases/hortonworks-to-acquire-sequenceiq-to-speed-hadoop-deployments-into-the-cloud/">announce</a> that SequenceIQ has joined forces with Hortonworks to accelerate our work to simplify the provisioning of Hadoop clusters across any environments. The SequenceIQ technologies will be integrated with the Hortonworks Data Platform and contributed to the Apache open source community later this year.</p>
+
+<p>Our journey started late February, 2014 when we got together in a co-working office space and started to work on a few different projects mainly focusing on a big data pipeline which abstracted the underlying runtimes of MR2, Tez and Spark. Alongside this journey we were provisioning large clusters accross different environments using the full Hadoop stack. As we all have a strong DevOps mindset, we always automate every recurring steps  &ndash; and we found Docker a perfect fit for our task.</p>
+
+<p>Around spring 2014, things started to speed up and our innovative vision of running the complete Hadoop ecosystem in containers started to gain traction. The Docker containers for Apache Hadoop, Ambari, and Spark quickly became the most popular/downloaded containers on the Docker Hub (Apache Hadoop over 42000, Apache Ambari over 8200, and Apache Spark over 6600 downloads).</p>
+
+<p>This led to a project we call <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> &ndash; an infrastructure agnostic and secure Hadoop as a Service API for multi-tenant clusters. It was the first beta release (July, 2014) when we started to collaborate with Hortonworks on the project &ndash; and the Docker container based Hadoop provisioning was presented at the Hadoop summit in San Jose. The reception from the open source community was terrific &ndash; and what was even more amazing was that large enterprises started to PoC and deploy Hadoop clusters with Cloudbreak.</p>
+
+<p>As we were focusing mostly on cloud and container-based environments, that raised another idea &ndash; elasticity. As a startup we were extremely cost aware, and provisioning on-demand large (few hundred nodes) clusters daily in all major cloud environments (Amazon AWS, Microsoft Azure, Google Cloud Platform and OpenStack) had a significant financial cost. To address this, we started work on a project we call <a href="http://sequenceiq.com/periscope/">Periscope</a> &ndash; to bring SLA policy based autoscaling to Hadoop and provide QoS for your running applications. Same as Cloudbreak, Periscope is built on top of Apache Ambari and Apache YARN &ndash; and leverages the latest cutting edge features of these projects.</p>
+
+<p>At this point we&rsquo;d like to thank Google for seeing the value in our technology and supporting us with $100,000 Google Cloud Platform credits and our investors from Euroventures who understood the value of elastic cloud technologies such as Cloudbreak and Periscope in managing the cost of cloud providers every month.</p>
+
+<h2>The Power of Open Source Community</h2>
+
+<p>When we started the company, it was very clear that everything we do will be released under an Apache Software License V2. Nevertheless these projects (Cloudbreak and Periscope) would have not been possible without having access to open source technologies such as Apache Ambari. The Apache Ambari community helped us a lot, and our efforts were made easier by having access to the source code and being able to define and take part in the future of project. We became active contributors and ultimately committers into many Apache Software Foundation projects in the Hadoop ecosystem.</p>
+
+<p>We are excited to be joining the Hortonworks team as we continue our work within the Apache open source community to deliver on our founding vision of simplifying and speeding Hadoop adoption.</p>
+
+<p>Thanks to the team and everyone who has helped us in the journey so far. We believe that by bringing this simplified approach of provisioning Hadoop in open source, we can significantly accelerate enterprise adoption of Hadoop even beyond the phenomenal traction we are already seeing.</p>
+
+<p>Stay tuned for more news in the near term.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Periscope - Ambari 2.0 - scale based on any metric]]></title>
@@ -2798,169 +2827,6 @@ The <code>EnableResourceServer</code> annotation will include a new <a href="htt
 You can get very deep details similar to the ones in <a href="https://github.com/sequenceiq/sequenceiq-samples/tree/master/timeline-server/ts-screenshots/framework-logs">these</a> screenshots</p>
 
 <p>For further details follow up with us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Spark on Tez execution context - running in Docker]]></title>
-    <link href="http://blog.sequenceiq.com/blog/2014/11/02/spark-on-tez/"/>
-    <updated>2014-11-02T18:07:18+00:00</updated>
-    <id>http://blog.sequenceiq.com/blog/2014/11/02/spark-on-tez</id>
-    <content type="html"><![CDATA[<p>Last week Hortonworks <a href="http://hortonworks.com/blog/improving-spark-data-pipelines-native-yarn-integration/">announced</a> improvements for running Apache Spark at scale by introducing a new pluggable <code>execution context</code> and has <a href="https://github.com/hortonworks/spark-native-yarn-samples">open sourced</a> it.</p>
-
-<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we are always trying to work and offer the latest technology solutions for our clients and help them to choose their favorite technology/option. We are running a project called <a href="http://docs.banzai.apiary.io/">Banzai Pipeline</a> &ndash; to be open sourced soon &ndash; with the goal (among many others) to abstract and allow our customers to use their favorite big data runtime: MR2, Spark or Tez. Along this process we have <code>dockerized</code> most of the Hadoop ecosystem &ndash; we are running MR2, Spark, Storm, Hive, HBase, Pig, Oozie, Drill etc in Docker containers &ndash; on bare metal and in the cloud as well (all of these containers have made <strong>top</strong> downloads on the official Docker repository). For details you can check these older posts/resources:</p>
-
-<table>
-<thead>
-<tr>
-<th></th>
-<th> Name                  </th>
-<th> Description </th>
-<th> Documentation </th>
-<th> GitHub</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td> Apache Hadoop  </td>
-<td> Pseudo distributed container </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/">http://blog.sequenceiq.com/blog/2014/08/18/hadoop-2-5-0-docker/</a> </td>
-<td> <a href="https://github.com/sequenceiq/hadoop-docker">https://github.com/sequenceiq/hadoop-docker</a></td>
-</tr>
-<tr>
-<td></td>
-<td> Apache Ambari   </td>
-<td> Multi node &ndash; full Hadoop stack, blueprint based </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/">http://blog.sequenceiq.com/blog/2014/06/19/multinode-hadoop-cluster-on-docker/</a> </td>
-<td> <a href="https://github.com/sequenceiq/docker-ambari">https://github.com/sequenceiq/docker-ambari</a></td>
-</tr>
-<tr>
-<td></td>
-<td> Cloudbreak         </td>
-<td> Cloud agnostic Hadoop as a Service </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/">http://blog.sequenceiq.com/blog/2014/07/18/announcing-cloudbreak/</a> </td>
-<td> <a href="https://github.com/sequenceiq/cloudbreak">https://github.com/sequenceiq/cloudbreak</a></td>
-</tr>
-<tr>
-<td></td>
-<td> Periscope          </td>
-<td> SLA policy based autoscaling for Hadoop clusters </td>
-<td> <a href="http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/">http://blog.sequenceiq.com/blog/2014/08/27/announcing-periscope/</a> </td>
-<td> <a href="https://github.com/sequenceiq/periscope">https://github.com/sequenceiq/periscope</a></td>
-</tr>
-</tbody>
-</table>
-
-
-<p>We have always been big fans on Apache Spark &ndash; due to the simplicity of development and at the same time we are big fans of Apache Tez, for reasons we have <a href="http://blog.sequenceiq.com/blog/2014/09/23/topn-on-apache-tez/">blogged before</a>.</p>
-
-<p>When the <a href="https://issues.apache.org/jira/browse/SPARK-3561">SPARK-3561</a> has been submitted we were eager to get our hands on the WIP and early implementation &ndash; and this time we&rsquo;d like to help you with a quick ramp-up and easy solution to have a Spark Docker <a href="https://github.com/sequenceiq/docker-spark-native-yarn">container</a> where the <code>execution context</code> has been changed to <a href="http://tez.apache.org/">Apache Tez</a> and everything is preconfigured. The only thing you will need to do is to follow these easy steps.</p>
-
-<h3>Pull the image from the Docker Repository</h3>
-
-<p>We suggest to always pull the container from the official Docker repository &ndash; as this is always maintained and supported by us.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker pull sequenceiq/spark-native-yarn</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Once you have pulled the container you are ready to run the image.</p>
-
-<h3>Run the image</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker run -i -t -h sandbox sequenceiq/spark-native-yarn /etc/bootstrap.sh -bash</span></code></pre></td></tr></table></div></figure>
-
-
-<!-- more -->
-
-
-<p>You have now a fully configured Apache Spark, where the <code>execution context</code> is <a href="http://tez.apache.org/">Apache Tez</a>.</p>
-
-<h3>Test the container</h3>
-
-<p>We have pushed sample data and tests from the <a href="https://github.com/hortonworks/spark-native-yarn-samples">code repository</a> into the Docker container, thus you can start experimenting right away without writing one line of code.</p>
-
-<h4>Calculate PI</h4>
-
-<p>Simplest example to test with is the <code>PI calculation</code>.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>cd /usr/local/spark
-</span><span class='line'>./bin/spark-submit --class org.apache.spark.examples.SparkPi --master execution-context:org.apache.spark.tez.TezJobExecutionContext --conf update-classpath=true ./lib/spark-examples-1.1.0.2.1.5.0-702-hadoop2.4.0.2.1.5.0-695.jar</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You should expect something like the following as the result:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Pi is roughly 3.14668</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Run a KMeans example</h4>
-
-<p>Run the <code>KMeans</code> example using the sample dataset.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>./bin/spark-submit --class sample.KMeans --master execution-context:org.apache.spark.tez.TezJobExecutionContext --conf update-classpath=true ./lib/spark-native-yarn-samples-1.0.jar /sample-data/kmeans_data.txt</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You should expect something like the following as the result:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Finished iteration (delta = 0.0)
-</span><span class='line'>Final centers:
-</span><span class='line'>DenseVector(0.15000000000000002, 0.15000000000000002, 0.15000000000000002)
-</span><span class='line'>DenseVector(9.2, 9.2, 9.2)
-</span><span class='line'>DenseVector(0.0, 0.0, 0.0)
-</span><span class='line'>DenseVector(9.05, 9.05, 9.05)</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Other examples (Join, Partition By, Source count, Word count)</h4>
-
-<p>Join</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>./bin/spark-submit --class sample.Join --master execution-context:org.apache.spark.tez.TezJobExecutionContext --conf update-classpath=true ./lib/spark-native-yarn-samples-1.0.jar /sample-data/join1.txt /sample-data/join2.txt</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Partition By</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>./bin/spark-submit --class sample.PartitionBy --master execution-context:org.apache.spark.tez.TezJobExecutionContext --conf update-classpath=true ./lib/spark-native-yarn-samples-1.0.jar /sample-data/partitioning.txt</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Source count</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>./bin/spark-submit --class sample.SourceCount --master execution-context:org.apache.spark.tez.TezJobExecutionContext --conf update-classpath=true ./lib/spark-native-yarn-samples-1.0.jar /sample-data/wordcount.txt</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Word count</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>./bin/spark-submit --class sample.WordCount --master execution-context:org.apache.spark.tez.TezJobExecutionContext --conf update-classpath=true ./lib/spark-native-yarn-samples-1.0.jar /sample-data/wordcount.txt 1</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Note that the last argument (1) is the number of <code>reducers</code>.</p>
-
-<h3>Using the Spark Shell</h3>
-
-<p>The Spark shell works out of the box with the new Tez <code>executor context</code>, the only thing you will need to do is run:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>./bin/spark-shell --master execution-context:org.apache.spark.tez.TezJobExecutionContext</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Summary</h3>
-
-<p>Right after the next day that <a href="https://github.com/hortonworks/spark-native-yarn-samples">SPARK-3561</a> has been made available we have started to test at scale using <a href="http://sequenceiq.com/cloudbreak/">Cloudbreak</a> and run performance tests by using the same Spark jobs developed in Banzai (over 50 individual jobs) using the same input sets, cluster size and Scala code &ndash; but changing the default <code>Spark context</code> to a <code>Tez context</code>. Follow up with us on <a href="https://www.linkedin.com/company/sequenceiq/">LinkedIn</a>, <a href="https://twitter.com/sequenceiq">Twitter</a> or <a href="https://www.facebook.com/sequenceiq">Facebook</a> as we will release these test results and the lessons we have learned in the coming weeks.</p>
 ]]></content>
   </entry>
   

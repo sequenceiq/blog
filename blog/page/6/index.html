@@ -130,6 +130,68 @@
 
       <div class="row-fluid">
         
+            <a href="http://blog.sequenceiq.com/blog/2014/08/16/fairplay/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
+        
+      </div>
+
+<span class="badge name-badge">16 August 2014</span>
+      
+        <div class="row-fluid">
+            
+            <a href="/blog/categories/cloudbreak/"><span class="label label-warning">Cloudbreak</span></a>
+            
+            <a href="/blog/categories/fair-scheduler/"><span class="label label-warning">Fair scheduler</span></a>
+            
+            <a href="/blog/categories/hadoop/"><span class="label label-warning">Hadoop</span></a>
+            
+            <a href="/blog/categories/r/"><span class="label label-warning">R</span></a>
+            
+            <a href="/blog/categories/yarn/"><span class="label label-warning">YARN</span></a>
+            
+        </div>
+      
+    </div>
+    <div class="col-md-10 post-container">
+      <h1 class="link">
+          <a href="/blog/2014/08/16/fairplay/">Fair play</a>
+          <span class="badge name-badge">Janos Matyas</span>
+
+      </h1>
+      <p>Recently we’ve been asked an interesting question &ndash; how fair is the YARN <a href="http://hadoop.apache.org/docs/r2.4.1/hadoop-yarn/hadoop-yarn-site/FairScheduler.html">FairScheduler</a> &ndash; while we never use internally the fair scheduler after a quick test the short answer is &ndash; <strong>very fair</strong>.</p>
+
+<p>At <a href="http://sequenceiq.com/">SequenceIQ</a> we always use the <a href="http://hadoop.apache.org/docs/r2.4.1/hadoop-yarn/hadoop-yarn-site/CapacityScheduler.html">CapacityScheduler</a> &ndash; actually an enhanced version of it (coming with the 2.6.0 release of Hadoop). Since the emergence of YARN and the new schedulers we were working on a solution to bring SLA to Hadoop &ndash; and part of this work was our contribution to <a href="https://issues.apache.org/jira/browse/YARN-1495">Apache YARN schedulers</a> and <a href="http://ambari.apache.org/">Apache Ambari</a>. Anyway, we decided to configure a FairScheduler in one of our 20 node test cluster and run a quick test.</p>
+
+<h3>Fair scheduler</h3>
+
+<p>Remember than before YARN only one resource represented a resource on a cluster &ndash; the <code>slot</code>. Every node had slots, and your MR job was taking up slots , regardless of their actual resource usage (CPU, memory). It worked but for sure it wasn’t a fair game &ndash; and caused lots of frustration between administrators of applications competing for <code>slots</code>. We have seen many over and undersubscribed nodes in terms of CPU and memory. YARN introduced the concept of containers and the ability to request/attach resources to them (vCores and memory).</p>
+
+<p>While this seams already a big step forward comparing with slots, it brought up other problems &ndash; with multiple resources as <code>vCores</code> and <code>memory</code> and <code>disk</code> and <code>network i/o</code> in the future it’s pretty challenging to share them fairly. With a single resource it would we pretty straightforward &ndash; nevertheless the community based on a <a href="http://static.usenix.org/event/nsdi11/tech/full_papers/Ghodsi.pdf">research paper</a> coming out from UC Berkeley (Ghodsi et al) managed to get this working through (again a community effort) this <a href="https://issues.apache.org/jira/browse/YARN-326">YARN ticket</a>.</p>
+
+<p>Now let’s battle test how fair is the scheduler when running two MR application with changing resource usage &ndash; how well the dominant resource fairness works.</p>
+
+
+      
+       <a href="/blog/2014/08/16/fairplay/">Read on &rarr;</a> 
+    </div>
+  </div>
+
+
+
+    </article>
+    
+    <hr>
+    
+  
+  
+    <article>
+      
+
+  <div class="row">
+    <div class="col-md-2 post-meta">
+
+
+      <div class="row-fluid">
+        
             <a href="http://blog.sequenceiq.com/blog/2014/08/12/docker-networking/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
         
       </div>
@@ -756,89 +818,6 @@ Coding in Groovy is fast and fun, isn&rsquo;t it? Except when problems come up a
 
     </article>
     
-    <hr>
-    
-  
-  
-    <article>
-      
-
-  <div class="row">
-    <div class="col-md-2 post-meta">
-
-
-      <div class="row-fluid">
-        
-            <a href="http://blog.sequenceiq.com/blog/2014/07/05/docker-debug-with-nsenter-on-boot2docker/#disqus_thread">Comments </a> <i class="fa fa-comments-o" style="color: #3ba9c4 !important;"></i>
-        
-      </div>
-
-<span class="badge name-badge">05 July 2014</span>
-      
-        <div class="row-fluid">
-            
-            <a href="/blog/categories/boot2docker/"><span class="label label-warning">Boot2docker</span></a>
-            
-            <a href="/blog/categories/devops/"><span class="label label-warning">DevOps</span></a>
-            
-            <a href="/blog/categories/docker/"><span class="label label-warning">Docker</span></a>
-            
-            <a href="/blog/categories/nsenter/"><span class="label label-warning">nsenter</span></a>
-            
-        </div>
-      
-    </div>
-    <div class="col-md-10 post-container">
-      <h1 class="link">
-          <a href="/blog/2014/07/05/docker-debug-with-nsenter-on-boot2docker/">Docker debug with nsenter on boot2docker</a>
-          <span class="badge name-badge">Lajos Papp</span>
-
-      </h1>
-      <p><code>nsenter</code> is a small tool allowing to <code>enter</code> into <code>n</code>ame<code>s</code>paces. Specifically
-when you work with docker, it means you can <em>enter</em> any docker container, even
-it they don&rsquo;t run any sshd. Running sshd in a docker container for debuging
-<a href="http://jpetazzo.github.io/2014/06/23/docker-ssh-considered-evil/">considered evil</a>.</p>
-
-<h2>Nsenter with Boot2docker</h2>
-
-<p>Docker doesn&rsquo;t run directly on OS X and on Windows, so you need
-<a href="http://boot2docker.io/">boot2docker</a>. To get <code>nsenter</code> working with boot2docker
-is a bit trickier.</p>
-
-<p>For the impatient here is a simple function, which lets you enter any docker
-container directly from OS X (or any boot2docker host):</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker-enter() {
-</span><span class='line'>  boot2docker ssh '[ -f /var/lib/boot2docker/nsenter ] || docker run --rm -v /var/lib/boot2docker/:/target jpetazzo/nsenter'
-</span><span class='line'>  boot2docker ssh -t sudo /var/lib/boot2docker/docker-enter "$@"
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<p>the first line installs <code>nsenter</code> and <code>docker-enter</code> if missing and the second line
-does the actual call.</p>
-
-<p>once you declared the function, you can use it as:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>docker-enter &lt;CONTAINER-ID/CONTAINER-NAME&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-
-      
-       <a href="/blog/2014/07/05/docker-debug-with-nsenter-on-boot2docker/">Read on &rarr;</a> 
-    </div>
-  </div>
-
-
-
-    </article>
-    
   
   <div class="pagination">
     
@@ -860,6 +839,10 @@ does the actual call.</p>
                  <section>
   <h2 class="blue">Recent Posts</h2>
   <ul id="recent_posts" class="list-group">
+    
+      <li class="list-group-item">
+        <a href="/blog/2015/04/13/hortonworks-acquires-sequenceiq/">Hortonworks acquires SequenceIQ</a>
+      </li>
     
       <li class="list-group-item">
         <a href="/blog/2015/03/29/periscope-ambari-2-dot-0-scale-based-on-any-metric/">Periscope - Ambari 2.0 - scale based on any metric</a>
